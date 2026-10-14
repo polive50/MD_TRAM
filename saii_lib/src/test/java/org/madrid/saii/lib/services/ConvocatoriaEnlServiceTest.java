@@ -1,0 +1,269 @@
+package org.madrid.saii.lib.services;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.SessionFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.madrid.saii.lib.domain.ConvocatoriaEnl;
+import org.madrid.saii.lib.dto.ConvocatoriaDTO;
+import org.madrid.saii.lib.dto.ConvocatoriaEnlDTO;
+import org.madrid.saii.lib.init.ApplicationContextPruebasSaiiLib;
+import org.madrid.saii.lib.util.Constantes;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+
+import atlas.busquedas.domain.AtlasFilter;
+import atlas.core.exceptions.ServiceException;
+import atlas.test.base.AtlasAbstractBaseTest;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Test ConvocatoriaEnlService
+ */
+@ContextConfiguration(classes = {ApplicationContextPruebasSaiiLib.class })
+@ActiveProfiles("BaseDatosEnMemoria")
+@Slf4j
+public class ConvocatoriaEnlServiceTest extends AtlasAbstractBaseTest {
+
+    /**
+     * Servicio
+     */
+    @Autowired
+    @Qualifier("convocatoriaEnlService")
+    private ConvocatoriaEnlService service;
+
+    /**
+     * Session factory de hibernate
+     */
+    @Resource
+    private SessionFactory sessionFactory;
+
+    /**
+     * Asocia la sessionFactory de Hibernate a la variable interna
+     *
+     * @param sessionFactory la sessionFactory
+     */
+    public void setSessionFactory(final SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    /**
+     * Inicialización antes de empezar los test
+     */
+    @Before
+    @Override
+    public void setUp() {
+        assertNotNull(this.service);
+    }
+
+    /**
+     * Prueba el metodo guardar
+     */
+    @Test
+    public void testGuardar() {
+        try {
+
+            // GUARDAR
+            ConvocatoriaEnlDTO dto = new ConvocatoriaEnlDTO();
+            dto.setIdConvocatoria(1);
+            dto.setDsDescripcion("Descripcion");
+            dto.setTlEnlace("enlace");
+            dto.setFcBajaFila(new Date());
+            dto.setIdEnlace(2);
+            dto.setCdUsuBaja("usuario");
+            dto.setCdUsuAlta("usuario");
+            dto.setFcAltaFila(new Date());
+            dto.setFcModifFila(new Date());
+            dto.setCdUsuModif("usuario");
+
+            dto = this.service.guardar(dto);
+
+            // No es nulo
+            Assert.assertNotNull(dto);
+
+            // Está relleno
+            this.testAtributos(dto, Boolean.TRUE);
+
+            ConvocatoriaEnl ent = this.sessionFactory.getCurrentSession().get(ConvocatoriaEnl.class,
+                    dto.getIdEnlace());
+            this.sessionFactory.getCurrentSession().evict(ent);
+
+            // Guardamos
+            dto.setDsDescripcion("Prueba Test Mod");
+            dto.setCdUsuAlta("usuario2");
+            dto.setCdUsuBaja("usuario3");
+            dto.setCdUsuModif("usuario4");
+            dto.setTlEnlace("enlace 1");
+            dto = this.service.guardar(dto);
+
+            // La modificación es correcta
+            Assert.assertEquals("Prueba Test Mod", dto.getDsDescripcion());
+            Assert.assertEquals("usuario2", dto.getCdUsuAlta());
+            Assert.assertEquals("usuario3", dto.getCdUsuBaja());
+            Assert.assertEquals("usuario4", dto.getCdUsuModif());
+            Assert.assertEquals("enlace 1", dto.getTlEnlace());
+
+        } catch (final ServiceException e) {
+            log.error(e.getMessage());
+            fail(Constantes.Test.TEST_ERROR_PRUEBA + e.getMessage());
+        }
+    }
+
+    /**
+     * Prueba el metodo guardar
+     */
+    @Test(expected = ServiceException.class)
+    public void testGuardarError() throws ServiceException {
+        ConvocatoriaEnlDTO dto = new ConvocatoriaEnlDTO();
+        ConvocatoriaDTO convDTO = new ConvocatoriaDTO();
+        convDTO.setIdConvocatoria(0);
+        this.service.guardar(dto);
+    }
+
+    @Test
+    /**
+     * Buscar por id
+     */
+    public void testBuscarPorId() {
+        try {
+            ConvocatoriaEnlDTO dto = this.service.buscarId(1);
+
+            // No es nulo
+            Assert.assertNotNull(dto);
+
+            // Está relleno el id
+            Assert.assertNotNull(dto.getIdConvocatoria());
+            Assert.assertNotNull(dto.getIdEnlace());
+
+            this.testAtributos(dto, Boolean.FALSE);
+
+        } catch (final ServiceException e) {
+            log.error(e.getMessage());
+            fail(Constantes.Test.TEST_ERROR_PRUEBA + e.getMessage());
+        }
+    }
+
+    @Test(expected = ServiceException.class)
+    public void testBuscarPorIdError() throws ServiceException {
+        this.service.buscarId(null);
+    }
+
+    @Test
+    /**
+     * Test buscar
+     */
+    public void testBuscar() {
+        try {
+            List<ConvocatoriaEnlDTO> lstDTO = this.service.buscar(0, -1, null, null);
+
+            // No es nulo
+            Assert.assertNotNull(lstDTO);
+
+            // Está relleno
+            Assert.assertFalse(lstDTO.isEmpty());
+
+            // Comprobamos los atributos obligatorios
+            // El DTO tiene que ser null safe.
+            Iterator<ConvocatoriaEnlDTO> it = lstDTO.iterator();
+            while (it.hasNext()) {
+                ConvocatoriaEnlDTO dto = it.next();
+
+                this.testAtributos(dto, Boolean.FALSE);
+            }
+
+            // Búsqueda vacia
+            List<AtlasFilter> filtros = new ArrayList<>();
+            filtros.add(new AtlasFilter("id", AtlasFilter.Operador.EMPTY));
+
+            lstDTO = this.service.buscar(0, -1, filtros, null);
+
+            // No es nulo
+            Assert.assertNotNull(lstDTO);
+
+            // Está vacio
+            Assert.assertTrue(lstDTO.isEmpty());
+
+        } catch (final ServiceException e) {
+            log.error(e.getMessage());
+            fail(Constantes.Test.TEST_ERROR_PRUEBA + e.getMessage());
+        }
+    }
+
+    @Test
+    /**
+     * Buscar por id convocatoria
+     */
+    public void testBuscarPorIdConvocatoria() {
+        try {
+            List<ConvocatoriaEnlDTO> lstDTO = this.service.buscarPorIdConvocatoria(1);
+
+            // No es nulo
+            Assert.assertNotNull(lstDTO);
+
+            // Está relleno
+            Assert.assertFalse(lstDTO.isEmpty());
+
+            // Comprobamos los atributos obligatorios
+            // El DTO tiene que ser null safe.
+            Iterator<ConvocatoriaEnlDTO> it = lstDTO.iterator();
+            while (it.hasNext()) {
+                ConvocatoriaEnlDTO dto = it.next();
+
+                this.testAtributos(dto, Boolean.FALSE);
+            }
+
+            // Búsqueda vacia
+            lstDTO = this.service.buscarPorIdConvocatoria(99);
+
+            // No es nulo
+            Assert.assertNotNull(lstDTO);
+
+            // Está vacio
+            Assert.assertTrue(lstDTO.isEmpty());
+
+        } catch (final ServiceException e) {
+            log.error(e.getMessage());
+            fail(Constantes.Test.TEST_ERROR_PRUEBA + e.getMessage());
+        }
+    }
+
+    /**
+     * Comprueba los atributos
+     *
+     * @param dto
+     * @parama relleno
+     */
+    private void testAtributos(ConvocatoriaEnlDTO dto, Boolean bRelleno) {
+
+        log.debug(dto.toString());
+
+        // Obligatorios
+        Assert.assertNotNull(dto.getIdConvocatoria());
+        Assert.assertNotNull(dto.getIdEnlace());
+        Assert.assertNotNull(dto.getTlEnlace());
+        Assert.assertNotNull(dto.getDsDescripcion());
+        if (Boolean.TRUE.equals(bRelleno)) {
+            Assert.assertNotNull(dto.getFcBajaFila());
+            Assert.assertNotNull(StringUtils.isNotBlank(dto.getCdUsuBaja()));
+            Assert.assertNotNull(dto.getFcAltaFila());
+            Assert.assertNotNull(StringUtils.isNotBlank(dto.getCdUsuAlta()));
+            Assert.assertNotNull(dto.getFcModifFila());
+            Assert.assertNotNull(StringUtils.isNotBlank(dto.getCdUsuModif()));
+
+        }
+    }
+
+}

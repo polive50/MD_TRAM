@@ -1,0 +1,992 @@
+/* Estilos personalizados de aplicacion */
+.listaAlumnosForm .label.filtro {
+    width: 60px;
+}
+
+.listaAlumnosForm .listaValores {
+    width: 179px;
+}
+
+.listaAlumnosForm .inputFiltro {
+	width: 60%;
+}
+
+.listaAlumnosForm textarea {
+    width: 100%;
+    height: 50px;
+}
+
+.alumnoForm .label {
+    width: 82px;
+}
+
+.alumnoForm .label-long {
+    width: 110px;
+}
+
+
+.alumnoForm input.lvAsignaturaCurso {
+    width: 95%;
+}
+
+.camposAlumno .ui-g input {
+    width: 70%;
+}
+
+.datosAsignatura {
+	width: 50%!important;
+}
+
+.datosAsignatura .label {
+    width: 80px;
+}
+
+.listaCursoForm .label {
+    width: 60px;
+}
+
+.listaCursoForm input[type=text]{
+    width: 200px;
+}
+
+.listaCursoForm td.columna-lp {
+    text-align: center;
+}
+
+.infoUsuarioForm .label {
+    width: 200px;
+}
+
+.elegirAsignatura {
+    padding: 20px 0px;
+}
+
+.inputDireccion {
+    width: 70%;
+}
+
+.login-content, .warn-welcome{
+    max-width: 350px;
+}
+
+.tituloNotaExp {
+    font-size: 1.2em !important;
+}
+
+/* LOGIN Y LOGOUT*/
+.login-content, .warn-welcome{
+    max-width: 350px;
+}
+
+
+/*PAGINAS DE INICIO*/
+
+.contenedorAcceso {
+    max-width: 37rem;
+    text-align: center;
+}
+
+.contenedorAcceso>.tituloPagina{
+    font-size:1.3em;
+}
+
+.atlasContenedorHijo {
+  max-width: 56rem;
+      margin: 0 auto;
+  /*display: inline-block;*/
+  display: block;
+  padding-top: 1.5rem;
+}
+
+.atlasContenedorHijo:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.atlasContenedorHijo a {
+  float: none;
+}
+.atlasContenedorHijo a:hover {
+  color: none;
+  text-decoration: none;
+}
+.atlasFicha {
+  width: 250px;
+  height: 200px;
+  text-align: initial;
+  border-radius: 3px;
+  margin: 0.75rem 0.4rem 0.4rem 0.4rem;
+  padding: 1rem;
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+  float: left;
+}
+
+.atlasFicha:hover{
+    background:#FAFAFA;
+}
+
+.atlasFichaTitulo {
+  margin: 0.5rem 0 0 0;
+  font-size: 1.5rem;
+  display: inline;
+}
+.atlasFichaCuerpo {
+  margin: 0.5rem 0 0.5rem 0;
+  color: #7b7b7b;
+  font-size: 14px
+}
+
+.atlasContenidoColorAzul {
+  color: #557cac;
+}
+
+.atlasContenidoColorRojo {
+  color: #ac5555;
+}
+
+.atlasIconoTamanoGrande {
+  font-size: 4em;
+}
+
+.atlasIconoTamanoPequeno {
+  font-size: 1em;
+}
+.colorVerde  {
+    color: #008000;
+}
+.colorRojo {
+    color: #ff0000;
+}
+.colorAmarillo {
+    color: #d5dc4e;
+}
+
+
+/** Pantallas grandes (mayores de 991px) */
+@media screen and (min-width: 991px) {
+
+	.alumnoForm .ui-lg-6 .input {
+	    width: 59%;
+	}
+
+    .alumnoForm div.lvAsignaturaCurso {
+        width: 80%;
+    }
+
+}
+/** Pantallas tablet (menores de 991px) */
+@media screen and (max-width: 991px) {
+
+    .datosAsignatura {
+       width: 80%!important;
+    }
+
+    .inputDireccion {
+        width: 70%;
+    }
+}
+
+/** Pantallas medianas (entre 481 y 991px) */
+@media screen and (min-width: 481px) and (max-width : 991px) {
+
+    .listaProfesorForm .label, .profesorForm .label {
+        width: 100px;
+    }
+
+    .listaAlumnosForm .inputFiltro {
+        width: 221px;
+    }
+
+    .alumnoForm .input {
+        width: 60%;
+    }
+
+    .alumnoForm .inputDireccion {
+        width: 80%;
+    }
+}
+
+/** Pantallas pequeñas (menores de 481px) */
+@media screen and (max-width: 480px) {
+
+    .nowrap .label {
+        width: auto!important;
+    }
+
+    .datosAsignatura {
+       width: 100%!important;
+    }
+
+    .listaAlumnosForm.form-atlas .ui-g-12 input[type=text].inputFiltro {
+	    width: 90%;
+	}
+
+	.listaAlumnosForm .listaValores {
+	    width: 70%;
+	}
+
+	.listaAlumnosForm .listaValoresPanel {
+	   width: 92%;
+	}
+
+    .alumnoForm	.panel-lv.atlas-lv.lvEdicion {
+	   width: 90%;
+	}
+
+	.alumnoForm .fechaEdicion {
+	   width: 90%;
+	}
+
+
+
+}
+    /** espacios*/
+.space {
+    width: 95%;
+    height: 7px;
+    font-size: 2px;
+}
+.space2 {
+    width: 95%;
+    height: 10px;
+    font-size: 2px;
+}
+
+.space3 {
+    width: 95%;
+    height: 30px;
+    font-size: 2px;
+}
+
+/** estilos personalizados **/
+.icono-folder {
+    float: right;
+    margin-top: -8px;
+}
+
+.comboObligatorio label {
+    background: #f8efdd !important;
+}
+
+.listaValoresObligatorio {
+    background: #f8efdd !important;
+}
+
+.inputNumberObligatorio input {
+    background: #f8efdd !important;
+}
+
+.textareaObligatorio {
+    background: #f8efdd !important;
+}
+
+.iconoCentrado {
+    text-align: center !important;
+}
+
+.disabled {
+    background: #e5e5e5;
+    color: #999999;
+}
+
+.inputNumber {
+    height: 1.7em;
+    width: calc(100% - 32px);
+}
+
+.comboDisabled {
+    background: #e5e5e5;
+    color: #999999;
+    opacity: 1!important;
+}
+
+.text-center{
+    text-align: center!important;
+}
+
+.text-left{
+    text-align: left!important;
+}
+
+.text-right{
+    text-align: right!important;
+}
+
+.text-justify{
+    text-align: justify!important;
+}
+
+.mtb-auto {
+    margin: auto 0!important;
+}
+
+/* estilos para boton tipo link dentro del panelgrid */
+.ui-panelgrid-cell .atlas-btn.btn-link {
+    border: 0!important;
+    background: transparent!important;
+}
+
+.ui-panelgrid-cell .atlas-btn.btn-link>span {
+    color: #7992bd !important;
+    background-color: transparent;
+}
+
+.ui-panelgrid-cell .ui-button.btn-link>span.ui-button-text:hover{
+    color: #5d7296 !important;
+    text-decoration: underline;
+}
+
+.ui-panelgrid-cell .ui-button.btn-link>span.ui-icon:hover{
+     color: #5d7296 !important;
+}
+
+.ui-panelgrid-cell .atlas-btn.pg-btn-link>span.ui-button-text {
+    margin: 0 .75rem !important;
+}
+
+/* estilos para tablas dentro del panelgrid */
+.ui-panelgrid-cell .ui-datatable tbody tr {
+    border-color: inherit!important;
+}
+
+
+/* estilos para indicador cargando */
+.atlasWaitDiv{
+    position: fixed!important;
+}
+
+
+/* estilos para dialog */
+.ui-dialog-title span{
+    color: #fff!important;
+}
+
+.form-atlas{
+    margin-bottom: 35px!important;
+    padding: 10px!important;
+}
+
+.inputNumberObligatorio input {
+    background: #f8efdd !important;
+}
+
+.scrollableHorizontalTab{
+    overflow-x: auto;
+    max-width: calc(100vw - 300px);
+}
+
+.pl-2{
+    padding-left: 2em;
+}
+.pr-2{
+    padding-right: 2em;
+}
+.pt-2{
+    padding-top: 2em;
+}
+.pb-2{
+    padding-bottom: 2em;
+}
+
+.text-bold{
+    font-weight: bold!important;
+}
+
+.icono-info {
+    padding-left: 3px;
+    margin-top: 8px;
+    max-height: 17px;
+    max-width: 17px;
+    height: 17px;
+    font-size: 1.4em !important;
+    vertical-align: top;
+}
+
+.icono-ayuda {
+    padding-right: 3px;
+    font-size: 1.4em !important;
+    color: #7992bd;
+}
+
+.icono-ayuda.ico-pdf{
+    color: #c60000;
+}
+.icono-ayuda.ico-excel{
+    color: #009b00;
+}
+.icono-ayuda.ico-mail{
+    color: #008fd5;
+}
+
+.ui-chkbox .ui-chkbox-label{
+    margin: 4px 16px 0 8px;
+}
+
+.borde-contenedor{
+    border: 1px solid #d5deef!important;
+    padding: 0.5em!important;
+}
+
+.solapa-contenedor-principal{
+    max-width:79vw;
+}
+
+.borde-contenedor{
+    border: 1px solid #d5deef!important;
+    padding: 0.5em!important;
+}
+
+input[type=text], input[type=password], textarea{
+    box-shadow: none!important;
+    padding: .2em!important;
+}
+
+.atlas-cv .ui-selectonemenu{
+    border-radius: 3px!important;
+}
+
+.atlas-cv .selectCombo .ui-inputfield{
+    border-radius: 3px!important;
+    padding: .35em!important;
+    line-height: 1.5em!important;
+}
+
+.atlas-cv .ui-selectonemenu .ui-selectonemenu-trigger{
+    width: 1.5em!important;
+    border-top-right-radius: 3px!important;
+    border-bottom-right-radius: 3px!important;
+}
+
+.p-0{
+    padding: 0!important;
+}
+
+.m-0{
+    margin: 0!important;
+}
+
+.page-wrapper {
+    min-width: calc(100vw - 257px)!important;
+}
+
+
+
+table.editRadioDatatable, table.editRadioDatatable tr, table.editRadioDatatable td{
+    border: none!important;
+    background: transparent!important;
+}
+
+table.editRadioDatatable td{
+    padding: 0!important;
+    margin: 0!important;
+    height: auto;
+    text-align: center;
+}
+
+table.editRadioDatatable input[type=radio] {
+    width: auto;
+    height: auto;
+    margin-top: 0!important;
+}
+
+table.editRadioDatatable .ui-state-disabled{
+    opacity: 1;
+    background: transparent!important;
+}
+
+.panel-alerta{
+    position: relative;
+    display: inline-block;
+}
+
+.fa-layers {
+    display: inline-block;
+    position: relative;
+    text-align: center;
+    vertical-align: -0.125em;
+    min-width: 3em;
+    height: 2em;
+}
+
+.fa-layers .icon-parent {
+    bottom: 0;
+    left: -20px;
+    margin: auto;
+    position: absolute;
+    right: 0;
+    top: 7px;
+    z-index: 0;
+}
+
+.icon-parent:before{
+    font-size: 1.4em;
+}
+
+.fa-layers-counter {
+    background-color: #ff253a;
+    border-radius: 1em;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    color: #fff;
+    height: 1.5em;
+    line-height: 1;
+    max-width: 5em;
+    min-width: 1.5em;
+    overflow: hidden;
+    padding: 0.25em;
+    right: 0;
+    text-overflow: ellipsis;
+    top: 0;
+    -webkit-transform: scale(.25);
+    transform: scale(.25);
+    -webkit-transform-origin: top right;
+    transform-origin: top right;
+    z-index: 2;
+    position: relative;
+    font-size: 0.7rem;
+}
+.comboInteresado.ui-state-disabled{
+    opacity: 1;}
+
+.comboInteresado input[type=text]:disabled{
+    opacity: 1;
+    background-color: white;
+}
+.comboInteresado input[type=text]{
+    opacity: 1;
+    background-color: white;
+}
+.ui-state-disabled{
+    opacity: 1;
+    background-color: white;}
+
+.bloque-contenido{
+    border: 1px solid #cecece!important;
+    border-radius: 3px!important;
+    padding: 0.5em!important;
+}
+
+/* VMM 25/09/26: normaliza el p:selectCheckboxMenu (combo de seleccion multiple de Estado, en
+   solapaSolicitudes, tanto en modo "solicitudes" como en modo "listado de expedientes") para que
+   tenga la misma pinta e igual alto que un p:inputText normal - por defecto PrimeFaces le aplica
+   el estilo de boton (ui-state-default), que queda como un boton azul solido en vez de un campo
+   de filtro mas. */
+.estadoFilterCombo {
+    /* deja hueco a la derecha para el icono de ayuda "?", igual que le queda hueco a un
+       p:inputText normal en la misma columna. */
+    width: calc(100% - 28px);
+    vertical-align: middle;
+    border: 0 !important;
+    background: transparent !important;
+}
+.estadoFilterCombo .ui-selectcheckboxmenu-label {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    height: 30px;
+    line-height: 16px;
+    padding: 6px 10px !important;
+    border: 1px solid #ced4da !important;
+    border-right: 0 !important;
+    border-radius: 3px 0 0 3px !important;
+}
+.estadoFilterCombo .ui-selectcheckboxmenu-trigger {
+    box-sizing: border-box;
+    height: 30px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ced4da !important;
+    border-radius: 0 3px 3px 0 !important;
+}
+.estadoFilterCombo .ui-selectcheckboxmenu-trigger .ui-icon {
+    flex-shrink: 0;
+    margin: 0 !important;
+    top: auto !important;
+    left: auto !important;
+    position: static !important;
+}
+.estadoFilterCombo + .icono {
+    vertical-align: middle !important;
+}
+.estadoFilterCombo .ui-selectcheckboxmenu-label,
+.estadoFilterCombo .ui-selectcheckboxmenu-trigger {
+    background: #ffffff !important;
+    color: #495057 !important;
+    font-weight: normal !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+}
+.estadoFilterCombo:hover .ui-selectcheckboxmenu-label,
+.estadoFilterCombo .ui-selectcheckboxmenu-label.ui-state-hover,
+.estadoFilterCombo .ui-selectcheckboxmenu-trigger.ui-state-hover {
+    background: #f8f9fa !important;
+    color: #495057 !important;
+}
+
+table.tabla-info {
+    width: max-content;;
+    border: 1px solid #cecece;
+    border-radius: 3px;
+    border-spacing: 0;
+}
+
+table.tabla-info tr th{
+    border: 1px solid #cecece;
+    border-bottom: 1px solid #B6CDE0 ;
+    background: #DDE4F1;
+    text-align: center;
+    font-weight: bold;
+}
+
+table.tabla-info tr td{
+    border: 1px solid #cecece;
+}
+
+table.tabla-info tr td textarea{
+    width: 95%!important;
+}
+
+table.tabla-info tr td input{
+    width: 95%!important;
+}
+
+table.tabla-info tr td .ui-selectonemenu .ui-icon-triangle-1-s {
+    background-position: -64px 1px!important;
+}
+
+
+.check-readonly label.ui-state-disabled, .check-readonly div.ui-chkbox-box.ui-state-disabled,
+.radio-readonly label.ui-state-disabled, .radio-readonly div.ui-radiobutton-box.ui-state-disabled,
+.combo-readonly {
+    opacity: 1 !important;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(255, 255, 255, 0.8)), to(rgba(255, 255, 255, 0))) !important;
+}
+
+
+.colorInputTextVerde{
+background-color: #32b430 !important;
+    color: #fff !important;
+    font-weight: bold !important;
+}
+
+.colorInputTextRojo {
+    background-color: #c04641 !important;
+    color: #fff !important;
+}
+
+/*
+.colorInputTextRojoResol {
+    background-color: #f3b4c5 !important; 
+    color: #fff !important;
+}
+
+*/
+
+/** modificacion de estilos de botones */
+.ui-button.btn-success {
+    background: #23a265 !important;
+    border-color: #04694c !important;
+}
+.ui-button.btn-success.ui-state-disabled {
+    background: #23a265 !important;
+    border-color: #04694c !important;
+}
+.ui-button.btn-success:hover {
+    background: #139055 !important;
+    border-color: #04694c !important;
+}
+
+.ui-button.btn-danger {
+    background: #dd2758 !important;
+    border-color: #9e1339 !important;
+}
+.ui-button.btn-danger.ui-state-disabled {
+    background: #dd2758 !important;
+    border-color: #9e1339 !important;
+}
+.ui-button.btn-danger:hover{
+    background: #bd0c3c !important;
+    border-color: #9e1339 !important;
+}
+
+.ui-button.btn-warning {
+    background: #fdc358 !important;
+    border-color: #db9f30 !important;
+}
+.ui-button.btn-warning.ui-state-disabled {
+    background: #fdc358 !important;
+    border-color: #db9f30 !important;
+}
+.ui-button.btn-warning:hover {
+    background: #E9AD3F !important;
+    border-color: #db9f30 !important;
+}
+
+.ui-button.btn-info {
+    background: #62a0d4 !important;
+    border-color: #448AC2 !important;
+}
+.ui-button.btn-info.ui-state-disabled {
+    background: #62a0d4 !important;
+    border-color: #448AC2 !important;
+}
+.ui-button.btn-info:hover {
+    background: #397db6 !important;
+    border-color: #448AC2 !important;
+}
+
+.colorRedExpedienteEstados a {
+    color: #FF637D!important;
+}
+
+
+.ui-separator{
+    display: block!important;
+}
+
+.ui-autocomplete-input{
+    height: 1.7em!important;
+}
+
+.ui-selectmanycheckbox {
+    width: 100%;
+}
+
+.ui-selectmanycheckbox label {
+    width: calc(100% - 50px);
+}
+
+.atlas-lp .exportLink :HOVER {
+    border: 0 !important;
+    background: transparent !important;
+}
+
+.tabla-pg .table-column-title-pg {
+    background: #7695bc;
+    color: #fff;
+    border: 1px solid #cecece !important;
+    text-align: center;
+    padding: .5em;
+    margin: auto 0 !important;
+}
+
+.tabla-pg .table-column-pg {
+    border: 1px solid #cecece !important;
+    text-align: center;
+    margin: auto 0 !important;
+    min-height: 32px;
+    line-height: 28px;
+    word-break: break-word;
+}
+
+.tabla-pg .table-footer-pg {
+    border: 1px solid #cecece !important;
+    text-align: right;
+    margin: auto 0 !important;
+    padding: 0.3em;
+}
+
+.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+    text-decoration: none;
+    text-shadow: none;
+    font-weight: bold;
+    background: #C0D0ED !important;
+}
+
+.ui-expanded-row-content {
+    background: #f7f7f7;
+}
+
+/* modificacion de estilos picklist */
+.ui-picklist-caption {
+    border-bottom: 1px #B6CDE0 solid!important;
+    border-top: 1px #C0C0C0 solid!important;
+    border-left: 1px #C0C0C0 solid!important;
+    border-right: 1px #C0C0C0 solid!important;
+    background: #DDE4F1;
+    margin-top: 4px;
+    padding: 6px 4px!important;
+    box-shadow: none;
+}
+
+.ui-picklist-filter{
+    height: 32px!important;
+    width: 100%!important;
+    padding-right: 26px!important;
+}
+
+.ui-picklist .ui-picklist-filter-container .ui-icon{
+    right: 8px!important;
+    top: 8px!important;
+}
+
+.ui-picklist-item {
+    padding: .429em .857em!important;
+}
+
+/* modificacion de estilos row-editor */
+.ui-row-editor{
+    display: inline-block;
+    position: relative;
+    top: 5px;
+}
+
+.ui-row-editor .ui-row-editor-pencil,
+.ui-row-editor .ui-row-editor-check,
+.ui-row-editor .ui-row-editor-close{
+    display: inline-block;
+    font-family: 'Font Awesome 5 Free', Helvetica, Arial, Verdana, Tahoma, sans-serif;
+    width: 2.4em;
+}
+
+.ui-row-editor .ui-row-editor-pencil span.ui-icon-pencil{
+    font-family: 'Font Awesome 5 Free', Helvetica, Arial, Verdana, Tahoma, sans-serif;
+    content: "\f044";
+    font-size: 1.2em;
+    height: auto;
+    width: auto;
+    background: none repeat scroll 0 0 transparent!important;
+    text-indent: 0!important;
+}
+
+
+.ui-row-editor .ui-row-editor-pencil span.ui-icon-pencil:before {
+    content: "\f044";
+    color: #7992bd !important;
+    font-size: 1.2em!important;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+}
+
+
+.ui-row-editor .ui-row-editor-check span.ui-icon-check{
+    font-family: 'Font Awesome 5 Free', Helvetica, Arial, Verdana, Tahoma, sans-serif;
+    content: "\f0c7";
+    font-size: 1.2em;
+    height: auto;
+    width: auto;
+    background: none repeat scroll 0 0 transparent!important;
+    text-indent: 0!important;
+}
+
+.ui-row-editor .ui-row-editor-check span.ui-icon-check:before {
+    content: "\f0c7";
+    color: #7992bd !important;
+    font-size: 1.2em!important;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+}
+
+.ui-row-editor .ui-row-editor-close span.ui-icon-close{
+    font-family: 'Font Awesome 5 Free', Helvetica, Arial, Verdana, Tahoma, sans-serif;
+    content: "\f057";
+    font-size: 1.2em;
+    height: auto;
+    width: auto;
+    background: none repeat scroll 0 0 transparent!important;
+    text-indent: 0!important;
+}
+
+.ui-row-editor .ui-row-editor-close span.ui-icon-close:before {
+    content: "\f057";
+    color: #7992bd !important;
+    font-size: 1.2em!important;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+}
+
+.ui-row-editor .ui-row-editor-pencil span.ui-icon-pencil:hover{
+    color: #5d7296 !important;
+}
+
+.ui-row-editor .ui-row-editor-check span.ui-icon-check:hover:before{
+    color: #4db129!important;
+}
+
+.ui-row-editor .ui-row-editor-close span.ui-icon-close:hover:before{
+    color: #b12954!important;
+}
+
+/* Estilos para los bloques de información, que parecen cajas */
+.info-block {
+    border: 1px solid #c8c8c8;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    background-color: #fcfcfc;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* Estilos generales para el texto dentro de los bloques */
+.text-content {
+    font-size: 0.9em;
+    color: #333333;
+    line-height: 1.4;
+    display: block;
+}
+
+/* Para el texto debajo de los radio buttons */
+.first-info-text {
+    margin-top: 10px;
+}
+
+/* Estilos específicos para el texto que va junto al checkbox */
+.checkbox-text {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px; 
+}
+
+/* Estilos para el checkbox deshabilitado pero marcado, para que no se vea atenuado */
+.checkbox-always-checked .ui-chkbox-box.ui-state-disabled {
+    opacity: 1 !important;
+    background-image: none !important;
+    background-color: var(--surface-b, #ffffff) !important;
+    border-color: var(--surface-d, #dee2e6) !important;
+}
+
+.checkbox-always-checked .ui-chkbox-icon.ui-icon.ui-icon-check {
+    opacity: 1 !important;
+    color: var(--primary-color, #1976d2) !important;
+}
+
+/* Opcional: Para el cursor, si quieres que no parezca clickeable */
+.checkbox-always-checked .ui-chkbox-box,
+.checkbox-always-checked .ui-chkbox-label {
+    cursor: default !important;
+}
+
+/* Ajustes para el p:panelGrid para asegurar que los bloques internos se vean bien */
+.ui-panelgrid-blank {
+    width: 100%;
+}
+
+/* Quita el estilo de botón de PrimeFaces para que parezca un icono suelto */
+.btn-link.ui-button {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    width: auto !important;
+}
+
+.icono-verde .ui-button-icon-left { color: #28a745 !important; }
+.icono-rojo .ui-button-icon-left { color: #dc3545 !important; }
+

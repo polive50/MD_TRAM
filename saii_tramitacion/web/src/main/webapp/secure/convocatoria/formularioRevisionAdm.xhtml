@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
+
+    <head>
+    <title value="#{bundle['convocatorias.revision_administrativa.titulo']}"></title>
+    </head>
+    
+    <ui:composition template="/WEB-INF/layout/atlasBaseLayout.xhtml">
+    
+        <ui:param name="appLoadingOnLoadPage" value="true" />
+        
+        <ui:define name="titulo">
+            <p:panelGrid id="tituloConvocatoria" columns="1" columnClasses="ui-g-12" layout="grid" 
+                        styleClass="ui-panelgrid-blank" style="border-bottom: 1px solid #B6CDE0;margin-bottom:1em;">
+                <h:outputText rendered="#{convocatoriasBean.convocatoriaDTO.idConvocatoria != null}"
+                    value="#{convocatoriasBean.convocatoriaDTO.cdAcronimo} - #{convocatoriasBean.convocatoriaDTO.cdTitulo}" 
+                    style="color:#6f96c2;font-weight:bold;"/>
+        
+                <h:outputText rendered="#{convocatoriasBean.convocatoriaDTO.idEstado.dsValor != null}" 
+                    value="(#{convocatoriasBean.convocatoriaDTO.idEstado.dsValor})"
+                    style="font-weight:bold;" />
+            </p:panelGrid>
+        </ui:define>
+    
+        <ui:define name="content">
+            <h:form enctype="multipart/form-data" id="convocatoriaForm" styleClass="form-atlas">
+    
+                <atlasp:guardarEstado value="#{convocatoriasBean.convocatoriaDTO}" />
+                <atlasp:guardarEstado value="#{convocatoriasBean.pestanaActiva}" />
+                
+                <atlasp:guardarEstado value="#{convocatoriasBean.convocatoriaDTO}" />
+                <atlasp:guardarEstado value="#{solicitudBean.solicitudDTO}" />    
+                <atlasp:guardarEstado value="#{expedienteBean.expedienteDTO}" />
+                <atlasp:guardarEstado value="#{expedienteBean.pestanaRevisionActiva}" />    
+                
+                <atlasp:guardarEstado value="#{envioNotificacionesBean.idConvocatoria}" />           
+                                
+                <atlasp:guardarEstado value="#{documentoBean.idExpediente}" />
+                <atlasp:guardarEstado value="#{documentoBean.idConvocatoria}" />
+                <atlasp:guardarEstado value="#{documentoBean.documentoDTO}" />
+                <atlasp:guardarEstado value="#{documentoBean.entidad}" />
+                <atlasp:guardarEstado value="#{documentoBean.flgCarga}" />
+                <atlasp:guardarEstado value="#{documentoBean.archivoSubir}" />
+                <atlasp:guardarEstado value="#{documentoBean.archivoSubirEditar}" />
+                <atlasp:guardarEstado value="#{documentoBean.modoLecturaSubsanacion}" />
+                <atlasp:guardarEstado value="#{documentoBean.documentoSeleccionado}" />
+                <atlasp:guardarEstado value="#{documentoBean.tlObservaciones}" />
+                <atlasp:guardarEstado value="#{documentoBean.idCausaSubsanacion}" />
+                <atlasp:guardarEstado value="#{documentoBean.descripcionCausaSubsanacion}" />
+                <atlasp:guardarEstado value="#{documentoBean.descripcionCausaObligatoria}" />
+                
+                <atlasp:guardarEstado value="#{justificacionCieTecBean.modoLecturaSubsanacion}" />
+                <atlasp:guardarEstado value="#{justificacionCieTecBean.idCausaSubsanacion}" />
+                <atlasp:guardarEstado value="#{justificacionCieTecBean.descripcionCausaSubsanacion}" />
+                <atlasp:guardarEstado value="#{justificacionCieTecBean.descripcionCausaObligatoria}" />
+                <atlasp:guardarEstado value="#{justificacionCieTecBean.tlObservaciones}" />
+                <atlasp:guardarEstado value="#{justificacionCieTecBean.textCausaSubsanacion}" />
+                
+                <atlasp:guardarEstado value="#{justificacionCieTecBean.tlObservacionesParaelCiudadano}"/>
+                
+                <atlasp:guardarEstado value="#{documentoBean.existeEnvioPtfrSubsanacionEnProceso}" />
+                <atlasp:guardarEstado value="#{documentoBean.existeEnvioPtfrSubsanacionFirmado}" />                
+                <atlasp:guardarEstado value="#{documentoBean.existeEnvioPtfrDesistidoEnProceso}" />
+                <atlasp:guardarEstado value="#{documentoBean.existeEnvioPtfrDesistidoFirmado}" />
+                
+                <atlasp:guardarEstado value="#{requisitoBean.entidad}" />
+                <atlasp:guardarEstado value="#{requisitoBean.idExpediente}" />
+                <atlasp:guardarEstado value="#{requisitoBean.lstExpedienteReq}" />
+                <atlasp:guardarEstado value="#{requisitoBean.totalListaRequisitos}" />
+                
+                <atlasp:guardarEstado value="#{requisitoBean.existeEnvioPtfrSubsanacionEnProceso}" />                
+                <atlasp:guardarEstado value="#{requisitoBean.existeEnvioPtfrSubsanacionFirmado}" />
+                <atlasp:guardarEstado value="#{requisitoBean.existeEnvioPtfrExclusionEnProceso}" />
+                <atlasp:guardarEstado value="#{requisitoBean.existeEnvioPtfrExclusionFirmado}" />
+                
+                <atlasp:guardarEstado value="#{listadosBean.idConvocatoria}" />
+                <atlasp:guardarEstado value="#{listadosBean.bloquearDescarga}" />
+                
+                <atlasp:guardarEstado value="#{documentoBean.tlObservacionesParaCiu}" />
+                
+                <atlasp:guardarEstado value="#{financiacionBean.esConvocatoriaConceptoPresup}" />
+                
+                <atlasp:guardarEstado value="#{solicitudBean.tablaSeleccionada}" />
+                <!-- MD-1593 JRFM Ya no es necesario guardar el listado de expedientes -->
+                <!-- <atlasp:guardarEstado value="#{solicitudBean.lstExpedientes}" /> -->
+                                
+                <atlasp:facesMessages id="convocatoriaFormMessages" modo="todo" escape="false" />
+                
+                <p:tabView id="contenedorSolapas"
+                    widgetVar="contenedorSolapas"
+                    activeIndex="#{convocatoriasBean.pestanaActiva}" 
+                    dynamic="true" cache="false" scrollable="true" >
+                    <p:tab id="solapaSolicitudes"
+                        title="#{bundle['convocatorias.detalle.solicitudes.label.solicitudes']}"
+                        disabled="#{convocatoriasBean.pestanaActiva == 1 or 
+                                    convocatoriasBean.pestanaActiva == 2 or 
+                                    convocatoriasBean.pestanaActiva == 3}">
+                        <ui:include src="/secure/convocatoria/include/solapaSolicitudes.xhtml" />
+                    </p:tab>
+                    <p:tab id="solapaExpedientes"
+                        title="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.expedientes']}"
+                        disabled="#{convocatoriasBean.pestanaActiva == 0 or 
+                                    convocatoriasBean.pestanaActiva == 2 or 
+                                    convocatoriasBean.pestanaActiva == 3 or 
+                                    convocatoriasBean.pestanaActiva == 4 or 
+                                    convocatoriasBean.pestanaActiva == 5}">
+                        <ui:include src="/secure/convocatoria/include/solapaExpedientes.xhtml" />
+                    </p:tab>
+                    <p:tab id="solapaRevision"
+                        title="#{bundle['convocatorias.detalle.solicitudes.expedientes.revision.label.revision']}"
+                        disabled="#{convocatoriasBean.pestanaActiva == 0 or 
+                                    convocatoriasBean.pestanaActiva == 1 or 
+                                    convocatoriasBean.pestanaActiva == 4 or 
+                                    convocatoriasBean.pestanaActiva == 5}">
+                        <ui:include src="/secure/convocatoria/include/solapaRevision.xhtml" />
+                    </p:tab>
+                   
+                    <p:tab id="solapaListados"
+                        title="#{bundle['convocatorias.detalle.solicitudes.expedientes.revision.label.listados.titulo']}">
+                        <ui:include src="/secure/convocatoria/include/solapaListados.xhtml" />
+                    </p:tab>
+
+                    <p:tab id="solapaResolucionConv"
+                        title="#{bundle['convocatorias.detalle.solicitudes.expedientes.revision.label.resolucion.titulo']}"
+                        rendered="#{convocatoriasBean.mostrarEdicionConvocatoria(documentoBean.idConvocatoria)}"
+                        >
+                        <ui:include src="/secure/convocatoria/include/solapaResolucionConv.xhtml" />
+                    </p:tab>
+                    
+                    <p:tab id="solapaEnvioNotificacionesConv"
+                        title="#{bundle['convocatorias.detalle.solicitudes.expedientes.revision.label.envio.titulo']}">
+                        <ui:include src="/secure/convocatoria/include/solapaEnvioNotificacionesConv.xhtml" />
+                    </p:tab>
+                
+                 </p:tabView>
+    
+                <!--  FIN DE LOS DIALOGS -->
+                <div class="space" />
+    
+                <!-- Campos de auditoría de la entidad -->
+                <ui:include src="/WEB-INF/include/camposAuditoria.xhtml">
+                    <ui:param name="entidad"
+                        value="#{convocatoriasBean.convocatoriaDTO}" />
+                </ui:include>
+    
+    
+                <p:confirmDialog global="true" showEffect="fade" closable="false"
+                    responsive="true" hideEffect="fade" appendTo="@(body)">
+                    <p:panelGrid columns="2" layout="grid"
+                        styleClass="ui-panelgrid-blank"
+                        columnClasses="ui-g-12 ui-md-6 text-right,
+                                                        ui-g-12 ui-md-6 text-left">
+                        <atlasp:button value="#{bundle['popup.confirmar.si']}"
+                            type="button" styleClass="ui-confirmdialog-yes"
+                            icon="fas fa-check" iconPos="right" />
+            
+                        <atlasp:button value="#{bundle['popup.confirmar.no']}"
+                            type="button" styleClass="ui-confirmdialog-no"
+                            icon="fas fa-times" iconPos="right"
+                            tipoBoton="btn-secondary" />
+                    </p:panelGrid>
+                </p:confirmDialog>
+    
+            </h:form>
+        </ui:define>
+    
+    </ui:composition>
+
+
+</html>

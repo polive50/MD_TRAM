@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+
+	<parent>
+		<artifactId>atlasfrm-arquetipos-padre-web</artifactId>
+		<groupId>atlasfrm</groupId>
+		<version>2.1.0</version>
+        <relativePath></relativePath>
+	</parent>
+    
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.madrid.saii</groupId>
+	<artifactId>saii_tramitacion</artifactId>
+	<version>1.5.149</version>
+	<packaging>pom</packaging>
+	<name>${project.artifactId}</name>
+	<description>Aplicación web ${project.artifactId}</description>
+	<url>${atlas.site.url}/${project.artifactId}</url>
+
+	<modules>
+		<module>web</module>
+	</modules>
+
+	<properties>
+		<basedirModule>${basedir}/web</basedirModule>
+	</properties>
+
+	<!-- Directorio de despliegue del site. Modificar si se quiere generar en
+		otro sitio -->
+	<distributionManagement>
+		<site>
+			<id>${project.artifactId}</id>
+			<url>file:sitedesplegado/${project.artifactId}</url>
+		</site>
+	</distributionManagement>
+
+	<dependencies>
+		<!-- Dependencias para invocador de servicios de webServices. Descomentar
+			si se desea utilizar esta caracteristica y se tiene clientes webservices
+			<dependency> <groupId>atlasfrm</groupId> <version>2.1.0</version>
+			<artifactId>atlasfrm-starter-clientews</artifactId> </dependency> -->
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<useBuildFilters>false</useBuildFilters>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.madrid.saii</groupId>
+        <artifactId>saii_tramitacion</artifactId>
+        <version>1.5.149</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>saii_tramitacion_web</artifactId>
+    <packaging>war</packaging>
+    <description>Módulo de la parte web de la aplicación web ${project.artifactId}</description>
+    <name>${project.artifactId}</name>
+    <url>${atlas.site.url}/${project.artifactId}</url>
+
+    <distributionManagement>
+        <site>
+            <id>${project.artifactId}</id>
+            <url>file:sitedesplegado/${project.artifactId}</url>
+        </site>
+    </distributionManagement>
+
+    <properties>
+        <nombreDesplieguePom>saii_tramitacion</nombreDesplieguePom>
+        <basedirModule>${basedir}</basedirModule>
+        <saii_lib.version>1.6.14</saii_lib.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.madrid.saii</groupId>
+            <artifactId>saii_lib</artifactId>
+            <version>${saii_lib.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>atlasfrm</groupId>
+            <artifactId>atlasfrm-starter-fica</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>atlasfrm</groupId>
+            <artifactId>atlasfrm-starter-eadm</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>atlasfrm</groupId>
+            <artifactId>atlasfrm-starter-crypt</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>atlasfrm</groupId>
+            <artifactId>atlasfrm-starter-enviocorreo</artifactId>
+        </dependency>
+
+        <!-- Se anade esta liberia para arreglar el tooltip del icono borrar 
+            de la lista de valores. Mantis 40532 -->
+        <dependency>
+            <artifactId>atlasfrm-componentes-primefaces-lib</artifactId>
+            <groupId>atlasfrm</groupId>
+            <version>2.1.0.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>atlasfrm</groupId>
+            <artifactId>atlasfrm-starter-core-eadm</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+        
+    </dependencies>
+    
+    <build>
+        <finalName>/${nombreDesplieguePom}</finalName>
+        <filters>
+            <filter>src/main/resources/environment.properties</filter>
+        </filters>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <useBuildFilters>true</useBuildFilters>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+
+            <!-- Plugin para invocador de servicios de negocio. Descomentar si se
+                desea utilizar esta caracteristica 
+                SE DEBE INCLUIR LA DEPENDENCIA DE ATLASFRM-STARTER-CLIENTEWS EN EL CASO DE QUE NO EXISTA-->
+            <!-- <plugin>
+                <groupId>atlasfrm</groupId>
+                <artifactId>atlasfrm-clientews-wsdl2code-maven-plugin</artifactId>
+                <version>${atlasfrm-clientews-wsdl2code-plugin.version}</version>
+                <configuration>
+                    <packageName>xxxx.ws.client</packageName>
+                    <serviceNameAsPackage>true</serviceNameAsPackage>
+                    <overWrite>false</overWrite>
+                    <packageTestContext>xxxx.init</packageTestContext>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>xxxxService</id>
+                        <configuration>
+                            <wsdlFile>src/main/resources/wsdl/xxxx.wsdl</wsdlFile>
+                        </configuration>
+                        <goals>
+                            <goal>wsdl2code</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin> -->
+            <plugin>
+                <!-- Borrado de los recursos empaquetados (execution: clean-atlas-resources) -->
+                <artifactId>maven-clean-plugin</artifactId>
+                <!-- <version>2.5</version> -->
+            </plugin>
+        </plugins>
+    </build>
+</project>

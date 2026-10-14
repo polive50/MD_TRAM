@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="error" strict="true" packages="atlas.core.log">
+    <Properties>
+        <!-- Desactiva la configuracion por defecto de Atlas (si se elimina, se considera activa)
+             Desactivar esto supone que tendríamos que especificar TODA la configuración que necesitemos en este fichero
+        <Property name="desactivaConfigDefectoAtlas">true</Property>
+        -->
+
+        <!-- Ficheros de log -->
+        <Property name="atlasFileLog">${monitor.FILE.directorioCliente}/${nombreDespliegue}.log</Property>
+        <Property name="atlasFileLogError">${monitor.FILE.directorioCliente}/${nombreDespliegue}_errores.log</Property>
+        <Property name="atlasSlowSqlFileLog">${monitor.FILE.directorioCliente}/${nombreDespliegue}_slowSql.log</Property>
+        <Property name="atlasContextFileLog">${monitor.FILE.directorioCliente}/${nombreDespliegue}_context.log</Property>
+        <Property name="atlasHibernateFileLog">${monitor.FILE.directorioCliente}/${nombreDespliegue}_hibernate.log</Property>
+
+        <!--  IncludeLocations - Permite que se muestre el método que se está trazando
+              Al ponerlo a true impacta en el rendimiento del log  -->
+        <Property name="logIncludeLocations">TRUE</Property>
+        <!-- Configuraciones extra para appenders -->
+        <Property name="atlasLogPattern">[%d{dd/MM/yyyy-HH:mm:ss,SSS}][%p][%m][%c.%method][%X{request}][%X{usuario}][%X{sesion}][%X{idRequest}][%X{host}]%n</Property>
+
+        <!-- Rota a las 00:00 de todos los días -->
+        <Property name="cronExpresionRotado">0 0 0 1/1 * ? *</Property>
+        <Property name="numRotadosMaximos">10</Property>
+        <Property name="sizeRotado">5 MB</Property>
+
+        <!-- Activa el appender que escribe los errores a un fichero separado -->
+        <Property name="activarFileLogError">false</Property>
+
+        <!-- Activa el logado en local en un fichero (en lugar de solo por consola) -->
+        <Property name="activarFileLogEntornoLocal">false</Property>
+
+        <!-- Activa los logs de tiempos de página en base de datos -->
+        <Property name="activarLogDatabaseService">false</Property>
+
+        <!-- Niveles de logs -->
+        <!-- Estas categorías de log son creadas automáticamente -->
+        <!-- Niveles de logs -->
+        <Property name="rootLevel">${log.root}</Property>
+        <Property name="levelTodoAtlas">${log.atlas.todoAtlas}</Property>
+        <Property name="levelSeguridad">${log.atlas.seguridad}</Property>
+        <Property name="levelFica">${log.atlas.fica}</Property>
+        <Property name="levelAtlasBusquedas">${log.atlas.busquedas}</Property>
+        <Property name="levelClientews">${log.atlas.clientews}</Property>
+        <Property name="levelRestLib">${log.atlas.rest}</Property>
+        <Property name="levelAtlasComponentes">${log.atlas.componentes}</Property>
+        <Property name="levelHibernateSQL">${log.hibernate}</Property>
+        <Property name="levelHibernate">${log.hibernate}</Property>
+        <Property name="levelLogAplicacion">${log.app}</Property>
+        <Property name="levelAuditar">${log.atlas.auditar}</Property>
+        <Property name="levelMessagesAxis">${log.atlas.axis2}</Property>
+    </Properties>
+
+    <Filters>
+        <!-- Este filtro acepta todas las trazas.
+        En caso de que se suba el nivel, solo se aceptarán aquellas de nivel más específico
+        que el que aquí se indique -->
+        <!-- Filter type="ThresholdFilter" level="trace" onMatch="NEUTRAL" onMismatch="DENY"/ -->
+        <DynamicThresholdUserFilter key="level" defaultThreshold="ERROR" onMatch="ACCEPT" onMismatch="NEUTRAL" />
+    </Filters>
+
+    <Appenders>
+	    <!-- Este filtro acepta todas las trazas.
+	    En caso de que se suba el nivel, solo se aceptarán aquellas de nivel más específico
+	    que el que aquí se indique -->
+        <Appender type="RollingRandomAccessFile" name="FILE_LOG" fileName="${atlasFileLog}" filePattern="${atlasFileLog}.%d{yyyy-MM-dd}.%i">
+            <Filters>
+                <Filter type="MarkerFilter" marker="DB_LOG" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <Filter type="ThresholdFilter" level="debug" onMatch="NEUTRAL" onMismatch="DENY"/>
+            </Filters>
+            <Layout type="PatternLayout" pattern="${atlasLogPattern}"/>
+            <!-- Aquí se definen las políticas de rotado que deben cumplirse (alguna de ellas)
+                 para que se produzca el rotado del fichero de log -->
+            <Policies>
+                <!-- Se rota cuando se inicia la JVM -->
+                <OnStartupTriggeringPolicy />
+                <!-- Se rota cuando se superan los 5MB -->
+                <SizeBasedTriggeringPolicy size="${sizeRotado}"/>
+                <!-- Este CronTrigger hace que rote cada día a las 12PM (cada día) -->
+                <CronTriggeringPolicy schedule="${cronExpresionRotado}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${numRotadosMaximos}"/>
+        </Appender>
+
+        <Appender type="RollingRandomAccessFile" name="FILE_LOG_ERROR" fileName="${atlasFileLogError}" filePattern="${atlasFileLogError}.%d{yyyy-MM-dd}.%i">
+            <Filters>
+                <Filter type="MarkerFilter" marker="DB_LOG" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <Filter type="ThresholdFilter" level="error"/>
+            </Filters>
+            <Layout type="PatternLayout" pattern="${atlasLogPattern}"/>
+            <!-- Aquí se definen las políticas de rotado que deben cumplirse
+                 para que se produzca el rotado del fichero de log -->
+            <Policies>
+                <!-- Se rota cuando se inicia la JVM -->
+                <OnStartupTriggeringPolicy />
+                <!-- Se rota cuando se superan los 5MB -->
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+                <!-- Este CronTrigger hace que rote cada día a las 12PM -->
+                <CronTriggeringPolicy schedule="${cronExpresionRotado}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${numRotadosMaximos}"/>
+        </Appender>
+    </Appenders>
+
+
+    <Loggers>
+        <!--  logger específico de los paquetes de la aplicación -->
+        <Logger name="org.madrid.saii.tramitacion" level="${levelLogAplicacion}" includeLocation="${logIncludeLocations}"/>
+
+        <!--  Aqui se definirían logger especificos para clases o paquetes de la aplicación -->
+        <!--  <logger name="ejpl.ejpl_app.servicios.EjplService" level="DEBUG" /> -->
+
+        <!-- SE ESTABLECEN LOS SIGUENTES LOGGERS COMO ERROR PARA EVITAR TRAZAS DE TIPO:
+            'Attribute 'for' of label component with id xxxx is not defined'
+		ya que penaliza al rendimiento -->
+        <Logger name="org.apache.myfaces.shared.renderkit.html" level="ERROR"/>
+        <Logger name="org.apache.myfaces.renderkit.html" level="ERROR"/>
+        <Logger name="org.apache.myfaces.shared_tomahawk.renderkit.html" level="ERROR"/>
+        <!-- SE ESTABLECEN LOS SIGUENTES LOGGERS COMO ERROR PARA EVITAR TRAZAS INNECESARIAS:-->
+        <Logger name="org.springframework.beans" level="ERROR"/>
+        <Root/>
+    </Loggers>
+</Configuration>

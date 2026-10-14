@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
+
+
+	<!-- Historico Notificacion -->
+	<atlasp:listaPaginada id="lstHistorioNotificacion"
+		listAndCountMethod="#{expedienteBean.obtenerHistoricoNotificacion}"
+		reflow="true" pijama="true" sortMode="single" export="true"
+		exportTitle="Historico_Notificacion_Expediente"
+		exportFile="Historico_Notificacion_Expediente">
+
+		<atlasp:columnaListaPaginada field="envio" filtrable="false"
+			exportable="true" order="false"
+			label="#{bundle['convocatorias.detalle.solicitudes.expedientes.historicoNotif.label.metodoEnvio']}">
+			<ui:define name="value">
+				<h:outputText value="#{expedienteBean.metodoEnvio(item)}" />
+			</ui:define>
+		</atlasp:columnaListaPaginada>
+
+		<atlasp:columnaListaPaginada field="tramite.dsValor" filtrable="false"
+			exportable="true" order="false"
+			label="#{bundle['convocatorias.detalle.solicitudes.expedientes.historicoNotif.label.tramite']}">
+			<ui:define name="value">
+				<h:outputText value="#{item.tramiteDTO.dsValor}" />
+			</ui:define>
+		</atlasp:columnaListaPaginada>
+
+		<atlasp:columnaListaPaginada field="fcEnvio" filtrable="false"
+			exportable="true" order="false"
+			label="#{bundle['convocatorias.detalle.solicitudes.expedientes.historicoNotif.label.fcEnvio']}">
+			<ui:define name="value">
+				<h:outputText value="#{expedienteBean.obtenerFechaEnvio(item)}">
+					<f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
+				</h:outputText>
+			</ui:define>
+		</atlasp:columnaListaPaginada>
+
+		<atlasp:columnaListaPaginada field="fcLecturaNote" filtrable="false"
+			exportable="true" order="false"
+			label="#{bundle['convocatorias.detalle.solicitudes.expedientes.historicoNotif.label.fcAperturaNote']}">
+			<ui:define name="value">
+				<h:outputText value="#{item.fcLecturaNote}">
+					<f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
+				</h:outputText>
+			</ui:define>
+		</atlasp:columnaListaPaginada>
+
+		<atlasp:columnaListaPaginada field="cdEstadoNote" filtrable="false"
+			exportable="true" order="false"
+			label="#{bundle['convocatorias.detalle.solicitudes.expedientes.historicoNotif.label.estadoNote']}">
+			<ui:define name="value">
+				<h:outputText value="#{expedienteBean.obtenerEstadoNote(item)}" />
+			</ui:define>
+		</atlasp:columnaListaPaginada>
+
+		<atlasp:columnaListaPaginada
+			label="#{bundle['convocatorias.detalle.solicitudes.expedientes.historicoNotif.label.documento']}"
+			filtrable="false" styleClass="iconoCentrado"
+			exportable="false" width="10%">
+			<ui:define name="value">
+				<atlasp:button immediate="true"
+					rendered="#{item.cdNote != null}"
+					action="#{expedienteBean.descargarPeticion(item)}"
+					ajax="false" alt="#{bundle['boton.descargar']}"
+					title="#{bundle['boton.descargar']}" icon="fas fa-download"
+					tipoBoton="btn-link">
+				</atlasp:button>
+			</ui:define>
+		</atlasp:columnaListaPaginada>
+
+	</atlasp:listaPaginada>
+
+
+</ui:composition>

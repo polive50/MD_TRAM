@@ -1,0 +1,574 @@
+/* ___________________GENERALES_______________________ */
+* {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.8rem;
+}
+
+html, body {
+    font-size: 1rem;
+    height: 100%;
+    color: #646464;
+    background-color: #fff;
+}
+
+img {
+    border: none;
+    vertical-align: middle;
+}
+
+p {
+    margin-bottom: 0.5em;
+}
+
+a {
+    text-decoration: none;
+    color: #666;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a:visited {
+    color: #646464;
+}
+
+tfoot, caption, hr, .oculto {
+    display: none;
+}
+
+label {
+    color: #646464;
+    text-decoration: none;
+    display: inline-flex;
+}
+
+span {
+    color: #646464;
+    font-weight: normal;
+    text-decoration: none;
+    background-image: none;
+}
+
+input[type=text], input[type=password] {
+    height: 1.7em;
+    width: inherit;
+}
+
+input[type=text], input[type=password] {
+    border: 1px solid #ccc;
+    color: #646464;
+    background-color: #fff;
+    padding-left: 3px;
+    height: 1.7em;
+    margin-right: 0.2em;
+    border-radius: 3px;
+}
+
+input[type=text], input[type=password], textarea {
+    border: 1px solid #ccc;
+    color: #646464;
+    background-color: #fff;
+    padding-left: 3px;
+    margin-right: 0.2em;
+    border-radius: 3px;
+}
+
+textarea {
+    min-height: 60px;
+    width: 100%;
+}
+
+select {
+    height: 1.7em;
+    margin-right: 1em;
+}
+
+input[type=text].obligatorio, input[type=text].obligatorio:disabled,
+    input[type=text][readonly].obligatorio, input[type=text][readonly="readonly"].obligatorio,
+    input[type=password].obligatorio, input[type=password].obligatorio:disabled,
+    input[type=password][readonly].obligatorio, input[type=password][readonly="readonly"].obligatorio,
+    select.obligatorio, select.obligatorio:disabled, select[readonly].obligatorio,
+    select[readonly="readonly"].obligatorio, textarea.obligatorio,
+    textarea.obligatorio:disabled, textarea[readonly].obligatorio,
+    textarea[readonly="readonly"].obligatorio {
+    background: #f8efdd;
+}
+
+input[type=text]:focus, input[type=password]:focus, select:focus,
+    textarea:focus {
+    border-color: #557CAC;
+    box-shadow: 0 0 1px #557CAC;
+    outline: none;
+}
+
+input[type=text]:disabled, input[type=password]:disabled, select:disabled,
+    textarea:disabled {
+    background: #e5e5e5;
+    color: #999999;
+}
+
+input[type=text][readonly], input[type=text][readonly="readonly"], input[type=password][readonly],
+    input[type=password][readonly="readonly"], select[readonly], select[readonly="readonly"],
+    textarea[readonly], textarea[readonly="readonly"] {
+    color: #646464;
+}
+
+input[type=text].error, input[type=password].error, select.error,
+    textarea.error, input[type=text].cajaTextoAlertaFoco, input[type=password].cajaTextoAlertaFoco,
+    select.cajaTextoAlertaFoco, textarea.cajaTextoAlertaFoco {
+    border-color: #E49292;
+    box-shadow: 0 0 1px #E49292;
+}
+
+pre, xmp, plaintext, listing {
+    display: block;
+    font-family: monospace;
+    white-space: pre;
+    margin: 1em 0px;
+    line-height: 1.2em;
+}
+
+/* _____________ CLASES GENERALES  _____________ */
+.label {
+    color: #666;
+    font-weight: normal;
+    text-decoration: none;
+    padding: 6px 10px 5px 0px !important;
+    display: inline-flex;
+}
+
+.label-inline {
+   display: inline;
+}
+
+.clear {
+    clear: both;
+    height: 3px;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.space {
+    width: 95%;
+    height: 7px;
+    font-size: 2px;
+}
+
+.space2 {
+    width: 95%;
+    height: 10px;
+    font-size: 2px;
+}
+
+.space3 {
+    width: 95%;
+    height: 30px;
+    font-size: 2px;
+}
+
+.tituloPagina {
+    font-size: 1.7em;
+    color: #7992bd;
+    margin: 4px 0px;
+    display: block;
+    clear: both;
+}
+
+.subtituloPagina {
+    font-size: 1.3em;
+    color: #7992bd;
+    margin: 2px 0px;
+    display: inline-block;
+}
+
+.clear:after {
+    display: block;
+    content: ".";
+    height: 0;
+    visibility: hidden;
+    clear: both;
+}
+
+.both {
+    clear: both;
+}
+
+/* gris oscuro */
+.txt07gr3 {
+    color: #666666;
+}
+
+/* azul */
+.txt07azu {
+    color: #557CAC;
+}
+
+div.spacer {
+    clear: both;
+}
+
+.boton {
+    margin: 7px 12px 15px 120px;
+    cursor: pointer;
+}
+
+.deshabilitado {
+    opacity: 0.5;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+    filter: alpha(opacity = 50);
+}
+
+.negrita {
+    font-weight: bold;
+}
+
+.cursiva {
+    font-style: italic;
+}
+
+.subrayado {
+    text-decoration: underline;
+}
+
+.codigo {
+    font-family: monospace;
+    font-size: 1.25em;
+}
+
+.centrado {
+    text-align: center
+}
+
+.navegadores {
+    bottom: 3px;
+    position: relative;
+}
+
+.marginAuto {
+    margin: 0px auto;
+}
+
+.alignLeft {
+    text-align: left;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.errorStyle {
+    border: 1px solid #e4e4e4;
+}
+
+.valignBottom {
+    vertical-align: bottom;
+}
+
+.valignTop {
+    vertical-align: top;
+}
+
+.logo {
+    width: 89px;
+    height: 64px;
+}
+
+a.desconectar {
+    display: block;
+    float: right;
+    background: url(../img/desconectar.gif) no-repeat;
+    width: 20px;
+    height: 17px;
+    margin: 0 5px;
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+.icono {
+    padding-left: 3px;
+    max-height: 17px;
+    max-width: 17px;
+    height: 17px;
+    font-size: 1.4em !important;
+    vertical-align: sub;
+}
+
+.ui-g {
+    padding: 0px 0px;
+}
+
+.par {
+    background: #f5f5f5;
+}
+
+.impar {
+
+}
+
+.botonAplicacionTXT>img {
+    margin-left: 3px;
+}
+
+/* _____________________________________ BOTON POR DEFECTO _____________________________________________ */
+button, input[type="reset"], input[type="submit"], input[type="button"],
+    button.rf-pick-btn {
+    background: #DDE4F1;
+    background: -webkit-gradient(linear, left top, left bottom, from(#e7ecf5),
+        to(#c0d0ed)); /* Saf4+, Chrome */
+    background: -webkit-linear-gradient(top, #e7ecf5, #c0d0ed);
+    /* Chrome 10+, Saf5.1+ */
+    background: -moz-linear-gradient(top, #e7ecf5, #c0d0ed); /* FF3.6+ */
+    background: -ms-linear-gradient(top, #e7ecf5, #c0d0ed); /* IE10 */
+    background: -o-linear-gradient(top, #e7ecf5, #c0d0ed);
+    /* Opera 11.10+ */
+    background: linear-gradient(to top, #e7ecf5, #c0d0ed); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,
+        startColorstr='#e7ecf5', endColorstr='#c0d0ed'),
+        chroma(color = #000000);
+    border: 1px solid #5187B8;
+    border-radius: 0.4em;
+    color: #666666; /* gris */
+    margin: 1px;
+    padding: 3px 8px;
+    padding: 2px; 
+    text-align: center;
+    vertical-align: middle;
+}
+
+button:hover, input[type="reset"]:hover, input[type="submit"]:hover,
+    input[type="button"]:hover {
+    filter: chroma(color = #000000);
+    background: none repeat scroll 0 0 #DDE4F1;
+    color: #010101;
+    cursor: pointer;
+}
+
+button[disabled], input[type="reset"][disabled], input[type="submit"][disabled],
+    input[type="button"][disabled] {
+    filter: chroma(color = #000000); /* IE7 y IE8 */
+    background: none repeat scroll 0 0 #DDE4F1;
+    border-color: #A4A4A4;
+    color: #A4A4A4;
+    cursor: default;
+    padding: 2px ; 
+}
+
+/* ________________ BOTONES CON IMAGEN ______________________________________ */
+button.btnAccion, input[type="reset"].btnAccion, input[type="submit"].btnAccion,
+    input[type="button"].btnAccion {
+    padding: 3px 22px 3px 8px;
+    padding: 2px 8px 2px ; 
+    background: #DDE4F1 url('../img/ico_enviar.png') no-repeat 100% 50%;
+    background-image: url('../img/ico_enviar.png'),
+        -webkit-gradient(linear, left top, left bottom, from(#e7ecf5),
+        to(#c0d0ed)); /* Saf4+, Chrome */
+    background-image: url('../img/ico_enviar.png'),
+        -webkit-linear-gradient(top, #e7ecf5, #c0d0ed);
+    /* Chrome 10+, Saf5.1+ */
+    background-image: url('../img/ico_enviar.png'),
+        -moz-linear-gradient(top, #e7ecf5, #c0d0ed); /* FF3.6+ */
+    background-image: url('../img/ico_enviar.png'),
+        -o-linear-gradient(top, #e7ecf5, #c0d0ed); /* Opera 11.10+ */
+    background-image: url('../img/ico_enviar.png'),
+        -ms-linear-gradient(top, #e7ecf5, #c0d0ed); /* IE10 */
+    background-image: url('../img/ico_enviar.png'),
+        linear-gradient(to top, #e7ecf5, #c0d0ed); /* W3C */
+}
+
+button:hover.btnAccion, input[type="reset"]:hover.btnAccion, input[type="submit"]:hover.btnAccion,
+    input[type="button"]:hover.btnAccion {
+    background: #DDE4F1 url('../img/ico_enviar.png') no-repeat 100% 50%;
+}
+
+button[disabled].btnAccion, input[type="reset"][disabled].btnAccion,
+    input[type="submit"][disabled].btnAccion, input[type="button"][disabled].btnAccion
+    {
+    background: #DDE4F1;
+    padding: 3px 8px;
+    padding: 2px; 
+}
+
+.registroBaja {
+    color: red;
+}
+
+.nowrap {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.codigo.nowrap {
+    white-space: nowrap;
+}
+
+.campos-auditoria .label {
+    font-weight: bold;
+}
+
+.campos-auditoria .ui-g {
+    padding: 0px;
+}
+
+.tituloFormulario {
+    display: block;
+    border-bottom: 1px solid #B6CDE0;
+    padding: .5em 0 .5em 0;
+    margin: 0 0 .5em 0;
+    font-size: 1.1em;
+    color: #6f96c2;
+    font-weight: bold;
+    width: 100%;
+}
+
+.form-atlas {
+    padding: 10px;
+    border: 1px solid #d5deef;
+    line-height: 1.0em;
+    padding-bottom: 25px;
+    overflow-wrap: break-word;
+}
+
+.form-atlas input[type=text], input[type=password] {
+    height: 1.7em;
+    width: calc(100% - 32px);
+}
+
+.form-atlas select {
+    border-radius: 3px;
+}
+
+.form-atlas .help {
+    height: 17px;
+    padding: 2px;
+}
+
+.form-atlas td.acciones, .form-atlas th.acciones {
+    width: 100px;
+    text-align: center;
+}
+
+.form-atlas td.acciones .icono {
+    padding-left: 6px;
+}
+
+.form-atlas td.columnaBaja, .form-atlas th.columnaBaja {
+    width: 145px
+}
+
+.form-atlas td.columnaBaja {
+    color: red;
+}
+
+.tablet-show {
+    display: none\9;
+}
+
+.mobile-show {
+    display: none\9;
+}
+
+/** override estilos de Atlas 1.x */
+.mrg {
+    padding: 10px;
+    border: none !important;
+    line-height: 1.5em;
+}
+
+.bloques {
+    display: inline;
+    float: left;
+    width: 100%;
+    background: #FFF !important;
+}
+
+/******************************************/
+@media screen and (min-width : 960px) {
+    .form-atlas td.acciones, .form-atlas th.acciones {
+        width: 100px;
+        text-align: center;
+    }
+    .tablet-show {
+        display: none;
+    }
+    .campos-auditoria div:nth-child(odd).ui-g {
+        background-color: #e4e4e4;
+    }
+    .campos-auditoria div:nth-child(even).ui-g {
+        background-color: #f0f0f0;
+    }
+}
+
+@media screen and (max-width : 991px) {
+    .form-atlas td.acciones, .form-atlas th.acciones {
+        width: 100px;
+        text-align: center;
+    }
+    .titulo-responsive span.texto-app {
+        width: calc(100% - 150px);
+    }
+    .tablet-hide {
+        display: none !important;
+    }
+    .tablet-show {
+        display: block;
+    }
+    .campos-auditoria div {
+        background-color: #f0f0f0;
+    }
+    .campos-auditoria .tituloAuditoria {
+        background-color: #e4e4e4;
+    }
+}
+
+@media screen and (min-width: 481px) {
+    .mobile-show {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .mobile-hide {
+        display: none;
+    }
+    .mobile-show {
+        display: block;
+    }
+    .label {
+        width: 100% !important;
+    }
+    .w100movil {
+        width: 100% !important;
+    }
+    .form-atlas .ui-g-12 {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .ui-messages-info, .ui-messages-warn, .ui-messages-error,
+        .ui-messages-fatal {
+        overflow-wrap: break-word;
+    }
+    .ui-dialog {
+        width: 100%;
+    }
+    .campos-auditoria .ui-g-12 {
+        border-bottom: 0.5px solid #ababab;
+    }
+}
+
+/** Solo para medidas "tablet" */
+@media screen and (max-width : 991px) and (min-width: 481px) {
+    .form-atlas td.acciones, .form-atlas th.acciones {
+        width: 100px;
+        text-align: center;
+    }
+
+    .w100tablet {
+        width: 100% !important;
+    }
+}

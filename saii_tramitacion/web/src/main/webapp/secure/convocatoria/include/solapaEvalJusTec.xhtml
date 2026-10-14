@@ -1,0 +1,1081 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
+   
+    <atlasp:guardarEstado value="#{expedienteBean.expedienteDTO}" />
+    <atlasp:guardarEstado value="#{convocatoriasBean.convocatoriaDTO}" />
+    <atlasp:guardarEstado value="#{evaluacionJusTecBean.listaEvaluadoresAsignadosExpedienteJusTec}" />
+    <atlasp:guardarEstado value="#{evaluacionJusTecBean.filtroEvaluadorJusTec}" />
+    <atlasp:guardarEstado value="#{evaluacionJusTecBean.idConvocatoria}" />
+    <atlasp:guardarEstado value="#{evaluacionJusTecBean.listaExpEvaluadoresEvaluacionJusTecDTO}" />
+    <atlasp:guardarEstado value="#{evaluacionJusTecBean.modoConsulta}"/>
+    <atlasp:guardarEstado value="#{convocatoriasBean.modoConsulta}" />
+    <atlasp:guardarEstado value="#{evaluacionJusTecBean.expedienteJusTecSeleccionado}" />
+    <atlasp:guardarEstado value="#{evaluacionJusTecBean.expedienteEvalJusTecDTO.mostrarEvaluadoresJCT}" />
+    <atlasp:guardarEstado value="#{evaluacionJusTecBean.listaExpedientes}" />
+    <atlasp:guardarEstado value="#{evaluacionJusTecBean.evaluadorSeleccionado}" />
+    <atlasp:guardarEstado value="#{evaluacionJusTecBean.expedienteEvalJusTecDTO}" />
+
+ 
+    <p:outputPanel id="outpanelEvaluacionJCT">
+    
+    <!-- Tabla periodos de la Evaluacion -->
+    <p:fieldset
+        legend="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.justcietec.documentacion.JCT']}">
+        <!-- Contenido del fieldset -->
+        
+        
+        <atlasp:listaPaginada id="listaPeriodosJustecCT"
+            listAndCountMethod="#{evaluacionJusTecBean.obtenerListaPeriodoExp}"
+            reflow="true" pijama="true" sortMode="single"
+                export="true" exportTitle="listaPeriodosJustecCT"
+                exportFile="reportelistaPeriodosJustecCT">
+            
+            <atlasp:columnaListaPaginada label="" width="5%" styleClass="text-center">
+                <ui:define name="value">
+                    <p:commandLink ajax="true"
+                        title="#{bundle['tooltip.seleccionar']}"
+                        styleClass="btn-link-radio"
+                        actionListener="#{evaluacionJusTecBean.seleccionarPeriodo(item)}"
+                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                        <i class="far #{(evaluacionJusTecBean.expedienteJusTecSeleccionado!=null and 
+                                    evaluacionJusTecBean.expedienteJusTecSeleccionado.idExpedienteJusTec==item.idExpedienteJusTec)?'fa-check-circle':'fa-circle'}" />
+                    </p:commandLink>
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            <atlasp:columnaListaPaginada field="nmPeriodo"
+                filtrable="false" exportable="true"
+                label="#{bundle['convocatorias.detalle.periodos.titulo']}">
+                <ui:define name="value">
+                    <h:outputText value="#{item.nmPeriodo}" />
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            <atlasp:columnaListaPaginada field="tipoPeriodo"
+                filtrable="false" exportable="true"
+                label="#{bundle['convocatorias.detalle.periodos.tipo']}">
+                <ui:define name="value">
+                    <h:outputText value="#{item.tipoExpedienteJusTecDTO.dsValor}" />
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            <atlasp:columnaListaPaginada field="fcIniJustiCienTec"
+                filtrable="false" exportable="true"
+                label="#{bundle['convocatorias.detalle.solicitudes.expedientes.plazos.label.fecha.inicio.plazo.contrato']}">
+                <ui:define name="value">
+                    <h:outputText value="#{item.fcIniJustiCienTec}">
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                    </h:outputText>
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            <atlasp:columnaListaPaginada field="fcFinJustiCienTec"
+                filtrable="false" exportable="true"
+                label="#{bundle['convocatorias.detalle.solicitudes.expedientes.plazos.label.fecha.fin.plazo.contrato']}">
+                <ui:define name="value">
+                    <h:outputText value="#{item.fcFinJustiCienTec}">
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                    </h:outputText>
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            <atlasp:columnaListaPaginada field="idEstado"
+                filtrable="false" exportable="true"
+                label="#{bundle['convocatorias.detalle.periodos.estado']}">
+                <ui:define name="value">
+                    <h:outputText value="#{item.idEstadoDTO.dsValor}" />
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            <atlasp:columnaListaPaginada field="tlObservacion"
+                filtrable="false" exportable="true"
+                label="#{bundle['convocatorias.detalle.periodos.observaciones']}">
+                <ui:define name="value">
+                    <p:inputTextarea value="#{item.tlObservacion}"
+                        maxlength="2000" rows="2"
+                        readonly="#{evaluacionJusTecBean.puedeComentarObservaciones(convocatoriasBean.convocatoriaDTO.idEstado.idValor, item)}">
+                        <p:ajax event="blur"
+                            listener="#{evaluacionJusTecBean.actualizarObservacion(item)}"
+                            onstart="atlas.ui.Loading.showLoad('appLoading')"
+                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                            disabled="#{evaluacionJusTecBean.puedeComentarObservaciones(convocatoriasBean.convocatoriaDTO.idEstado.idValor,item)}" />
+                    </p:inputTextarea>
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+
+        </atlasp:listaPaginada>
+     </p:fieldset>
+  
+     <p:spacer height="10" />
+     
+     <!-- Tabla Evaluadores asignados Evaluacion -->
+     <p:panelGrid id="expEvalJusTec" columns="1" columnClasses="ui-g-12"
+                styleClass="ui-panelgrid-blank" layout="grid"
+                rendered="#{evaluacionJusTecBean.mostrarEvaluadoresEvaluacionJCT()}">
+
+            <h:outputText styleClass="tituloFormulario"
+            value="#{bundle['convocatorias.detalle.evaluadores.jct.label.titulo.evaluadores.jct.asociados.evaluacion']}" />
+    
+            <atlasp:listaPaginada id="ListaEvaluadoresAsignadosExpedienteJusTec"
+                    listAndCountMethod="#{evaluacionJusTecBean.obtenerListaEvaluadoresAsignadosExpedienteJusTec}"
+                    reflow="true" pijama="true" sortMode="single"
+                    export="true" exportTitle="EvaluadoresAsignadosExpedienteJusTec"
+                    exportFile="reporteEvaluadoresAsignadosExpedienteJusTec">
+                    <atlasp:columnaListaPaginada field="cdNumIden"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.expedientes.evaluacion.evaluador.identificador']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.interesadoDTO.cdNumIden}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <atlasp:columnaListaPaginada field="dsNombre"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.expedientes.evaluacion.evaluador.nombres']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.interesadoDTO.dsNombre}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <atlasp:columnaListaPaginada field="dsApellido1"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.expedientes.evaluacion.evaluador.apellido1']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.interesadoDTO.dsApellido1}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <atlasp:columnaListaPaginada field="dsApellido2"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.expedientes.evaluacion.evaluador.apellido2']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.interesadoDTO.dsApellido2}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <atlasp:columnaListaPaginada field="cdUsuario"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.evaluador.estado.jct']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.estadoDTO.dsValor}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                   <atlasp:columnaListaPaginada field="fcIniPlazo"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.evaluador.fecha.inicio.jct']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.fcIniPlazo}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm" yearRange="c-25:c+45" locale="es_ES"/>
+                            </h:outputText>
+                                    
+                        </ui:define>
+                   </atlasp:columnaListaPaginada>
+                   <atlasp:columnaListaPaginada field="fcFinPlazo"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.evaluador.fecha.fin.jct']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.fcFinPlazo}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm" yearRange="c-25:c+45" locale="es_ES"/>
+                            </h:outputText>
+                        </ui:define>
+                   </atlasp:columnaListaPaginada>
+            
+                   <atlasp:columnaListaPaginada field="obsEval"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.evaluador.comentario.jct.evaluador']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.obsEval}" />
+                        </ui:define>
+                   </atlasp:columnaListaPaginada>
+                   
+                    <atlasp:columnaListaPaginada field="obsGest"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.evaluador.comentario.jct.gestor']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.obsGest}" />
+                        </ui:define>
+                   </atlasp:columnaListaPaginada>
+                   
+                    <atlasp:columnaListaPaginada field="dsComentario"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.evaluador.comentario.jct.motivo.rechazo']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.dsComentario}" />
+                        </ui:define>
+                   </atlasp:columnaListaPaginada>
+                   
+                    <atlasp:columnaListaPaginada field="nmNotaFinal"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.evaluador.nota.jct']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.nmNotaFinal}" />
+                        </ui:define>
+                   </atlasp:columnaListaPaginada>
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['listado.columna.acciones']}"
+                        order="false" styleClass="acciones">
+                        <ui:define name="value">
+                            <div class="ui-g">
+                                <div class="ui-g-12 text-center">
+                                     <!-- VMM 30/09/26: ajax="true" process="@this" - accion de solo lectura, no hace falta procesar el formulario completo. -->
+                                     <atlasp:button
+                                        rendered="#{!evaluacionJusTecBean.modoConsulta and evaluacionJusTecBean.mostrarEditar(item.estadoDTO.idValor)}"
+                                        action="#{evaluacionJusTecBean.mostrarEvaluadoresAsignadosExpedienteJusTec(item.idExpedienteEvalJusTec)}"
+                                        ajax="true"
+                                        process="@this"
+                                        update="panelEvaluadorAsignadoExpedienteEvalJustecCT"
+                                        alt="#{bundle['boton.editar']}"
+                                        title="#{bundle['boton.editar']}"
+                                        icon="fas fa-edit"
+                                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                        tipoBoton="btn-link"/>
+                                     <!-- VMM 30/09/26: process="@this" - ya era ajax pero sin restringir el process
+                                          seguia procesando el formulario completo solo para abrir un dialogo de
+                                          solo lectura (mismo problema visto en solapaModifPresPlazoOtra.xhtml). -->
+                                     <atlasp:button
+                                        action="#{evaluacionJusTecBean.mostrarHistoricoExpedienteEvalJustecCT(item.idExpedienteEvalJusTec)}"
+                                        ajax="true"
+                                        process="@this"
+                                        update="panelHistoricoExpedienteEvalJustecCT"
+                                        alt="#{bundle['boton.historico']}"
+                                        title="#{bundle['boton.historico']}"
+                                        icon="fas fa-search"
+                                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                        tipoBoton="btn-link" />
+                                        <!-- VMM 30/09/26: ajax="true" process="@this" - accion de solo lectura, no hace falta procesar el formulario completo. -->
+                                        <atlasp:button
+                                            rendered="#{!evaluacionJusTecBean.modoConsulta and evaluacionJusTecBean.mostrarIconoAprobarDesaprobarExpedienteEvaluacionJustecCT(item.estadoDTO.idValor)}"
+                                            action="#{evaluacionJusTecBean.mostrarAprobarEvaluacionJCT(item.idExpedienteEvalJusTec)}"
+                                            ajax="true"
+                                            process="@this"
+                                            update="panelAprobarEvaluacionJCT"
+                                            alt="#{bundle['boton.aprobar']}"
+                                            title="#{bundle['boton.aprobar']}"
+                                            icon="fa-solid fa-thumbs-up"
+                                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                            tipoBoton="btn-link" />
+                                         <!-- VMM 30/09/26: ajax="true" process="@this" - accion de solo lectura, no hace falta procesar el formulario completo. -->
+                                         <atlasp:button
+                                            rendered="#{!evaluacionJusTecBean.modoConsulta and evaluacionJusTecBean.mostrarIconoAprobarDesaprobarExpedienteEvaluacionJustecCT(item.estadoDTO.idValor)}"
+                                            action="#{evaluacionJusTecBean.mostrarDesAprobarEvaluacionJCT(item.idExpedienteEvalJusTec)}"
+                                            ajax="true"
+                                            process="@this"
+                                            update="panelDesAprobarEvaluacionJCT"
+                                            alt="#{bundle['boton.desaprobar']}"
+                                            title="#{bundle['boton.desaprobar']}"
+                                            icon="fa-solid fa-thumbs-down"
+                                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                            tipoBoton="btn-link" />
+                                         <atlasp:button
+                                            rendered="#{!evaluacionJusTecBean.modoConsulta and evaluacionJusTecBean.mostrarIconoDescargarExpedienteEvaluacionJustecCT(item.idExpedienteEvalJusTec)}"
+                                            action="#{evaluacionJusTecBean.descargarExpedienteEvaluacionJustecCT(item.idExpedienteEvalJusTec)}"
+                                            ajax="false"
+                                            alt="#{bundle['boton.descargar']}"
+                                            title="#{bundle['boton.descargar']}" icon="fas fa-download"
+                                            tipoBoton="btn-link" />
+                                         <atlasp:button
+                                            rendered="#{!evaluacionJusTecBean.modoConsulta and !evaluacionJusTecBean.mostrarEliminar(item.estadoDTO.idValor)}" 
+                                            action="#{evaluacionJusTecBean.eliminarEvaluadorEvaluacionJCT(item.idExpedienteEvalJusTec)}"
+                                            ajax="true"
+                                            alt="#{bundle['boton.eliminar']}"
+                                            title="#{bundle['boton.eliminar']}"
+                                            icon="fas fa-trash"
+                                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                            tipoBoton="btn-link">
+                                            <f:facet name="events">
+                                                <p:confirm
+                                                header="#{bundle['popup.confirmar.baja.titulo']}"
+                                                icon="ui-icon-alert"
+                                                message="#{bundle['popup.confirmar.baja.evaluador.jct']}" />
+                                            </f:facet>
+                                        </atlasp:button>
+                                </div>
+                            </div>
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                </atlasp:listaPaginada>
+              
+                <atlasp:message tipo="info"
+                    texto="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.justcietec.documentacion.JCT.fechas.obligatorias']}"
+                    rendered="#{convocatoriasBean.convocatoriaDTO.itContratos != S}"/>
+                
+                <p:commandButton id="btnFinalizarEvaluacion"
+                    disabled="#{!evaluacionJusTecBean.modoConsulta and evaluacionJusTecBean.mostrarBotonFinalizarEvaluacion() or empty evaluacionJusTecBean.listaEvaluadoresAsignadosExpedienteJusTec}"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                    action="#{evaluacionJusTecBean.finalizarEvaluacionOk}"
+                    ajax="true"
+                    value="#{bundle['boton.finalizar.evaluacion']}"
+                    alt="#{bundle['boton.finalizar.evaluacion']}"
+                    title="#{bundle['boton.finalizar.evaluacion']}"
+                    icon="far fa-check-square"
+                    update="outpanelDocumentosSolapa"
+                    onclick="atlas.ui.Loading.showLoad('appLoading') "
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                    <f:facet name="events">
+                        <p:confirm
+                            header="#{bundle['popup.confirmar.operacion.titulo']}"
+                            message="#{bundle['popup.confirmar.pregunta.finalizar.evalucion.jct']}"
+                            icon="ui-icon-alert" />
+                    </f:facet>
+                </p:commandButton>
+           
+            <p:spacer height="1" />
+      
+        </p:panelGrid>
+    
+        <!-- Tabla evaluadores para asignar a la evaluacion -->
+        
+         <p:fieldset
+            legend="#{bundle['convocatorias.detalle.evaluadores.jct.label.titulo.evaluadoresAsignacion.jct.evaluacion']}"
+            toggleable="true" collapsed="true"
+            rendered="#{evaluacionJusTecBean.mostrarEvaluadoresEvaluacionJCT()
+                            and !evaluacionJusTecBean.mostrarAsignarEvaluadores()}">
+
+            <atlasp:message tipo="info"
+                texto="#{bundle['convocatorias.detalle.evaluacion.jct.label.info.evaluadores.jct.evaluacion']}" />
+
+            <p:panelGrid columns="1" columnClasses="ui-g-12"
+                layout="grid" styleClass="ui-panelgrid-blank">
+
+                <h:outputText styleClass="tituloFormulario"
+                    value="#{bundle['listados.filtros']}" />
+                <p:panelGrid columns="2"
+                    columnClasses="ui-g-12 ui-md-1 mtb-auto, ui-g-12 ui-md-2"
+                    layout="grid" styleClass="ui-panelgrid-blank">
+                    <h:outputText
+                        value="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.identificador']}" />
+                    <p:inputText
+                        value="#{evaluacionJusTecBean.filtroEvaluadorJusTec.cdNumIden}" />
+                </p:panelGrid>
+
+                <p:panelGrid columns="2"
+                    columnClasses="ui-g-12 ui-md-1 mtb-auto, ui-g-12 ui-md-4"
+                    layout="grid" styleClass="ui-panelgrid-blank">
+                    <h:outputText
+                        value="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.nombres']}" />
+                    <p:inputText
+                        value="#{evaluacionJusTecBean.filtroEvaluadorJusTec.dsNombre}" />
+
+                    <h:outputText
+                        value="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.apellido1']}" />
+                    <p:inputText
+                        value="#{evaluacionJusTecBean.filtroEvaluadorJusTec.dsApellido1}" />
+
+                    <h:outputText
+                        value="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.apellido2']}" />
+                    <p:inputText
+                        value="#{evaluacionJusTecBean.filtroEvaluadorJusTec.dsApellido2}" />
+
+                    <h:outputText
+                        value="#{bundle['personas.label.expedientes.evaluacion.codigo.login']}" />
+                    <p:inputText
+                        value="#{evaluacionJusTecBean.filtroEvaluadorJusTec.cdUsuario}" />
+
+                    <h:outputText
+                        value="#{bundle['personas.label.expedientes.evaluacion.evaluador.area.cientifica']}" />
+                    <p:column>
+                        <atlasp:comboValores id="cboAreaCientificaEvaluadorJCT" ajaxUpdate="false"
+                            enableManualInput="false" listWidth="50px"
+                            recargaAutomatica="false"
+                            value="#{evaluacionJusTecBean.filtroEvaluadorJusTec.idAreaCientifica}"
+                            externalProvider="#{comboBean.comboAreaCientifica}"/>
+                        <p:outputPanel styleClass="icono fa fa-fw fa-question-circle"
+                            id="helpPersonaAreaCientificaEvaluadorJCT" value="#{icon['icono.ayuda']}"
+                            alt="#{bundle['personas.label.expedientes.evaluacion.evaluador.area.cientifica.tooltipForm']}"
+                            title="#{bundle['personas.label.expedientes.evaluacion.evaluador.area.cientifica.tooltipForm']}" />
+                        <p:tooltip for="helpPersonaAreaCientificaEvaluadorJCT"
+                            value="#{bundle['personas.label.expedientes.evaluacion.evaluador.area.cientifica.tooltipForm']}" />
+                    </p:column>
+                </p:panelGrid>
+
+                <p:column>
+                    <atlasp:button id="btnFiltrarEvalJCT"
+                        value="#{bundle['boton.filtrar']}" ajax="true"
+                        alt="#{bundle['boton.filtrar']}"
+                        title="#{bundle['boton.filtrar']}"
+                        icon="fas fa-filter" tipoBoton="btn-primary"
+                        render="lpPersonasEvaluadoresJCT"/>
+                    <atlasp:button id="btnBorrarEvalJCT"
+                        value="#{bundle['boton.borrarFiltros']}"
+                        action="#{evaluacionJusTecBean.borrarFiltroPersonaEvaluador}"
+                        alt="#{bundle['boton.borrarFiltros']}"
+                        title="#{bundle['boton.borrarFiltros']}"
+                        render="lpPersonasEvaluadoresJCT" icon="fas fa-ban"
+                        tipoBoton="btn-secondary" />
+                </p:column>
+
+                <atlasp:listaPaginada id="lpPersonasEvaluadoresJCT"
+                    listAndCountMethod="#{evaluacionJusTecBean.obtenerListaPersonaEvaluadorEvaluacionJCT}"
+                    reflow="true" pijama="true" sortMode="single"
+                    export="true" exportTitle="Evaluadores"
+                    exportFile="reporteEvaluador">
+                    <atlasp:columnaListaPaginada field="cdNumIden"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.expedientes.evaluacion.evaluador.identificador']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.interesadoDTO.cdNumIden}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <atlasp:columnaListaPaginada field="dsNombre"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.expedientes.evaluacion.evaluador.nombres']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.interesadoDTO.dsNombre}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <atlasp:columnaListaPaginada field="dsApellido1"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.expedientes.evaluacion.evaluador.apellido1']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.interesadoDTO.dsApellido1}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <atlasp:columnaListaPaginada field="dsApellido2"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.expedientes.evaluacion.evaluador.apellido2']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.interesadoDTO.dsApellido2}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <atlasp:columnaListaPaginada field="cdUsuario"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.expedientes.evaluacion.evaluador.codigo.login']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.interesadoDTO.cdUsuario}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                   <atlasp:columnaListaPaginada field="areasCientificas"
+                        filtrable="false" exportable="true"
+                        label="#{bundle['personas.label.expedientes.evaluacion.evaluador.area.cientifica']}">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.areasCientificas}" />
+                        </ui:define>
+                   </atlasp:columnaListaPaginada>
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['listado.columna.acciones']}"
+                        order="false" styleClass="acciones">
+                        <ui:define name="value">
+                            <div class="ui-g">
+                                <div class="ui-g-12 text-center">
+                                    <atlasp:button
+                                        action="#{evaluacionJusTecBean.asociarEvaluadorJustecCt(item)}"
+                                        ajax="true"
+                                        alt="#{bundle['boton.agregar']}"
+                                        title="#{bundle['boton.agregar']}"
+                                        icon="fas fa-plus"
+                                        render="outpanelEvaluacionJCT"
+                                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                        disabled="#{evaluacionJusTecBean.isExpedienteRechazadoDefinitivo()}"
+                                        tipoBoton="btn-link">
+                                        <f:facet name="events">
+                                                <p:confirm
+                                                header="#{bundle['popup.confirmar.alta.titulo']}"
+                                                icon="ui-icon-alert"
+                                                message="#{bundle['popup.confirmar.alta.evaluador.jct']}" />
+                                            </f:facet>
+                                        </atlasp:button>
+                                </div>
+                            </div>
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                </atlasp:listaPaginada>
+            </p:panelGrid>
+
+        </p:fieldset>
+        
+        <!-- Dialog historico del ExpedienteEvalJustecCT -->
+        
+        <p:dialog id="dialogHistoricoExpedienteEvalJustecCT"
+            widgetVar="dialogHistoricoExpedienteEvalJustecCT"
+            header="#{bundle['expedientes.evaluacion.historico.titulo']}"
+            closable="true" dynamic="true" modal="true" width="70%"
+            onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        <p:outputPanel id="panelHistoricoExpedienteEvalJustecCT">
+            <atlasp:facesMessages id="fmHistoricoExpedienteEvalJustecCT"
+                modo="notificar" />
+            <div class="ui-g">
+                <div class="ui-g-12 borde-contenedor">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-4 ui-lg-2 mtb-auto">
+                            <h:outputText
+                                value="#{bundle['documentos.historico.expediente']}"
+                                styleClass="text-bold" />
+                        </div>
+                        <div class="ui-g-12 ui-md-8 ui-lg-10 mtb-auto">
+                            <h:outputText
+                                value="#{expedienteBean.expedienteDTO.cdExpediente}" />
+                        </div>
+                        <div class="ui-g-12">
+                            <atlasp:listaPaginada
+                                id="listaHistoricoExpedienteEvalJustecCT"
+                                listAndCountMethod="#{evaluacionJusTecBean.obtenerListaHistoricoExpedienteEvalJustecCT}"
+                                export="true"
+                                exportTitle="HistoricoExpedienteEvalJustecCT"
+                                exportFile="HistoricoExpedienteEvalJustecCT"
+                                emptyMessage="No se encontraron registros"
+                                sortMode="single" reflow="true"
+                                pijama="true">
+                                <atlasp:columnaListaPaginada
+                                    label="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.fecha.alta']}"
+                                    field="fcAltaFila" filtrable="false"
+                                    exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.fcAltaFila}">
+                                            <f:convertDateTime
+                                                type="date"
+                                                pattern="dd/MM/yyyy - HH:mm" />
+                                        </h:outputText>
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    label="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.estado']}"
+                                    field="estadoDTO.dsValor" filtrable="false" 
+                                    exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.estadoDTO.dsValor}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    field="itNotificado"
+                                    label="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.notificado']}"
+                                    filtrable="false" exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.itNotificado}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    field="obsEval"
+                                    label="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.observaciones.eavaluador']}"
+                                    filtrable="false" exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.obsEval}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    field="obsGest"
+                                    label="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.observaciones.gestor']}"
+                                    filtrable="false" exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.obsGest}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    field="dsComentario"
+                                    label="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.observaciones.motivo.rechazo']}"
+                                    filtrable="false" exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.dsComentario}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    field="nmNotaFinal"
+                                    label="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.nota']}"
+                                    filtrable="false" exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.nmNotaFinal}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    field="cdUsuAlta"
+                                    label="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.usuario.alta']}"
+                                    filtrable="false" exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.cdUsuAlta}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    label="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.fecha.inicio.plazo']}"
+                                    field="fcIniPlazo" filtrable="false"
+                                    exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.fcIniPlazo}">
+                                            <f:convertDateTime
+                                                type="date"
+                                                pattern="dd/MM/yyyy - HH:mm" />
+                                        </h:outputText>
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    label="#{bundle['convocatorias.detalle.expedientes.evaluacion.label.fecha.fin.plazo']}"
+                                    field="fcFinPlazo" filtrable="false"
+                                    exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.fcFinPlazo}">
+                                            <f:convertDateTime
+                                                type="date"
+                                                pattern="dd/MM/yyyy - HH:mm" />
+                                        </h:outputText>
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                            </atlasp:listaPaginada>
+                        </div>
+                        <div class="ui-g-12">
+                            <!-- VMM 30/09/26: ajax="false" hacia un postback completo solo para cerrar
+                                 el dialogo de solo lectura; con ajax="true" + process="@this" basta
+                                 (mismo problema visto en solapaModifPresPlazoOtra.xhtml). -->
+                            <atlasp:button
+                                action="#{evaluacionJusTecBean.cerrarHistoricoExpedienteEvalJustecCT}"
+                                ajax="true"
+                                process="@this"
+                                update="panelHistoricoExpedienteEvalJustecCT"
+                                value="#{bundle['boton.cerrar']}"
+                                alt="#{bundle['boton.cerrar']}"
+                                title="#{bundle['boton.cerrar']}"
+                                icon="fas fa-times"
+                                tipoBoton="btn-secondary"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p:outputPanel>
+    </p:dialog>
+    
+    <!-- Dialog editar evaluador -->
+    
+    <p:dialog id="dialogEditarEvaluadorAsignado"
+            widgetVar="dialogEditarEvaluadorAsignado"
+            header="#{bundle['expedientes.evaluacion.evaluador.asignado.jct.titulo']}"
+            closable="true" dynamic="true" modal="true" width="70%"
+            onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        <p:outputPanel id="panelEvaluadorAsignadoExpedienteEvalJustecCT">
+            <atlasp:facesMessages id="fmEvaluadorAsignadoExpedienteEvalJustecCT"
+                modo="notificar" />
+            <div class="ui-g">
+                <div class="ui-g-12 borde-contenedor">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-4 ui-lg-2 mtb-auto">
+                            <h:outputText
+                                value="#{bundle['documentos.historico.expediente']}"
+                                styleClass="text-bold" />
+                        </div>
+                        <div class="ui-g-12 ui-md-8 ui-lg-10 mtb-auto">
+                            <h:inputText
+                                value="#{expedienteBean.expedienteDTO.cdExpediente}" 
+                                disabled ="true"/>
+                        </div>
+                        <div class="ui-g-12">
+                            <p:dataTable id="listaEditarEvaluador" var="item" styleClass="atlas-lp"
+                                value="#{evaluacionJusTecBean.evaluadorSeleccionado}" emptyMessage="No se encontraron registros">
+                                <p:column
+                                    headerText="#{bundle['personas.label..evaluador.identificador.jct']}"
+                                    sortBy="#{item.interesadoDTO.cdNumIden}">
+                                    <h:outputText value="#{item.interesadoDTO.cdNumIden}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label..evaluador.identificador.jct']}"
+                                    sortBy="#{item.interesadoDTO.cdNumIden}">
+                                    <h:outputText value="#{item.interesadoDTO.cdNumIden}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.nombres.jct']}"
+                                    sortBy="#{item.interesadoDTO.dsNombre}">
+                                    <h:outputText value="#{item.interesadoDTO.dsNombre}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.apellido1.jct']}"
+                                    sortBy="#{item.interesadoDTO.dsApellido1}">
+                                    <h:outputText value="#{item.interesadoDTO.dsApellido1}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.apellido2.jct']}"
+                                    sortBy="#{item.interesadoDTO.dsApellido2}">
+                                    <h:outputText value="#{item.interesadoDTO.dsApellido2}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.estado.jct']}"
+                                    sortBy="#{item.estadoDTO.dsValor}">
+                                    <h:outputText value="#{item.estadoDTO.dsValor}" />
+                                 </p:column>
+                                 <p:column 
+                                    rendered="#{evaluacionJusTecBean.mostrarAlert(item.estadoDTO.idValor)}"  
+                                    headerText="#{bundle['personas.label.evaluador.fecha.inicio.jct']}"
+                                    sortBy="#{item.fcIniPlazo}">
+                                    <p:calendar
+                                        disabled="#{item.estadoDTO.nmConstante == 1660}" 
+                                        pattern="dd/MM/yyyy HH:mm" mask="true"
+                                        value="#{item.fcIniPlazo }"
+                                        styleClass="atlas-cal" locale="es_ES">
+                                    </p:calendar>
+                                 </p:column>
+                                 <p:column
+                                    rendered="#{!evaluacionJusTecBean.mostrarAlert(item.estadoDTO.idValor)}" 
+                                    headerText="#{bundle['personas.label.evaluador.fecha.inicio.jct']}"
+                                    sortBy="#{item.fcIniPlazo}">
+                                    <h:outputText value="#{item.fcIniPlazo}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                                    </h:outputText>
+                                 </p:column>
+                                 
+                                  <p:column
+                                    headerText="#{bundle['personas.label.evaluador.fecha.fin.jct']}"
+                                    sortBy="#{item.fcFinPlazo}" width="10%">
+                                        <p:calendar 
+                                        pattern="dd/MM/yyyy HH:mm" mask="true"
+                                        value="#{item.fcFinPlazo }"
+                                        styleClass="atlas-cal" locale="es_ES">
+                                    </p:calendar>
+                                 </p:column>
+                                 
+                                  <p:column
+                                    headerText="#{bundle['personas.label.evaluador.comentario.jct.evaluador']}"
+                                    sortBy="#{item.obsEval}">
+                                    <h:outputText value="#{item.obsEval}" />
+                                 </p:column>
+                                 
+                                  <p:column
+                                    headerText="#{bundle['personas.label.evaluador.comentario.jct.gestor']}"
+                                    sortBy="#{item.obsGest}">
+                                    <h:outputText value="#{item.obsGest}" />
+                                 </p:column>
+                                 
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.comentario.jct.motivo.rechazo']}"
+                                    sortBy="#{item.dsComentario}">
+                                    <h:outputText value="#{item.dsComentario}" />
+                                 </p:column>
+                                 
+                                <p:column
+                                    headerText="#{bundle['personas.label.evaluador.nota.jct']}"
+                                    sortBy="#{item.nmNotaFinal}" width="5%">
+                                    <h:outputText value="#{item.nmNotaFinal}"/>
+                                 </p:column>
+                            </p:dataTable>
+                        </div>
+                        <ui:fragment id="alertNoEvaluado"
+                                    rendered="#{!evaluacionJusTecBean.mostrarAlert(expedienteEvalJusTecDTO.estadoDTO.idValor)}">
+                        <div class="ui-g-12">
+                             <atlasp:button
+                                action="#{evaluacionJusTecBean.guardarCambios}"
+                                ajax="true"
+                                value="#{bundle['boton.guardar']}"
+                                alt="#{bundle['boton.guardar']}"
+                                title="#{bundle['boton.guardar']}"
+                                icon="fas fa-save"
+                                tipoBoton="btn-success"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                disabled="#{evaluacionJusTecBean.isExpedienteRechazadoDefinitivo()}">
+                                <f:facet name="events">
+                                    <p:confirm
+                                            header="#{bundle['popup.confirmar.fecha.fin']}"
+                                            icon="ui-icon-alert"
+                                            message="#{bundle['popup.confirmar.fecha.fin.mensaje']}" />
+                                </f:facet>
+                            </atlasp:button>
+                            <!-- VMM 30/09/26: ajax="true" process="@this" - accion de solo lectura, no hace falta procesar el formulario completo. -->
+                            <atlasp:button
+                                action="#{evaluacionJusTecBean.cerrarEvaluadorAsignadoExpedienteEvalJustecCT}"
+                                ajax="true"
+                                process="@this"
+                                update="panelEvaluadorAsignadoExpedienteEvalJustecCT"
+                                value="#{bundle['boton.cerrar']}"
+                                alt="#{bundle['boton.cerrar']}"
+                                title="#{bundle['boton.cerrar']}"
+                                icon="fas fa-times"
+                                tipoBoton="btn-secondary"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                        </div>
+                        </ui:fragment>
+                        <ui:fragment id="alertEvaluado"
+                                    rendered="#{evaluacionJusTecBean.mostrarAlert(expedienteEvalJusTecDTO.estadoDTO.idValor)}">
+                        <div class="ui-g-12">
+                             <atlasp:button
+                                action="#{evaluacionJusTecBean.guardarCambios}"
+                                ajax="true"
+                                value="#{bundle['boton.guardar']}"
+                                alt="#{bundle['boton.guardar']}"
+                                title="#{bundle['boton.guardar']}"
+                                icon="fas fa-save"
+                                tipoBoton="btn-success"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                disabled="#{evaluacionJusTecBean.isExpedienteRechazadoDefinitivo()}">
+                            </atlasp:button>
+                            <!-- VMM 30/09/26: ajax="true" process="@this" - accion de solo lectura, no hace falta procesar el formulario completo. -->
+                            <atlasp:button
+                                action="#{evaluacionJusTecBean.cerrarEvaluadorAsignadoExpedienteEvalJustecCT}"
+                                ajax="true"
+                                process="@this"
+                                update="panelEvaluadorAsignadoExpedienteEvalJustecCT"
+                                value="#{bundle['boton.cerrar']}"
+                                alt="#{bundle['boton.cerrar']}"
+                                title="#{bundle['boton.cerrar']}"
+                                icon="fas fa-times"
+                                tipoBoton="btn-secondary"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                        </div>
+                        </ui:fragment>
+                    </div>
+                </div>
+            </div>
+        </p:outputPanel>
+    </p:dialog>
+    
+    <!-- Dialog aprobar EvaluacionJCT -->
+    
+    <p:dialog id="dialogAprobarEvaluacionJCT"
+            widgetVar="dialogAprobarEvaluacionJCT"
+            header="#{bundle['expedientes.evaluacion.evaluador.asignado.jct.titulo.aprobar']}"
+            closable="true" dynamic="true" modal="true" width="70%"
+            onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        <p:outputPanel id="panelAprobarEvaluacionJCT">
+            <atlasp:facesMessages id="fmAprobarEvaluacionJCT"
+                modo="notificar" />
+            <div class="ui-g">
+                <div class="ui-g-12 borde-contenedor">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-4 ui-lg-2 mtb-auto">
+                            <h:outputText
+                                value="#{bundle['documentos.historico.expediente']}"
+                                styleClass="text-bold" />
+                        </div>
+                        <div class="ui-g-12 ui-md-8 ui-lg-10 mtb-auto">
+                            <h:outputText
+                                value="#{expedienteBean.expedienteDTO.cdExpediente}" />
+                        </div>
+                        <div class="ui-g-12">
+                            <p:dataTable id="listaEvaluacionAprobar" var="item" styleClass="atlas-lp"
+                                value="#{evaluacionJusTecBean.evaluadorSeleccionado}" emptyMessage="No se encontraron registros">
+                                <p:column
+                                    headerText="#{bundle['personas.label..evaluador.identificador.jct']}"
+                                    sortBy="#{item.interesadoDTO.cdNumIden}">
+                                    <h:outputText value="#{item.interesadoDTO.cdNumIden}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label..evaluador.identificador.jct']}"
+                                    sortBy="#{item.interesadoDTO.cdNumIden}">
+                                    <h:outputText value="#{item.interesadoDTO.cdNumIden}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.nombres.jct']}"
+                                    sortBy="#{item.interesadoDTO.dsNombre}">
+                                    <h:outputText value="#{item.interesadoDTO.dsNombre}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.apellido1.jct']}"
+                                    sortBy="#{item.interesadoDTO.dsApellido1}">
+                                    <h:outputText value="#{item.interesadoDTO.dsApellido1}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.apellido2.jct']}"
+                                    sortBy="#{item.interesadoDTO.dsApellido2}">
+                                    <h:outputText value="#{item.interesadoDTO.dsApellido2}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.estado.jct']}"
+                                    sortBy="#{item.estadoDTO.dsValor}">
+                                    <h:outputText value="#{item.estadoDTO.dsValor}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.fecha.inicio.jct']}"
+                                    sortBy="#{item.fcIniPlazo}">
+                                    <h:outputText value="#{item.fcIniPlazo}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                                    </h:outputText>
+                                 </p:column>
+                                  <p:column
+                                    headerText="#{bundle['personas.label.evaluador.fecha.fin.jct']}"
+                                    sortBy="#{item.fcFinPlazo}">
+                                    <h:outputText value="#{item.fcFinPlazo}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                                    </h:outputText>
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.comentario.jct.evaluador']}"
+                                        sortBy="#{item.obsEval}">
+                                    <h:outputText value="#{item.obsEval}" />
+                                </p:column>
+                                <p:column
+                                    headerText="#{bundle['personas.label.evaluador.comentario.jct.gestor']}"
+                                        sortBy="#{item.obsGest}">
+                                     <p:inputTextarea value="#{item.obsGest}"
+                                        maxlength="2000" rows="2"/>
+                                </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.comentario.jct.motivo.rechazo']}"
+                                        sortBy="#{item.dsComentario}">
+                                    <h:outputText value="#{item.dsComentario}" />
+                                </p:column>
+                                <p:column
+                                    headerText="#{bundle['personas.label.evaluador.nota.jct']}"
+                                    sortBy="#{item.nmNotaFinal}">
+                                    <h:outputText value="#{item.nmNotaFinal}" />
+                                 </p:column>
+                            </p:dataTable>
+                        </div>
+                        <div class="ui-g-12">
+                             <atlasp:button
+                                action="#{evaluacionJusTecBean.aprobarEvaluacionJCT}"
+                                ajax="true"
+                                value="#{bundle['boton.guardar']}"
+                                alt="#{bundle['boton.guardar']}"
+                                title="#{bundle['boton.guardar']}"
+                                icon="fas fa-save"
+                                tipoBoton="btn-success"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                disabled="#{evaluacionJusTecBean.isExpedienteRechazadoDefinitivo()}" />
+                            <!-- VMM 30/09/26: ajax="true" process="@this" - accion de solo lectura, no hace falta procesar el formulario completo. -->
+                            <atlasp:button
+                                action="#{evaluacionJusTecBean.cerrarAprobarEvaluacionJCT}"
+                                ajax="true"
+                                process="@this"
+                                update="panelAprobarEvaluacionJCT"
+                                value="#{bundle['boton.cerrar']}"
+                                alt="#{bundle['boton.cerrar']}"
+                                title="#{bundle['boton.cerrar']}"
+                                icon="fas fa-times"
+                                tipoBoton="btn-secondary"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p:outputPanel>
+    </p:dialog>
+    
+    <!-- Dialog desaprobar EvaluacionJCT -->
+    
+    <p:dialog id="dialogDesAprobarEvaluacionJCT"
+            widgetVar="dialogDesAprobarEvaluacionJCT"
+            header="#{bundle['expedientes.evaluacion.evaluador.asignado.jct.titulo.desaprobar']}"
+            closable="true" dynamic="true" modal="true" width="70%"
+            onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        <p:outputPanel id="panelDesAprobarEvaluacionJCT">
+            <atlasp:facesMessages id="fmDesAprobarEvaluacionJCT"
+                modo="notificar" />
+            <div class="ui-g">
+                <div class="ui-g-12 borde-contenedor">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-4 ui-lg-2 mtb-auto">
+                            <h:outputText
+                                value="#{bundle['documentos.historico.expediente']}"
+                                styleClass="text-bold" />
+                        </div>
+                        <div class="ui-g-12 ui-md-8 ui-lg-10 mtb-auto">
+                            <h:outputText
+                                value="#{expedienteBean.expedienteDTO.cdExpediente}" />
+                        </div>
+                        <div class="ui-g-12">
+                            <p:dataTable id="listaEvaluacionDesaprobar" var="item" styleClass="atlas-lp"
+                                value="#{evaluacionJusTecBean.evaluadorSeleccionado}" emptyMessage="No se encontraron registros">
+                                <p:column
+                                    headerText="#{bundle['personas.label..evaluador.identificador.jct']}"
+                                    sortBy="#{item.interesadoDTO.cdNumIden}">
+                                    <h:outputText value="#{item.interesadoDTO.cdNumIden}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label..evaluador.identificador.jct']}"
+                                    sortBy="#{item.interesadoDTO.cdNumIden}">
+                                    <h:outputText value="#{item.interesadoDTO.cdNumIden}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.nombres.jct']}"
+                                    sortBy="#{item.interesadoDTO.dsNombre}">
+                                    <h:outputText value="#{item.interesadoDTO.dsNombre}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.apellido1.jct']}"
+                                    sortBy="#{item.interesadoDTO.dsApellido1}">
+                                    <h:outputText value="#{item.interesadoDTO.dsApellido1}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.apellido2.jct']}"
+                                    sortBy="#{item.interesadoDTO.dsApellido2}">
+                                    <h:outputText value="#{item.interesadoDTO.dsApellido2}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.estado.jct']}"
+                                    sortBy="#{item.estadoDTO.dsValor}">
+                                    <h:outputText value="#{item.estadoDTO.dsValor}" />
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.fecha.inicio.jct']}"
+                                    sortBy="#{item.fcIniPlazo}">
+                                    <h:outputText value="#{item.fcIniPlazo}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                                    </h:outputText>
+                                 </p:column>
+                                  <p:column
+                                    headerText="#{bundle['personas.label.evaluador.fecha.fin.jct']}"
+                                    sortBy="#{item.fcFinPlazo}">
+                                    <h:outputText value="#{item.fcFinPlazo}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                                    </h:outputText>
+                                 </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.comentario.jct.evaluador']}"
+                                        sortBy="#{item.item.obsEval}">
+                                    <h:outputText value="#{item.obsEval}" />
+                                </p:column>
+                                <p:column
+                                    headerText="#{bundle['personas.label.evaluador.comentario.jct.gestor']}"
+                                        sortBy="#{item.item.obsGest}">
+                                    <h:outputText value="#{item.obsGest}" />
+                                </p:column>
+                                 <p:column
+                                    headerText="#{bundle['personas.label.evaluador.comentario.jct.motivo.rechazo']}"
+                                        sortBy="#{item.item.dsComentario}">
+                                    <p:inputTextarea value="#{item.dsComentario}"
+                                        maxlength="2000" rows="2"/>
+                                </p:column>
+                                <p:column
+                                    headerText="#{bundle['personas.label.evaluador.nota.jct']}"
+                                    sortBy="#{item.nmNotaFinal}">
+                                    <h:outputText value="#{item.nmNotaFinal}" />
+                                 </p:column>
+                            </p:dataTable>
+                        </div>
+                        <div class="ui-g-12">
+                             <atlasp:button
+                                action="#{evaluacionJusTecBean.desAprobarEvaluacionJCT}"
+                                ajax="true"
+                                value="#{bundle['boton.guardar']}"
+                                alt="#{bundle['boton.guardar']}"
+                                title="#{bundle['boton.guardar']}"
+                                icon="fas fa-save"
+                                tipoBoton="btn-success"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                disabled="#{evaluacionJusTecBean.isExpedienteRechazadoDefinitivo()}" />
+                            <!-- VMM 30/09/26: ajax="true" process="@this" - accion de solo lectura, no hace falta procesar el formulario completo. -->
+                            <atlasp:button
+                                action="#{evaluacionJusTecBean.cerrarDesAprobarEvaluacionJCT}"
+                                ajax="true"
+                                process="@this"
+                                update="panelDesAprobarEvaluacionJCT"
+                                value="#{bundle['boton.cerrar']}"
+                                alt="#{bundle['boton.cerrar']}"
+                                title="#{bundle['boton.cerrar']}"
+                                icon="fas fa-times"
+                                tipoBoton="btn-secondary"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p:outputPanel>
+    </p:dialog>
+    
+    </p:outputPanel>
+    
+</ui:composition>

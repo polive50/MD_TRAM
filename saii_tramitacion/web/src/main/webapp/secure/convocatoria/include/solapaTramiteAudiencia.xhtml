@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
+
+    <atlasp:guardarEstado value="#{expedienteBean.expedienteDTO}" />
+    <atlasp:guardarEstado value="#{resolucionBean.expedienteDocDTO700}" />
+    <atlasp:guardarEstado value="#{convocatoriasBean.modoConsulta}" />
+    <atlasp:guardarEstado value="#{resolucionBean.existeDocPropuestaResProv}" />
+    <atlasp:guardarEstado value="#{convocatoriasBean.itAlegacion}" />
+    <atlasp:guardarEstado value="#{resolucionBean.idConvocatoria}" />
+    <atlasp:guardarEstado value="#{resolucionBean.mostrarMensajeElegirFichero}" />
+    
+    <atlasp:guardarEstado value="#{resolucionBean.tramiteDocProvisional}" />
+    <atlasp:guardarEstado value="#{resolucionBean.tramiteDocDefinitivo}" />
+     
+    <atlasp:guardarEstado value="#{resolucionBean.valorConcedidoProv}" />
+    <atlasp:guardarEstado value="#{resolucionBean.valorDenegadoProv}" />
+    <atlasp:guardarEstado value="#{resolucionBean.valorConcedidoDef}" />
+    <atlasp:guardarEstado value="#{resolucionBean.valorDenegadoDef}" />
+    <atlasp:guardarEstado value="#{resolucionBean.activarConcederDenegar}" />
+
+    <!-- ID del panel principal cambiado a 'outpanelResolucionProvAlegSolapa' -->
+    <p:panelGrid id="outpanelResolucionProvAlegSolapa" 
+        widgetVar="outpanelResolucionProvAlegSolapa"
+        columns="1"
+        columnClasses="ui-g-12" layout="grid"
+        styleClass="ui-panelgrid-blank">
+        
+        <p:panelGrid rendered="#{resolucionBean.cargarDocumentos()}" />
+
+        <p:panelGrid id="parteResolucionProvisionalNueva" >
+
+            <!-- Sección RESOLUCION PROVISIONAL -->
+            <h:outputText styleClass="tituloFormulario"
+                value="#{bundle['solapa.resol.titulo.provisional']}" />
+
+            <p:panelGrid columns="1" columnClasses="ui-g-12"
+                rendered="#{expedienteBean.expedienteDTO.estadoProvisionalDTO.nmConstante ne '249' and expedienteBean.expedienteDTO.estadoProvisionalDTO.nmConstante ne '248'}">
+                
+                <atlasp:message tipo="info"
+                    texto="#{bundle['solapa.resol.msg.info.informes.tramite.expediente.provicionalmente']}"
+                    rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.blMostrarMensajeAprobarDenegarProvisional1}" />
+                                   
+                <atlasp:message tipo="info"
+                    texto="#{bundle['solapa.resol.msg.info.informes.tramite.expediente.renuncia.expresa']}"
+                    rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.blMostrarMensajeAprobarDenegarProvisional2}" />
+                
+                <atlasp:message tipo="info"
+                    texto="#{bundle['solapa.resol.msg.info.informes.tramite.expediente.no.documento.resolucion.provisional']}"
+                    rendered="#{!expedienteBean.expedienteDTO.modoConsulta and !resolucionBean.existeDocPropuestaResProv}" />   
+                    
+            </p:panelGrid>
+
+            <p:panelGrid columns="1"
+                columnClasses="ui-g-12 ui-md-4 ui-lg-4 ui-xl-3 mtb-auto"
+                layout="grid" styleClass="ui-panelgrid-blank"
+                rendered="#{ expedienteBean.expedienteDTO.blEstadoProvisional != null and expedienteBean.expedienteDTO.blEstadoProvisional}">
+                <p:inputText id="panelDsNombreEstadoResolucionProv"
+                    styleClass="#{expedienteBean.expedienteDTO.colorFondoText}"
+                    readonly="true"
+                    value="#{expedienteBean.expedienteDTO.estadoProvisionalDTO.dsValor}" />
+            </p:panelGrid>
+          
+                <p:commandButton id="btnSubirResolucionProvisionalProv"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-primary"
+                    action="#{resolucionBean.subirResolucionProvisionalDialog}"
+                    ajax="true"
+                    value="#{bundle['solapa.resol.boton.subir.resol.provisional']}"
+                    alt="#{bundle['solapa.resol.boton.subir.resol.provisional']}"
+                    title="#{bundle['solapa.resol.boton.subir.resol.provisional']}"
+                    icon="fa fa-upload" update="outpanelDocumentosSolapa"
+                    onclick="atlas.ui.Loading.showLoad('appLoading') "
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                    disabled="#{!resolucionBean.habilitarSubirResolucionProvisional(convocatoriasBean.modoConsulta)}">
+                </p:commandButton>
+
+                <p:commandButton id="btnDescargarResolucionProvisionalProv"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-primary"
+                    action="#{resolucionBean.descargaFicheroProvisional}"
+                    ajax="false"
+                    value="#{bundle['solapa.resol.boton.bajar.resol.provisional']}"
+                    alt="#{bundle['solapa.resol.boton.bajar.resol.provisional']}"
+                    title="#{bundle['solapa.resol.boton.bajar.resol.provisional']}"
+                    icon="fa fa-download" update="outpanelDocumentosSolapa"
+                    disabled="#{!resolucionBean.habilitarBotonDescargarProvisional()}">
+                </p:commandButton>
+                
+                <p:commandButton ajax="true"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                    value="#{bundle['solapa.resol.boton.aprobar.provisional']}"
+                    alt="#{bundle['solapa.resol.boton.aprobar.provisional']}"
+                    title="#{bundle['solapa.resol.boton.aprobar.provisional']}"
+                    icon="fa fa-check" render="outpanelResolucionProvAlegSolapa"
+                    disabled="#{!resolucionBean.habilitarConcederProvisional(convocatoriasBean.modoConsulta)}"
+                    action="#{resolucionBean.concederProvisional}"
+                     rendered="#{resolucionBean.mostrarBotonConcederDenegarProvisional}"> 
+                    <f:facet name="events">
+                        <p:confirm
+                            header="#{bundle['solapa.resol.boton.aprobar.provisional']}"
+                            icon="ui-icon-alert"
+                            message="#{bundle['solapa.resol.boton.aprobar.provisional.resolucion']}" />
+                    </f:facet>
+                </p:commandButton>
+         
+                <p:commandButton ajax="true"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger"
+                    action="#{resolucionBean.denegarProvisionalIndividual}"
+                    value="#{bundle['solapa.resol.boton.denegar.provisional']}"
+                    alt="#{bundle['solapa.resol.boton.denegar.provisional']}"
+                    title="#{bundle['solapa.resol.boton.denegar.provisional']}"
+                    icon="fa fa-ban" render="outpanelResolucionProvAlegSolapa"
+                    disabled="#{!resolucionBean.habilitarConcederProvisional(convocatoriasBean.modoConsulta)}"
+                     rendered="#{resolucionBean.mostrarBotonConcederDenegarProvisional}"> 
+                    <f:facet name="events">
+                        <p:confirm
+                            header="#{bundle['solapa.resol.boton.denegar.provisional']}"
+                            icon="ui-icon-alert"
+                            message="#{bundle['solapa.resol.boton.denegar.provisional.resolucion']}" />
+                    </f:facet>
+                </p:commandButton>
+
+                <p:commandButton ajax="true"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-secondary"
+                    action="#{resolucionBean.revertirAprobadoProvisional}"
+                    value="#{bundle['solapa.resol.boton.revertir.provisional']}"
+                    alt="#{bundle['solapa.resol.boton.revertir.provisional']}"
+                    title="#{bundle['solapa.resol.boton.revertir.provisional']}"
+                    icon="fa fa-history" render="outpanelResolucionProvAlegSolapa"
+                    disabled="#{!resolucionBean.habilitaRevertirResolucionProvisional(convocatoriasBean.modoConsulta)}">
+                    <f:facet name="events">
+                        <p:confirm
+                            header="#{bundle['solapa.resol.boton.revertir.provisional']}"
+                            icon="ui-icon-alert"
+                            message="#{bundle['solapa.resol.boton.revertir.provisional.resolucion']}" />
+                    </f:facet>
+                </p:commandButton>
+
+                <p:commandButton ajax="true"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-warning"
+                    value="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
+                    alt="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
+                    title="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
+                    icon="fa fa-paper-plane"
+                    render="outpanelResolucionProvAlegSolapa"
+                    disabled="#{!resolucionBean.habilitarEnviarColaPortafirmasProvisional(convocatoriasBean.modoConsulta)}"
+                    action="#{resolucionBean.enviarColaPortafirmasProvisional}">
+                    <f:facet name="events">
+                        <p:confirm
+                            header="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
+                            icon="ui-icon-alert"
+                            message="#{bundle['solapa.resol.boton.enviar.cola.portafirmas.enviar']}" />
+                    </f:facet>
+                </p:commandButton>
+           
+            
+            <p:panelGrid columns="6" style="width:100%;" styleClass="ui-panelgrid-compact">
+                <!-- Fecha envío a Note -->
+                <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.fechaColaNote']}" style="font-weight:bold;" />
+                <p:inputText value="#{resolucionBean.tramiteDocProvisional.fcEnvioNote}" readonly="true"
+                             style="width:auto; min-width:200px;">
+                    <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
+                </p:inputText>
+            
+                <!-- Estado Note -->
+                <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.estadoNote']}" style="font-weight:bold;" />
+                <p:inputText value="Puesta a disposición" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '1'}"
+                             style="width:auto; min-width:200px;" readonly="true"/>
+                <p:inputText value="Leído" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '2'}"
+                             style="width:auto; min-width:200px;" readonly="true"/>
+                <p:inputText value="Rechazado" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3'}"
+                             style="width:auto; min-width:200px;" readonly="true"/>
+                <p:inputText value="Rechazado automáticamente" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}"
+                             style="width:auto; min-width:200px;" readonly="true"/>
+                <p:inputText value="Sin Notificación" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote == null}"
+                             style="width:auto; min-width:200px;" readonly="true" />
+            
+                <!-- Fecha rechazo -->
+                <h:outputText rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3' or resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}"
+                              value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.fecha.rechazo']}" style="font-weight:bold;" />
+                <p:inputText value="#{resolucionBean.tramiteDocProvisional.fcRechazoNote}" readonly="true" 
+                             rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3' or resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}"
+                             style="width:auto; min-width:200px;" >
+                    <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
+                </p:inputText>
+            </p:panelGrid>
+
+            <!-- Sección ALEGACIONES -->
+            <p:panelGrid columns="1" columnClasses="ui-g-12"
+                rendered="#{convocatoriasBean.compropbarAlegacion()}">
+
+                <h:outputText styleClass="tituloFormulario"
+                    value="#{bundle['solapa.resol.titulo.alegaciones']}"
+                    rendered="#{convocatoriasBean.compropbarAlegacion()}" />
+        
+                <atlasp:message tipo="info"
+                    texto="#{bundle['solapa.resolucion.alegaciones.presentadas']}"
+                    rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.itAlegaciones != null and expedienteBean.expedienteDTO.itAlegaciones eq 'S'
+                        and expedienteBean.expedienteDTO.estadoDTO.nmConstante eq '229' and (expedienteBean.expedienteDTO.itAlegacionRevisada == 'N' or expedienteBean.expedienteDTO.itAlegacionRevisada == null)}" />
+                        
+                <atlasp:message tipo="info"
+                    texto="#{bundle['solapa.resolucion.alegaciones.evalucion.alegacion']}"
+                    rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.cdFicaValoracionAleg==null and
+                                                        expedienteBean.expedienteDTO.itAlegaciones != null and 
+                                                        expedienteBean.expedienteDTO.itAlegaciones eq 'S' 
+                                                        and convocatoriasBean.convocatoriaDTO.tipoResolModalidadDTO.cdTipoResolucion == 'C'}" />
+
+                <atlasp:message tipo="info"
+                    texto="#{bundle['solapa.resolucion.alegaciones.no.presentadas']}"
+                    rendered="#{!expedienteBean.expedienteDTO.modoConsulta and resolucionBean.mostrarMensajeSinAlegaciones()}" />
+
+                <atlasp:message tipo="info"
+                    texto="#{bundle['solapa.resolucion.alegaciones.no.presentadas.plazo.expirado']}"
+                    rendered="#{!expedienteBean.expedienteDTO.modoConsulta and resolucionBean.mostrarMensajeSinAlegacionesExpirada()}" />
+
+                <p:fieldset
+                    legend="#{bundle['solapa.resol.titulo.alegaciones']}"
+                    toggleable="true" toggleSpeed="300" collapsed="true">
+                    <p:panelGrid columns="1" columnClasses="ui-g-12"
+                        layout="grid" styleClass="ui-panelgrid-blank"
+                        rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.estadoProvisionalDTO.idValor !=null}">
+
+                        <p:column
+                            rendered="#{!expedienteBean.expedienteDTO.modoConsulta 
+                                and expedienteBean.expedienteDTO.itAlegaciones != null 
+                                and expedienteBean.expedienteDTO.itAlegaciones eq 'S'}">
+                            
+                            <p:commandButton ajax="true"
+                                title="#{bundle['solapa.resolucion.alegaciones.aprobar']}"
+                                value="#{bundle['solapa.resolucion.alegaciones.aprobar']}"
+                                alt="#{bundle['solapa.resolucion.alegaciones.aprobar']}"
+                                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"                            
+                                action="#{resolucionBean.aprobarAlegacion()}"                   
+                                disabled="#{resolucionBean.existeExpedienteDocDefinitiva() or expedienteBean.expedienteDTO.itAlegacionRevisada == 'S' or expedienteBean.expedienteDTO.itAlegacionRevisada == 'N' or resolucionBean.isExpedienteRechazadoDefinitivo()}"
+                                icon="fa fa-check" render="outpanelResolucionProvAlegSolapa">
+                                     <f:facet name="events">
+                                        <p:confirm
+                                            header="#{bundle['solapa.resolucion.alegaciones.aprobar']}"
+                                            icon="ui-icon-alert"
+                                            message="#{bundle['solapa.resol.boton.aprobar.alegacion']}" />
+                                    </f:facet>
+                            </p:commandButton>
+                            
+                            <p:commandButton ajax="true"
+                                    title="#{bundle['solapa.resolucion.alegaciones.rechazar']}"
+                                    value="#{bundle['solapa.resolucion.alegaciones.rechazar']}"
+                                    alt="#{bundle['solapa.resolucion.alegaciones.rechazar']}"
+                                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger"                              
+                                    action="#{resolucionBean.rechazarAlegacion()}"  
+                                    icon="fa fa-ban" render="outpanelResolucionProvAlegSolapa"
+                                    disabled="#{resolucionBean.existeExpedienteDocDefinitiva() or expedienteBean.expedienteDTO.itAlegacionRevisada == 'S' or expedienteBean.expedienteDTO.itAlegacionRevisada == 'N' or resolucionBean.isExpedienteRechazadoDefinitivo()}">                                
+                                     <f:facet name="events">
+                                        <p:confirm
+                                            header="#{bundle['solapa.resolucion.alegaciones.rechazar']}"
+                                            icon="ui-icon-alert"
+                                            message="#{bundle['solapa.resol.boton.rechazar.alegacion']}" />
+                                    </f:facet>         
+                            </p:commandButton>
+                        </p:column>
+
+                        <atlasp:message tipo="info"
+                            texto="#{bundle['solapa.resolucion.pendiente.realizar.informe']}"
+                            rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.cdFicaValoracionAleg == null and 
+                                                        expedienteBean.expedienteDTO.itAlegaciones != null and 
+                                                        expedienteBean.expedienteDTO.itAlegaciones eq 'S'
+                                                        and convocatoriasBean.convocatoriaDTO.tipoResolModalidadDTO.cdTipoResolucion == 'C'}" />
+                        <atlasp:button
+                            action="#{resolucionBean.descargarDocumentoAlegacion}"
+                            icon="fas fa-file-download"
+                            rendered="#{expedienteBean.expedienteDTO.cdFicaValoracionAleg!=null}"
+                            value="#{bundle['solapa.resolucion.btn.descargar.informe.valoracion']}"
+                            tipoBoton="btn-primary" />
+                        <atlasp:button icon="fas fa-file-download"
+                            rendered="#{expedienteBean.expedienteDTO.cdFicaValoracionAleg==null and
+                                                        expedienteBean.expedienteDTO.itAlegaciones != null and 
+                                                        expedienteBean.expedienteDTO.itAlegaciones eq 'S' 
+                                                        and convocatoriasBean.convocatoriaDTO.tipoResolModalidadDTO.cdTipoResolucion == 'C'}"
+                            disabled="true"
+                            value="#{bundle['solapa.resolucion.btn.descargar.informe.valoracion']}"
+                            tipoBoton="btn-primary" />
+                    </p:panelGrid>
+                </p:fieldset>
+                
+                <atlasp:message tipo="info"
+                    texto="Alegación Aprobada"
+                    rendered="#{expedienteBean.expedienteDTO.itAlegacionRevisada == 'S'}" />
+                <atlasp:message tipo="info"
+                   texto="Alegación Rechazada"
+                    rendered="#{expedienteBean.expedienteDTO.itAlegacionRevisada == 'N'}" />
+            </p:panelGrid>
+            <!-- Fin sección alegaciones -->
+
+        </p:panelGrid>
+        <!-- Fin sección Provisional -->
+
+        <h:outputText styleClass="tituloFormulario"
+            value="#{bundle['solapa.resol.titulo.definitivo']}" />
+            
+            <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-4 ui-lg-4 ui-xl-3 mtb-auto" layout="grid"
+                    styleClass="ui-panelgrid-blank" rendered="#{expedienteBean.expedienteDTO.blEstadoDefinitivo != null and expedienteBean.expedienteDTO.blEstadoDefinitivo}">
+            <p:inputText id="panelDsNombreEstadoResolDefConjunto"
+                styleClass="#{expedienteBean.expedienteDTO.colorFondoTextResolucionDef}"
+                readonly="true"
+                value="#{expedienteBean.expedienteDTO.estadoDTO.dsValor}" />                    
+        </p:panelGrid>
+
+        <p:column>
+        
+            <p:commandButton id="btnDescargarResolucionDefinitivaConjunto"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-primary"
+                action="#{resolucionBean.descargaFicheroDefinitivo}"
+                ajax="false"
+                value="#{bundle['solapa.resol.boton.bajar.resol.definitiva']}"
+                alt="#{bundle['solapa.resol.boton.bajar.resol.definitiva']}"
+                title="#{bundle['solapa.resol.boton.bajar.resol.definitiva']}"
+                icon="fa fa-download" update="outpanelDocumentosSolapa"
+                disabled="#{!resolucionBean.habilitarBotonDescargarDefinitivo()}">
+            </p:commandButton>
+            
+            <p:commandButton ajax="true"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                value="#{bundle['solapa.resol.boton.aprobar.definitivo']}"
+                alt="#{bundle['solapa.resol.boton.aprobar.definitivo']}"
+                title="#{bundle['solapa.resol.boton.aprobar.definitivo']}"
+                icon="fa fa-check" render="outpanelResolucionSolapa"
+                action="#{resolucionBean.concederDefinitivo}"
+                disabled="#{!resolucionBean.habilitarBotonConcederDefinitivo(convocatoriasBean.modoConsulta)}"
+                rendered="#{resolucionBean.activarConcederDenegar()}">
+                <f:facet name="events">
+                    <p:confirm
+                        header="#{bundle['solapa.resol.boton.aprobar.definitivo']}"
+                        icon="ui-icon-alert"
+                        message="#{bundle['solapa.resol.boton.conceder.definitivo.resolucion']}" />
+                </f:facet>
+            </p:commandButton>
+
+            <p:commandButton ajax="true"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger"
+                value="#{bundle['solapa.resol.boton.excluir.definitivo']}"
+                alt="#{bundle['solapa.resol.boton.excluir.definitivo']}"
+                title="#{bundle['solapa.resol.boton.excluir.definitivo']}"
+                icon="fa fa-ban" render="outpanelResolucionSolapa"
+                action="#{resolucionBean.excluirDefinitivo}"
+                disabled="#{!resolucionBean.habilitarBotonConcederDefinitivo(convocatoriasBean.modoConsulta)}"
+                rendered="#{resolucionBean.habilitarExcluirDef()}">
+                <f:facet name="events">
+                    <p:confirm
+                        header="#{bundle['solapa.resol.boton.excluir.definitivo']}"
+                        icon="ui-icon-alert"
+                        message="#{bundle['solapa.resol.boton.excluir.definitivo.resolucion']}" />
+                </f:facet>
+            </p:commandButton>
+            
+            <p:commandButton ajax="true"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger"
+                value="#{bundle['solapa.resol.boton.desistir.definitivo']}"
+                alt="#{bundle['solapa.resol.boton.desistir.definitivo']}"
+                title="#{bundle['solapa.resol.boton.desistir.definitivo']}"
+                icon="fa fa-ban" render="outpanelResolucionSolapa"
+                action="#{resolucionBean.desistirDefinitivo}"
+                disabled="#{!resolucionBean.habilitarBotonConcederDefinitivo(convocatoriasBean.modoConsulta)}"
+                rendered="#{resolucionBean.habilitarDesistirDef()}">
+                <f:facet name="events">
+                    <p:confirm
+                        header="#{bundle['solapa.resol.boton.desistir.definitivo']}"
+                        icon="ui-icon-alert"
+                        message="#{bundle['solapa.resol.boton.desistir.definitivo.resolucion']}" />
+                </f:facet>
+            </p:commandButton>
+
+
+            <p:commandButton ajax="true"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger"
+                value="#{bundle['solapa.resol.boton.denegar.definitivo']}"
+                alt="#{bundle['solapa.resol.boton.denegar.definitivo']}"
+                title="#{bundle['solapa.resol.boton.denegar.definitivo']}"
+                icon="fa fa-ban" render="outpanelResolucionSolapa"
+                action="#{resolucionBean.denegarDefinitivoIndividual}"
+                disabled="#{!resolucionBean.habilitarBotonConcederDefinitivo(convocatoriasBean.modoConsulta)}"
+                rendered="#{resolucionBean.activarConcederDenegar()}">
+                <f:facet name="events">
+                    <p:confirm
+                        header="#{bundle['solapa.resol.boton.denegar.definitivo']}"
+                        icon="ui-icon-alert"
+                        message="#{bundle['solapa.resol.boton.denegar.definitivo.resolucion']}" />
+                </f:facet>
+            </p:commandButton>
+            
+        </p:column>
+
+        <h:outputText styleClass="tituloFormulario"
+                value="#{bundle['solapa.resol.titulo.definitivo.pendiente']}" />
+                
+         <p:column>
+            
+
+                <p:commandButton id="btnDescargarAceptacionConjunto"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-primary"
+                    action="#{resolucionBean.descargaFicheroAceptacion}"
+                    ajax="false"
+                    value="#{bundle['solapa.resol.boton.bajar.resol.ayuda']}"
+                    alt="#{bundle['solapa.resol.boton.bajar.resol.ayuda']}"
+                    title="#{bundle['solapa.resol.boton.bajar.resol.ayuda']}"
+                    icon="fa fa-download"
+                    update="outpanelDocumentosSolapa"
+                    immediate="true"
+                    disabled="#{resolucionBean.expedienteDocDTO700.codigoEreg == null}">
+                </p:commandButton>
+            
+            <p:commandButton id="btnFinalizarAceptacionAyudaConjunto"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                action="#{resolucionBean.finalizarRevisionAyuda}"
+                ajax="false"
+                value="#{bundle['solapa.resol.boton.resol.aceptar.ayudar']}"
+                alt="#{bundle['solapa.resol.boton.resol.aceptar.ayudar']}"
+                title="#{bundle['solapa.resol.boton.resol.aceptar.ayudar']}"
+                icon="fa fa-check" update="outpanelDocumentosSolapa"
+                disabled="#{expedienteBean.expedienteDTO.estadoDTO.nmConstante != 245 or convocatoriasBean.modoConsulta}"> <!-- VMM 09/02/26 MD-2341: no habilitar el boton si es rol auditor  -->
+            </p:commandButton>            
+            
+            </p:column>
+
+
+
+
+    </p:panelGrid>
+    
+    <!-- Diálogo para subir Resolución Provisional (IDs adaptados) -->
+    <p:dialog id="dialogSubirResolucionProvisionalProv"
+        widgetVar="dialogSubirResolucionProvisionalProv"
+        header="#{bundle['solapa.resol.agregar.resolucion.provisional']}"
+        closable="false" dynamic="true" modal="true" width="25%"
+        onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        
+        <atlasp:facesMessages id="fmSubirResolucionProvisionalProv" modo="notificar" />
+        <p:outputPanel id="outPanelSubirResolucionProvisionalProv">
+            <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                <h:outputText styleClass="tituloFormulario" value="#{bundle['solapa.resol.resolucion.provisional.titulo']}" />
+            </p:panelGrid>
+
+            <atlasp:message tipo="info"
+                texto="#{bundle['solapa.resol.error.debe.seleccionar.fichero']}"
+                rendered="#{resolucionBean.mostrarMensajeElegirFichero}" />
+
+            <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                <h:outputText value="#{bundle['convocatorias.tab.documentos.label.archivo']}" />
+                <p:fileUpload value="#{resolucionBean.archivoResolucion}"
+                    mode="simple" skinSimple="true"
+                    label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}"
+                    accept=".pdf"
+                    allowTypes="/(\.|\/)(pdf)$/"
+                    invalidFileMessage="Solo se permiten archivos PDF">
+                </p:fileUpload>
+            </p:panelGrid>
+            
+            <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                <p:column>
+                    <atlasp:button
+                        actionListener="#{resolucionBean.cargarFicheroProvisional}"
+                        ajax="false" value="#{bundle['popup.guardar']}"
+                        alt="#{bundle['popup.guardar']}"
+                        title="#{bundle['popup.guardar']}"
+                        icon="fas fa-save" tipoBoton="btn-success"
+                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                    </atlasp:button>
+                    <atlasp:button value="#{bundle['popup.cerrar']}"
+                        alt="#{bundle['popup.cerrar']}"
+                        title="#{bundle['popup.cerrar']}"
+                        icon="fas fa-times" tipoBoton="btn-secondary"
+                        action="#{resolucionBean.cerrarSubirResolucionProvisionalDialog}"
+                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                    </atlasp:button>
+                </p:column>
+            </p:panelGrid>
+        </p:outputPanel>
+    </p:dialog>
+
+    <!-- Diálogo Confirmación Revisión Alegación (IDs adaptados) -->
+    <p:dialog id="dlgAlegacionRevisadaPorGestorConfirmacionProv"
+        widgetVar="dlgAlegacionRevisadaPorGestorConfirmacionProv"
+        header="#{bundle['popup.confirmar.operacion.titulo']}"
+        dynamic="true" closable="false" modal="true" draggable="true"
+        responsive="true" showEffect="fade" hideEffect="fade"
+        resizable="false">
+        <p:panelGrid columns="1" columnClasses="ui-g-12 text-center" layout="grid" styleClass="ui-panelgrid-blank">
+            <p:column>
+                <i class="fas fa-triangle-exclamation" />
+                <h:outputText
+                    rendered="#{expedienteBean.expedienteDTO.itAlegacionRevisada == 'S'}"
+                    value="#{bundle['popup.confirmar.pregunta.quitar.alegacion.revisada']}" />
+                <h:outputText
+                    rendered="#{expedienteBean.expedienteDTO.itAlegacionRevisada == 'N' or expedienteBean.expedienteDTO.itAlegacionRevisada == null}"
+                    value="#{bundle['popup.confirmar.pregunta.registrar.alegacion.revisada']}" />
+            </p:column>
+            <p:panelGrid columns="2" layout="grid"
+                styleClass="ui-panelgrid-blank"
+                columnClasses="ui-g-12 ui-md-6 text-right, ui-g-12 ui-md-6 text-left">
+                <atlasp:button value="#{bundle['popup.confirmar.si']}"
+                    type="button" styleClass="ui-confirmdialog-yes"
+                    icon="fas fa-check" iconPos="right"
+                    action="#{resolucionBean.procesarRevisionAlegacionGestor}"
+                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                <atlasp:button value="#{bundle['popup.confirmar.no']}"
+                    type="button" styleClass="ui-confirmdialog-no"
+                    icon="fas fa-times" iconPos="right"
+                    tipoBoton="btn-secondary" />
+            </p:panelGrid>
+        </p:panelGrid>
+    </p:dialog>
+
+</ui:composition>

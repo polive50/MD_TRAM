@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
+
+
+    <atlasp:guardarEstado
+        value="#{envioNotificacionesBean.cdNumExpdientePen}" />
+
+    <atlasp:guardarEstado
+        value="#{envioNotificacionesBean.dsDestinatarioPen}" />
+
+    <atlasp:guardarEstado
+        value="#{envioNotificacionesBean.dsFirmantePen}" />
+
+    <atlasp:guardarEstado
+        value="#{envioNotificacionesBean.dsTramitePen}" />
+
+    <atlasp:guardarEstado
+        value="#{envioNotificacionesBean.dsVerificadorPen}" />
+
+    <atlasp:guardarEstado
+        value="#{envioNotificacionesBean.fcEnvioColaDesdePen}" />
+
+    <atlasp:guardarEstado
+        value="#{envioNotificacionesBean.fcEnvioColaHastaPen}" />
+
+    <atlasp:guardarEstado value="#{envioNotificacionesBean.filtros}" />
+
+    <atlasp:guardarEstado
+        value="#{envioNotificacionesBean.lstSeleccionados}" />
+        
+    <atlasp:guardarEstado value="#{documentoBean.existeEnvioPtfrSubsanacionEnProceso}" />
+    <atlasp:guardarEstado value="#{documentoBean.existeEnvioPtfrDesistidoEnProceso}" />
+    <atlasp:guardarEstado value="#{documentoBean.existeEnvioPtfrSubsanacionFirmado}" />
+    <atlasp:guardarEstado value="#{documentoBean.existeEnvioPtfrDesistidoFirmado}" />
+        
+
+    <!-- Parametro para seleccionar si se pueden editar los datos -->
+    <ui:param name="readOnly" value="true" />
+
+    <p:panelGrid id="outpanelDatosSolapa" columns="1"
+        columnClasses="ui-g-12" layout="grid"
+        styleClass="ui-panelgrid-blank">
+
+        <h:outputText styleClass="tituloFormulario"
+            value="#{bundle['listados.filtros']}" />
+        <p:spacer height="5" />
+
+        <p:outputPanel id="outputPanelFormFilterConvocatoria">
+            <div class="ui-g">
+
+                <div class="ui-g-12 ui-md-12 ui-lg-12">
+                    <div class="ui-g-12 ui-md-1 ui-lg-1">
+                        <h:outputText styleClass="label"
+                            value="#{bundle['convocatorias.envio.notificaciones.pendientes.label.convocatoria']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-7 ui-lg-7">
+                        <p:inputText maxlength="100" readonly="true"
+                            value="#{convocatoriasBean.convocatoriaDTO.cdTitulo}" />
+                    </div>
+                </div>
+
+                <div class="ui-g-12 ui-md-12 ui-lg-12">
+                    <div class="ui-g-12 ui-md-1 ui-lg-1">
+                        <h:outputText styleClass="label"
+                            value="#{bundle['convocatorias.envio.notificaciones.pendientes.label.expediente']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-7 ui-lg-7">
+                        <p:inputText maxlength="50"
+                            value="#{envioNotificacionesBean.cdNumExpdientePen}">
+                        </p:inputText>
+                    </div>
+                </div>
+
+                <div class="ui-g-12 ui-md-12 ui-lg-12">
+                    <div class="ui-g-4 ui-md-1 ui-lg-1">
+                        <h:outputText styleClass="label"
+                            value="#{bundle['convocatorias.envio.notificaciones.pendientes.label.fecha']}" />
+                    </div>
+                    <div class="ui-g-4 ui-md-1 ui-lg-1">
+                        <h:outputLabel for="anio" styleClass="label"
+                            value="#{bundle['convocatorias.envio.notificaciones.pendientes.label.desde']}" />
+                    </div>
+                    <div class="ui-g-4 ui-md-3 ui-lg-3">
+                        <atlasp:calendario
+                            id="calendarioPlazoDesdePendientes"
+                            value="#{envioNotificacionesBean.fcEnvioColaDesdePen}"
+                            datePattern="dd/MM/yyyy">
+                        </atlasp:calendario>
+                        <p:outputPanel id="helpFcPlazoDesdePres"
+                            styleClass="icono fa fa-fw fa-question-circle"
+                            alt="#{bundle['convocatorias.detalle.label.plazoDesde.tooltipForm']}"
+                            title="#{bundle['convocatorias.detalle.label.plazoDesde.tooltipForm']}" />
+                        <p:tooltip for="helpFcPlazoDesdePres"
+                            value="#{bundle['convocatorias.detalle.label.plazoDesde.tooltipForm']}" />
+                    </div>
+
+                    <div class="ui-g-4 ui-md-1 ui-lg-1">
+                        <h:outputLabel for="anio" styleClass="label"
+                            value="#{bundle['convocatorias.envio.notificaciones.pendientes.label.hasta']}" />
+                    </div>
+                    <div class="ui-g-4 ui-md-3 ui-lg-3">
+                        <atlasp:calendario
+                            id="calendarioPlazoHastaPendientes"
+                            value="#{envioNotificacionesBean.fcEnvioColaHastaPen}"
+                            datePattern="dd/MM/yyyy" />
+                        <p:outputPanel id="helpFcPlazoHastaPres"
+                            styleClass="icono fa fa-fw fa-question-circle"
+                            alt="#{bundle['convocatorias.detalle.label.plazoHasta.tooltipForm']}"
+                            title="#{bundle['convocatorias.detalle.label.plazoHasta.tooltipForm']}" />
+                        <p:tooltip for="helpFcPlazoHastaPres"
+                            value="#{bundle['convocatorias.detalle.label.plazoHasta.tooltipForm']}" />
+                    </div>
+                </div>
+
+                <div class="ui-g-12 ui-md-12 ui-lg-12">
+                    <div class="ui-g-12 ui-md-1 ui-lg-1">
+                        <h:outputText styleClass="label"
+                            value="#{bundle['convocatorias.envio.notificaciones.pendientes.label.tramite']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-7 ui-lg-7">
+                        <atlasp:comboValores id="idTramiteCombo"
+                            enableManualInput="false" listWidth="300px"
+                            recargaAutomatica="false"
+                            externalProvider="#{envioNotificacionesBean.comboTramites}"
+                            value="#{envioNotificacionesBean.dsTramitePen}">
+                        </atlasp:comboValores>
+                    </div>
+                </div>
+
+            </div>
+
+        </p:outputPanel>
+
+        <div class="space" />
+
+        <div id="botoneraEnvioNotificacion">
+            <atlasp:button action="#{envioNotificacionesBean.filtrar}"
+                ajax="true" execute="outpanelDatosSolapa"
+                render="panelListadoEnvioNotificaciones"
+                value="#{bundle['boton.filtrar']}"
+                alt="#{bundle['boton.filtrar']}"
+                title="#{bundle['boton.filtrar']}" icon="fas fa-filter"
+                tipoBoton="btn-primary"
+                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+            </atlasp:button>
+
+        </div>
+
+        <h:panelGroup id="panelListadoEnvioNotificaciones"
+            layout="block">
+            <atlasp:listaPaginada id="listaEnvioNotificaciones"
+                listAndCountMethod="#{envioNotificacionesBean.obtenerListaEnviosPortafirmas}"
+                filtro="#{envioNotificacionesBean.filtros}"
+                sortMode="single" selectable="#{!infoUsuarioBean.rolAuditor}"
+                selectionMode="multiCheck" reflow="true" export="true"
+                pijama="true"
+                selection="#{envioNotificacionesBean.lstSeleccionados}"
+                exportTitle="Solicitudes" exportFile="Solicitudes"
+                render="btnEnviarPortafirmasNotif">
+
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.envio.notificaciones.pendientes.label.convocatoria']}"
+                    filterMatchMode="exact">
+                    <ui:define name="value">
+                        <h:outputText
+                            value="#{convocatoriasBean.convocatoriaDTO.cdTitulo}" />
+                    </ui:define>
+
+                </atlasp:columnaListaPaginada>
+
+                <!-- COD_EXPEDIENT_SOL  -->
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.envio.notificaciones.pendientes.label.expediente']}"
+                    field="cdExpediente" filtrable="false"
+                    exportable="true" filterMatchMode="exact">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.cdExpediente}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Nombre/Razón Social Interesado  -->
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.envio.notificaciones.label.destinatario']}"
+                    field="dsDestinatario" filtrable="false"
+                    exportable="true" filterMatchMode="exact">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.dsDestinatario}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Fecha alta -->
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.detalle.solicitudes.label.fechaPTFR']}"
+                    field="fcEnvioCola" filtrable="false"
+                    exportable="true" filterMatchMode="exact">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.fcEnvioPTFR}">
+                            <f:convertDateTime type="date"
+                                pattern="dd/MM/yyyy - HH:mm:ss" />
+                        </h:outputText>
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+                
+                
+                  <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.detalle.solicitudes.label.fechaCola']}"
+                    field="fcEnvioCola" filtrable="false"
+                    exportable="true" filterMatchMode="exact">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.fcEnvioCola}">
+                            <f:convertDateTime type="date"
+                                pattern="dd/MM/yyyy - HH:mm:ss" />
+                        </h:outputText>
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.envio.notificaciones.label.tramite']}"
+                    field="dsTramite" filtrable="false"
+                    exportable="true" filterMatchMode="exact">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.dsTramite}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!--  Tipo de actor  -->
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.envio.notificaciones.label.Verificador']}"
+                    field="dsVerificador" filtrable="false"
+                    exportable="true" filterMatchMode="exact">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.dsVerificador}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.envio.notificaciones.label.Firmante']}"
+                    field="dsFirmante" filtrable="false"
+                    exportable="true" filterMatchMode="exact">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.dsFirmante}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+                
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['listado.columna.acciones']}"
+                    order="false" exportable="false">
+                    <ui:define name="value">
+                        <div class="ui-g">
+                            <div class="ui-g-12 text-center">
+                                <ui:fragment
+                                    rendered="#{not empty item.idDocumentoPTFR and envioNotificacionesBean.habilitarDescargarDocumento()}">
+                                    <atlasp:button
+                                        action="#{envioNotificacionesBean.descargarDocumentoPtfrEnviado(item.idDocumentoPTFR)}"
+                                        execute="listaEnvioNotificaciones"
+                                        render="listaEnvioNotificaciones"
+                                        ajax="false"
+                                        alt="#{bundle['boton.descargar']}"
+                                        title="#{bundle['boton.descargar']}"
+                                        icon="fas fa-download"
+                                        tipoBoton="btn-link" />
+                                </ui:fragment>
+                            </div>
+                        </div>
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+            </atlasp:listaPaginada>
+
+            <div class="space" />
+
+        </h:panelGroup>
+
+        <p:commandButton id="btnEnviarPortafirmasNotif"
+            class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-warning"
+            action="#{envioNotificacionesBean.enviarAPortafirmas}"
+            ajax="true" value="#{bundle['boton.enviar.portafirma']}"
+            alt="#{bundle['boton.enviar.portafirma']}"
+            title="#{bundle['boton.enviar.portafirma']}"
+            icon="fas fa-paper-plane" update="outpanelDatosSolapa"
+            onclick="atlas.ui.Loading.showLoad('appLoading')"
+            disabled="#{envioNotificacionesBean.comprobarListadoPorta()}"
+            oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+            <f:facet name="events">
+                <p:confirm
+                    header="#{bundle['popup.confirmar.operacion.titulo']}"
+                    message="#{bundle['popup.confirmar.pregunta.portafirmas.envio']}"
+                    icon="ui-icon-alert" />
+            </f:facet>
+        </p:commandButton>
+
+        <div class="space" />
+<!--          <p:commandButton id="btnProcesarJCTBatch" -->
+<!--             class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-warning" -->
+<!--             action="#{documentoBean.ejecutarProcesosJCTBatch}" -->
+<!--             ajax="true" value="Procesar JCT batch" -->
+<!--             alt="Procesar JCT batch" title="Procesar JCT batch" -->
+<!--             icon="fa fa-play"  -->
+<!--             disabled="false" -->
+<!--             oncomplete="atlas.ui.Loading.hideLoad('appLoading')"> -->
+<!--         </p:commandButton> -->
+
+    </p:panelGrid>
+    
+        <!-- <p:commandButton id="btnProcesarPortafirmas"
+            class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-warning"
+            action="#{documentoBean.consultarRespuestaPortafirmasBatch}"
+            ajax="true" value="Procesar portafirmas"
+            alt="Procesar portafirmas" title="Procesar portafirmas"
+            icon="fa fa-play" update="outpanelDatosSolapaFirma"
+            disabled="false"
+            oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+        </p:commandButton>
+    
+        <p:commandButton id="btnProcesarNote"
+            class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-warning"
+            action="#{documentoBean.consultarLecturaNotificacionNoteBatch}"
+            ajax="true" value="Procesar Note" alt="Procesar Note"
+            title="Procesar Note" icon="fa fa-play"
+            update="outpanelDatosSolapaFirma" disabled="false"
+            oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+        </p:commandButton> -->
+   
+</ui:composition>

@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
+
+    <atlasp:guardarEstado value="#{convocatoriasBean.entidad}" />
+    <atlasp:guardarEstado value="#{convocatoriasBean.convocatoriaDTO}" />
+    <atlasp:guardarEstado value="#{expedienteBean.entidad}" />
+    <atlasp:guardarEstado value="#{expedienteBean.idSolicitud}" />
+    <atlasp:guardarEstado value="#{expedienteBean.idExpediente}" />
+    <atlasp:guardarEstado value="#{expedienteBean.idConvocatoria}" />
+    <atlasp:guardarEstado value="#{expedienteBean.totalAnualidades}" /> 
+    <atlasp:guardarEstado value="#{expedienteBean.listaAnualidades}" />
+    <atlasp:guardarEstado value="#{expedienteBean.listaNcolPresupuesto}" />
+    <atlasp:guardarEstado value="#{expedienteBean.listaNcolActuacion}" />
+    <atlasp:guardarEstado value="#{expedienteBean.expedienteDTO}" />
+    <atlasp:guardarEstado value="#{expedienteBean.montoAyudaActuacion}" />
+    <atlasp:guardarEstado value="#{expedienteBean.lstExpedientes}" />
+    <atlasp:guardarEstado value="#{expedienteBean.lstExpedienteParticipante}" />
+    <atlasp:guardarEstado value="#{convocatoriasBean.itAlegacion}" />
+    <atlasp:guardarEstado value="#{expedienteBean.cadenaNotaMaxima}" />
+    
+    <div class="ui-g-12 ui-md-12 ui-lg-12">
+
+        <div class="space" />
+        <h:panelGroup id="panelExpedientes" layout="block">
+
+            <p:outputPanel id="outpanelSolicitudSeleccionadaTitulo">
+                <h:outputText styleClass="tituloFormulario"
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.solicitudSeleccionada.titulo']}" />
+            </p:outputPanel>
+            <p:outputPanel id="outpanelSolicitudSeleccionada">            
+                <div class="ui-g">
+                    <!--  DNI  -->
+                    <div class="ui-g-12 ui-md-2 ui-lg-2 ui-xl-1 mtb-auto">
+                        <h:outputText for="cdNumIdenPanelExpedientes"
+                            styleClass="label"
+                            value="#{bundle['convocatorias.detalle.solicitudes.label.dni']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-3 ui-lg-3 ui-xl-2 mtb-auto">
+                        <p:inputText id="cdNumIdenPanelExpedientes" 
+                            readonly="#{facesContext.renderResponse}"
+                            value="#{solicitudBean.solicitudDTO.interesadoDTO.cdNumIden}" />
+                    </div>
+                    <!--  Nombre/Razón Social  -->
+                    <div class="ui-g-12 ui-md-2 ui-lg-2 ui-xl-1 mtb-auto">
+                        <h:outputText for="dsNombrePanelExpedientes"
+                            styleClass="label"
+                            value="#{bundle['convocatorias.detalle.solicitudes.label.nombreInteresado']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-4 ui-lg-4 ui-xl-3 mtb-auto">
+                        <p:inputText id="dsNombrePanelExpedientes"
+                            readonly="#{facesContext.renderResponse}"
+                            value="#{solicitudBean.solicitudDTO.interesadoDTO.dsInteresado}" />
+                    </div>
+                    <!--  Area cientifica  -->
+                    <div class="ui-g-12 ui-md-2 ui-lg-2 ui-xl-1 mtb-auto">
+                        <h:outputText for="areaCientificaSolicitud"
+                            styleClass="label"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.area.cientifica']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-4 ui-lg-4 ui-xl-3 mtb-auto">
+                        <p:inputText id="areaCientificaSolicitud"
+                            readonly="#{facesContext.renderResponse}"
+                            value="#{solicitudBean.solicitudDTO.convocatoriaAreaDTO.areaDTO.dsValor}" />
+                    </div>
+                </div>
+               <div class="ui-g">                    
+                    <!--  Tipo Organismo  -->
+                    <p:column rendered="#{solicitudBean.solicitudDTO.tipoActorDTO.cdCodigo == 'OTRO'}">
+                        <div class="ui-g-12 ui-md-2 ui-lg-2 ui-xl-1 mtb-auto">
+                            <h:outputText for="tipoOrganismoDTOPanelExpedientes"
+                                styleClass="label"
+                                value="#{bundle['convocatorias.detalle.solicitudes.label.tipoOrganismo']}" />
+                        </div>
+                        <div class="ui-g-12 ui-md-4 ui-lg-4 ui-xl-3 mtb-auto">
+                            <p:inputText id="tipoOrganismoDTOPanelExpedientes"
+                                readonly="#{facesContext.renderResponse}"
+                                value="#{solicitudBean.solicitudDTO.dsTipoOrganismo}" />
+                        </div>
+                    </p:column>                    
+                    <!--  Submodalidad  -->
+                    <p:column rendered="#{solicitudBean.solicitudDTO.convocatoriaSubmodDTO != null}">
+                        <div
+                            class="ui-g-12 ui-md-2 ui-lg-2 ui-xl-1 mtb-auto">
+                            <h:outputText for="dsSubmodalidadSolicitud"
+                                styleClass="label"
+                                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.submodalidad']}" />
+                        </div>
+                        <div
+                            class="ui-g-12 ui-md-4 ui-lg-3 ui-xl-2 mtb-auto">
+                            <p:inputText id="dsSubmodalidadSolicitud"
+                                readonly="#{facesContext.renderResponse}"
+                                value="#{solicitudBean.solicitudDTO.convocatoriaSubmodDTO.dsSubmodalidad}" />
+                        </div>
+                    </p:column>
+                </div>
+            </p:outputPanel>
+        
+            <p:outputPanel id="outpanelExpedientesSolapa">
+                <h:outputText styleClass="tituloFormulario"
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.expedientes.titulo']}" />
+            </p:outputPanel>
+
+            <div class="space" />
+
+            <!-- Filtro por estado de expediente -->
+            <p:outputPanel id="panelFiltroEstadoExpedientes">
+                <div class="ui-g">
+                    <div class="ui-g-12 ui-md-2 ui-lg-2 ui-xl-1 mtb-auto">
+                        <h:outputLabel for="estadoFiltroExpedientes"
+                            styleClass="label"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.estado']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-4 ui-lg-3 ui-xl-2 mtb-auto">
+                        <atlasp:comboValores id="estadoFiltroExpedientes"
+                            enableManualInput="false" listWidth="300px"
+                            ajaxUpdate="false"
+                            externalProvider="#{comboBean.getComboEstadoExpediente()}"
+                            value="#{expedienteBean.idEstadoFiltro}"
+                            styleClass="comboInteresado">
+                        </atlasp:comboValores>
+                    </div>
+                </div>
+            </p:outputPanel>
+
+            <div id="botoneraFiltroExpedientes">
+                <atlasp:button ajax="true"
+                    execute="panelFiltroEstadoExpedientes"
+                    render="panelExpedientes"
+                    value="#{bundle['boton.filtrar']}"
+                    alt="#{bundle['boton.filtrar']}"
+                    title="#{bundle['boton.filtrar']}" icon="fas fa-filter"
+                    tipoBoton="btn-primary">
+                </atlasp:button>
+                <atlasp:button action="#{expedienteBean.borrarFiltroEstadoExpediente}"
+                    ajax="true" execute="@this"
+                    render="panelFiltroEstadoExpedientes panelExpedientes"
+                    value="#{bundle['boton.borrarFiltros']}"
+                    alt="#{bundle['boton.borrarFiltros']}"
+                    title="#{bundle['boton.borrarFiltros']}"
+                    icon="fas fa-ban" tipoBoton="btn-secondary">
+                </atlasp:button>
+            </div>
+
+            <p:spacer height="5" styleClass="tituloFormulario" />
+
+            <atlasp:listaPaginada id="listaExpedientesSolapa"
+                listAndCountMethod="#{expedienteBean.obtenerListaExpedientesSolapa}"
+                sortMode="single"
+                reflow="true" export="true" pijama="true"
+                exportTitle="Expedientes" exportFile="Expedientes">
+
+                <!-- Participantes (solo se muestra la columna si la solicitud tiene coordinador) -->
+                <atlasp:columnaListaPaginada label="" order="false"
+                    filtrable="false" styleClass="text-center"
+                    mostrarColumna="#{solicitudBean.solicitudDTO.itExpeCoor}">
+                    <ui:define name="value">
+                        <h:panelGroup layout="block"
+                            rendered="#{not empty item.lstExpedienteParticipante and item.esExpedienteCoordinador}">
+                            <span class="fas fa-chevron-down" style="cursor:pointer"
+                                title="Ver/ocultar participantes"
+                                onclick="var d=this.nextElementSibling; d.style.display = (d.style.display === 'none' || !d.style.display) ? 'block' : 'none';">
+                            </span>
+                            <div style="display:none">
+                                <p:dataTable var="expParticipante" styleClass="atlas-lp"
+                                    value="#{item.lstExpedienteParticipante}"
+                                    emptyMessage="No se encontraron registros">
+                                    <p:column
+                                        headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.cdExpediente']}">
+                                        <h:outputText value="#{expParticipante.cdExpediente}" />
+                                    </p:column>
+                                    <p:column
+                                        headerText="#{bundle['convocatorias.detalle.solicitudes.label.tipoActor']}">
+                                        <h:outputText
+                                            value="#{expParticipante.convocatoriaActDTO.identificacionDTO.dsValor} - #{expParticipante.convocatoriaActDTO.tipoPersonaFisJurDTO.dsValor} - #{expParticipante.convocatoriaActDTO.tlDescripcion}" />
+                                    </p:column>
+                                    <p:column
+                                        headerText="#{bundle['convocatorias.detalle.solicitudes.label.dni']}">
+                                        <h:outputText value="#{expParticipante.interesadoDTO.cdNumIden}" />
+                                    </p:column>
+                                    <p:column
+                                        headerText="#{bundle['convocatorias.detalle.solicitudes.label.nombreInteresado']}">
+                                        <h:outputText value="#{expParticipante.interesadoDTO.dsNombre}" />
+                                    </p:column>
+                                    <p:column
+                                        headerText="#{bundle['convocatorias.detalle.solicitudes.label.apellido1Interesado']}">
+                                        <h:outputText value="#{expParticipante.interesadoDTO.dsApellido1}" />
+                                    </p:column>
+                                    <p:column
+                                        headerText="#{bundle['convocatorias.detalle.solicitudes.label.apellido2Interesado']}">
+                                        <h:outputText value="#{expParticipante.interesadoDTO.dsApellido2}" />
+                                    </p:column>
+                                    <p:column
+                                        headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.nombreSolicitante']}">
+                                        <h:outputText
+                                            value="#{expParticipante.solicitudDTO.interesadoDTO.dsNombre} #{expParticipante.solicitudDTO.interesadoDTO.dsApellido1} #{expParticipante.solicitudDTO.interesadoDTO.dsApellido2}" />
+                                    </p:column>
+                                    <p:column
+                                        headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.fechaFirma']}">
+                                        <h:outputText value="#{expParticipante.fcPresentacion}">
+                                            <f:convertDateTime type="date"
+                                                pattern="dd/MM/yyyy - HH:mm:ss" />
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column
+                                        headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.estado']}">
+                                        <div class="ui-g text-center">
+                                            <div class="ui-g-12">
+                                                <h:outputText value="#{expParticipante.estadoDTO.dsValor}" />
+                                            </div>
+                                            <div class="ui-g-12">
+                                                <p:outputPanel id="idAvisoSub"
+                                                    rendered="#{expParticipante.BAviso and expParticipante.estadoDTO.nmConstante != 213}"
+                                                    styleClass="panel-alerta"
+                                                    alt="#{bundle['listado.columna.consultar']}"
+                                                    title="#{bundle['listado.columna.consultar']}">
+                                                    <span class="fa-layers fa-fw">
+                                                        <i class="fas fa-bell icon-parent atlasContenidoColorAzul" />
+                                                        <span class="fa-layers-counter" style="background: Tomato">
+                                                            <h:outputText value="1" />
+                                                        </span>
+                                                    </span>
+                                                </p:outputPanel>
+                                                <p:tooltip for="idAvisoSub" position="top"
+                                                    value="Requiere atención por parte del gestor" />
+                                            </div>
+                                        </div>
+                                    </p:column>
+                                    <p:column
+                                        headerText="#{bundle['listado.columna.acciones']}"
+                                        styleClass="text-center">
+                                        <atlasp:button
+                                            action="#{expedienteBean.cargarDatosRevision(expParticipante.idExpediente)}"
+                                            actionListener="#{convocatoriasBean.irASolapa(2)}"
+                                            ajax="false"
+                                            alt="#{bundle['listado.columna.consultar']}"
+                                            title="#{bundle['listado.columna.consultar']}"
+                                            icon="fas fa-search"
+                                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                            tipoBoton="btn-link" />
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                        </h:panelGroup>
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Expediente -->
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.cdExpediente']}"
+                    field="cdExpediente" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.cdExpediente}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Tipo de actor -->
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.detalle.solicitudes.label.tipoActor']}"
+                    field="tipoActor" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText
+                            value="#{item.convocatoriaActDTO.identificacionDTO.dsValor} - #{item.convocatoriaActDTO.tipoPersonaFisJurDTO.dsValor} - #{item.convocatoriaActDTO.tlDescripcion}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- DNI -->
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.detalle.solicitudes.label.dni']}"
+                    field="dni" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.interesadoDTO.cdNumIden}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Nombre/Razón Social -->
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.detalle.solicitudes.label.nombreInteresado']}"
+                    field="nombre" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.interesadoDTO.dsNombre}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Primer apellido -->
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.detalle.solicitudes.label.apellido1Interesado']}"
+                    field="apellido1" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.interesadoDTO.dsApellido1}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Segundo apellido -->
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.detalle.solicitudes.label.apellido2Interesado']}"
+                    field="apellido2" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.interesadoDTO.dsApellido2}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Nombre/Razón Social solicitante -->
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.nombreSolicitante']}"
+                    field="nombreSolicitante" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText
+                            value="#{item.solicitudDTO.interesadoDTO.dsNombre} #{item.solicitudDTO.interesadoDTO.dsApellido1} #{item.solicitudDTO.interesadoDTO.dsApellido2}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Fecha presentación -->
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.fechaFirma']}"
+                    field="fechaPresentacion" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.fcPresentacion}">
+                            <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
+                        </h:outputText>
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Estado -->
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.estado']}"
+                    field="estado" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <div class="ui-g text-center">
+                            <div class="ui-g-12">
+                                <h:outputText value="#{item.estadoDTO.dsValor}" />
+                            </div>
+                            <div class="ui-g-12">
+                                <p:outputPanel id="idAviso"
+                                    rendered="#{item.BAviso}"
+                                    styleClass="panel-alerta"
+                                    alt="#{bundle['listado.columna.consultar']}"
+                                    title="#{bundle['listado.columna.consultar']}">
+                                    <span class="fa-layers fa-fw">
+                                        <i class="fas fa-bell icon-parent atlasContenidoColorAzul" />
+                                        <span class="fa-layers-counter" style="background: Tomato">
+                                            <h:outputText value="1" />
+                                        </span>
+                                    </span>
+                                </p:outputPanel>
+                                <p:tooltip for="idAviso" position="top"
+                                    value="Requiere atención por parte del gestor" />
+                            </div>
+                        </div>
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Estado Rev.Admin -->
+                <atlasp:columnaListaPaginada label="Estado Rev.Admin" field="estadoRevAdmin"
+                    filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.estadoRevAdminDTO.dsValor}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Estado Rev.Req -->
+                <atlasp:columnaListaPaginada label="Estado Rev.Req" field="estadoRevRequi"
+                    filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.estadoRevRequiDTO.dsValor}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Estado Rev.Eva -->
+                <atlasp:columnaListaPaginada label="Estado Rev.Eva" field="estadoRevEval"
+                    filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.estadoRevEvalDTO.dsValor}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Estado Rev.Finan -->
+                <atlasp:columnaListaPaginada label="Estado Rev.Finan" field="estadoRevFinan"
+                    filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.estadoRevFinanDTO.dsValor}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+                
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.nota']}"
+                    field="nmNota" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.nmNota}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <!-- Acciones -->
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['listado.columna.acciones']}"
+                    order="false" styleClass="acciones">
+                    <ui:define name="value">
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                <atlasp:button
+                                    action="#{expedienteBean.cargarDatosRevision(item.idExpediente)}"
+                                    actionListener="#{convocatoriasBean.irASolapa(2)}"
+                                    ajax="false"
+                                    alt="#{bundle['listado.columna.consultar']}"
+                                    title="#{bundle['listado.columna.consultar']}"
+                                    icon="fas fa-search"
+                                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                    tipoBoton="btn-link" />
+                            </div>
+                        </div>
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+            </atlasp:listaPaginada>
+
+        </h:panelGroup>
+
+    </div>
+
+    <p:spacer height="5" styleClass="tituloFormulario" />
+    
+    <div id="botoneraExpedientesForm">
+        <atlasp:button
+            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.regresarSolicitudes']}"
+            alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.regresarSolicitudes']}"
+            title="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.regresarSolicitudes']}"
+            icon="fas fa-chevron-left" tipoBoton="btn-secondary"
+            action="#{convocatoriasBean.irASolapa(0)}"
+            onclick="atlas.ui.Loading.showLoad('appLoading')"
+            oncomplete="atlas.ui.Loading.hideLoad('appLoading')"/>
+    </div>
+
+</ui:composition>

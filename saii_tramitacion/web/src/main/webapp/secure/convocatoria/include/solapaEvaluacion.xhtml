@@ -1,0 +1,1120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
+
+    <atlasp:guardarEstado value="#{expedienteBean.expedienteDTO}" />
+    <atlasp:guardarEstado value="#{evaluacionBean.expedienteEvalDTO}" />
+    <atlasp:guardarEstado value="#{convocatoriasBean.convocatoriaDTO}" />
+    <atlasp:guardarEstado value="#{evaluacionBean.motivoCausaSeleccionado}" />
+    <atlasp:guardarEstado value="#{convocatoriasBean.itAlegacion}" />
+    <atlasp:guardarEstado value="#{evaluacionBean.cargaBotonesEvaluacion}" />
+    <atlasp:guardarEstado value="#{evaluacionBean.listaInformeCoordinadores}" />
+    <atlasp:guardarEstado value="#{evaluacionBean.listaInformeEvaluadores}" />
+    <atlasp:guardarEstado value="#{evaluacionBean.listaCoordinadores}" />
+    <atlasp:guardarEstado value="#{evaluacionBean.coordinadorSeleccionado}" />
+    
+    
+
+    <p:panelGrid id="outpanelEvaluacionSolapa" columns="1"
+        columnClasses="ui-g-12" layout="grid"
+        styleClass="ui-panelgrid-blank">
+
+        <p:panelGrid id="pgEstadoInternoEvaluacion" columns="2"
+            columnClasses="ui-g-12 ui-md-3 ui-lg-2 ui-xl-2, ui-g-12 ui-md-9 ui-lg-10 ui-xl-10 mtb-auto"
+            layout="grid" styleClass="ui-panelgrid-blank p-0">
+            <h:outputText styleClass="label"
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.evaluacion.estado']}" />
+            <p:column>
+                <p:inputText id="dsEstadoRevisionEval" readonly="true"
+                    value="#{expedienteBean.expedienteDTO.estadoRevEvalDTO.dsValor}" />
+                <p:outputPanel
+                    styleClass="icono fa fa-fw fa-question-circle"
+                    id="ttEstadoInternoEva"
+                    value="#{icon['icono.ayuda']}"
+                    alt="#{bundle['mensaje.revision.evaluacion.info.ayuda.estado.interno']}"
+                    title="#{bundle['mensaje.revision.evaluacion.info.ayuda.estado.interno']}" />
+                <p:tooltip for="ttEstadoInternoEva" escape="false"
+                    value="#{bundle['mensaje.revision.evaluacion.info.ayuda.estado.interno']}" />
+            </p:column>
+        </p:panelGrid>
+
+
+        <p:panelGrid id="pgCoordinadoresExpediente" columns="1"
+            columnClasses="ui-g-12" layout="grid"
+            styleClass="ui-panelgrid-blank">
+
+            <h:outputText styleClass="tituloFormulario"
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.titulo.coordinadores.asociados']}" />
+
+            <atlasp:message tipo="info"
+                rendered="#{!expedienteBean.expedienteDTO.modoConsulta and !expedienteBean.expedienteDTO.esCerradoCoordinadorTodo}"
+                texto="#{bundle['solapa.eval.msg.info.informes.coordinador']}" />
+
+            <atlasp:message tipo="info"
+                rendered="#{!expedienteBean.expedienteDTO.modoConsulta and !expedienteBean.expedienteDTO.esEstadoEvalEnEvaluacion}"
+                texto="#{bundle['solapa.eval.msg.info.informe.estado.rev.eva']}" />
+                
+            <atlasp:message tipo="info"
+               rendered="#{!expedienteBean.expedienteDTO.modoConsulta and !convocatoriasBean.convocatoriaDTO.isValFechaEval and convocatoriasBean.convocatoriaDTO.isMenorFechaIniEva}"
+                texto="#{bundle['solapa.eval.msg.info.informe.estado.rev.eva.plazo.vencido']} #{convocatoriasBean.convocatoriaDTO.fcFinTramiEvalFormat}" />
+                
+            <atlasp:message tipo="info"
+                rendered="#{!expedienteBean.expedienteDTO.modoConsulta and !convocatoriasBean.convocatoriaDTO.isMenorFechaIniEva}"
+                texto="#{bundle['solapa.eval.msg.info.informe.estado.rev.eva.plazo.no.iniciado']} #{convocatoriasBean.convocatoriaDTO.fcIniTramiEvalFormat}" />
+                
+
+
+
+            <atlasp:listaPaginada id="lpCoorAsociado"
+                listAndCountMethod="#{evaluacionBean.obtenerListaCoordinadoresAsignados}"
+                reflow="true" pijama="true" sortMode="single"
+                export="true"
+                exportTitle="Coordinadores y/o Evaluadores"
+                exportFile="reporteCoordinadorEvaluador"
+                viewSelectRows="false">
+                
+                <atlasp:columnaListaPaginada label="" width="5%"
+                    styleClass="text-center">
+                    <ui:define name="value">
+                        <p:commandLink ajax="true"
+                            title="#{bundle['tooltip.seleccionar']}"
+                            styleClass="btn-link-radio"
+                            actionListener="#{evaluacionBean.seleccionarCoordinador(item)}"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                            <i class="far #{(evaluacionBean.coordinadorSeleccionado!=null and 
+                                        evaluacionBean.coordinadorSeleccionado.idExpedienteEval==item.idExpedienteEval)?'fa-check-circle':'fa-circle'}" />
+                        </p:commandLink>
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+                
+                
+                <atlasp:columnaListaPaginada
+                    field="interesado.cdNumIden" filtrable="false"
+                    exportable="true"
+                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.identificador']}">
+                    <ui:define name="value">
+                        <h:outputText
+                            value="#{item.personaDTO.cdNumIden}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+                <atlasp:columnaListaPaginada field="interesado.dsNombre"
+                    filtrable="false" exportable="true"
+                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.nombres']}">
+                    <ui:define name="value">
+                        <h:outputText
+                            value="#{item.personaDTO.dsNombre}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+                <atlasp:columnaListaPaginada
+                    field="interesado.dsApellido1" filtrable="false"
+                    exportable="true"
+                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.apellido1']}">
+                    <ui:define name="value">
+                        <h:outputText
+                            value="#{item.personaDTO.dsApellido1}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+                <atlasp:columnaListaPaginada
+                    field="interesado.dsApellido2" filtrable="false"
+                    exportable="true"
+                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.apellido2']}">
+                    <ui:define name="value">
+                        <h:outputText
+                            value="#{item.personaDTO.dsApellido2}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+
+                <atlasp:columnaListaPaginada field="interesado.dsEmail"
+                    filtrable="false" exportable="true"
+                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.email']}">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.personaDTO.dsEmail}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+                
+                 <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.label.estado.evaluacion']}"
+                        field="estadoDTO.dsValor" filtrable="false"
+                        exportable="true" width="10%">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.estadoDTO.dsValor}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                
+
+                <atlasp:columnaListaPaginada
+                        field="interesado.itAceptaEval" filtrable="false"
+                        exportable="true"
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.acepta.eval']}">
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{item.itAceptaEval eq 'S' ? 'Sí' : (item.itAceptaEval eq 'N' ? 'No' : '')}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                
+                <atlasp:columnaListaPaginada
+                    field="interesado.motivoRechazo" filtrable="false"
+                    exportable="true"
+                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.motivo.rechazo']}">
+                    <ui:define name="value">
+                        <h:outputText
+                            value="#{item.motivoRechazo.dsValor}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+                
+                <atlasp:columnaListaPaginada
+                    field="interesado.dsComentarioRechazoAceptacion" filtrable="false"
+                    exportable="true"
+                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.comentario']}">
+                    <ui:define name="value">
+                        <h:outputText
+                            value="#{item.dsComentarioRechazoAceptacion}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+                
+                
+
+                
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['listado.columna.acciones']}"
+                    order="false" styleClass="acciones" width="10%">
+                    <ui:define name="value">
+                        <div class="ui-g">
+                            <div class="ui-g-12 text-center">
+                                     <atlasp:button
+                                        action="#{evaluacionBean.descargarZipDocumentosFica(item.idExpedienteEval, 0)}"
+                                        execute="lpCoorAsociado"
+                                        render="lpCoorAsociado"
+                                        ajax="false"
+                                        alt="#{bundle['boton.descargar.aceptacion']}"
+                                        title="#{bundle['boton.descargar.aceptacion']}"
+                                        icon="fas fa-download"
+                                        tipoBoton="btn-link"                  
+                                        immediate="true"
+                                        rendered="#{!expedienteBean.expedienteDTO.modoConsulta and evaluacionBean.mostrarIconoDescargar(item) and 
+                                                !convocatoriasBean.modoConsulta and convocatoriasBean.convocatoriaDTO.isValFechaEval}" />   
+                                                
+
+                                   
+                                <atlasp:button
+                                    action="#{evaluacionBean.desasociarCoordinadorExpediente(item)}"
+                                    ajax="true"
+                                    alt="#{bundle['boton.eliminar']}"
+                                    title="#{bundle['boton.eliminar']}"
+                                    icon="fas fa-trash"
+                                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                    rendered="#{!expedienteBean.expedienteDTO.modoConsulta and evaluacionBean.mostrarIconoDesasociar(item) and 
+                                                !convocatoriasBean.modoConsulta and convocatoriasBean.convocatoriaDTO.isValFechaEval}"
+                                    tipoBoton="btn-link">
+                                    <f:facet name="events">
+                                        <p:confirm
+                                            header="#{bundle['popup.confirmar.baja.titulo']}"
+                                            icon="ui-icon-alert"
+                                            message="#{bundle['popup.confirmar.baja']}" />
+                                    </f:facet>
+                                </atlasp:button>
+                            </div>
+                        </div>
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+            </atlasp:listaPaginada>
+            
+<!--             <atlasp:message tipo="info" -->
+<!--                 rendered="#{!expedienteBean.expedienteDTO.modoConsulta}" -->
+<!--                 texto="#{bundle['solapa.eval.msg.info.informe.evaluacion.coordinador.nota']}" /> -->
+
+            <p:panelGrid id="pgNotaExpediente" columns="2"
+                columnClasses="ui-g-12 ui-md-2 mtb-auto, ui-g-12 ui-md-2 ui-lg-1"
+                layout="grid" styleClass="ui-panelgrid-blank">
+                <h:outputText styleClass="tituloNotaExp"
+                    value="#{expedienteBean.cadenaNotaMaxima}" />
+                <p:inputNumber id="orden" minValue="0"
+                    maxValue="#{expedienteBean.convocatoriaDTO.nmCalificacionMax}"
+                    decimalPlaces="0" thousandSeparator=""
+                    readonly="#{expedienteBean.expedienteDTO.modoConsulta or convocatoriasBean.modoConsulta}"
+                    value="#{expedienteBean.expedienteDTO.nmNota}">
+                    <p:ajax event="blur" process="@this"
+                        listener="#{expedienteBean.guardarNotaEvaluacion}"
+                        disabled="#{expedienteBean.expedienteDTO.modoConsulta or convocatoriasBean.modoConsulta}" />
+                </p:inputNumber>
+            </p:panelGrid>
+
+            <p:panelGrid id="pgBotoneraAprobarRechazar" columns="1"
+                columnClasses="ui-g-12" layout="grid"
+                styleClass="ui-panelgrid-blank"
+                rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.mostrarBotoneraAprobarRechazarEvaluacion and 
+                             !convocatoriasBean.modoConsulta and 
+                             convocatoriasBean.convocatoriaDTO.isValFechaEval and 
+                             evaluacionBean.validarExisteCoordinador() and
+                             evaluacionBean.verificarHabilitarBotoneraEvaluadoGestor()}">
+                <p:column>
+                    <p:commandButton id="aprobarOk"
+                        class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                        action="#{evaluacionBean.aprobarEvaluacionGestor}"
+                        ajax="true"
+                        value="#{bundle['solapa.eval.boton.finalizar.ok']}"
+                        alt="#{bundle['solapa.eval.boton.finalizar.ok']}"
+                        title="#{bundle['solapa.eval.boton.finalizar.ok']}"
+                        icon="fas fa-duotone fa-check"
+                        onclick="atlas.ui.Loading.showLoad('appLoading') "
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                        disabled="#{expedienteBean.expedienteDTO.modoConsulta or !evaluacionBean.verificarHabilitarFinalizarEvaluacion()}">
+                        <f:facet name="events">
+                            <p:confirm
+                                header="#{bundle['solapa.eval.boton.finalizar.ok']}"
+                                message="#{bundle['solapa.eval.boton.aprobar.evaluacion']}"
+                                icon="ui-icon-alert" />
+                        </f:facet>
+                    </p:commandButton>
+                    <p:commandButton id="aprobarKo"
+                        class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger"
+                        action="#{evaluacionBean.desaprobarEvaluacionGestor}"
+                        ajax="true"
+                        value="#{bundle['solapa.eval.boton.finalizar.ko']}"
+                        alt="#{bundle['solapa.eval.boton.finalizar.ko']}"
+                        title="#{bundle['solapa.eval.boton.finalizar.ko']}"
+                        icon="fas fa-solid fa-ban"
+                        onclick="atlas.ui.Loading.showLoad('appLoading') "
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                        disabled="#{expedienteBean.expedienteDTO.modoConsulta or !evaluacionBean.verificarHabilitarFinalizarEvaluacion()}">
+                        <f:facet name="events">
+                            <p:confirm
+                                header="#{bundle['solapa.eval.boton.finalizar.ko']}"
+                                message="#{bundle['solapa.eval.boton.rechazar.evaluacion']}"
+                                icon="ui-icon-alert" />
+                        </f:facet>
+                    </p:commandButton>
+                </p:column>
+            </p:panelGrid>
+            
+             <p:panelGrid id="pgBotoneraAsociar" columns="1"
+                columnClasses="ui-g-12" layout="grid"
+                styleClass="ui-panelgrid-blank">
+                
+                 <!-- VMM 30/09/26: ajax="true" process="@this" - accion de solo lectura, no hace falta procesar el formulario completo. -->
+                 <p:commandButton id="agregarCoordinador"
+                        class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-primary"
+                        action="#{evaluacionBean.mostrarCoordinadores}"
+                        ajax="true"
+                        process="@this"
+                        alt="#{bundle['boton.aniadir']}"
+                        title="#{bundle['boton.aniadir']}"
+                        value="#{bundle['boton.aniadir']}"
+                        icon="fas fa-plus"
+                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                        update="panelComentarioAsociarCoordinador"
+                        disabled="#{evaluacionBean.habilitarBotonAgregar(convocatoriasBean.convocatoriaDTO) or convocatoriasBean.modoConsulta }"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading'); PF('dialogAsociarCoordinador').show();">
+                    </p:commandButton>
+                    
+                    
+                             
+            </p:panelGrid>
+            
+
+        </p:panelGrid>
+
+        <p:spacer height="5" styleClass="tituloFormulario" />
+
+          
+            <h:outputText styleClass="tituloFormulario"
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.titulo.coordinadores.asociado']}" />
+
+            <p:panelGrid columns="1" columnClasses="ui-g-12"
+                layout="grid" styleClass="ui-panelgrid-blank">
+
+                <atlasp:listaPaginada id="lpAsociadosCoordinadores"
+                    listAndCountMethod="#{evaluacionBean.obtenerListaInformeCoordinadores(evaluacionBean.coordinadorSeleccionado)}"
+                    reflow="true" pijama="true" sortMode="single"
+                    export="true"
+                    exportTitle="Coordinadores y/o Evaluadores"
+                    exportFile="reporteCoordinadorEvaluador"                   
+                    viewSelectRows="false">
+                    
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.label.estado.informe']}"
+                        field="estadoDTO.dsValor" filtrable="false"
+                        exportable="true" width="10%">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.idEstado.dsValor}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    
+                    
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.label.tipo.informe']}"
+                        field="estadoDTO.dsValor" filtrable="false"
+                        exportable="true" width="10%">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.idInforme.tipoInformeDTO.dsValor}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    
+                   <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.nota']}"
+                        filtrable="false" exportable="true" width="5%">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.nmNotaFinal}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>  
+
+                    <atlasp:columnaListaPaginada
+                    label="#{bundle['listado.columna.acciones']}"
+                    order="false" styleClass="acciones" width="10%">
+                    <ui:define name="value">
+                        <div class="ui-g">
+                            <div class="ui-g-12 text-center">
+                                <!-- VMM 30/09/26: ajax="true" process="@this" - accion de solo lectura, no hace falta procesar el formulario completo. -->
+                                <atlasp:button
+                                    action="#{evaluacionBean.mostrarComentario(item)}"
+                                    render="panelComentario"
+                                    ajax="true"
+                                    process="@this"
+                                    alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.comentarioCoordinador']}"
+                                    title="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.comentarioCoordinador']}"
+                                    icon="fas fa-search"
+                                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                    tipoBoton="btn-link" />
+                                <atlasp:button
+                                    action="#{evaluacionBean.descargarZipDocumentosFicaInforme(item)}"
+                                    execute="lpCoorAsociado"
+                                    render="lpCoorAsociado" ajax="false"
+                                    alt="#{bundle['boton.descargar']}"
+                                    title="#{bundle['boton.descargar']}"
+                                    icon="fas fa-download"
+                                    tipoBoton="btn-link"
+                                    immediate="true"
+                                   />
+                                <atlasp:button
+                                    action="#{evaluacionBean.rechazarInformeCoordinador(item)}"
+                                    ajax="true"
+                                    alt="#{bundle['solapa.eval.tabla.icono.rechazar']}"
+                                    title="#{bundle['solapa.eval.tabla.icono.rechazar']}"
+                                    icon="fa-solid fa-thumbs-down"
+                                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                    rendered="#{!expedienteBean.expedienteDTO.modoConsulta and evaluacionBean.mostrarIconoAprobarRechazarInforme(item) and 
+                                                 !convocatoriasBean.modoConsulta and convocatoriasBean.convocatoriaDTO.isValFechaEval}"
+                                    tipoBoton="btn-link"
+                                    render="outpanelEvaluacionSolapa">
+                                    <f:facet name="events">
+                                        <p:confirm
+                                            header="#{bundle['solapa.eval.boton.finalizar.ko']}"
+                                            icon="ui-icon-alert"
+                                            message="#{bundle['sola.eval.icono.rechazar']}" />
+                                    </f:facet>
+                                </atlasp:button>
+                                <atlasp:button
+                                    action="#{evaluacionBean.aprobarInformeCoordinador(item)}"
+                                    ajax="true"
+                                    alt="#{bundle['solapa.eval.tabla.icono.aprobar']}"
+                                    title="#{bundle['solapa.eval.tabla.icono.aprobar']}"
+                                    icon="fa-solid fa-thumbs-up"
+                                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                    rendered="#{!expedienteBean.expedienteDTO.modoConsulta and evaluacionBean.mostrarIconoAprobarRechazarInforme(item) and 
+                                               !convocatoriasBean.modoConsulta and convocatoriasBean.convocatoriaDTO.isValFechaEval}" 
+                                    tipoBoton="btn-link"
+                                    render="outpanelEvaluacionSolapa">
+                                    <f:facet name="events">
+                                        <p:confirm
+                                            header="#{bundle['solapa.eval.boton.finalizar.ok']}"
+                                            icon="ui-icon-alert"
+                                            message="#{bundle['sola.eval.icono.aprobar']}" />
+                                    </f:facet>
+                                </atlasp:button>
+                            </div>
+                        </div>
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+              </atlasp:listaPaginada>
+              
+              <p:commandButton id="finalizarRevisicionCoordinador"
+                        class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                        action="#{evaluacionBean.finalizarInforme(evaluacionBean.coordinadorSeleccionado)}"
+                        ajax="true"
+                        value="#{bundle['solapa.eval.boton.finalizar.coordinador.ok']}"
+                        alt="#{bundle['solapa.eval.boton.finalizar.coordinador.ok']}"
+                        title="#{bundle['solapa.eval.boton.finalizar.coordinador.ok']}"
+                        icon="fas fa-duotone fa-check"
+                        onclick="atlas.ui.Loading.showLoad('appLoading') "
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                        disabled="#{expedienteBean.expedienteDTO.modoConsulta or !evaluacionBean.verificarHabilitarBotoneraCoordinador()}">
+                        <f:facet name="events">
+                            <p:confirm
+                                header="#{bundle['solapa.eval.boton.finalizar.coordinador.ok']}"
+                                message="#{bundle['solapa.eval.boton.aprobar.evaluacion']}"
+                                icon="ui-icon-alert" />
+                        </f:facet>
+                    </p:commandButton>
+              
+           </p:panelGrid>
+
+            
+             <h:outputText styleClass="tituloFormulario"
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.titulo.evaluadores.asociado']}" />
+
+            <p:panelGrid columns="1" columnClasses="ui-g-12"
+                layout="grid" styleClass="ui-panelgrid-blank">
+
+                <atlasp:listaPaginada id="lpAsociadosEvaluadores"
+                    listAndCountMethod="#{evaluacionBean.obtenerListaInformesEvaluador(evaluacionBean.coordinadorSeleccionado)}"
+                    reflow="true" pijama="true" sortMode="single"
+                    export="true"
+                    exportTitle="Coordinadores y/o Evaluadores"
+                    exportFile="reporteCoordinadorEvaluador"                  
+                    viewSelectRows="false">
+                    
+
+                    
+                    <atlasp:columnaListaPaginada
+                        field="interesado.cdNumIden" filtrable="false"
+                        exportable="true"
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.identificador']}">
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{item.personaDTO.cdNumIden}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <atlasp:columnaListaPaginada
+                        field="interesado.dsNombre" filtrable="false"
+                        exportable="true"
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.nombres']}">
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{item.personaDTO.dsNombre}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <atlasp:columnaListaPaginada
+                        field="interesado.dsApellido1" filtrable="false"
+                        exportable="true"
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.apellido1']}">
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{item.personaDTO.dsApellido1}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <atlasp:columnaListaPaginada
+                        field="interesado.dsApellido2" filtrable="false"
+                        exportable="true"
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.apellido2']}">
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{item.personaDTO.dsApellido2}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.label.estado.evaluacion']}"
+                        field="estadoDTO.dsValor" filtrable="false"
+                        exportable="true" width="10%">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.estadoDTO.dsValor}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+
+                    <atlasp:columnaListaPaginada
+                        field="interesado.itAceptaEval" filtrable="false"
+                        exportable="true"
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.acepta.eval']}">
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{item.itAceptaEval eq 'S' ? 'Sí' : (item.itAceptaEval eq 'N' ? 'No' : '')}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    
+                    <atlasp:columnaListaPaginada
+                        field="interesado.motivoRechazo" filtrable="false"
+                        exportable="true"
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.motivo.rechazo']}">
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{item.motivoRechazo.dsValor}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    
+                    <atlasp:columnaListaPaginada
+                        field="interesado.dsComentarioRechazoAceptacion" filtrable="false"
+                        exportable="true"
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.comentario']}">
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{item.dsComentarioRechazoAceptacion}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+
+
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.label.estado.informe']}"
+                        field="estadoDTO.dsValor" filtrable="false"
+                        exportable="true" width="10%">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.informeActivo.idEstado.dsValor}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    
+                    
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.label.tipo.informe']}"
+                        field="estadoDTO.dsValor" filtrable="false"
+                        exportable="true" width="10%">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.informeActivo.idInforme.tipoInformeDTO.dsValor}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.nota']}"
+                        filtrable="false" exportable="true" width="5%">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.informeActivo.nmNotaFinal}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+
+                    <atlasp:columnaListaPaginada
+                    label="#{bundle['listado.columna.acciones']}"
+                    order="false" styleClass="acciones" width="10%">
+                    <ui:define name="value">
+                        <div class="ui-g" >
+                            <div class="ui-g-12 text-center" >
+                                <!-- VMM 30/09/26: ajax="true" process="@this" - accion de solo lectura, no hace falta procesar el formulario completo. -->
+                                <atlasp:button
+                                    action="#{evaluacionBean.mostrarComentario(item)}"
+                                    render="panelComentario"
+                                    ajax="true"
+                                    process="@this"
+                                    alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.comentarioCoordinador']}"
+                                    title="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.comentarioCoordinador']}"
+                                    icon="fas fa-search"
+                                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                    tipoBoton="btn-link"
+                                    rendered="#{evaluacionBean.cargaBotonesEvaluacion}"  />
+                                   <p:commandButton 
+                                        action="#{evaluacionBean.descargarZipDocumentosFicaInforme(item)}"
+                                        execute="lpCoorAsociado"
+                                        render="lpCoorAsociado" ajax="false"
+                                        alt="#{bundle['boton.descargar.informe']}"
+                                        title="#{bundle['boton.descargar.informe']}"
+                                        icon="fas fa-download"
+                                        style="background: none !important; border: none !important; color: #28a745 !important; padding: 0;"
+                                        immediate="true"
+                                        rendered="#{evaluacionBean.cargaBotonesEvaluacion and evaluacionBean.cargaIconoInforme(item.informeActivo)}"   
+                                    />
+
+                                 <atlasp:button
+                                        action="#{evaluacionBean.descargarZipDocumentosFica(item.idExpedienteEval, 0)}"
+                                        execute="lpAsociadosEvaluadores"
+                                        render="lpAsociadosEvaluadores"
+                                        ajax="false"
+                                        alt="#{bundle['boton.descargar.aceptacion']}"
+                                        title="#{bundle['boton.descargar.aceptacion']}"
+                                        icon="fas fa-download"
+                                        tipoBoton="btn-link"                  
+                                        immediate="true"
+                                         rendered="#{evaluacionBean.cargaBotonesEvaluacion and evaluacionBean.mostrarIconoDescargar(item)}"   />  
+                                <atlasp:button
+                                    action="#{evaluacionBean.rechazarInformeEvaluador(item)}"
+                                    ajax="true"
+                                    alt="#{bundle['solapa.eval.tabla.icono.rechazar']}"
+                                    title="#{bundle['solapa.eval.tabla.icono.rechazar']}"
+                                    icon="fa-solid fa-thumbs-down"
+                                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                    rendered="#{!expedienteBean.expedienteDTO.modoConsulta and evaluacionBean.mostrarIconoAprobarRechazar(item.informeActivo) and 
+                                               !convocatoriasBean.modoConsulta and convocatoriasBean.convocatoriaDTO.isValFechaEval and evaluacionBean.cargaBotonesEvaluacion}"  
+                                 
+                                    tipoBoton="btn-link"
+                                    render="outpanelEvaluacionSolapa">
+                                    <f:facet name="events">
+                                        <p:confirm
+                                            header="#{bundle['solapa.eval.boton.finalizar.ko']}"
+                                            icon="ui-icon-alert"
+                                            message="#{bundle['sola.eval.icono.rechazar']}" />
+                                    </f:facet>
+                                </atlasp:button>
+                                
+                              
+                                <atlasp:button
+                                    action="#{evaluacionBean.aprobarInformeCoordinador(item.informeActivo)}"
+                                    ajax="true"
+                                    alt="#{bundle['solapa.eval.tabla.icono.aprobar']}"
+                                    title="#{bundle['solapa.eval.tabla.icono.aprobar']}"
+                                    icon="fa-solid fa-thumbs-up"
+                                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                    rendered="#{!expedienteBean.expedienteDTO.modoConsulta and evaluacionBean.mostrarIconoAprobarRechazar(item.informeActivo) and 
+                                               !convocatoriasBean.modoConsulta and convocatoriasBean.convocatoriaDTO.isValFechaEval and evaluacionBean.cargaBotonesEvaluacion}" 
+                                   
+                                    tipoBoton="btn-link"
+                                    render="outpanelEvaluacionSolapa">
+                                    <f:facet name="events">
+                                        <p:confirm
+                                            header="#{bundle['solapa.eval.boton.finalizar.ok']}"
+                                            icon="ui-icon-alert"
+                                            message="#{bundle['sola.eval.icono.aprobar']}" />
+                                    </f:facet>
+                                </atlasp:button>
+                                
+           
+                                
+                            </div>
+                        </div>
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+                </atlasp:listaPaginada>
+                
+                <p:commandButton id="finalizarRevisionEvaluador"
+                        class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                        action="#{evaluacionBean.finalizarInforme(evaluacionBean.coordinadorSeleccionado)}"
+                        ajax="true"
+                        value="#{bundle['solapa.eval.boton.finalizar.evaluador.ok']}"
+                        alt="#{bundle['solapa.eval.boton.finalizar.evaluador.ok']}"
+                        title="#{bundle['solapa.eval.boton.finalizar.evaluador.ok']}"
+                        icon="fas fa-duotone fa-check"
+                        onclick="atlas.ui.Loading.showLoad('appLoading') "
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                        disabled="#{expedienteBean.expedienteDTO.modoConsulta or !evaluacionBean.verificarHabilitarBotoneraEvaluador(evaluacionBean.coordinadorSeleccionado)}">
+                        <f:facet name="events">
+                            <p:confirm
+                                header="#{bundle['solapa.eval.boton.finalizar.evaluador.ok']}"
+                                message="#{bundle['solapa.eval.boton.aprobar.evaluacion']}"
+                                icon="ui-icon-alert" />
+                        </f:facet>
+                    </p:commandButton>
+                
+            </p:panelGrid>
+<!--         </p:fieldset> -->
+
+<!--     AQUI PONEMOS LA NUEVA TABLA -->
+
+            
+
+
+<!--                     <p:panelGrid columns="1" columnClasses="ui-g-12" -->
+<!--                         layout="grid" styleClass="ui-panelgrid-blank"> -->
+                        
+<!--                          <h:outputText styleClass="tituloFormulario" -->
+<!--                             value="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.titulo.documentacion.expertos']}" /> -->
+        
+<!--                         <atlasp:listaPaginada id="lpAsociadosEvaluadoresDocumentos" -->
+<!--                             listAndCountMethod="#{evaluacionBean.obtenerListaEvaluadorDocumentos}" -->
+<!--                             reflow="true" pijama="true" sortMode="single" -->
+<!--                             export="true" -->
+<!--                             exportTitle="Coordinadores y/o Evaluadores" -->
+<!--                             exportFile="reporteCoordinadorEvaluador" -->
+<!--                             viewSelectRows="false"> -->
+<!--                             <atlasp:columnaListaPaginada -->
+<!--                                 field="interesado.cdNumIden" filtrable="false" -->
+<!--                                 exportable="true" -->
+<!--                                 label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.identificador']}"> -->
+<!--                                 <ui:define name="value"> -->
+<!--                                     <h:outputText -->
+<!--                                         value="#{item.personaDTO.cdNumIden}" /> -->
+<!--                                 </ui:define> -->
+<!--                             </atlasp:columnaListaPaginada> -->
+<!--                             <atlasp:columnaListaPaginada -->
+<!--                                 field="interesado.dsNombre" filtrable="false" -->
+<!--                                 exportable="true" -->
+<!--                                 label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.nombres']}"> -->
+<!--                                 <ui:define name="value"> -->
+<!--                                     <h:outputText -->
+<!--                                         value="#{item.personaDTO.dsNombre}" /> -->
+<!--                                 </ui:define> -->
+<!--                             </atlasp:columnaListaPaginada> -->
+<!--                             <atlasp:columnaListaPaginada -->
+<!--                                 field="interesado.dsApellido1" filtrable="false" -->
+<!--                                 exportable="true" -->
+<!--                                 label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.apellido1']}"> -->
+<!--                                 <ui:define name="value"> -->
+<!--                                     <h:outputText -->
+<!--                                         value="#{item.personaDTO.dsApellido1}" /> -->
+<!--                                 </ui:define> -->
+<!--                             </atlasp:columnaListaPaginada> -->
+<!--                             <atlasp:columnaListaPaginada -->
+<!--                                 field="interesado.dsApellido2" filtrable="false" -->
+<!--                                 exportable="true" -->
+<!--                                 label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.apellido2']}"> -->
+<!--                                 <ui:define name="value"> -->
+<!--                                     <h:outputText -->
+<!--                                         value="#{item.personaDTO.dsApellido2}" /> -->
+<!--                                 </ui:define> -->
+<!--                             </atlasp:columnaListaPaginada> -->
+                            
+                            
+        
+<!--                             <atlasp:columnaListaPaginada -->
+<!--                                 field="interesado.itAceptaEval" filtrable="false" -->
+<!--                                 exportable="true" -->
+<!--                                 label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.acepta.eval']}"> -->
+<!--                                 <ui:define name="value"> -->
+<!--                                     <h:outputText -->
+<!--                                         value="#{item.itAceptaEval}" /> -->
+<!--                                 </ui:define> -->
+<!--                             </atlasp:columnaListaPaginada> -->
+                            
+<!--                             <atlasp:columnaListaPaginada -->
+<!--                                 field="interesado.motivoRechazo" filtrable="false" -->
+<!--                                 exportable="true" -->
+<!--                                 label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.motivo.rechazo']}"> -->
+<!--                                 <ui:define name="value"> -->
+<!--                                     <h:outputText -->
+<!--                                         value="#{item.motivoRechazo.dsValor}" /> -->
+<!--                                 </ui:define> -->
+<!--                             </atlasp:columnaListaPaginada> -->
+                            
+<!--                             <atlasp:columnaListaPaginada -->
+<!--                                 field="interesado.dsComentarioRechazoAceptacion" filtrable="false" -->
+<!--                                 exportable="true" -->
+<!--                                 label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.comentario']}"> -->
+<!--                                 <ui:define name="value"> -->
+<!--                                     <h:outputText -->
+<!--                                         value="#{item.dsComentarioRechazoAceptacion}" /> -->
+<!--                                 </ui:define> -->
+<!--                             </atlasp:columnaListaPaginada> -->
+                            
+<!--                              <atlasp:columnaListaPaginada -->
+<!--                                     label="#{bundle['convocatorias.label.estado']}" -->
+<!--                                     field="estadoDTO.dsValor" filtrable="false" -->
+<!--                                     exportable="true" width="10%"> -->
+<!--                                     <ui:define name="value"> -->
+<!--                                         <h:outputText value="#{item.estadoDTO.dsValor}" /> -->
+<!--                                     </ui:define> -->
+<!--                                 </atlasp:columnaListaPaginada> -->
+        
+
+        
+<!--                             <atlasp:columnaListaPaginada -->
+<!--                                 label="#{bundle['listado.columna.acciones']}" -->
+<!--                                 order="false" styleClass="acciones"> -->
+<!--                                 <ui:define name="value"> -->
+<!--                                     <div class="ui-g"> -->
+<!--                                         <div class="ui-g-12 text-center"> -->
+<!--                                             <atlasp:button -->
+<!--                                                 action="#{evaluacionBean.descargarZipDocumentosFica(item.idExpedienteEval, 0)}" -->
+<!--                                                 execute="lpAsociadosEvaluadoresDocumentos" -->
+<!--                                                 render="lpAsociadosEvaluadoresDocumentos" -->
+<!--                                                 ajax="false" -->
+<!--                                                 alt="#{bundle['boton.descargar']}" -->
+<!--                                                 title="#{bundle['boton.descargar']}" -->
+<!--                                                 icon="fas fa-download" -->
+<!--                                                 tipoBoton="btn-link"                   -->
+<!--                                                 immediate="true" /> -->
+<!--                                         </div> -->
+<!--                                     </div> -->
+<!--                                 </ui:define> -->
+<!--                             </atlasp:columnaListaPaginada> -->
+<!--                         </atlasp:listaPaginada> -->
+<!--                     </p:panelGrid> -->
+
+
+
+
+    </p:panelGrid>
+
+
+<!--     <p:dialog id="dialogAsociarCoordinador" widgetVar="dialogAsociarCoordinador" -->
+<!--         header="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.titulo.asignacion.coordinadores']}" -->
+<!--         closable="false" dynamic="true" modal="true" width="40%"> -->
+<!--         <p:outputPanel id="panelComentarioAsociarCoordinador"> -->
+<!--             <atlasp:facesMessages id="fmComentarioAsociar" modo="mensajes" /> -->
+<!--             <div class="ui-g"> -->
+<!--                 <div class="ui-g-12 borde-contenedor"> -->
+<!--                     <div class="ui-g"> -->
+<!--                         <div class="ui-g-12 ui-md-12 ui-lg-12 "> -->
+                            
+                    
+<!--                                 <p:panelGrid columns="1" columnClasses="ui-g-12" -->
+<!--                                     layout="grid" styleClass="ui-panelgrid-blank"> -->
+                    
+<!--                                     <atlasp:listaPaginada id="lpAsigCoordinadores" -->
+<!--                                         listAndCountMethod="#{evaluacionBean.obtenerListaCoordinadoresConvocatoria}" -->
+<!--                                         reflow="true" pijama="true" sortMode="single" -->
+<!--                                         export="true" -->
+<!--                                         exportTitle="Coordinadores y/o Evaluadores" -->
+<!--                                         exportFile="reporteCoordinadorEvaluador" -->
+<!--                                         viewSelectRows="false"> -->
+
+<!--                                         <atlasp:columnaListaPaginada -->
+<!--                                             field="interesadoDTO.cdNumIden"  -->
+<!--                                             filtrable="false" -->
+<!--                                             exportable="true" -->
+<!--                                             label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.identificador']}"> -->
+<!--                                             <ui:define name="value"> -->
+<!--                                                 <h:outputText value="#{item.interesadoDTO.cdNumIden}" /> -->
+<!--                                             </ui:define> -->
+<!--                                         </atlasp:columnaListaPaginada> -->
+<!--                                         <atlasp:columnaListaPaginada -->
+<!--                                             field="interesado.dsNombre" filtrable="false" -->
+<!--                                             exportable="true" -->
+<!--                                             label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.nombres']}"> -->
+<!--                                             <ui:define name="value"> -->
+<!--                                                 <h:outputText -->
+<!--                                                     value="#{item.interesadoDTO.dsNombre}" /> -->
+<!--                                             </ui:define> -->
+<!--                                         </atlasp:columnaListaPaginada> -->
+<!--                                         <atlasp:columnaListaPaginada -->
+<!--                                             field="interesado.dsApellido1" filtrable="false" -->
+<!--                                             exportable="true" -->
+<!--                                             label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.apellido1']}"> -->
+<!--                                             <ui:define name="value"> -->
+<!--                                                 <h:outputText -->
+<!--                                                     value="#{item.interesadoDTO.dsApellido1}" /> -->
+<!--                                             </ui:define> -->
+<!--                                         </atlasp:columnaListaPaginada> -->
+<!--                                         <atlasp:columnaListaPaginada -->
+<!--                                             field="interesado.dsApellido2" filtrable="false" -->
+<!--                                             exportable="true" -->
+<!--                                             label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.apellido2']}"> -->
+<!--                                             <ui:define name="value"> -->
+<!--                                                 <h:outputText -->
+<!--                                                     value="#{item.interesadoDTO.dsApellido2}" /> -->
+<!--                                             </ui:define> -->
+<!--                                         </atlasp:columnaListaPaginada> -->
+                    
+                    
+<!--                                         <atlasp:columnaListaPaginada -->
+<!--                                             field="interesado.dsEmail" filtrable="false" -->
+<!--                                             exportable="true" -->
+<!--                                             label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.email']}"> -->
+<!--                                             <ui:define name="value"> -->
+<!--                                                 <h:outputText -->
+<!--                                                     value="#{item.interesadoDTO.dsEmail}" /> -->
+<!--                                             </ui:define> -->
+<!--                                         </atlasp:columnaListaPaginada> -->
+                    
+<!--                                         <atlasp:columnaListaPaginada -->
+<!--                                             label="#{bundle['listado.columna.acciones']}" -->
+<!--                                             order="false" styleClass="acciones" -->
+<!--                                             visible="#{!convocatoriasBean.modoConsulta and evaluacionBean.calcularFecha(convocatoriasBean.convocatoriaDTO)}">  -->
+<!--                                             <ui:define name="value"> -->
+<!--                                                 <div class="ui-g"> -->
+<!--                                                     <div class="ui-g-12 text-center"> -->
+<!--                                                         <atlasp:button -->
+<!--                                                             action="#{evaluacionBean.asociarCoordinadorExpediente(item)}" -->
+<!--                                                             ajax="true" -->
+<!--                                                             alt="#{bundle['boton.aniadir']}" -->
+<!--                                                             title="#{bundle['boton.aniadir']}" -->
+<!--                                                             icon="fas fa-plus" -->
+<!--                                                             onclick="atlas.ui.Loading.showLoad('appLoading')" -->
+<!--                                                             oncomplete="atlas.ui.Loading.hideLoad('appLoading')" -->
+                                                            
+<!--                                                             render="outpanelEvaluacionSolapa" -->
+<!--                                                             tipoBoton="btn-link" /> -->
+<!--                                                     </div> -->
+<!--                                                 </div> -->
+<!--                                             </ui:define> -->
+<!--                                         </atlasp:columnaListaPaginada> -->
+<!--                                     </atlasp:listaPaginada> -->
+<!--                                 </p:panelGrid> -->
+
+<!--                         </div> -->
+<!--                         <div class="ui-g-12"> -->
+<!--                             <atlasp:button -->
+<!--                                 action="#{evaluacionBean.cerrarCoordinador()}" -->
+<!--                                 ajax="false" -->
+<!--                                 value="#{bundle['boton.cerrar']}" -->
+<!--                                 alt="#{bundle['boton.cerrar']}" -->
+<!--                                 title="#{bundle['boton.cerrar']}" -->
+<!--                                 icon="fas fa-times" -->
+<!--                                 tipoBoton="btn-secondary" -->
+<!--                                 onclick="atlas.ui.Loading.showLoad('appLoading')" -->
+<!--                                 oncomplete="atlas.ui.Loading.hideLoad('appLoading')" /> -->
+<!--                         </div> -->
+<!--                     </div> -->
+<!--                 </div> -->
+<!--             </div> -->
+<!--         </p:outputPanel> -->
+<!--     </p:dialog> -->
+
+<p:dialog id="dialogAsociarCoordinador" widgetVar="dialogAsociarCoordinador"
+    header="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.titulo.asignacion.coordinadores']}"
+    closable="false" dynamic="true" modal="true" width="40%">
+    <p:outputPanel id="panelComentarioAsociarCoordinador">
+        <atlasp:facesMessages id="fmComentarioAsociar" modo="mensajes" />
+        <div class="ui-g">
+            <div class="ui-g-12 borde-contenedor">
+                <div class="ui-g">
+                    <div class="ui-g-12 ui-md-12 ui-lg-12">
+                        <p:panelGrid columns="1" columnClasses="ui-g-12" layout="grid" styleClass="ui-panelgrid-blank">
+
+                            <atlasp:listaPaginada id="lpAsigCoordinadores"
+                                listAndCountMethod="#{evaluacionBean.obtenerListaCoordinadoresConvocatoria}"
+                                reflow="true" pijama="true" sortMode="single"
+                                export="true"
+                                exportTitle="Coordinadores y/o Evaluadores"
+                                exportFile="reporteCoordinadorEvaluador"
+                                viewSelectRows="false">
+
+                                <atlasp:columnaListaPaginada
+                                    field="interesadoDTO.cdNumIden" 
+                                    filtrable="false" exportable="true"
+                                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.identificador']}">
+                                    <ui:define name="value">
+                                        <h:outputText value="#{item.interesadoDTO.cdNumIden}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+
+                                <atlasp:columnaListaPaginada
+                                    field="interesadoDTO.dsNombre" filtrable="false" exportable="true"
+                                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.nombres']}">
+                                    <ui:define name="value">
+                                        <h:outputText value="#{item.interesadoDTO.dsNombre}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+
+                                <atlasp:columnaListaPaginada
+                                    field="interesadoDTO.dsApellido1" filtrable="false" exportable="true"
+                                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.apellido1']}">
+                                    <ui:define name="value">
+                                        <h:outputText value="#{item.interesadoDTO.dsApellido1}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+
+                                <atlasp:columnaListaPaginada
+                                    field="interesadoDTO.dsApellido2" filtrable="false" exportable="true"
+                                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.apellido2']}">
+                                    <ui:define name="value">
+                                        <h:outputText value="#{item.interesadoDTO.dsApellido2}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+
+                                <atlasp:columnaListaPaginada
+                                    field="interesadoDTO.dsEmail" filtrable="false" exportable="true"
+                                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.email']}">
+                                    <ui:define name="value">
+                                        <h:outputText value="#{item.interesadoDTO.dsEmail}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+
+                                <atlasp:columnaListaPaginada
+                                    label="#{bundle['listado.columna.acciones']}"
+                                    order="false" styleClass="acciones"
+                                    visible="#{!convocatoriasBean.modoConsulta and evaluacionBean.calcularFecha(convocatoriasBean.convocatoriaDTO)}"> 
+                                    <ui:define name="value">
+                                        <div class="ui-g">
+                                            <div class="ui-g-12 text-center">
+                                                <atlasp:button
+                                                    action="#{evaluacionBean.asociarCoordinadorExpediente(item)}"
+                                                    ajax="true"
+                                                    alt="#{bundle['boton.aniadir']}"
+                                                    title="#{bundle['boton.aniadir']}"
+                                                    icon="fas fa-plus"
+                                                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                                    render="outpanelEvaluacionSolapa"
+                                                    tipoBoton="btn-link" />
+                                            </div>
+                                        </div>
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+
+                            </atlasp:listaPaginada>
+
+                        </p:panelGrid>
+                    </div>
+
+                    <div class="ui-g-12 text-right">
+                        <!-- VMM 30/09/26: ajax="true" process="@this" - accion de solo lectura, no hace falta procesar el formulario completo. -->
+                        <atlasp:button
+                            action="#{evaluacionBean.cerrarCoordinador()}"
+                            ajax="true"
+                            process="@this"
+                            value="#{bundle['boton.cerrar']}"
+                            alt="#{bundle['boton.cerrar']}"
+                            title="#{bundle['boton.cerrar']}"
+                            icon="fas fa-times"
+                            tipoBoton="btn-secondary"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            oncomplete="atlas.ui.Loading.hideLoad('appLoading'); PF('dialogAsociarCoordinador').hide();" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </p:outputPanel>
+</p:dialog>
+
+
+
+    <p:dialog id="dialogComentario" widgetVar="dialogComentario"
+        header="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.comentarioCoordinador']}"
+        closable="false" dynamic="true" modal="true" width="40%">
+        <p:outputPanel id="panelComentario">
+            <atlasp:facesMessages id="fmComentario" modo="mensajes" />
+            <div class="ui-g">
+                <div class="ui-g-12 borde-contenedor">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-12 ui-lg-12 ">
+                            <h:outputText styleClass="label"
+                                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.comentario']}" />
+                            <p:inputText id="dsComentarioEval"
+                                readonly="true"
+                                value="#{evaluacionBean.expedienteEvalDTO.informeActivo.dsComentario}" />
+                        </div>
+                        <div class="ui-g-12">
+                            <!-- VMM 30/09/26: ajax="true" process="@this" - accion de solo lectura, no hace falta procesar el formulario completo. -->
+                            <atlasp:button
+                                action="#{evaluacionBean.cerrarComentario()}"
+                                ajax="true"
+                                process="@this"
+                                update="panelComentario"
+                                value="#{bundle['boton.cerrar']}"
+                                alt="#{bundle['boton.cerrar']}"
+                                title="#{bundle['boton.cerrar']}"
+                                icon="fas fa-times"
+                                tipoBoton="btn-secondary"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p:outputPanel>
+    </p:dialog>
+    
+    <p:dialog id="dialogMotivoRechazo" widgetVar="dialogMotivoRechazo"
+        header="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.motivo.rechazo']}"
+        closable="false" dynamic="true" modal="true" width="40%"
+        onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        <p:outputPanel id="panelMotivoRechazo">
+            <atlasp:facesMessages id="fmMotivoRechazo" modo="mensajes" />
+            <div class="ui-g">
+                <div class="ui-g-12 borde-contenedor">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-12 ui-lg-12 ">
+                            <h:outputText styleClass="label"
+                                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.motivo.rechazo']}" />
+                            <p:inputText id="dsMotivoRechazoCoor"
+                                readonly="true"
+                                value="#{evaluacionBean.motivoCausaSeleccionado}" />
+                        </div>
+                        <div class="ui-g-12">
+                            <!-- VMM 30/09/26: ajax="true" process="@this" - accion de solo lectura, no hace falta procesar el formulario completo. -->
+                            <atlasp:button
+                                action="#{evaluacionBean.cerrarMotivoRechazo()}"
+                                ajax="true"
+                                process="@this"
+                                update="panelMotivoRechazo"
+                                value="#{bundle['boton.cerrar']}"
+                                alt="#{bundle['boton.cerrar']}"
+                                title="#{bundle['boton.cerrar']}"
+                                icon="fas fa-times"
+                                tipoBoton="btn-secondary"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p:outputPanel>
+    </p:dialog>
+
+</ui:composition>

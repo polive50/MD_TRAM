@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+	<c:set var="mostrarUsuAlta"
+		value="#{empty auditoriaAlta || auditoriaAlta == true || auditoriaAlta == 'soloUsuario' || auditoriaAlta == 'completa'}" />
+	<c:set var="mostrarFechaAlta"
+		value="#{empty auditoriaAlta || auditoriaAlta == true || auditoriaAlta == 'soloFecha' || auditoriaAlta == 'completa'}" />
+
+	<c:set var="mostrarUsuModif"
+		value="#{empty auditoriaModif || auditoriaModif == true || auditoriaModif == 'soloUsuario' || auditoriaModif == 'completa'}" />
+	<c:set var="mostrarFechaModif"
+		value="#{empty auditoriaModif || auditoriaModif == true || auditoriaModif == 'soloFecha' || auditoriaModif == 'completa'}" />
+
+	<c:set var="mostrarUsuBaja"
+		value="#{empty auditoriaBaja || auditoriaBaja == true || auditoriaBaja == 'soloUsuario' || auditoriaBaja == 'completa'}" />
+	<c:set var="mostrarFechaBaja"
+		value="#{empty auditoriaBaja || auditoriaBaja == true || auditoriaBaja == 'soloFecha' || auditoriaBaja == 'completa'}" />
+
+	<!-- Título -->
+	<h:outputText styleClass="tituloFormulario"
+		value="#{bundle['auditoria.titulo']}" />
+
+	<!-- Se definen los campos de auditoría si no han sido definidos por el usuario -->
+	<div class="campos-auditoria">
+
+		<!--  Alta -->
+		<h:panelGroup layout="block" styleClass="ui-g alta"
+			rendered="#{mostrarUsuAlta or mostrarFechaAlta}">
+			<div class="ui-g-12 ui-md-12 ui-lg-2 tituloAuditoria">
+				<h:outputText value="#{bundle['auditoria.alta']}"
+					styleClass="label negrita" />
+			</div>
+
+			<h:panelGroup layout="block"
+				styleClass="ui-g-12 #{mostrarFechaAlta ? 'ui-md-6 ui-lg-4' : 'ui-md-12 ui-lg-10'} "
+				rendered="#{mostrarUsuAlta == true}">
+				<h:outputText styleClass="label"
+					value="#{bundle['auditoria.cdusualta']}" />
+				<h:outputText styleClass="label"
+					value="#{(empty auditoriaAlta || auditoriaAlta == true) ? entidad.cdUsuAlta : campoUsuAlta}" />
+			</h:panelGroup>
+
+			<h:panelGroup layout="block"
+				styleClass="ui-g-12 #{mostrarUsuAlta ? 'ui-md-6 ui-lg-6' : 'ui-md-12 ui-lg-10'} "
+				rendered="#{mostrarFechaAlta == true}">
+				<h:outputText styleClass="label"
+					value="#{bundle['auditoria.fcaltafila']}" />
+				<h:outputText styleClass="label"
+					value="#{(empty auditoriaAlta || auditoriaAlta == true) ? entidad.fcAltaFila : campoFcAlta}">
+					<f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
+				</h:outputText>
+			</h:panelGroup>
+		</h:panelGroup>
+
+		<!--  Modificación -->
+		<h:panelGroup layout="block" styleClass="ui-g modificacion"
+			rendered="#{mostrarUsuModif or mostrarFechaModif}">
+			<div class="ui-g-12 ui-md-12 ui-lg-2 tituloAuditoria">
+				<h:outputText value="#{bundle['auditoria.modificacion']}"
+					styleClass="negrita" />
+			</div>
+
+			<h:panelGroup layout="block"
+				styleClass="ui-g-12 #{mostrarFechaModif ? 'ui-md-6 ui-lg-4' : 'ui-md-12 ui-lg-10'}"
+				rendered="#{mostrarUsuModif == true}">
+				<h:outputText styleClass="label"
+					value="#{bundle['auditoria.cdusumodif']}" />
+				<h:outputText styleClass="label"
+					value="#{(empty auditoriaModif || auditoriaModif == true) ? entidad.cdUsuModif : campoUsuModif}" />
+			</h:panelGroup>
+
+			<h:panelGroup layout="block"
+				styleClass="ui-g-12 #{mostrarUsuModif ? 'ui-md-6 ui-lg-6' : 'ui-md-12 ui-lg-10'} "
+				rendered="#{mostrarFechaModif == true}">
+				<h:outputText styleClass="label"
+					value="#{bundle['auditoria.fcmodiffila']}" />
+				<h:outputText id="fechaModif" styleClass="label"
+					value="#{(empty auditoriaModif || auditoriaModif == true) ? entidad.fcModifFila : campoFcModif}">
+					<f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
+				</h:outputText>
+			</h:panelGroup>
+		</h:panelGroup>
+
+		<!--  Baja -->
+		<h:panelGroup layout="block" styleClass="ui-g baja"
+			rendered="#{mostrarUsuBaja or mostrarFechaBaja}">
+			<div class="ui-g-12 ui-md-12 ui-lg-2 tituloAuditoria">
+				<h:outputText value="#{bundle['auditoria.baja']}"
+					styleClass="negrita" />
+			</div>
+
+			<h:panelGroup layout="block"
+				styleClass="ui-g-12 #{mostrarFechaBaja ? 'ui-md-6 ui-lg-4' : 'ui-md-12 ui-lg-10'}"
+				rendered="#{mostrarUsuBaja == true}">
+				<h:outputText styleClass="label"
+					value="#{bundle['auditoria.cdusubaja']}" />
+				<h:outputText styleClass="label registroBaja"
+					value="#{(empty auditoriaBaja || auditoriaBaja == true) ? entidad.cdUsuBaja : campoUsuBaja}" />
+			</h:panelGroup>
+
+			<h:panelGroup layout="block"
+				styleClass="ui-g-12 #{mostrarUsuBaja ? 'ui-md-6 ui-lg-6' : 'ui-md-12 ui-lg-10'} "
+				rendered="#{mostrarFechaBaja == true}">
+				<h:outputText styleClass="label"
+					value="#{bundle['auditoria.fcbajafila']}" />
+				<h:outputText styleClass="label registroBaja"
+					value="#{(empty auditoriaBaja || auditoriaBaja == true) ? entidad.fcBajaFila : campoFcBaja}">
+					<f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
+				</h:outputText>
+			</h:panelGroup>
+		</h:panelGroup>
+	</div>
+</ui:composition>

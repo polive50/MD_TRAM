@@ -1,0 +1,2111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p"
+    xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <atlasp:guardarEstado value="#{financiacionBean.listaAnualidades}" />
+    <atlasp:guardarEstado value="#{financiacionBean.totalAnualidades}" />
+    <atlasp:guardarEstado value="#{financiacionBean.porcentajeIntensidadAyuda}" />
+    <atlasp:guardarEstado value="#{financiacionBean.porcentajeIntensidadGestor}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.lstBloqueComponenteColumna}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.lstBloqueComponenteFila}" />
+    <atlasp:guardarEstado value="#{financiacionBean.lstBloque}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.lstPresupuestoFinanciable1}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.lstPresupuestoFinanciable2}" />
+        <atlasp:guardarEstado
+        value="#{financiacionBean.lstPresupuestoFinanciable3}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.lstPresupuestoPresentado}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.listaNcolPresupuesto}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.lstActuacionPresentado}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.lstActuacionFinanciable}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.montoAyudaPresupuesto}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.montoAyudaPresupuestoPresentado}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.montoAyudaSolicitada}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.montoAyudaConcedida}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.pendienteGuardarObservacion}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.lstBloqueComponenteColumnaActua}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.lstBloqueComponenteFilaActua}" />
+    <atlasp:guardarEstado value="#{financiacionBean.listaNcolActuacion}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.montoAyudaActuacion}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.montoAyudaConcedidaActuacion}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.tlObservacionPresupuesto}" />
+    <atlasp:guardarEstado value="#{financiacionBean.tlObservacion}" />
+    <atlasp:guardarEstado value="#{financiacionBean.lstImpMaxAct}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.montoMaxAyudaConceAct}" />
+    <atlasp:guardarEstado value="#{financiacionBean.verMsgObsActuacion}" />
+    <atlasp:guardarEstado value="#{financiacionBean.tieneErrores}" />
+    <atlasp:guardarEstado
+        value="#{financiacionBean.montoTotalActuacionAux}" />
+    <atlasp:guardarEstado value="#{financiacionBean.montoOriginal}" />
+
+    <atlasp:guardarEstado value="#{financiacionBean.maxLenObservacion}" />
+
+    <atlasp:guardarEstado value="#{financiacionBean.idEstadoExpediente}" />
+
+    <atlasp:guardarEstado
+        value="#{financiacionBean.modoConsultaFinanciacion}" />
+    <atlasp:guardarEstado value="#{financiacionBean.ocultarAyuda}" />
+
+    <atlasp:guardarEstado value="#{convocatoriasBean.modoConsulta}" />
+
+    <atlasp:guardarEstado value="#{financiacionBean.BAvisoFinanciacion}" />
+
+    <atlasp:guardarEstado value="#{financiacionBean.verNumeracion}" />
+
+    <atlasp:guardarEstado
+        value="#{financiacionBean.esconderBotonCargarDatoPresup}" />
+
+    <atlasp:guardarEstado
+        value="#{financiacionBean.esconderBotonCargarDatoActuacion}" />
+        
+    <atlasp:guardarEstado
+        value="#{financiacionBean.esconderBotonFinalizarRevision}" />
+        
+    <atlasp:guardarEstado
+        value="#{financiacionBean.esConvocatoriaConceptoPresup}" />
+        
+    <atlasp:guardarEstado
+        value="#{financiacionBean.lstPresupuestoAyudaSolicitada}" />
+    
+    <atlasp:guardarEstado
+        value="#{financiacionBean.lstPresupuestoAyudaSolicitada2}" />
+        
+    <atlasp:guardarEstado
+        value="#{financiacionBean.lstPresupuestoAyudaConcedida}" />
+        
+    <atlasp:guardarEstado
+        value="#{financiacionBean.lstPresupuestoAyudaConcedida2}" />
+        
+        <atlasp:guardarEstado
+        value="#{financiacionBean.lstPresupuestoAyudaConcedida3}" />
+        
+    <atlasp:guardarEstado
+        value="#{financiacionBean.porcentajeIntensidadAyudaStr}" />
+    
+    <atlasp:guardarEstado
+        value="#{financiacionBean.esformatoErroneoIntensidad}" />
+
+    <p:outputPanel id="panelFinanciacion">
+    
+      <p:panelGrid  rendered="#{financiacionBean.cargaDatos()}">
+         </p:panelGrid>
+    
+    
+    
+        <p:panelGrid columns="2"
+            columnClasses="ui-g-12 ui-md-3 ui-lg-2 ui-xl-2, ui-g-12 ui-md-9 ui-lg-10 ui-xl-10 mtb-auto"
+            layout="grid" styleClass="ui-panelgrid-blank p-0">
+            <h:outputText styleClass="label"
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.financiacion.label.financiacion.estado']}" />
+            <p:column>
+                <p:inputText id="dsEstadoRevisionFinan" readonly="true"
+                    value="#{expedienteBean.expedienteDTO.estadoRevFinanDTO.dsValor}" />
+                <p:outputPanel
+                    styleClass="icono fa fa-fw fa-question-circle"
+                    id="ttEstadoInternoFinan"
+                    value="#{icon['icono.ayuda']}"
+                    alt="#{bundle['mensaje.revision.financiacion.info.ayuda.estado.interno']}"
+                    title="#{bundle['mensaje.revision.financiacion.info.ayuda.estado.interno']}" />
+                <p:tooltip for="ttEstadoInternoFinan" escape="false"
+                    value="#{bundle['mensaje.revision.financiacion.info.ayuda.estado.interno']}" />
+            </p:column>
+        </p:panelGrid>
+
+        <atlasp:message tipo="warn"
+            texto="#{bundle['convocatorias.detalle.solicitudes.expedientes.financiacion.no.configurada']}"
+            rendered="#{empty financiacionBean.lstBloqueComponenteFila and empty financiacionBean.lstBloqueComponenteFilaActua}" />
+
+        <p:fieldset id="fsPresupuesto"
+            legend="#{bundle['convocatorias.detalle.solicitudes.expedientes.legend.financiacion.presupuesto']}"
+            collapsed="false" toggleable="true"
+            rendered="#{not empty financiacionBean.lstBloqueComponenteFila}">
+            <h:outputText
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.presupuestoPresentado']} #{financiacionBean.verNumeracion?'1:':':'}"
+                rendered="#{not empty financiacionBean.lstBloque[0].listaBloqueAuxDTO}"
+                style="font-weight: bold; text-transform: uppercase; display: block; margin: 0;" />
+            <div class="ui-g-12">
+                <h:outputText styleClass="label negrita"
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.intensidad']}"
+                    rendered="#{financiacionBean.porcentajeIntensidadAyuda != null and financiacionBean.porcentajeIntensidadAyuda != 100}"/>
+                <h:outputText id="outputTextNombre"
+                    styleClass="label"
+                    value="#{financiacionBean.porcentajeIntensidadAyuda}%"
+                    rendered="#{financiacionBean.porcentajeIntensidadAyuda != null and financiacionBean.porcentajeIntensidadAyuda != 100}"/>
+            </div>
+            
+            <div class="ui-g-12">
+                <h:outputText styleClass="label negrita"
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.intensidad']}"
+                    rendered="#{financiacionBean.porcentajeIntensidadAyuda == null and financiacionBean.porcentajeIntensidadAyudaStr != null}"/>
+                <h:outputText id="outputTextNombreStr"
+                    styleClass="label"
+                    value="#{financiacionBean.porcentajeIntensidadAyudaStr}%"
+                    rendered="#{financiacionBean.porcentajeIntensidadAyuda == null and financiacionBean.porcentajeIntensidadAyudaStr != null}"/>
+            </div>
+            
+<!--             PRESUPUESTO PRESENTADO 1 -->
+            <h:panelGroup layout="block"
+                style="display: flex; flex-direction: column; width: 100%; box-sizing: border-box;"
+                rendered="#{not empty financiacionBean.lstBloque[0].listaBloqueAuxDTO}">
+
+                <div style="display: flex; gap: 16px; width: 100%; margin-bottom: 12px; align-items: flex-end;">
+
+                    <div style="flex: 0 0 #{financiacionBean.isMostrarTablaAyuda(1) ? '60%' : '100%'};
+                                max-width: #{financiacionBean.isMostrarTablaAyuda(1) ? '60%' : '100%'};
+                                box-sizing: border-box;">
+                    </div>
+
+                    <h:panelGroup layout="block"
+                                  rendered="#{financiacionBean.isMostrarTablaAyuda(1)}"
+                                  style="flex: 0 0 40%; max-width: 40%; box-sizing: border-box;">
+                        <h:outputText
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.ayudaSolicitada']}"
+                            style="font-weight: bold; text-transform: uppercase; display: block; margin: 0;" />
+                    </h:panelGroup>
+                </div>
+                
+                <div style="display: flex; gap: 16px; width: 100%; align-items: flex-start;">
+                    
+                    <div style="flex: 0 0 #{financiacionBean.isMostrarTablaAyuda(1) ? '60%' : '100%'}; 
+                                max-width: #{financiacionBean.isMostrarTablaAyuda(1) ? '60%' : '100%'}; 
+                                box-sizing: border-box;">
+                        
+<!--                    TABLA PRESUPUESTO PRESENTADO 1 CON CONCEPTOS -->
+                        <p:dataTable id="tablaPresupPresentado1" var="presupuesto" 
+                                     value="#{financiacionBean.lstBloque[0].listaBloqueAuxDTO}"
+                                     sortBy="#{presupuesto.tipoFinanciacionDTO.ordenPartida}"
+                                     styleClass="atlas-lp tabla-presentado"
+                                     rendered="#{financiacionBean.esConvocatoriaConceptoPresup}">
+                                        
+                            <p:headerRow>
+                                <p:column colspan="#{financiacionBean.listaNcolPresupuesto.size()}" 
+                                          style="background-color: #E3EBF6 !important; text-align: left;">
+                                    <h:outputText value="#{presupuesto.tipoFinanciacionDTO.dsValor}" 
+                                                  style="font-weight: bold; color: #2C3E50; text-transform: uppercase;"/>
+                                </p:column>
+                            </p:headerRow>
+                                
+                            <p:column headerText="CONCEPTOS" style="width: 50% !important; height: 42px !important; padding: 0 4px !important; vertical-align: middle;">
+                                <h:outputText value="#{presupuesto.datos[0].dsValor}" style="padding-left: 10px;" />
+                                <f:facet name="footer">
+                                    <h:outputText value="TOTAL" style="font-weight:bold; color: black; display: block; text-align: left;" />
+                                </f:facet>
+                            </p:column>
+                                
+                            <p:columns value="#{financiacionBean.listaAnualidades}" var="anualidad" headerText="#{anualidad}º Anualidad"
+                                       style="width: 70px !important; height: 42px !important; padding: 0 4px !important; vertical-align: middle;">
+                                <f:facet name="header">
+                                    <h:outputText value="#{anualidad}º Anualidad" />
+                                </f:facet>
+                            
+                                <p:inputNumber value="#{presupuesto.datos[anualidad].dsValor}"
+                                               symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                               readonly="true" />
+                            
+                                <f:facet name="footer">
+                                    <h:outputText value="#{financiacionBean.getGranTotalVerticalPres(anualidad, financiacionBean.lstBloque[0].listaBloqueAuxDTO)}"  
+                                                  style="font-weight:bold; color: black; display: block; text-align: left;">
+                                        <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                    </h:outputText>
+                                </f:facet>
+                            </p:columns>
+                                
+                            <p:column headerText="TOTAL" style="width: 85px !important; height: 42px !important; padding: 0 4px !important; vertical-align: middle;">
+                                <p:inputNumber value="#{presupuesto.datos[financiacionBean.listaNcolPresupuesto.size()-1].dsValor}"
+                                               readonly="true" symbol=" €" symbolPosition="s"
+                                               inputStyle="font-weight: bold; text-align: left; background: #F8F9FA;"/> 
+                                <f:facet name="footer">
+                                    <h:outputText value="#{financiacionBean.getGranTotalFinalPres(financiacionBean.lstBloque[0].listaBloqueAuxDTO)}"  
+                                                  style="font-weight:bold; color: black; display: block; text-align: left;">
+                                        <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                    </h:outputText>
+                                </f:facet>
+                            </p:column>
+                            <p:summaryRow rendered="#{presupuesto.tipoFinanciacionDTO.dsValor != 'TOTAL'}">
+                                <p:column style="text-align: left; background-color: #F8F9FA;">
+                                    <h:outputText value="SUBTOTAL" style="font-weight: bold;" />
+                                </p:column>
+                            
+                                <p:column colspan="#{financiacionBean.listaAnualidades.size()}" style="padding: 0px !important; background-color: #F8F9FA;">
+                                    <div style="display: flex; width: 100%;">
+                                        <ui:repeat value="#{financiacionBean.listaAnualidades}" var="anualidad">
+                                            <div style="flex: 1; padding: 4px; text-align: center;">
+                                                <p:inputNumber value="#{financiacionBean.getSumaGrupoPres(presupuesto.tipoFinanciacionDTO, anualidad,
+                                                                        financiacionBean.lstBloque[0].listaBloqueAuxDTO)}" 
+                                                               readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                               inputStyle="font-weight: bold; text-align: left; background: #E3EBF6 !important; width: 100%; border: 1px solid #ced4da; color: black !important;"/> </div>
+                                        </ui:repeat>
+                                    </div>
+                                </p:column>
+                                
+                                <p:column style="background-color: #F8F9FA;">
+                                    <p:inputNumber value="#{financiacionBean.getSumaTotalGrupoPres(presupuesto.tipoFinanciacionDTO, financiacionBean.lstBloque[0].listaBloqueAuxDTO)}" 
+                                                   readonly="true" symbol=" €" symbolPosition="s"
+                                                   decimalSeparator="," thousandSeparator="."
+                                                   inputStyle="font-weight: bold; text-align: left; background: #ffffff !important; border: 1px solid #ced4da;"/> </p:column>
+                            </p:summaryRow>
+                        </p:dataTable>
+                                                
+<!--                    TABLA PRESUPUESTO PRESENTADO 1 SIN CONCEPTOS -->
+                        <p:dataTable id="presupPresentado1" var="presupuesto" styleClass="atlas-lp tabla-presentado"
+                                     value="#{financiacionBean.lstBloque[0].listaBloqueAuxDTO}"
+                                     rowIndexVar="rowIndex"
+                                     rendered="#{!financiacionBean.esConvocatoriaConceptoPresup}">
+                                         
+                            <p:columnGroup type="header">
+                                <p:row>
+                                    <p:column rowspan="2" headerText="" />
+                                    <p:repeat var="anualidad" value="#{financiacionBean.listaAnualidades}">
+                                        <p:column headerText="#{anualidad}° Anualidad" />
+                                    </p:repeat>
+                                    <p:column rowspan="2" headerText="TOTAL" />
+                                </p:row>
+                            </p:columnGroup>
+                            
+                            <p:column>
+                                <h:outputText value="#{presupuesto.tipoFinanciacionDTO.dsValor}" />
+                            </p:column>
+                            
+                            <p:columns value="#{financiacionBean.listaNcolPresupuesto}" var="nCol" columnIndexVar="colIndex">
+                                <p:inputNumber value="#{presupuesto.datos[nCol].dsValor}"
+                                               symbol=" €" minValue="0" maxValue="9999999999.99" readonly="true"
+                                               symbolPosition="s" decimalSeparator="," thousandSeparator="." />
+                            </p:columns>
+                        </p:dataTable>
+                    </div>
+                    
+                    <h:panelGroup layout="block" 
+                                  rendered="#{financiacionBean.isMostrarTablaAyuda(1)}"
+                                  style="flex: 0 0 40%; max-width: 40%; box-sizing: border-box;">
+                        
+<!--                    TABLA AYUDA SOLICITADA 1 CON CONCEPTOS -->
+                        <p:dataTable id="tablaAyudaSolicPresentada1" var="presupuestoSol" 
+                                     value="#{financiacionBean.lstPresupuestoAyudaSolicitada}"
+                                     sortBy="#{presupuestoSol.tipoFinanciacionDTO.ordenPartida}"
+                                     styleClass="atlas-lp tabla-solicitada"
+                                     rendered="#{financiacionBean.esConvocatoriaConceptoPresup}">
+                                                
+                            <p:headerRow>
+                                <p:column colspan="#{financiacionBean.listaNcolPresupuesto.size()}" 
+                                          style="background-color: #E3EBF6 !important; text-align: left;">
+                                    <h:outputText value="#{presupuestoSol.tipoFinanciacionDTO.dsValor}" 
+                                                  style="font-weight: bold; color: #2C3E50; text-transform: uppercase;"/>
+                                </p:column>
+                            </p:headerRow>
+                                                
+                            <p:column headerText="CONCEPTOS" style="width: 50% !important; height: 42px !important; padding: 0 4px !important; vertical-align: middle;">
+                                <h:outputText value="#{presupuestoSol.datos[0].dsValor}" style="padding-left: 10px;" />
+                                <f:facet name="footer">
+                                    <h:outputText value="TOTAL" style="font-weight:bold; color: black; display: block; text-align: left;" />
+                                </f:facet>
+                            </p:column>
+                                                
+                            <p:columns value="#{financiacionBean.listaAnualidades}" var="anualidad" headerText="#{anualidad}º Anualidad"
+                                       style="width: 70px !important; height: 42px !important; padding: 0 4px !important; vertical-align: middle;">
+                                <f:facet name="header">
+                                    <h:outputText value="#{anualidad}º Anualidad" />
+                                </f:facet>
+                                                
+                                <p:inputNumber value="#{presupuestoSol.datos[anualidad].dsValor}"
+                                               symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                               readonly="true" />
+                                                    
+                                <f:facet name="footer">
+                                    <h:outputText value="#{financiacionBean.getGranTotalVerticalPres(anualidad, financiacionBean.lstPresupuestoAyudaSolicitada)}" 
+                                                  style="font-weight:bold; color: black; display: block; text-align: left;">
+                                        <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                    </h:outputText>
+                                </f:facet>
+                            </p:columns>
+                                                
+                            <p:column headerText="TOTAL" style="width: 85px !important; height: 42px !important; padding: 0 4px !important; vertical-align: middle;">
+                                <p:inputNumber value="#{presupuestoSol.datos[financiacionBean.listaNcolPresupuesto.size()-1].dsValor}"
+                                               readonly="true" symbol=" €" symbolPosition="s"
+                                               inputStyle="font-weight: bold; text-align: left; background: #F8F9FA;"/> 
+                                <f:facet name="footer">
+                                    <h:outputText value="#{financiacionBean.getGranTotalFinalPres(financiacionBean.lstPresupuestoAyudaSolicitada)}" 
+                                                  style="font-weight:bold; color: black; display: block; text-align: left;">
+                                        <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                    </h:outputText>
+                                </f:facet>
+                            </p:column>
+                                                
+                            <p:summaryRow rendered="#{presupuestoSol.tipoFinanciacionDTO.dsValor != 'TOTAL'}">
+                                <p:column style="text-align: left; background-color: #F8F9FA;">
+                                    <h:outputText value="SUBTOTAL" style="font-weight: bold;" />
+                                </p:column>
+                                                    
+                                <p:column colspan="#{financiacionBean.listaAnualidades.size()}" style="padding: 0px !important; background-color: #F8F9FA;">
+                                    <div style="display: flex; width: 100%;">
+                                        <ui:repeat value="#{financiacionBean.listaAnualidades}" var="anualidad">
+                                            <div style="flex: 1; padding: 4px; text-align: center;">
+                                                <p:inputNumber value="#{financiacionBean.getSumaGrupoPres(presupuestoSol.tipoFinanciacionDTO, anualidad,
+                                                                        financiacionBean.lstPresupuestoAyudaSolicitada)}" 
+                                                               readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                               inputStyle="font-weight: bold; text-align: left; background: #E3EBF6 !important; width: 100%; border: 1px solid #ced4da; color: black !important;"/> </div>
+                                        </ui:repeat>
+                                    </div>
+                                </p:column>
+                                                        
+                                <p:column style="background-color: #F8F9FA;">
+                                    <p:inputNumber value="#{financiacionBean.getSumaTotalGrupoPres(presupuestoSol.tipoFinanciacionDTO, financiacionBean.lstPresupuestoAyudaSolicitada)}" 
+                                                   readonly="true" symbol=" €" symbolPosition="s"
+                                                   decimalSeparator="," thousandSeparator="."
+                                                   inputStyle="font-weight: bold; text-align: left; background: #ffffff !important; border: 1px solid #ced4da;"/> </p:column>
+                            </p:summaryRow>
+                        </p:dataTable>
+                            
+<!--                    TABLA AYUDA SOLICITADA 1 SIN CONCEPTOS -->
+                        <p:dataTable id="ayudaPresupSolicitado1" var="presupuestoSolicitado" styleClass="atlas-lp tabla-solicitada"
+                                     value="#{financiacionBean.lstPresupuestoAyudaSolicitada}"
+                                     emptyMessage="No se han cargado datos"
+                                     rowIndexVar="rowIndex"
+                                     rendered="#{!financiacionBean.esConvocatoriaConceptoPresup}">
+                            
+                            <p:columnGroup type="header">
+                                <p:row>
+                                    <p:column rowspan="2" headerText="" />
+                                    <p:repeat var="anualidad" value="#{financiacionBean.listaAnualidades}">
+                                        <p:column headerText="#{anualidad}° Anualidad" />
+                                    </p:repeat>
+                                    <p:column rowspan="2" headerText="TOTAL" />
+                                </p:row>
+                            </p:columnGroup>
+                            
+                            <p:column>
+                                <h:outputText value="#{presupuestoSolicitado.tipoFinanciacionDTO.dsValor}" />
+                            </p:column>
+                            
+                            <p:columns value="#{financiacionBean.listaNcolPresupuesto}" var="nCol" columnIndexVar="colIndex">
+                                <p:inputNumber value="#{presupuestoSolicitado.datos[nCol].dsValor}"
+                                               symbol=" €" minValue="0" maxValue="9999999999.99" readonly="true"
+                                               symbolPosition="s" decimalSeparator="," thousandSeparator="." />
+                            </p:columns>
+                        </p:dataTable>
+                    </h:panelGroup>
+                </div>
+            </h:panelGroup>   
+
+            <p:spacer height="5"
+                rendered="#{financiacionBean.mostrarPresupuestoProvisional(expedienteBean.expedienteDTO.estadoRevFinanDTO.nmConstante) and not empty financiacionBean.lstPresupuestoFinanciable3}" />
+
+            <p:panelGrid id="pgPresupuestoFinanciable3" columns="2"
+                layout="grid" styleClass="ui-panelgrid-blank"
+                columnClasses="ui-g-6 ui-md-6"
+                rendered="#{financiacionBean.mostrarPresupuestoProvisional(expedienteBean.expedienteDTO.estadoRevFinanDTO.nmConstante) and not empty financiacionBean.lstPresupuestoFinanciable3}">
+                
+               <h:panelGroup>
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.presupuestoProvisional']} #{financiacionBean.verNumeracion?3:':'}"
+                    style="font-weight: bold;text-transform: uppercase;" />
+                    
+                   <!--  PRESUPUESTO PROVISIONAL CON CONCEPTOS -->
+                   <p:dataTable id="tablaPresupFinanciable3" var="presupFinanciable" 
+                                     value="#{financiacionBean.lstPresupuestoFinanciable3}"
+                                     sortBy="#{presupFinanciable.tipoFinanciacionDTO.ordenPartida}"
+                                     styleClass="atlas-lp"
+                                     rendered="#{financiacionBean.esConvocatoriaConceptoPresup}">
+                        
+                            <p:headerRow>
+                                <p:column colspan="#{financiacionBean.listaNcolPresupuesto.size()}" 
+                                          style="background-color: #E3EBF6 !important; text-align: left;">
+                                    <h:outputText value="#{presupFinanciable.tipoFinanciacionDTO.dsValor}" 
+                                                  style="font-weight: bold; color: #2C3E50; text-transform: uppercase;"/>
+                                </p:column>
+                            </p:headerRow>
+                        
+                            <p:column headerText="CONCEPTOS">
+                                <h:outputText value="#{presupFinanciable.tlConcepto}" style="padding-left: 10px;" />
+                                <f:facet name="footer">
+                                    <h:outputText value="TOTAL" style="font-weight:bold; color: black; display: block; text-align: left;" />
+                                </f:facet>
+                            </p:column>
+                        
+                            <p:columns value="#{financiacionBean.listaAnualidades}" var="anualidad" headerText="#{anualidad}º Anualidad">
+                                <f:facet name="header">
+                                    <h:outputText value="#{anualidad}º Anualidad" />
+                                </f:facet>
+                        
+                                <p:inputNumber value="#{presupFinanciable.lstExpedientePresupMontoDTO[anualidad].nmImporte}"
+                                               symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                               readonly="true">
+                                </p:inputNumber>
+                        
+                                <f:facet name="footer">
+                                    <h:outputText value="#{financiacionBean.getGranTotalVertical(anualidad, financiacionBean.lstPresupuestoFinanciable3)}" 
+                                                  style="font-weight:bold; color: black; display: block; text-align: left;">
+                                        <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                    </h:outputText>
+                                </f:facet>
+                            </p:columns>
+                        
+                            <p:column headerText="TOTAL">
+                                <p:inputNumber value="#{presupFinanciable.lstExpedientePresupMontoDTO[financiacionBean.listaNcolPresupuesto.size()-1].nmImporte}"
+                                               readonly="true" symbol=" €" symbolPosition="s"
+                                               inputStyle="font-weight: bold; text-align: left background: #F8F9FA;"/>
+                                
+                                <f:facet name="footer">
+                                    <h:outputText value="#{financiacionBean.getGranTotalFinal(financiacionBean.lstPresupuestoFinanciable3)}" 
+                                                  style="font-weight:bold; color: black; display: block; text-align: left;">
+                                        <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                    </h:outputText>
+                                </f:facet>
+                            </p:column>
+                        
+                            <p:summaryRow rendered="#{presupFinanciable.tipoFinanciacionDTO.dsValor != 'TOTAL'}">
+                                <p:column style="text-align: left; background-color: #F8F9FA;">
+                                    <h:outputText value="SUBTOTAL" style="font-weight: bold;" />
+                                </p:column>
+                            
+                                <p:column colspan="#{financiacionBean.listaAnualidades.size()}" style="padding: 0px !important; background-color: #F8F9FA;">
+                                    <div style="display: flex; width: 100%;">
+                                        <ui:repeat value="#{financiacionBean.listaAnualidades}" var="anualidad">
+                                            <div style="flex: 1; padding: 4px; text-align: center;">
+                                                <p:inputNumber value="#{financiacionBean.getSumaGrupo(presupFinanciable.tipoFinanciacionDTO, 
+                                                                    anualidad, financiacionBean.lstPresupuestoFinanciable3)}" 
+                                                               readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                               inputStyle="font-weight: bold; text-align: left background: #E3EBF6 !important; width: 100%; border: 1px solid #ced4da; color: black !important;"/>
+                                            </div>
+                                        </ui:repeat>
+                                    </div>
+                                </p:column>
+                                
+                                <p:column style="background-color: #F8F9FA;">
+                                    <p:inputNumber value="#{financiacionBean.getSumaTotalGrupo(presupFinanciable.tipoFinanciacionDTO, financiacionBean.lstPresupuestoFinanciable3)}" 
+                                                   readonly="true" symbol=" €" symbolPosition="s"
+                                                   decimalSeparator="," thousandSeparator="."
+                                                   inputStyle="font-weight: bold; text-align: left background: #ffffff !important; border: 1px solid #ced4da;"/>
+                                </p:column>
+                            </p:summaryRow>
+                        </p:dataTable>
+                        
+                    <!-- PRESUPUESTO PROVISIONAL SIN CONCEPTOS -->
+                    <p:dataTable id="presupFinanciable3"
+                        var="presupFinanciable" styleClass="atlas-lp"
+                        rowIndexVar="rowIndex"
+                        value="#{financiacionBean.lstPresupuestoFinanciable3}"
+                        rendered="#{!financiacionBean.esConvocatoriaConceptoPresup}">
+    
+                        <p:columnGroup type="header">
+                            <p:row>
+                                <p:column rowspan="2" headerText="" />
+                                <p:repeat var="anualidad"
+                                    value="#{financiacionBean.listaAnualidades}">
+                                    <p:column
+                                        headerText="#{anualidad}° Anualidad" />
+                                </p:repeat>
+                                <p:column rowspan="2" headerText="TOTAL" />
+                            </p:row>
+                        </p:columnGroup>
+                        <p:column>
+                            <h:outputText
+                                value="#{presupFinanciable.tipoFinanciacionDTO.dsValor}" />
+                        </p:column>
+    
+                        <p:columns
+                            value="#{financiacionBean.listaNcolPresupuesto}"
+                            var="nCol" columnIndexVar="colIndex">
+    
+                            <p:inputNumber
+                                readonly="true"
+                                symbol=" €" minValue="0"
+                                maxValue="9999999999.99" symbolPosition="s"
+                                decimalSeparator="," thousandSeparator="."
+                                value="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].nmImporte}">    
+                            </p:inputNumber>
+                        </p:columns>
+    
+                    </p:dataTable>
+                </h:panelGroup>
+                
+                <!-- AYUDA CONCEDIDA PROVISIONAL -->
+                <h:panelGroup>
+                    <h:outputText
+                        value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.ayudaProvisional']}"
+                        style="font-weight: bold;text-transform: uppercase;" 
+                        rendered="#{financiacionBean.isMostrarTablaAyudaFinan(3)}"/>
+                    
+                    <!-- AYUDA PROVISIONAL CON CONCEPTOS -->
+                    <p:dataTable id="tablaAyudaConcedida3" var="presupAyudaConcedida" 
+                                     value="#{financiacionBean.lstPresupuestoAyudaConcedida3}"
+                                     sortBy="#{presupAyudaConcedida.tipoFinanciacionDTO.ordenPartida}"
+                                     styleClass="atlas-lp"
+                                     rendered="#{financiacionBean.esConvocatoriaConceptoPresup}">
+                        
+                            <p:headerRow>
+                                <p:column colspan="#{financiacionBean.listaNcolPresupuesto.size()}" 
+                                          style="background-color: #E3EBF6 !important; text-align: left;">
+                                    <h:outputText value="#{presupAyudaConcedida.tipoFinanciacionDTO.dsValor}" 
+                                                  style="font-weight: bold; color: #2C3E50; text-transform: uppercase;"/>
+                                </p:column>
+                            </p:headerRow>
+                        
+                            <p:column headerText="CONCEPTOS">
+                                <h:outputText value="#{presupAyudaConcedida.tlConcepto}" style="padding-left: 10px;" />
+                                <f:facet name="footer">
+                                    <h:outputText value="TOTAL" style="font-weight:bold; color: black; display: block; text-align: left;" />
+                                </f:facet>
+                            </p:column>
+                        
+                            <p:columns value="#{financiacionBean.listaAnualidades}" var="anualidad" headerText="#{anualidad}º Anualidad">
+                                <f:facet name="header">
+                                    <h:outputText value="#{anualidad}º Anualidad" />
+                                </f:facet>
+                        
+                                <p:inputNumber value="#{presupAyudaConcedida.lstExpedientePresupMontoDTO[anualidad].nmImporte}"
+                                               symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                               readonly="true">
+                                </p:inputNumber>
+                        
+                                <f:facet name="footer">
+                                    <h:outputText value="#{financiacionBean.getGranTotalVertical(anualidad, financiacionBean.lstPresupuestoAyudaConcedida3)}" 
+                                                  style="font-weight:bold; color: black; display: block; text-align: left;">
+                                        <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                    </h:outputText>
+                                </f:facet>
+                            </p:columns>
+                        
+                            <p:column headerText="TOTAL">
+                                <p:inputNumber value="#{presupAyudaConcedida.lstExpedientePresupMontoDTO[financiacionBean.listaNcolPresupuesto.size()-1].nmImporte}"
+                                               readonly="true" symbol=" €" symbolPosition="s"
+                                               inputStyle="font-weight: bold; text-align: left background: #F8F9FA;"/>
+                                
+                                <f:facet name="footer">
+                                    <h:outputText value="#{financiacionBean.getGranTotalFinal(financiacionBean.lstPresupuestoAyudaConcedida3)}" 
+                                                  style="font-weight:bold; color: black; display: block; text-align: left;">
+                                        <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                    </h:outputText>
+                                </f:facet>
+                            </p:column>
+                        
+                            <p:summaryRow rendered="#{presupAyudaConcedida.tipoFinanciacionDTO.dsValor != 'TOTAL'}">
+                                <p:column style="text-align: left; background-color: #F8F9FA;">
+                                    <h:outputText value="SUBTOTAL" style="font-weight: bold;" />
+                                </p:column>
+                            
+                                <p:column colspan="#{financiacionBean.listaAnualidades.size()}" style="padding: 0px !important; background-color: #F8F9FA;">
+                                    <div style="display: flex; width: 100%;">
+                                        <ui:repeat value="#{financiacionBean.listaAnualidades}" var="anualidad">
+                                            <div style="flex: 1; padding: 4px; text-align: center;">
+                                                <p:inputNumber value="#{financiacionBean.getSumaGrupo(presupAyudaConcedida.tipoFinanciacionDTO, 
+                                                                    anualidad, financiacionBean.lstPresupuestoAyudaConcedida3)}" 
+                                                               readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                               inputStyle="font-weight: bold; text-align: left background: #E3EBF6 !important; width: 100%; border: 1px solid #ced4da; color: black !important;"/>
+                                            </div>
+                                        </ui:repeat>
+                                    </div>
+                                </p:column>
+                                
+                                <p:column style="background-color: #F8F9FA;">
+                                    <p:inputNumber value="#{financiacionBean.getSumaTotalGrupo(presupAyudaConcedida.tipoFinanciacionDTO, financiacionBean.lstPresupuestoAyudaConcedida3)}" 
+                                                   readonly="true" symbol=" €" symbolPosition="s"
+                                                   decimalSeparator="," thousandSeparator="."
+                                                   inputStyle="font-weight: bold; text-align: left background: #ffffff !important; border: 1px solid #ced4da;"/>
+                                </p:column>
+                            </p:summaryRow>
+                        </p:dataTable>
+                        
+                    <!-- AYUDA PROVISIONAL SIN CONCEPTOS -->
+                    <p:dataTable id="presupAyudaConcedida3"
+                                 var="presupAyudaConcedida" styleClass="atlas-lp"
+                                 rowIndexVar="rowIndex"
+                                 value="#{financiacionBean.lstPresupuestoAyudaConcedida3}"
+                                 rendered="#{financiacionBean.isMostrarTablaAyudaFinan(3) and !financiacionBean.esConvocatoriaConceptoPresup}">
+            
+                        <p:columnGroup type="header">
+                            <p:row>
+                                <p:column rowspan="2" headerText="" />
+                                <p:repeat var="anualidad"
+                                          value="#{financiacionBean.listaAnualidades}">
+                                    <p:column
+                                        headerText="#{anualidad}° Anualidad" />
+                                </p:repeat>
+                                <p:column rowspan="2" headerText="TOTAL" />
+                            </p:row>
+                        </p:columnGroup>
+            
+                        <p:column>
+                            <h:outputText
+                                value="#{presupAyudaConcedida.tipoFinanciacionDTO.dsValor}" />
+                        </p:column>
+            
+                        <p:columns
+                            value="#{financiacionBean.listaNcolPresupuesto}"
+                            var="nCol" columnIndexVar="colIndex">
+            
+                            <p:inputNumber
+                                readonly="true"
+                                symbol=" €" minValue="0"
+                                maxValue="9999999999.99" symbolPosition="s"
+                                decimalSeparator="," thousandSeparator="."
+                                value="#{presupAyudaConcedida.lstExpedientePresupMontoDTO[nCol].nmImporte}">
+                            </p:inputNumber>
+                        </p:columns>
+            
+                    </p:dataTable>
+                
+                </h:panelGroup>
+            </p:panelGrid>
+     
+     
+            <p:spacer height="5"
+                rendered="#{!empty financiacionBean.lstBloque[0].listaBloqueAuxDTO}" />
+
+    
+     <p:panelGrid columns="2" layout="grid"
+             styleClass="ui-panelgrid-blank"
+             columnClasses="ui-g-6 ui-md-6">    
+                         
+             <h:panelGroup>
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.presupuestoPresentado']} #{financiacionBean.verNumeracion?'2:':':'}"
+                    rendered="#{!empty financiacionBean.lstBloque[1].listaBloqueAuxDTO}"
+                    style="font-weight: bold;text-transform: uppercase;" />
+                    
+                <!--  TABLA PRESUPUESTO PRESENTADO 2 CON CONCEPTOS -->
+                <p:dataTable id="tablaPresupPresentado2" var="presupuesto" 
+                             value="#{financiacionBean.lstBloque[1].listaBloqueAuxDTO}"
+                             sortBy="#{presupuesto.tipoFinanciacionDTO.ordenPartida}"
+                             styleClass="atlas-lp"
+                             rendered="#{!empty financiacionBean.lstBloque[1].listaBloqueAuxDTO and financiacionBean.esConvocatoriaConceptoPresup}">
+                
+                    <p:headerRow>
+                        <p:column colspan="#{financiacionBean.listaNcolPresupuesto.size()}" 
+                                  style="background-color: #E3EBF6 !important; text-align: left;">
+                            <h:outputText value="#{presupuesto.tipoFinanciacionDTO.dsValor}" 
+                                          style="font-weight: bold; color: #2C3E50; text-transform: uppercase;"/>
+                        </p:column>
+                    </p:headerRow>
+                
+                    <p:column headerText="CONCEPTOS">
+                        <h:outputText value="#{presupuesto.datos[0].dsValor}" style="padding-left: 10px;" />
+                        <f:facet name="footer">
+                            <h:outputText value="TOTAL" style="font-weight:bold; color: black; display: block; text-align: left;" />
+                        </f:facet>
+                    </p:column>
+                
+                    <p:columns value="#{financiacionBean.listaAnualidades}" var="anualidad" headerText="#{anualidad}º Anualidad">
+                        <f:facet name="header">
+                            <h:outputText value="#{anualidad}º Anualidad" />
+                        </f:facet>
+                
+                        <p:inputNumber value="#{presupuesto.datos[anualidad].dsValor}"
+                                       symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                       readonly="true" />
+                    
+                        <f:facet name="footer">
+                            <h:outputText value="#{financiacionBean.getGranTotalVerticalPres(anualidad, financiacionBean.lstBloque[1].listaBloqueAuxDTO)}" 
+                                          style="font-weight:bold; color: black; display: block; text-align: left;">
+                                <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                            </h:outputText>
+                        </f:facet>
+                    </p:columns>
+                
+                    <p:column headerText="TOTAL">
+                        <p:inputNumber value="#{presupuesto.datos[financiacionBean.listaNcolPresupuesto.size()-1].dsValor}"
+                                       readonly="true" symbol=" €" symbolPosition="s"
+                                       inputStyle="font-weight: bold; text-align: left background: #F8F9FA;"/>
+                        
+                        <f:facet name="footer">
+                            <h:outputText value="#{financiacionBean.getGranTotalFinalPres(financiacionBean.lstBloque[1].listaBloqueAuxDTO)}" 
+                                          style="font-weight:bold; color: black; display: block; text-align: left;">
+                                <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                            </h:outputText>
+                        </f:facet>
+                    </p:column>
+                
+                    <p:summaryRow rendered="#{presupuesto.tipoFinanciacionDTO.dsValor != 'TOTAL'}">
+                        <p:column style="text-align: left; background-color: #F8F9FA;">
+                            <h:outputText value="SUBTOTAL" style="font-weight: bold;" />
+                        </p:column>
+                    
+                        <p:column colspan="#{financiacionBean.listaAnualidades.size()}" style="padding: 0px !important; background-color: #F8F9FA;">
+                            <div style="display: flex; width: 100%;">
+                                <ui:repeat value="#{financiacionBean.listaAnualidades}" var="anualidad">
+                                    <div style="flex: 1; padding: 4px; text-align: center;">
+                                        <p:inputNumber value="#{financiacionBean.getSumaGrupoPres(presupuesto.tipoFinanciacionDTO, anualidad,
+                                                            financiacionBean.lstBloque[1].listaBloqueAuxDTO)}" 
+                                                       readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                       inputStyle="font-weight: bold; text-align: left background: #E3EBF6 !important; width: 100%; border: 1px solid #ced4da; color: black !important;"/>
+                                    </div>
+                                </ui:repeat>
+                            </div>
+                        </p:column>
+                        
+                        <p:column style="background-color: #F8F9FA;">
+                            <p:inputNumber value="#{financiacionBean.getSumaTotalGrupoPres(presupuesto.tipoFinanciacionDTO, financiacionBean.lstBloque[1].listaBloqueAuxDTO)}" 
+                                           readonly="true" symbol=" €" symbolPosition="s"
+                                           decimalSeparator="," thousandSeparator="."
+                                           inputStyle="font-weight: bold; text-align: left background: #ffffff !important; border: 1px solid #ced4da;"/>
+                        </p:column>
+                    </p:summaryRow>
+                </p:dataTable>
+
+                <!-- TABLA PRESUPUESTO PRESENTADO 2 SIN CONCEPTOS-->
+                <p:dataTable id="presupPresentado2" var="presupuesto" styleClass="atlas-lp"
+                    value="#{financiacionBean.lstBloque[1].listaBloqueAuxDTO}"
+                    rowIndexVar="rowIndex"
+                    rendered="#{!empty financiacionBean.lstBloque[1].listaBloqueAuxDTO and !financiacionBean.esConvocatoriaConceptoPresup}">
+                    
+                    <p:columnGroup type="header">
+                        <p:row>
+                            <p:column rowspan="2" headerText="" />
+                            <p:repeat var="anualidad"
+                                value="#{financiacionBean.listaAnualidades}">
+                                <p:column
+                                    headerText="#{anualidad}° Anualidad" />
+                            </p:repeat>
+                            <p:column rowspan="2" headerText="TOTAL" />
+                        </p:row>
+                    </p:columnGroup>
+
+                    <p:column>
+                        <h:outputText
+                            value="#{presupuesto.tipoFinanciacionDTO.dsValor}" />
+                    </p:column>
+                    
+    				<p:columns
+                        value="#{financiacionBean.listaNcolPresupuesto}"
+                        var="nCol" columnIndexVar="colIndex">
+                        
+                        <p:inputNumber
+                            readonly="true"
+                            value="#{presupuesto.datos[nCol].dsValor}"
+                            symbol=" €" minValue="0"
+                            maxValue="9999999999.99" 
+                            symbolPosition="s" decimalSeparator=","
+                            thousandSeparator=".">
+                        </p:inputNumber>
+                    </p:columns>
+
+                  </p:dataTable>
+                </h:panelGroup>
+                
+                <!-- AYUDA SOLICITADA PRESENTADA 2 -->
+                <h:panelGroup>
+                    <h:outputText
+                        value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.ayudaSolicitada']}"
+                        rendered="#{!empty financiacionBean.lstBloque[1].listaBloqueAuxDTO and financiacionBean.isMostrarTablaAyuda(2)}"
+                        style="font-weight: bold;text-transform: uppercase;" />
+                        
+                    <!-- AS PRESENTADA 2 CON CONCEPTOS -->
+                    <p:dataTable id="tablaAyudaSolicPresentada2" var="presupuestoSol" 
+                             value="#{financiacionBean.lstPresupuestoAyudaSolicitada2}"
+                             sortBy="#{presupuestoSol.tipoFinanciacionDTO.ordenPartida}"
+                             styleClass="atlas-lp"
+                             rendered="#{!empty financiacionBean.lstBloque[1].listaBloqueAuxDTO and financiacionBean.esConvocatoriaConceptoPresup}">
+                
+                        <p:headerRow>
+                            <p:column colspan="#{financiacionBean.listaNcolPresupuesto.size()}" 
+                                      style="background-color: #E3EBF6 !important; text-align: left;">
+                                <h:outputText value="#{presupuestoSol.tipoFinanciacionDTO.dsValor}" 
+                                              style="font-weight: bold; color: #2C3E50; text-transform: uppercase;"/>
+                            </p:column>
+                        </p:headerRow>
+                    
+                        <p:column headerText="CONCEPTOS">
+                            <h:outputText value="#{presupuestoSol.datos[0].dsValor}" style="padding-left: 10px;" />
+                            <f:facet name="footer">
+                                <h:outputText value="TOTAL" style="font-weight:bold; color: black; display: block; text-align: left;" />
+                            </f:facet>
+                        </p:column>
+                    
+                        <p:columns value="#{financiacionBean.listaAnualidades}" var="anualidad" headerText="#{anualidad}º Anualidad">
+                            <f:facet name="header">
+                                <h:outputText value="#{anualidad}º Anualidad" />
+                            </f:facet>
+                    
+                            <p:inputNumber value="#{presupuestoSol.datos[anualidad].dsValor}"
+                                           symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                           readonly="true" />
+                        
+                            <f:facet name="footer">
+                                <h:outputText value="#{financiacionBean.getGranTotalVerticalPres(anualidad, financiacionBean.lstPresupuestoAyudaSolicitada2)}" 
+                                              style="font-weight:bold; color: black; display: block; text-align: left;">
+                                    <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                </h:outputText>
+                            </f:facet>
+                        </p:columns>
+                    
+                        <p:column headerText="TOTAL">
+                            <p:inputNumber value="#{presupuestoSol.datos[financiacionBean.listaNcolPresupuesto.size()-1].dsValor}"
+                                           readonly="true" symbol=" €" symbolPosition="s"
+                                           inputStyle="font-weight: bold; text-align: left background: #F8F9FA;"/>
+                            
+                            <f:facet name="footer">
+                                <h:outputText value="#{financiacionBean.getGranTotalFinalPres(financiacionBean.lstPresupuestoAyudaSolicitada2)}" 
+                                              style="font-weight:bold; color: black; display: block; text-align: left;">
+                                    <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                </h:outputText>
+                            </f:facet>
+                        </p:column>
+                    
+                        <p:summaryRow rendered="#{presupuestoSol.tipoFinanciacionDTO.dsValor != 'TOTAL'}">
+                            <p:column style="text-align: left; background-color: #F8F9FA;">
+                                <h:outputText value="SUBTOTAL" style="font-weight: bold;" />
+                            </p:column>
+                        
+                            <p:column colspan="#{financiacionBean.listaAnualidades.size()}" style="padding: 0px !important; background-color: #F8F9FA;">
+                                <div style="display: flex; width: 100%;">
+                                    <ui:repeat value="#{financiacionBean.listaAnualidades}" var="anualidad">
+                                        <div style="flex: 1; padding: 4px; text-align: center;">
+                                            <p:inputNumber value="#{financiacionBean.getSumaGrupoPres(presupuestoSol.tipoFinanciacionDTO, anualidad,
+                                                                financiacionBean.lstPresupuestoAyudaSolicitada2)}" 
+                                                           readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                           inputStyle="font-weight: bold; text-align: left background: #E3EBF6 !important; width: 100%; border: 1px solid #ced4da; color: black !important;"/>
+                                        </div>
+                                    </ui:repeat>
+                                </div>
+                            </p:column>
+                            
+                            <p:column style="background-color: #F8F9FA;">
+                                <p:inputNumber value="#{financiacionBean.getSumaTotalGrupoPres(presupuestoSol.tipoFinanciacionDTO, financiacionBean.lstPresupuestoAyudaSolicitada2)}" 
+                                               readonly="true" symbol=" €" symbolPosition="s"
+                                               decimalSeparator="," thousandSeparator="."
+                                               inputStyle="font-weight: bold; text-align: left background: #ffffff !important; border: 1px solid #ced4da;"/>
+                            </p:column>
+                        </p:summaryRow>
+                    </p:dataTable>    
+                        
+                    <!-- AS PRESENTADA 2 SIN CONCEPTOS -->    
+                    <p:dataTable var="presupuestoSolicitado" styleClass="atlas-lp"
+                                 value="#{financiacionBean.lstPresupuestoAyudaSolicitada2}"
+                                 emptyMessage="No se han cargado datos"
+                                 rowIndexVar="rowIndex"
+                                 rendered="#{!empty financiacionBean.lstBloque[1].listaBloqueAuxDTO and financiacionBean.isMostrarTablaAyuda(2)
+                                                and !financiacionBean.esConvocatoriaConceptoPresup}">
+                        <p:columnGroup type="header">
+                            <p:row>
+                                <p:column rowspan="2" headerText="" />
+                                <p:repeat var="anualidad"
+                                          value="#{financiacionBean.listaAnualidades}">
+                                    <p:column
+                                        headerText="#{anualidad}° Anualidad" />
+                                </p:repeat>
+                                <p:column rowspan="2" headerText="TOTAL" />
+                            </p:row>
+                        </p:columnGroup>
+                        <p:column>
+                            <h:outputText
+                                value="#{presupuestoSolicitado.tipoFinanciacionDTO.dsValor}" />
+                        </p:column>
+
+                        <!-- Tabla con ayuda solicitada para convocatoria sin concepto -->
+                        <p:columns
+                            value="#{financiacionBean.listaNcolPresupuesto}"
+                            var="nCol" columnIndexVar="colIndex"
+                            rendered="#{!financiacionBean.esConvocatoriaConceptoPresup}">
+                            <p:inputNumber
+                                value="#{presupuestoSolicitado.datos[nCol].dsValor}"
+                                symbol=" €" minValue="0"
+                                maxValue="9999999999.99" readonly="true"
+                                symbolPosition="s" decimalSeparator=","
+                                thousandSeparator="." />
+                        </p:columns>
+                        
+                    </p:dataTable>
+                </h:panelGroup>
+            </p:panelGrid>
+            
+            <p:panelGrid columns="2" layout="grid"
+                styleClass="ui-panelgrid-blank"
+                columnClasses="ui-g-12 ui-md-1 mtb-auto, ui-g-12 ui-md-3"
+                rendered="#{not empty financiacionBean.lstPresupuestoAyudaSolicitada or not empty financiacionBean.lstPresupuestoAyudaSolicitada2}">
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.ayudaSolicitada']}" />
+
+                <p:inputNumber
+                    readonly="true"
+                    value="#{financiacionBean.montoAyudaSolicitada}"
+                    symbol=" €" minValue="0" maxValue="9999999999.99"
+                    symbolPosition="s" decimalSeparator=","
+                    thousandSeparator="." id="ipnMontoSolicitada">
+                </p:inputNumber>
+            </p:panelGrid>
+
+            <p:spacer height="5" />
+
+            <p:panelGrid columns="1" columnClasses="ui-g-12"
+                layout="grid" styleClass="ui-panelgrid-blank"
+                id="pgCargarDatos">
+                <p:commandButton
+                    action="#{financiacionBean.comprobarIntensidad}"
+                    ajax="true"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                    alt="#{bundle['boton.cargar.datos']}"
+                    title="#{bundle['boton.cargar.datos']}"
+                    value="#{bundle['boton.cargar.datos']}"
+                    rendered="#{!financiacionBean.esconderBotonCargarDatoPresup}"
+                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                    icon="fas fa-plus">
+                </p:commandButton>
+            </p:panelGrid>
+
+            <p:separator
+                rendered="#{not empty financiacionBean.lstPresupuestoFinanciable1}"
+                style="margin-bottom: 5px;" />
+
+            <p:panelGrid columns="1" columnClasses="ui-g-12"
+                layout="grid" styleClass="ui-panelgrid-blank"
+                id="msgWarningPresupuesto">
+                <atlasp:message tipo="warn"
+                    texto="#{bundle['convocatorias.detalle.solicitudes.expedientes.warn.financiacion.texto']}"
+                    rendered="#{financiacionBean.pendienteGuardarObservacion}" />
+            </p:panelGrid>
+            <p:spacer height="5" />
+<!--             PRESUPUESTO FINANCIABLE 1 -->
+            <h:panelGroup id="wrapperPresupuesto" layout="block" styleClass="js-panel-presupuestoFinan1">
+
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.presupuestoFinanciable']} #{financiacionBean.verNumeracion?1:':'}"
+                    rendered="#{(not empty financiacionBean.lstPresupuestoFinanciable1) 
+                        or (financiacionBean.esformatoErroneoIntensidad)}"
+                    style="font-weight: bold; text-transform: uppercase; display: block; margin: 0;" />
+                <atlasp:message tipo="warn" texto="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.intensidad.incorrecta']}"
+                    rendered="#{financiacionBean.esformatoErroneoIntensidad}"/>
+                <div class="ui-g-12"
+                     style="#{((not empty financiacionBean.lstPresupuestoFinanciable1) or (financiacionBean.esformatoErroneoIntensidad)) ? '' : 'display:none;'}">
+                    <h:outputText styleClass="label negrita"
+                        value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.intensidad']}"
+                        rendered="#{(not empty financiacionBean.lstPresupuestoFinanciable1) 
+                            or (financiacionBean.esformatoErroneoIntensidad)}" />
+                    <!-- VMM 30/09/26 MD-3074: onkeydown que frena la tecla Enter - sin esto, al pulsar
+                         Enter tras escribir la intensidad, el navegador enviaba el formulario de forma
+                         nativa (este input no tiene mas remedio que ser un <input> de texto dentro del
+                         <form> gigante de toda la pagina) y disparaba como accion por defecto el boton
+                         "+" (Adicionar concepto, ver headerRow de la tabla con conceptos) de la PRIMERA
+                         partida, creando una linea de concepto en blanco bajo ella - exactamente el
+                         sintoma reportado. Con preventDefault en el keydown, el envio nativo no llega a
+                         producirse y solo actua el p:ajax "change" de aqui abajo. -->
+                    <p:inputNumber id="inputIntensidadFinanciable"
+                        inputStyle="text-align: left; width: 10%; height: 28px !important;"
+                        styleClass="#{(financiacionBean.modoConsultaFinanciacion or financiacionBean.intensidadAyudaSoloLectura) ? '' : 'inputNumberObligatorio'}"
+                        value="#{financiacionBean.porcentajeIntensidadGestor}"
+                        symbol="%" symbolPosition="s"
+                        minValue="0" maxValue="100"
+                        decimalSeparator="," thousandSeparator="."
+                        readonly="#{financiacionBean.modoConsultaFinanciacion or financiacionBean.intensidadAyudaSoloLectura}"
+                        onkeydown="if (event.key == 'Enter' || event.keyCode == 13) { event.preventDefault(); this.blur(); return false; }"
+                        rendered="#{(not empty financiacionBean.lstPresupuestoFinanciable1)
+                            or (financiacionBean.esformatoErroneoIntensidad)}">
+                        <p:ajax event="change" process="@this"
+                                listener="#{financiacionBean.comprobarPresupuestoFinanciable}"
+                                update="wrapperPresupuesto ipnMontoConcedida"
+                                onstart="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                    </p:inputNumber>
+                </div>
+
+                <h:panelGroup layout="block"
+                  style="display: flex; flex-direction: column; width: 100%; box-sizing: border-box;"
+                  rendered="#{not empty financiacionBean.lstPresupuestoFinanciable1}">
+
+                    <div style="display: flex; gap: 16px; width: 100%; margin-bottom: 12px; align-items: flex-end;">
+
+                        <div style="flex: 0 0 #{financiacionBean.isMostrarTablaAyudaFinan(1) ? '60%' : '100%'};
+                                    max-width: #{financiacionBean.isMostrarTablaAyudaFinan(1) ? '60%' : '100%'};
+                                    box-sizing: border-box;">
+                        </div>
+
+                        <div style="flex: 0 0 40%; max-width: 40%; box-sizing: border-box;
+                                    display: #{financiacionBean.isMostrarTablaAyudaFinan(1) ? 'block' : 'none'};">
+                            <h:outputText
+                                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.ayudaConcedida']}"
+                                rendered="#{financiacionBean.isMostrarTablaAyudaFinan(1)}"
+                                style="font-weight: bold; text-transform: uppercase; display: block; margin: 0;" />
+                        </div>
+                    </div>
+                
+                    <div style="display: flex; gap: 16px; width: 100%; align-items: flex-start;">
+                        
+                        <div style="flex: 0 0 #{financiacionBean.isMostrarTablaAyudaFinan(1) ? '60%' : '100%'}; 
+                                     max-width: #{financiacionBean.isMostrarTablaAyudaFinan(1) ? '60%' : '100%'}; 
+                                     box-sizing: border-box;">
+                                     
+<!--                        TABLA PRESUPUESTO FINANCIABLE 1 CON CONCEPTOS -->                             
+                            <p:dataTable id="tablaPresupFinanciable1" var="presupFinanciable" 
+                                         value="#{financiacionBean.lstPresupuestoFinanciable1}"
+                                         sortBy="#{presupFinanciable.tipoFinanciacionDTO.ordenPartida}"
+                                         styleClass="atlas-lp tabla-presupuesto"
+                                         rendered="#{financiacionBean.esConvocatoriaConceptoPresup}">
+                                    
+                                <p:columnGroup type="header">
+                                    <p:row>
+                                        <p:column headerText="CONCEPTOS" style="width: 35% !important; height: 42px !important; padding: 0 4px !important; vertical-align: middle;" />                                            
+                                        <p:columns value="#{financiacionBean.listaAnualidades}" var="anualidad" 
+                                                   headerText="#{anualidad}º Anualidad" style="width: 120px !important; height: 42px !important; padding: 0 4px !important; vertical-align: middle;" />                                           
+                                        <p:column headerText="TOTAL" style="width: 135px !important; height: 42px !important; padding: 0 4px !important; vertical-align: middle;" />                                            
+                                        <p:column headerText="OBSERVACIONES" style="width: 35% !important; height: 42px !important; padding: 0 4px !important; vertical-align: middle;" />                                            
+                                        <p:column headerText="ACCIONES" style="width: 90px !important; height: 42px !important; padding: 0 4px !important; vertical-align: middle; text-align: center;" />
+                                    </p:row>
+                                </p:columnGroup>
+                            
+                                <p:headerRow>
+                                    <p:column colspan="#{financiacionBean.listaAnualidades.size() + 4}"
+                                              style="background-color: #E3EBF6 !important; text-align: left; padding: 0px 10px !important; height: 38px !important; vertical-align: middle;">
+                                              
+                                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; height: 100%;">
+                                            <h:outputText value="#{presupFinanciable.tipoFinanciacionDTO.dsValor}" 
+                                                          style="font-weight: bold; color: #2C3E50; text-transform: uppercase; font-size: 11px;"/>
+                                                        
+                                            <atlasp:button ajax="true" icon="fas fa-plus" tipoBoton="btn-primary"
+                                                           title="Nuevo concepto" alt="Adicionar concepto"
+                                                           style="transform: scale(0.85); margin: 0;"
+                                                           action="#{financiacionBean.addNuevoConcepto(presupFinanciable.tipoFinanciacionDTO, presupFinanciable.tematicaDTO, 1)}"
+                                                           update="panelFinanciacion wrapperPresupuesto" process="@this"
+                                                           onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                                           oncomplete="atlas.ui.Loading.hideLoad('appLoading');"
+                                                           rendered="#{presupFinanciable.tipoFinanciacionDTO.dsValor != 'TOTAL' and expedienteBean.expedienteDTO.estadoRevFinanDTO.nmConstante == 140 and !financiacionBean.isExpedienteRechazadoDefinitivo()}" />
+                                        </div>
+                                    </p:column>
+                                </p:headerRow>
+                                
+                                <p:column style="height: 38px !important; padding: 2px 4px !important; vertical-align: middle;">
+                                    <p:inputText value="#{presupFinanciable.tlConcepto}"
+                                                rendered="#{presupFinanciable.tipoFinanciacionDTO.dsValor != 'TOTAL'}"
+                                                readonly="#{expedienteBean.expedienteDTO.estadoRevFinanDTO.nmConstante != 140}"
+                                                maxlength="200" style="width: 95%; height: 28px !important;">
+                                        <!-- VMM 06/10/26 MD-3113: guardarConceptoNombre valida descripcion vacia/repetida antes de guardar -->
+                                        <p:ajax event="change" process="@this" global="false"
+                                                listener="#{financiacionBean.guardarConceptoNombre(presupFinanciable)}" />
+                                    </p:inputText>
+                                </p:column>
+                                
+                                <p:columns value="#{financiacionBean.listaAnualidades}" var="anualidad"
+                                           style="height: 38px !important; padding: 2px 4px !important; vertical-align: middle;">
+                                    <p:inputNumber value="#{presupFinanciable.lstExpedientePresupMontoDTO[anualidad].nmImporte}"
+                                                   symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                   inputStyle="text-align: right; width: 100%; height: 28px !important;"
+                                                   styleClass="#{presupFinanciable.lstExpedientePresupMontoDTO[anualidad].esMontoTotal ? '' : (financiacionBean.modoConsultaFinanciacion ? '' : 'inputNumberObligatorio')}"
+                                                   readonly="#{presupFinanciable.lstExpedientePresupMontoDTO[anualidad].esMontoTotal or financiacionBean.modoConsultaFinanciacion}"
+                                                   onkeydown="if(event.key === 'Enter'){event.preventDefault(); return false;}">
+                                        <p:ajax event="change" process="@this" global="false"
+                                                listener="#{financiacionBean.edicionCeldaPresupuesto(presupFinanciable, anualidad, 1)}" />
+                                    </p:inputNumber>
+                                </p:columns>
+                                
+                                <p:column style="height: 38px !important; padding: 2px 4px !important; vertical-align: middle;">
+                                    <p:inputNumber value="#{presupFinanciable.lstExpedientePresupMontoDTO[financiacionBean.listaNcolPresupuesto.size()-1].nmImporte}"
+                                                   readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                   inputStyle="font-weight: bold; text-align: right; background: #F8F9FA; width: 100%; height: 28px !important;"/>
+                                </p:column>
+                                
+                                <p:column style="height: 38px !important; padding: 2px 4px !important; vertical-align: middle;">
+                                    <p:inputTextarea value="#{presupFinanciable.tlObservacion}" 
+                                                     rows="1" autoResize="true"
+                                                     style="width: 96%; height: 28px !important; min-height: 28px !important; padding: 3px 6px !important; box-sizing: border-box; line-height: 1.3; resize: none; vertical-align: middle;"
+                                                     rendered="#{presupFinanciable.tipoFinanciacionDTO.dsValor != 'TOTAL'}"
+                                                     readonly="#{expedienteBean.expedienteDTO.estadoRevFinanDTO.nmConstante != 140 or financiacionBean.isExpedienteRechazadoDefinitivo()}">
+                                        <p:ajax event="change" process="@this" global="false"
+                                                listener="#{financiacionBean.guardarConceptoObservac(presupFinanciable)}" />
+                                    </p:inputTextarea>
+                                </p:column>
+
+                                <p:column style="text-align: center; height: 38px !important; padding: 2px 4px !important; vertical-align: middle;">
+                                    <atlasp:button ajax="true" icon="fas fa-times" tipoBoton="btn-link"
+                                                   title="Eliminar concepto" alt="Eliminar concepto"
+                                                   style="transform: scale(0.85); margin: 0; vertical-align: middle;"
+                                                   action="#{financiacionBean.eliminarConcepto(presupFinanciable)}"
+                                                   update="tablaPresupFinanciable1" process="@this"
+                                                   rendered="#{presupFinanciable.tipoFinanciacionDTO.dsValor != 'TOTAL'
+                                                                and expedienteBean.expedienteDTO.estadoRevFinanDTO.nmConstante == 140
+                                                                and !financiacionBean.isExpedienteRechazadoDefinitivo()}"
+                                                   onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                                   oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                                        <f:facet name="events">
+                                            <p:confirm header="Confirmación" icon="ui-icon-alert" message="¿Desea eliminar este concepto?" />
+                                        </f:facet>
+                                    </atlasp:button>
+                                </p:column>
+                                
+                                <p:summaryRow rendered="#{presupFinanciable.tipoFinanciacionDTO.dsValor != 'TOTAL'}">
+                                    <p:column style="text-align: left; background-color: #F8F9FA; padding: 0 10px !important; height: 38px !important; vertical-align: middle;">
+                                        <h:outputText value="SUBTOTAL" style="font-weight: bold;" />
+                                    </p:column>
+                                    
+                                    <p:column colspan="#{financiacionBean.listaAnualidades.size()}" style="padding: 0px !important; background-color: #F8F9FA; height: 38px !important; vertical-align: middle;">
+                                        <div style="display: flex; width: 100%; height: 100%; align-items: center;">
+                                            <ui:repeat value="#{financiacionBean.listaAnualidades}" var="anualidad">
+                                                <div style="flex: 1; padding: 2px 4px;">
+                                                    <p:inputNumber value="#{financiacionBean.getSumaGrupo(presupFinanciable.tipoFinanciacionDTO, anualidad, financiacionBean.lstPresupuestoFinanciable1)}" 
+                                                                   readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                                   inputStyle="font-weight: bold; text-align: right; background: #E3EBF6 !important; width: 100%; height: 28px !important; border: 1px solid #ced4da; color: black !important;"/>
+                                                </div>
+                                            </ui:repeat>
+                                        </div>
+                                    </p:column>
+                                    
+                                    <p:column style="background-color: #F8F9FA; padding: 2px 4px !important; height: 38px !important; vertical-align: middle;">
+                                        <p:inputNumber value="#{financiacionBean.getSumaTotalGrupo(presupFinanciable.tipoFinanciacionDTO, financiacionBean.lstPresupuestoFinanciable1)}"
+                                                       readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                       inputStyle="font-weight: bold; text-align: right; background: #F8F9FA !important; border: 1px solid #ced4da; width: 100%; height: 28px !important; color: black !important;"/>
+                                    </p:column>
+                                    
+                                    <p:column style="background-color: #F8F9FA; height: 38px !important;" />
+                                    <p:column style="background-color: #F8F9FA; height: 38px !important;" />
+                                </p:summaryRow>
+                            
+                                <p:columnGroup type="footer">
+                                    <p:row>
+                                        <p:column footerText="TOTAL" style="font-weight:bold; color: black; display: block; text-align: left;" />
+                                        
+                                        <p:columns value="#{financiacionBean.listaAnualidades}" var="anualidad" style="background-color: #F8F9FA; text-align: right; height: 38px !important; padding: 2px 4px !important; vertical-align: middle;">
+                                            <f:facet name="footer">
+                                                <h:outputText value="#{financiacionBean.getGranTotalVertical(anualidad, financiacionBean.lstPresupuestoFinanciable1)}" style="font-weight:bold; color: black;">
+                                                    <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                                </h:outputText>
+                                            </f:facet>
+                                        </p:columns>
+
+                                        <p:column style="text-align: right; background-color: #F8F9FA; height: 38px !important; padding: 2px 4px !important; vertical-align: middle;">
+                                            <f:facet name="footer">
+                                                <h:outputText value="#{financiacionBean.getGranTotalFinal(financiacionBean.lstPresupuestoFinanciable1)}" style="font-weight:bold; color: black;">
+                                                    <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                                </h:outputText>
+                                            </f:facet>
+                                        </p:column>
+                                        
+                                        <p:column style="background-color: #F8F9FA; height: 38px !important;" />
+                                        <p:column style="background-color: #F8F9FA; height: 38px !important;" />
+                                    </p:row>
+                                </p:columnGroup>
+                            </p:dataTable>
+                            
+<!--                        TABLA PRESUPUESTO FINANCIABLE 1 SIN CONCEPTOS -->
+                            <p:dataTable id="presupFinanciable1" var="presupFinanciable" styleClass="atlas-lp tabla-presupuesto"
+                                         rowIndexVar="rowIndex" value="#{financiacionBean.lstPresupuestoFinanciable1}"
+                                         rendered="#{!financiacionBean.esConvocatoriaConceptoPresup}">
+                                         
+                                <p:columnGroup type="header">
+                                    <p:row>
+                                        <p:column rowspan="2" headerText="" style="height: 42px !important;" />
+                                        <p:repeat var="anualidad" value="#{financiacionBean.listaAnualidades}">
+                                            <p:column headerText="#{anualidad}° Anualidad" style="height: 42px !important;" />
+                                        </p:repeat>
+                                        <p:column rowspan="2" headerText="TOTAL" style="height: 42px !important;" />
+                                        <p:column rowspan="2" headerText="OBSERVACIONES" style="height: 42px !important;" />
+                                    </p:row>
+                                </p:columnGroup>
+                                
+                                <p:column style="height: 38px !important; vertical-align: middle;">
+                                    <h:outputText value="#{presupFinanciable.tipoFinanciacionDTO.dsValor}" />
+                                </p:column>
+                                
+                                <p:columns value="#{financiacionBean.listaNcolPresupuesto}" var="nCol" columnIndexVar="colIndex" style="height: 38px !important; vertical-align: middle;">
+                                    <p:inputNumber readonly="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].esMontoTotal or financiacionBean.modoConsultaFinanciacion}"
+                                                   symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                   inputStyle="height: 28px !important;"
+                                                   styleClass="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].esMontoTotal ? '' : (financiacionBean.modoConsultaFinanciacion?'':'inputNumberObligatorio')}"
+                                                   value="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].nmImporte}"
+                                                   onkeydown="if(event.key === 'Enter'){event.preventDefault(); return false;}">
+                                        <p:ajax event="change" process="@this" global="false"
+                                                listener="#{financiacionBean.edicionCeldaPresupuesto(presupFinanciable, nCol,1)}" />
+                                    </p:inputNumber>
+                                </p:columns>
+
+                                <p:column style="height: 38px !important; vertical-align: middle;"
+                                          styleClass="#{presupFinanciable.pendienteObservacion ? 'obs-pendiente' : ''}">
+                                    <!-- VMM 24/09/26 MD-3032: se anade isExpedienteRechazadoDefinitivo() (ahora
+                                         incluye tambien Exclusion Definitiva y Desistimiento Definitivo) para que
+                                         las observaciones queden deshabilitadas en esos estados, igual que en la
+                                         tabla "con conceptos". -->
+                                    <p:inputTextarea value="#{presupFinanciable.tlObservacion}"
+                                                     rows="2" style="width:100%;"
+                                                     rendered="#{presupFinanciable.tipoFinanciacionDTO.dsValor != 'TOTAL'}"
+                                                     readonly="#{financiacionBean.modoConsultaFinanciacion or financiacionBean.isExpedienteRechazadoDefinitivo()}">
+                                        <p:ajax event="change" process="@this" global="false"
+                                                listener="#{financiacionBean.guardarConceptoObservac(presupFinanciable)}" />
+                                    </p:inputTextarea>
+                                </p:column>
+                            </p:dataTable>
+                        </div>
+
+                        <div style="flex: 0 0 40%; max-width: 40%; box-sizing: border-box;
+                                    display: #{financiacionBean.isMostrarTablaAyudaFinan(1) ? 'block' : 'none'};">
+
+<!--                        TABLA AYUDA CONCEDIDA 1 CON CONCEPTOS -->
+                            <p:dataTable id="tablaAyudaConcedida1" var="presupAyudaConcedida" 
+                                         value="#{financiacionBean.lstPresupuestoAyudaConcedida}"
+                                         sortBy="#{presupAyudaConcedida.tipoFinanciacionDTO.ordenPartida}"
+                                         styleClass="atlas-lp tabla-ayuda"
+                                         rendered="#{financiacionBean.isMostrarTablaAyudaFinan(1) and financiacionBean.esConvocatoriaConceptoPresup}">
+                            
+                                <p:columnGroup type="header">
+                                    <p:row>
+                                        <p:column headerText="CONCEPTOS" style="width: 35% !important; height: 42px !important; padding: 0 4px !important; vertical-align: middle;" />                                       
+                                        <p:columns value="#{financiacionBean.listaAnualidades}" var="anualidad" 
+                                                   headerText="#{anualidad}º Anualidad" style="width: 120px !important; height: 42px !important; padding: 0 4px !important; vertical-align: middle;" />                                        
+                                        <p:column headerText="TOTAL" style="width: 135px !important; height: 42px !important; padding: 0 4px !important; vertical-align: middle;" />
+                                    </p:row>
+                                </p:columnGroup>
+                                
+                                <p:headerRow>
+                                    <p:column colspan="#{financiacionBean.listaNcolPresupuesto.size()}" 
+                                              style="background-color: #E3EBF6 !important; text-align: left; padding: 0px 10px !important; height: 38px !important; vertical-align: middle;">
+                                        <div style="display: flex; align-items: center; width: 100%; height: 100%;">
+                                            <h:outputText value="#{presupAyudaConcedida.tipoFinanciacionDTO.dsValor}" 
+                                                          style="font-weight: bold; color: #2C3E50; text-transform: uppercase; font-size: 11px;"/>
+                                        </div>
+                                    </p:column>
+                                </p:headerRow>
+                                
+                                <p:column style="height: 38px !important; padding: 2px 4px !important; vertical-align: middle;">
+                                    <h:outputText value="#{presupAyudaConcedida.tlConcepto}" style="padding-left: 6px; font-size: 12px;" />
+                                </p:column>
+                            
+                                <p:columns value="#{financiacionBean.listaAnualidades}" var="anualidad"
+                                           style="height: 38px !important; padding: 2px 4px !important; vertical-align: middle;">
+                                    <p:inputNumber value="#{presupAyudaConcedida.lstExpedientePresupMontoDTO[anualidad].nmImporte}"
+                                                   symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                   inputStyle="text-align: right; width: 100%; height: 28px !important;"
+                                                   readonly="true">
+                                    </p:inputNumber>
+                                </p:columns>
+                            
+                                <p:column style="height: 38px !important; padding: 2px 4px !important; vertical-align: middle;">
+                                    <p:inputNumber value="#{presupAyudaConcedida.lstExpedientePresupMontoDTO[financiacionBean.listaNcolPresupuesto.size()-1].nmImporte}"
+                                                   readonly="true" symbol=" €" symbolPosition="s"
+                                                   inputStyle="font-weight: bold; text-align: right; background: #F8F9FA; width: 100%; height: 28px !important;"/>
+                                </p:column>
+                            
+                                <p:summaryRow rendered="#{presupAyudaConcedida.tipoFinanciacionDTO.dsValor != 'TOTAL'}">
+                                    <p:column style="text-align: left; background-color: #F8F9FA; padding: 0 10px !important; height: 38px !important; vertical-align: middle;">
+                                        <h:outputText value="SUBTOTAL" style="font-weight: bold;" />
+                                    </p:column>
+                                
+                                    <p:column colspan="#{financiacionBean.listaAnualidades.size()}" style="padding: 0px !important; background-color: #F8F9FA; height: 38px !important; vertical-align: middle;">
+                                        <div style="display: flex; width: 100%; height: 100%; align-items: center;">
+                                            <ui:repeat value="#{financiacionBean.listaAnualidades}" var="anualidad">
+                                                <div style="flex: 1; padding: 2px 4px;">
+                                                    <p:inputNumber value="#{financiacionBean.getSumaGrupo(presupAyudaConcedida.tipoFinanciacionDTO, anualidad, financiacionBean.lstPresupuestoAyudaConcedida)}" 
+                                                                   readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                                   inputStyle="font-weight: bold; text-align: right; background: #E3EBF6 !important; width: 100%; height: 28px !important; border: 1px solid #ced4da; color: black !important;"/>
+                                                </div>
+                                            </ui:repeat>
+                                        </div>
+                                    </p:column>
+                                
+                                    <p:column style="background-color: #F8F9FA; padding: 2px 4px !important; height: 38px !important; vertical-align: middle;">
+                                        <p:inputNumber value="#{financiacionBean.getSumaTotalGrupo(presupAyudaConcedida.tipoFinanciacionDTO, financiacionBean.lstPresupuestoAyudaConcedida)}"
+                                                       readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                       inputStyle="font-weight: bold; text-align: right; background: #F8F9FA !important; border: 1px solid #ced4da; width: 100%; height: 28px !important; color: black !important;"/>
+                                    </p:column>
+                                </p:summaryRow>
+                            
+                                <p:columnGroup type="footer">
+                                    <p:row>
+                                        <p:column footerText="TOTAL" style="text-align: left; font-weight: bold; color: black; background-color: #F8F9FA; height: 38px !important; padding: 0 10px !important; vertical-align: middle;" />
+                                        
+                                        <p:columns value="#{financiacionBean.listaAnualidades}" var="anualidad" style="background-color: #F8F9FA; text-align: right; height: 38px !important; padding: 2px 4px !important; vertical-align: middle;">
+                                            <f:facet name="footer">
+                                                <h:outputText value="#{financiacionBean.getGranTotalVertical(anualidad, financiacionBean.lstPresupuestoAyudaConcedida)}" style="font-weight:bold; color: black;">
+                                                    <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                                </h:outputText>
+                                            </f:facet>
+                                        </p:columns>
+                                        
+                                        <p:column style="text-align: right; background-color: #F8F9FA; height: 38px !important; padding: 2px 4px !important; vertical-align: middle;">
+                                            <f:facet name="footer">
+                                                <h:outputText value="#{financiacionBean.getGranTotalFinal(financiacionBean.lstPresupuestoAyudaConcedida)}" style="font-weight:bold; color: black;">
+                                                    <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                                </h:outputText>
+                                            </f:facet>
+                                        </p:column>
+                                    </p:row>
+                                </p:columnGroup>
+                            </p:dataTable>
+                        
+<!--                        TABLA AYUDA CONCEDIDA 1 SIN CONCEPTOS -->
+                            <p:dataTable id="presupAyudaConcedida" var="presupAyudaConcedida" styleClass="atlas-lp tabla-ayuda"
+                                         rowIndexVar="rowIndex" value="#{financiacionBean.lstPresupuestoAyudaConcedida}"
+                                         rendered="#{financiacionBean.isMostrarTablaAyudaFinan(1) and !financiacionBean.esConvocatoriaConceptoPresup}">
+                                <p:columnGroup type="header">
+                                    <p:row>
+                                        <p:column rowspan="2" headerText="" style="height: 42px !important;" />
+                                        <p:repeat var="anualidad" value="#{financiacionBean.listaAnualidades}">
+                                            <p:column headerText="#{anualidad}° Anualidad" style="height: 42px !important;" />
+                                        </p:repeat>
+                                        <p:column rowspan="2" headerText="TOTAL" style="height: 42px !important;" />
+                                    </p:row>
+                                </p:columnGroup>
+                                <p:column style="height: 38px !important; vertical-align: middle;">
+                                    <h:outputText value="#{presupAyudaConcedida.tipoFinanciacionDTO.dsValor}" />
+                                </p:column>
+                                <p:columns value="#{financiacionBean.listaNcolPresupuesto}" var="nCol" columnIndexVar="colIndex" style="height: 38px !important; vertical-align: middle;">
+                                    <p:inputNumber readonly="true" rendered="#{!financiacionBean.esConvocatoriaConceptoPresup or nCol != 0}"
+                                                   symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                   inputStyle="height: 28px !important;"
+                                                   value="#{presupAyudaConcedida.lstExpedientePresupMontoDTO[nCol].nmImporte}">
+                                    </p:inputNumber>
+                                </p:columns>
+                            </p:dataTable>
+                        </div>
+                    </div>
+                </h:panelGroup>
+            </h:panelGroup>
+              
+            <p:spacer height="5"
+                rendered="#{not empty financiacionBean.lstPresupuestoFinanciable2}" />
+
+             <!-- PRESUPUESTO FINANCIABLE 2 -->
+            <p:panelGrid id="pgPresupuestoFinanciable2" columns="2"
+                layout="grid" styleClass="ui-panelgrid-blank"
+                columnClasses="ui-g-6 ui-md-6"
+                rendered="#{not empty financiacionBean.lstPresupuestoFinanciable2}">
+                
+              <h:panelGroup>
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.presupuestoFinanciable']} #{financiacionBean.verNumeracion?2:':'}"
+                    style="font-weight: bold;text-transform: uppercase;" />
+                    
+                   <!--  TABLA 2 CON CONCEPTOS -->
+                    <p:dataTable id="tablaPresupFinanciable2" var="presupFinanciable" 
+                                 value="#{financiacionBean.lstPresupuestoFinanciable2}"
+                                 sortBy="#{presupFinanciable.tipoFinanciacionDTO.ordenPartida}"
+                                 styleClass="atlas-lp"
+                                 rendered="#{financiacionBean.esConvocatoriaConceptoPresup}">
+                    
+                        <p:headerRow>
+                            <p:column colspan="#{financiacionBean.listaNcolPresupuesto.size()}" 
+                                      style="background-color: #E3EBF6 !important; text-align: left;">
+                                <h:outputText value="#{presupFinanciable.tipoFinanciacionDTO.dsValor}" 
+                                              style="font-weight: bold; color: #2C3E50; text-transform: uppercase;"/>
+                            </p:column>
+                        </p:headerRow>
+                    
+                        <p:column headerText="CONCEPTOS">
+                            <h:outputText value="#{presupFinanciable.tlConcepto}" style="padding-left: 10px;" />
+                            <f:facet name="footer">
+                                <h:outputText value="TOTAL" style="font-weight:bold; color: black; display: block; text-align: left;" />
+                            </f:facet>
+                        </p:column>
+                    
+                        <p:columns value="#{financiacionBean.listaAnualidades}" var="anualidad" headerText="#{anualidad}º Anualidad">
+                            <f:facet name="header">
+                                <h:outputText value="#{anualidad}º Anualidad" />
+                            </f:facet>
+                    
+                            <p:inputNumber value="#{presupFinanciable.lstExpedientePresupMontoDTO[anualidad].nmImporte}"
+                                           symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                           readonly="#{presupFinanciable.lstExpedientePresupMontoDTO[anualidad].esMontoTotal or financiacionBean.modoConsultaFinanciacion}"
+                                           styleClass="#{presupFinanciable.lstExpedientePresupMontoDTO[anualidad].esMontoTotal ?
+                                                 '' : (financiacionBean.modoConsultaFinanciacion?'':'inputNumberObligatorio')}"
+                                           onkeydown="if(event.key === 'Enter'){event.preventDefault(); return false;}">
+                                <p:ajax event="change"
+                                        process="@this"
+                                        listener="#{financiacionBean.edicionCeldaPresupuesto(presupFinanciable, anualidad, 2)}"
+                                        onstart="atlas.ui.Loading.showLoad('appLoading')"
+                                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                            </p:inputNumber>
+                    
+                            <f:facet name="footer">
+                                <h:outputText value="#{financiacionBean.getGranTotalVertical(anualidad, financiacionBean.lstPresupuestoFinanciable2)}" 
+                                              style="font-weight:bold; color: black; display: block; text-align: left;">
+                                    <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                </h:outputText>
+                            </f:facet>
+                        </p:columns>
+                    
+                        <p:column headerText="TOTAL">
+                            <p:inputNumber value="#{presupFinanciable.lstExpedientePresupMontoDTO[financiacionBean.listaNcolPresupuesto.size()-1].nmImporte}"
+                                           readonly="true" symbol=" €" symbolPosition="s"
+                                           inputStyle="font-weight: bold; text-align: left background: #F8F9FA;"/>
+                            
+                            <f:facet name="footer">
+                                <h:outputText value="#{financiacionBean.getGranTotalFinal(financiacionBean.lstPresupuestoFinanciable2)}" 
+                                              style="font-weight:bold; color: black; display: block; text-align: left;">
+                                    <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                </h:outputText>
+                            </f:facet>
+                        </p:column>
+                    
+                        <p:summaryRow rendered="#{presupFinanciable.tipoFinanciacionDTO.dsValor != 'TOTAL' }">
+                            <p:column style="text-align: left; background-color: #F8F9FA;">
+                                <h:outputText value="SUBTOTAL" style="font-weight: bold;" />
+                            </p:column>
+                        
+                            <p:column colspan="#{financiacionBean.listaAnualidades.size()}" style="padding: 0px !important; background-color: #F8F9FA;">
+                                <div style="display: flex; width: 100%;">
+                                    <ui:repeat value="#{financiacionBean.listaAnualidades}" var="anualidad">
+                                        <div style="flex: 1; padding: 4px; text-align: center;">
+                                            <p:inputNumber value="#{financiacionBean.getSumaGrupo(presupFinanciable.tipoFinanciacionDTO, 
+                                                                anualidad, financiacionBean.lstPresupuestoFinanciable2)}" 
+                                                           readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                           inputStyle="font-weight: bold; text-align: left background: #E3EBF6 !important; width: 100%; border: 1px solid #ced4da; color: black !important;"/>
+                                        </div>
+                                    </ui:repeat>
+                                </div>
+                            </p:column>
+                            
+                            <p:column style="background-color: #F8F9FA;">
+                                <p:inputNumber value="#{financiacionBean.getSumaTotalGrupo(presupFinanciable.tipoFinanciacionDTO, financiacionBean.lstPresupuestoFinanciable2)}" 
+                                               readonly="true" symbol=" €" symbolPosition="s"
+                                               decimalSeparator="," thousandSeparator="."
+                                               inputStyle="font-weight: bold; text-align: left background: #ffffff !important; border: 1px solid #ced4da;"/>
+                            </p:column>
+                        </p:summaryRow>
+                    </p:dataTable>
+                        
+                <!--  TABLA 2 SIN CONCEPTOS -->
+                <p:dataTable id="presupFinanciable2"
+                    var="presupFinanciable" styleClass="atlas-lp"
+                    rowIndexVar="rowIndex"
+                    value="#{financiacionBean.lstPresupuestoFinanciable2}"
+                    rendered="#{!financiacionBean.esConvocatoriaConceptoPresup}">
+
+                    <p:columnGroup type="header">
+                        <p:row>
+                            <p:column rowspan="2" headerText="" />
+                            <p:repeat var="anualidad"
+                                value="#{financiacionBean.listaAnualidades}">
+                                <p:column
+                                    headerText="#{anualidad}° Anualidad" />
+                            </p:repeat>
+                            <p:column rowspan="2" headerText="TOTAL" />
+                            <p:column rowspan="2" headerText="OBSERVACIONES" />
+                        </p:row>
+                    </p:columnGroup>
+
+                    <p:column>
+                        <h:outputText
+                            value="#{presupFinanciable.tipoFinanciacionDTO.dsValor}" />
+                    </p:column>
+
+                    <p:columns
+                        value="#{financiacionBean.listaNcolPresupuesto}"
+                        var="nCol" columnIndexVar="colIndex">
+
+                        <p:inputNumber
+                            readonly="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].esMontoTotal or financiacionBean.modoConsultaFinanciacion}"
+                            symbol=" €" minValue="0"
+                            maxValue="9999999999.99" symbolPosition="s"
+                            decimalSeparator="," thousandSeparator="."
+                            styleClass="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].esMontoTotal ? '' : (financiacionBean.modoConsultaFinanciacion?'':'inputNumberObligatorio')}"
+                            value="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].nmImporte}"
+                            onkeydown="if(event.key === 'Enter'){event.preventDefault(); return false;}">
+                            <p:ajax event="change" process="@this"
+                                onstart="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                listener="#{financiacionBean.edicionCeldaPresupuesto(presupFinanciable, nCol, 2)}" />
+                        </p:inputNumber>
+                    </p:columns>
+
+                    <p:column styleClass="#{presupFinanciable.pendienteObservacion ? 'obs-pendiente' : ''}">
+                        <!-- VMM 24/09/26 MD-3032: se anade isExpedienteRechazadoDefinitivo() (ahora incluye
+                             tambien Exclusion Definitiva y Desistimiento Definitivo) para que las observaciones
+                             queden deshabilitadas en esos estados, igual que en la tabla "con conceptos". -->
+                        <p:inputTextarea value="#{presupFinanciable.tlObservacion}"
+                                         rows="2" style="width:100%;"
+                                         rendered="#{presupFinanciable.tipoFinanciacionDTO.dsValor != 'TOTAL'}"
+                                         readonly="#{financiacionBean.modoConsultaFinanciacion or financiacionBean.isExpedienteRechazadoDefinitivo()}">
+                            <p:ajax event="change" process="@this"
+                                onstart="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                listener="#{financiacionBean.guardarConceptoObservac(presupFinanciable)}" />
+                        </p:inputTextarea>
+                    </p:column>
+
+                </p:dataTable>
+                </h:panelGroup>
+
+                <!-- AYUDA CONCEDIDA 2 -->
+                <h:panelGroup>
+                    <h:outputText
+                        value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.ayudaConcedida']}"
+                        style="font-weight: bold;text-transform: uppercase;" 
+                        rendered="#{financiacionBean.isMostrarTablaAyudaFinan(2) and !financiacionBean.esConvocatoriaConceptoPresup}"/>
+                    
+                    <!-- AS CONCEDIDA 2 CON CONCEPTOS -->
+                    <p:dataTable id="tablaAyudaConcedida2" var="presupAyudaConcedida" 
+                                     value="#{financiacionBean.lstPresupuestoAyudaConcedida2}"
+                                     sortBy="#{presupAyudaConcedida.tipoFinanciacionDTO.ordenPartida}"
+                                     styleClass="atlas-lp"
+                                     rendered="#{financiacionBean.esConvocatoriaConceptoPresup}">
+                        
+                            <p:headerRow>
+                                <p:column colspan="#{financiacionBean.listaNcolPresupuesto.size()}" 
+                                          style="background-color: #E3EBF6 !important; text-align: left;">
+                                    <h:outputText value="#{presupAyudaConcedida.tipoFinanciacionDTO.dsValor}" 
+                                                  style="font-weight: bold; color: #2C3E50; text-transform: uppercase;"/>
+                                </p:column>
+                            </p:headerRow>
+                        
+                            <p:column headerText="CONCEPTOS">
+                                <h:outputText value="#{presupAyudaConcedida.tlConcepto}" style="padding-left: 10px;" />
+                                <f:facet name="footer">
+                                    <h:outputText value="TOTAL" style="font-weight:bold; color: black; display: block; text-align: left;" />
+                                </f:facet>
+                            </p:column>
+                        
+                            <p:columns value="#{financiacionBean.listaAnualidades}" var="anualidad" headerText="#{anualidad}º Anualidad">
+                                <f:facet name="header">
+                                    <h:outputText value="#{anualidad}º Anualidad" />
+                                </f:facet>
+                        
+                                <p:inputNumber value="#{presupAyudaConcedida.lstExpedientePresupMontoDTO[anualidad].nmImporte}"
+                                               symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                               readonly="true">
+                                </p:inputNumber>
+                        
+                                <f:facet name="footer">
+                                    <h:outputText value="#{financiacionBean.getGranTotalVertical(anualidad, financiacionBean.lstPresupuestoAyudaConcedida2)}" 
+                                                  style="font-weight:bold; color: black; display: block; text-align: left;">
+                                        <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                    </h:outputText>
+                                </f:facet>
+                            </p:columns>
+                        
+                            <p:column headerText="TOTAL">
+                                <p:inputNumber value="#{presupAyudaConcedida.lstExpedientePresupMontoDTO[financiacionBean.listaNcolPresupuesto.size()-1].nmImporte}"
+                                               readonly="true" symbol=" €" symbolPosition="s"
+                                               inputStyle="font-weight: bold; text-align: left background: #F8F9FA;"/>
+                                
+                                <f:facet name="footer">
+                                    <h:outputText value="#{financiacionBean.getGranTotalFinal(financiacionBean.lstPresupuestoAyudaConcedida2)}" 
+                                                  style="font-weight:bold; color: black; display: block; text-align: left;">
+                                        <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                                    </h:outputText>
+                                </f:facet>
+                            </p:column>
+                        
+                            <p:summaryRow rendered="#{presupAyudaConcedida.tipoFinanciacionDTO.dsValor != 'TOTAL'}">
+                                <p:column style="text-align: left; background-color: #F8F9FA;">
+                                    <h:outputText value="SUBTOTAL" style="font-weight: bold;" />
+                                </p:column>
+                            
+                                <p:column colspan="#{financiacionBean.listaAnualidades.size()}" style="padding: 0px !important; background-color: #F8F9FA;">
+                                    <div style="display: flex; width: 100%;">
+                                        <ui:repeat value="#{financiacionBean.listaAnualidades}" var="anualidad">
+                                            <div style="flex: 1; padding: 4px; text-align: center;">
+                                                <p:inputNumber value="#{financiacionBean.getSumaGrupo(presupAyudaConcedida.tipoFinanciacionDTO, 
+                                                                    anualidad, financiacionBean.lstPresupuestoAyudaConcedida2)}" 
+                                                               readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                               inputStyle="font-weight: bold; text-align: left background: #E3EBF6 !important; width: 100%; border: 1px solid #ced4da; color: black !important;"/>
+                                            </div>
+                                        </ui:repeat>
+                                    </div>
+                                </p:column>
+                                
+                                <p:column style="background-color: #F8F9FA;">
+                                    <p:inputNumber value="#{financiacionBean.getSumaTotalGrupo(presupAyudaConcedida.tipoFinanciacionDTO, financiacionBean.lstPresupuestoAyudaConcedida2)}" 
+                                                   readonly="true" symbol=" €" symbolPosition="s"
+                                                   decimalSeparator="," thousandSeparator="."
+                                                   inputStyle="font-weight: bold; text-align: left background: #ffffff !important; border: 1px solid #ced4da;"/>
+                                </p:column>
+                            </p:summaryRow>
+                        </p:dataTable>
+                        
+                    <!-- AS CONCEDIDA 2 SIN CONCEPTOS -->
+                    <p:dataTable id="presupAyudaConcedida2"
+                                 var="presupAyudaConcedida" styleClass="atlas-lp"
+                                 rowIndexVar="rowIndex"
+                                 value="#{financiacionBean.lstPresupuestoAyudaConcedida2}"
+                                 rendered="#{financiacionBean.isMostrarTablaAyudaFinan(2)}">
+            
+                        <p:columnGroup type="header">
+                            <p:row>
+                                <p:column rowspan="2" headerText="" />
+                                <p:repeat var="anualidad"
+                                          value="#{financiacionBean.listaAnualidades}">
+                                    <p:column
+                                        headerText="#{anualidad}° Anualidad" />
+                                </p:repeat>
+                                <p:column rowspan="2" headerText="TOTAL" />
+                            </p:row>
+                        </p:columnGroup>
+            
+                        <p:column>
+                            <h:outputText
+                                value="#{presupAyudaConcedida.tipoFinanciacionDTO.dsValor}" />
+                        </p:column>
+            
+                        <p:columns
+                            value="#{financiacionBean.listaNcolPresupuesto}"
+                            var="nCol" columnIndexVar="colIndex">
+            
+                            <p:inputNumber
+                                readonly="true"
+                                symbol=" €" minValue="0"
+                                maxValue="9999999999.99" symbolPosition="s"
+                                decimalSeparator="," thousandSeparator="."
+                                value="#{presupAyudaConcedida.lstExpedientePresupMontoDTO[nCol].nmImporte}">
+                                
+                            </p:inputNumber>
+                        </p:columns>
+            
+                    </p:dataTable>
+                
+                </h:panelGroup>
+            </p:panelGrid>
+
+            <p:panelGrid columns="2" layout="grid"
+                styleClass="ui-panelgrid-blank"
+                columnClasses="ui-g-12 ui-md-1 mtb-auto, ui-g-12 ui-md-3"
+                rendered="#{!financiacionBean.ocultarAyuda and not empty financiacionBean.lstPresupuestoFinanciable1}">
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.ayudaConcedida']}" />
+
+                <!-- VMM 17/04/26 MD-2615: input no editable porque siempre sera calculado como TOTAL abajo izq de la ayuda concedida x el % de la intensidad del gestor -->
+                <p:inputNumber
+                    readonly="true"
+                    value="#{financiacionBean.montoAyudaConcedida}"
+                    symbol=" €" minValue="0" maxValue="9999999999.99"
+                    symbolPosition="s" decimalSeparator=","
+                    thousandSeparator="." id="ipnMontoConcedida" >
+                </p:inputNumber>
+            </p:panelGrid>
+
+            <p:panelGrid columns="1" columnClasses="ui-g-12"
+                layout="grid" styleClass="ui-panelgrid-blank">
+                <p:column>
+                    <atlasp:button ajax="true"
+                        rendered="#{!financiacionBean.modoConsultaFinanciacion and financiacionBean.mostrarBotonGuardar(expedienteBean.expedienteDTO.estadoRevFinanDTO.nmConstante)}"
+                        action="#{financiacionBean.guardarObservacionPresupuesto}"
+                        process="@form"
+                        value="#{bundle['boton.guardar']}"
+                        alt="#{bundle['boton.guardar']}"
+                        title="#{bundle['boton.guardar']}"
+                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                        icon="fas fa-save" tipoBoton="btn-success" />
+                </p:column>
+            </p:panelGrid>
+        </p:fieldset>
+
+        <!-- VMM 25/09/26 MD-2621: el historico de presupuesto pasa de mostrarse en una ventana modal a
+             un fieldset colapsable en linea, mismo patron que ya usa fsFechasEjecucion mas abajo. -->
+        <!-- VMM 05/10/26 MD-3098: al ordenar/paginar esta tabla, el servidor repintaba todo
+             panelFinanciacion en la respuesta ajax (el cliente solo pide la tabla); dentro de ese
+             repintado la tabla emite solo las filas (<tr> sin <table>) y el fieldset sale colapsado,
+             asi que se plegaba y las filas se veian pegadas. Origen: el panelGrid vacio de arriba
+             (rendered="#{financiacionBean.cargaDatos()}") se evalua en cada render del panel y llamaba a
+             esconderBoton*(), que hacian ajax().update(panelFinanciacion). Ahora FinanciacionBean se
+             salta ese update cuando la peticion viene de esta tabla (esPeticionTablaHistoricoPresupuesto). -->
+        <p:fieldset id="fsHistoricoPresupuesto"
+            legend="#{bundle['presupuesto.historico.titulo']}"
+            toggleable="true" collapsed="true"
+            rendered="#{not empty financiacionBean.lstPresupuestoFinanciable1}">
+            <atlasp:facesMessages id="fmHistoricoPresupuesto" modo="notificar" />
+            <atlasp:listaPaginada id="listaHistoricoPresupuesto"
+                listAndCountMethod="#{financiacionBean.obtenerListaHistoricoPresupuesto}"
+                export="true" exportTitle="HistoricoPresupuesto"
+                exportFile="HistoricoPresupuesto"
+                emptyMessage="No se encontraron registros"
+                sortMode="single" reflow="true" pijama="true">
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.financiacion.label.fecha.modificacion']}"
+                    field="fcAltaFila" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.fcAltaFila}">
+                            <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
+                        </h:outputText>
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+                <atlasp:columnaListaPaginada field="tlObservacion"
+                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.presupuesto.label.observacion']}"
+                    filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.tlObservacion}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+            </atlasp:listaPaginada>
+        </p:fieldset>
+
+        <p:fieldset legend="Actuación" collapsed="false"
+            toggleable="true"
+            rendered="#{not empty financiacionBean.lstBloqueComponenteFilaActua}">
+            <p:panelGrid columns="1" layout="grid"
+                styleClass="ui-panelgrid-blank"
+                columnClasses="ui-g-12 ui-md-12">
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.actuacionesPresentadas']}"
+                    style="font-weight: bold;text-transform: uppercase;" />
+
+                <p:dataTable var="actuacion" styleClass="atlas-lp"
+                    value="#{financiacionBean.lstBloqueComponenteFilaActua}">
+
+                    <p:columnGroup type="header">
+                        <p:row>
+                            <p:column
+                                headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.columna.label.financiacion.codigoActuacion']}" />
+                            <p:column
+                                headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.columna.label.financiacion.actuacion']}" />
+                            <p:column
+                                headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.columna.label.financiacion.ofertaProveedor']}" />
+                            <p:column
+                                headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.columna.label.financiacion.ofertaImporte']}" />
+                        </p:row>
+                    </p:columnGroup>
+                    <p:column>
+                        <h:outputText
+                            value="#{actuacion.tipoFinanciacionDTO.cdCodigo}" />
+                    </p:column>
+                    <p:column>
+                        <h:outputText
+                            value="#{actuacion.tipoFinanciacionDTO.dsValor}" />
+                    </p:column>
+
+                    <p:columns
+                        value="#{financiacionBean.listaNcolActuacion}"
+                        var="nCol" columnIndexVar="colIndex">
+                        <h:outputText rendered="#{nCol eq 0}"
+                            value="#{actuacion.datos[nCol].dsValor}">
+                        </h:outputText>
+                        <p:inputNumber rendered="#{nCol eq 1}"
+                            value="#{actuacion.datos[nCol].dsValor}"
+                            symbol=" €" minValue="0"
+                            maxValue="9999999999.99" readonly="true"
+                            symbolPosition="s" decimalSeparator=","
+                            thousandSeparator="." />
+                    </p:columns>
+                </p:dataTable>
+            </p:panelGrid>
+
+
+            <p:panelGrid columns="2" layout="grid"
+                styleClass="ui-panelgrid-blank"
+                columnClasses="ui-g-12 ui-md-1 mtb-auto, ui-g-12 ui-md-3">
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.ayudaSolicitada']}" />
+
+                <p:inputNumber
+                    value="#{financiacionBean.montoAyudaActuacion}"
+                    symbol=" €" minValue="0" maxValue="9999999999.99"
+                    readonly="true" symbolPosition="s"
+                    decimalSeparator="," thousandSeparator="." />
+            </p:panelGrid>
+
+            <p:spacer height="5" />
+
+            <p:panelGrid columns="1" columnClasses="ui-g-12"
+                layout="grid" styleClass="ui-panelgrid-blank"
+                id="pgCargarDatosActu">
+                <p:commandButton
+                    actionListener="#{financiacionBean.cargarDatosActuacion}"
+                    ajax="true"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                    alt="#{bundle['boton.cargar.datos']}"
+                    title="#{bundle['boton.cargar.datos']}"
+                    value="#{bundle['boton.cargar.datos']}"
+                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                    rendered="#{!financiacionBean.esconderBotonCargarDatoActuacion}"
+                    icon="fas fa-plus">
+                </p:commandButton>
+            </p:panelGrid>
+
+            <p:separator
+                rendered="#{not empty financiacionBean.lstActuacionFinanciable}"
+                style="margin-bottom: 5px;" />
+
+            <p:panelGrid columns="1" columnClasses="ui-g-12"
+                layout="grid" styleClass="ui-panelgrid-blank"
+                id="msgWarningActuacion">
+                <atlasp:message tipo="warn"
+                    texto="#{bundle['convocatorias.detalle.solicitudes.expedientes.warn.financiacion.texto']}"
+                    rendered="#{financiacionBean.verMsgObsActuacion}" />
+            </p:panelGrid>
+
+            <p:panelGrid columns="1" layout="grid"
+                id="pgActuacionFinanciable"
+                styleClass="ui-panelgrid-blank"
+                columnClasses="ui-g-12 ui-md-12">
+                <h:outputText
+                    rendered="#{not empty financiacionBean.lstActuacionFinanciable}"
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.actuacionesFinanciables']}"
+                    style="font-weight: bold;text-transform: uppercase;" />
+
+                <p:dataTable var="actuacionFin" styleClass="atlas-lp"
+                    widgetVar="tablaActuacionFin"
+                    rendered="#{not empty financiacionBean.lstActuacionFinanciable}"
+                    value="#{financiacionBean.lstActuacionFinanciable}">
+                    <p:columnGroup type="header">
+                        <p:row>
+                            <p:column
+                                headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.columna.label.financiacion.codigoActuacion']}" />
+                            <p:column
+                                headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.columna.label.financiacion.actuacion']}" />
+                            <p:column
+                                headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.columna.label.financiacion.ofertaProveedor']}" />
+                            <p:column
+                                headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.columna.label.financiacion.ofertaImporte']}" />
+                        </p:row>
+                    </p:columnGroup>
+                    <p:column>
+                        <h:outputText
+                            value="#{actuacionFin.tipoFinanciacionDTO.cdCodigo}" />
+                    </p:column>
+                    <p:column>
+                        <h:outputText
+                            value="#{actuacionFin.tipoFinanciacionDTO.dsValor}" />
+                    </p:column>
+                    <p:column>
+                        <h:outputText
+                            value="#{actuacionFin.dsProveedor}" />
+                    </p:column>
+                    <p:column>
+                        <p:inputNumber symbol=" €" minValue="0"
+                            readonly="#{actuacionFin.esMontoTotal or financiacionBean.modoConsultaFinanciacion}"
+                            maxValue="9999999999.99" symbolPosition="s"
+                            decimalSeparator="," thousandSeparator="."
+                            styleClass="#{actuacionFin.esMontoTotal ? '' : (financiacionBean.modoConsultaFinanciacion?'':'inputNumberObligatorio')}"
+                            value="#{actuacionFin.nmImporte}">
+
+                            <p:ajax event="change" process="@this"
+                                onstart="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                listener="#{financiacionBean.edicionCeldaActuacion(actuacionFin)}" />
+                        </p:inputNumber>
+                    </p:column>
+
+                </p:dataTable>
+            </p:panelGrid>
+            <p:panelGrid columns="2" layout="grid"
+                rendered="#{not empty financiacionBean.lstActuacionFinanciable}"
+                styleClass="ui-panelgrid-blank"
+                columnClasses="ui-g-12 ui-md-1 mtb-auto, ui-g-12 ui-md-3">
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.ayudaConcedida']}" />
+                <p:inputNumber id="mConcedidoAct" symbol=" €"
+                    readonly="#{financiacionBean.modoConsultaFinanciacion}"
+                    minValue="0" maxValue="9999999999.99"
+                    symbolPosition="s" decimalSeparator=","
+                    thousandSeparator="."
+                    styleClass="#{financiacionBean.modoConsultaFinanciacion?'':'inputNumberObligatorio'}"
+                    value="#{financiacionBean.montoAyudaConcedidaActuacion}">
+                    <p:ajax event="change" process="@this"
+                        onstart="atlas.ui.Loading.showLoad('appLoading')"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                        listener="#{financiacionBean.edicionMontoConceAct}"
+                        update="mConcedidoAct" />
+                </p:inputNumber>
+            </p:panelGrid>
+
+            <p:panelGrid columns="2"
+                rendered="#{not empty financiacionBean.lstActuacionFinanciable}"
+                columnClasses="ui-g-12 ui-md-1, ui-g-12 ui-md-11"
+                layout="grid" styleClass="ui-panelgrid-blank">
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.observaciones']}" />
+                <p:column>
+                    <p:inputTextarea
+                        styleClass="#{financiacionBean.modoConsultaFinanciacion?'':'textareaObligatorio'}"
+                        readonly="#{financiacionBean.modoConsultaFinanciacion}"
+                        maxlength="#{financiacionBean.maxLenObservacion}"
+                        rows="2" style="width:99.3%;"
+                        counter="contadorActuacion"
+                        counterTemplate="{0} carácteres pendientes"
+                        value="#{financiacionBean.tlObservacion}" />
+                    <h:outputText id="contadorActuacion"
+                        class="p-d-block" />
+                </p:column>
+            </p:panelGrid>
+
+            <p:panelGrid columns="1" columnClasses="ui-g-12"
+                rendered="#{!financiacionBean.modoConsultaFinanciacion}"
+                layout="grid" styleClass="ui-panelgrid-blank">
+                <p:column>
+                    <atlasp:button ajax="true"
+                        rendered="#{not empty financiacionBean.lstActuacionFinanciable}"
+                        action="#{financiacionBean.guardarDatosActuacion}"
+                        value="#{bundle['boton.guardar']}"
+                        alt="#{bundle['boton.guardar']}"
+                        title="#{bundle['boton.guardar']}"
+                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                        icon="fas fa-save" tipoBoton="btn-success" />
+
+                    <!-- VMM 30/09/26: process="@this" - ya era ajax pero sin restringir el process
+                         seguia procesando el formulario completo solo para abrir un dialogo de
+                         solo lectura (mismo problema visto en solapaModifPresPlazoOtra.xhtml). -->
+                    <atlasp:button ajax="true"
+                        rendered="#{not empty financiacionBean.lstActuacionFinanciable}"
+                        process="@this"
+                        render="panelHistoricoActuacion"
+                        action="#{financiacionBean.mostrarHistoricoActuacion}"
+                        value="#{bundle['boton.historico']}"
+                        alt="#{bundle['boton.historico']}"
+                        title="#{bundle['boton.historico']}"
+                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                        icon="fas fa-folder-open"
+                        tipoBoton="btn-primary" />
+                </p:column>
+            </p:panelGrid>
+        </p:fieldset>
+        
+        <!-- VMM 28/07/25 MD-1687: aniador el boton de Finalizar revision financiacion -->
+         <p:panelGrid columns="1" columnClasses="ui-g-12"
+            layout="grid" styleClass="ui-panelgrid-blank"
+            id="pgFinalizarRevision">
+            <p:commandButton
+                action="#{financiacionBean.finalizarRevisionFinan}"
+                ajax="true"
+                process="@form"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                alt="#{bundle['boton.finalizar.revision']}"
+                title="#{bundle['boton.finalizar.revision']}"
+                value="#{bundle['boton.finalizar.revision']}"
+                rendered="#{!financiacionBean.esconderBotonFinalizarRevision}"
+                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                icon="fas fa-check-square">
+            </p:commandButton>
+        </p:panelGrid>
+
+    </p:outputPanel>
+
+    <p:dialog id="dialogHistoricoActuacion"
+        widgetVar="dialogHistoricoActuacion"
+        header="#{bundle['actuacion.historico.titulo']}" closable="true"
+        dynamic="true" modal="true" width="40%"
+        onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        <p:outputPanel id="panelHistoricoActuacion">
+            <atlasp:facesMessages id="fmHistoricoActuacion"
+                modo="notificar" />
+            <div class="ui-g">
+                <div class="ui-g-12 borde-contenedor">
+                    <div class="ui-g">
+                        <div class="ui-g-12">
+                            <atlasp:listaPaginada
+                                id="listaHistoricoActuacion"
+                                listAndCountMethod="#{financiacionBean.obtenerListaHistoricoActuacion}"
+                                export="true"
+                                exportTitle="HistoricoActuacion"
+                                exportFile="HistoricoActuacion"
+                                emptyMessage="No se encontraron registros"
+                                sortMode="single" reflow="true"
+                                pijama="true">
+                                <atlasp:columnaListaPaginada
+                                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.financiacion.label.fecha.modificacion']}"
+                                    field="fcAltaFila" filtrable="false"
+                                    exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.fcAltaFila}">
+                                            <f:convertDateTime
+                                                type="date"
+                                                pattern="dd/MM/yyyy - HH:mm:ss" />
+                                        </h:outputText>
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    field="tlObservacion"
+                                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.presupuesto.label.observacion']}"
+                                    filtrable="false" exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.tlObservacion}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                            </atlasp:listaPaginada>
+                        </div>
+                        <div class="ui-g-12">
+                            <!-- VMM 30/09/26: ajax="false" hacia un postback completo solo para cerrar
+                                 el dialogo; cerrarHistoricoActuacion() ya lo oculta via executeScript,
+                                 asi que con ajax="true" + process="@this" basta (mismo problema visto
+                                 en solapaModifPresPlazoOtra.xhtml). -->
+                            <atlasp:button
+                                action="#{financiacionBean.cerrarHistoricoActuacion}"
+                                ajax="true" process="@this" update="panelHistoricoActuacion"
+                                value="#{bundle['boton.cerrar']}"
+                                alt="#{bundle['boton.cerrar']}"
+                                title="#{bundle['boton.cerrar']}"
+                                icon="fas fa-times"
+                                tipoBoton="btn-secondary"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p:outputPanel>
+    </p:dialog>
+    
+    <h:outputScript>
+        // <![CDATA[
+        function sincronizarAlturas(claseIzq, claseDer) {
+            var tablasIzq = $(claseIzq);
+            var tablasDer = $(claseDer);
+
+            if (tablasIzq.length && tablasDer.length) {
+                // 1. Sincronizamos los encabezados (thead)
+                var headersIzq = tablasIzq.find('thead tr');
+                var headersDer = tablasDer.find('thead tr');
+                
+                headersIzq.each(function(index) {
+                    var hI = $(this);
+                    var hD = headersDer.eq(index);
+                    if (hI.length && hD.length) {
+                        hI.css('height', 'auto');
+                        hD.css('height', 'auto');
+                        var maxH = Math.max(hI.outerHeight(), hD.outerHeight());
+                        hI.css('height', maxH + 'px');
+                        hD.css('height', maxH + 'px');
+                    }
+                });
+
+                // 2. Sincronizamos las filas de datos y totales (tbody)
+                var filasIzq = tablasIzq.find('tbody tr');
+                var filasDer = tablasDer.find('tbody tr');
+                
+                filasIzq.each(function(index) {
+                    var fI = $(this);
+                    var fD = filasDer.eq(index);
+                    if (fI.length && fD.length) {
+                        fI.css('height', 'auto');
+                        fD.css('height', 'auto');
+                        var maxH = Math.max(fI.outerHeight(), fD.outerHeight());
+                        fI.css('height', maxH + 'px');
+                        fD.css('height', maxH + 'px');
+                    }
+                });
+            }
+        }
+
+        function sincronizarTodasLasTablas() {
+            // Sincroniza las del presupuesto financiable (si existieran en la vista)
+            sincronizarAlturas('.tabla-presupuesto', '.tabla-ayuda');
+            
+            // Sincroniza las del presupuesto presentado y solicitado
+            sincronizarAlturas('.tabla-presentado', '.tabla-solicitada');
+        }
+
+        $(document).ready(function() {
+            // Retraso de seguridad para que Primefaces dibuje todo (p.ej. anchos de inputNumber)
+            setTimeout(sincronizarTodasLasTablas, 150);
+        });
+
+        $(document).on('pfAjaxComplete', function() {
+            sincronizarTodasLasTablas();
+        });
+        // ]]>
+    </h:outputScript>
+</ui:composition>

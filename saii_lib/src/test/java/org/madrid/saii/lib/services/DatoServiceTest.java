@@ -1,0 +1,190 @@
+package org.madrid.saii.lib.services;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.SessionFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.madrid.saii.lib.domain.Dato;
+import org.madrid.saii.lib.dto.DatoDTO;
+import org.madrid.saii.lib.dto.ExpedienteDTO;
+import org.madrid.saii.lib.init.ApplicationContextPruebasSaiiLib;
+import org.madrid.saii.lib.util.Constantes;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+
+import atlas.busquedas.domain.AtlasFilter;
+import atlas.core.exceptions.ServiceException;
+import atlas.test.base.AtlasAbstractBaseTest;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Test DatoService
+ */
+@ContextConfiguration(classes = {ApplicationContextPruebasSaiiLib.class })
+@ActiveProfiles("BaseDatosEnMemoria")
+@Slf4j
+public class DatoServiceTest extends AtlasAbstractBaseTest {
+
+    /**
+     * Servicio
+     */
+    @Autowired
+    @Qualifier("datoService")
+    private DatoService service;
+
+    /**
+     * Session factory de hibernate
+     */
+    @Resource
+    private SessionFactory sessionFactory;
+
+    /**
+     * Asocia la sessionFactory de Hibernate a la variable interna
+     *
+     * @param sessionFactory la sessionFactory
+     */
+    public void setSessionFactory(final SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    /**
+     * Inicialización antes de empezar los test
+     */
+    @Before
+    @Override
+    public void setUp() {
+        assertNotNull(this.service);
+    }
+
+    /**
+     * Prueba el metodo guardar
+     *
+     * @throws ServiceException
+     */
+    @Test
+    public void testGuardar() throws ServiceException {
+
+        // GUARDAR
+        DatoDTO dto = new DatoDTO();
+        dto.setIdDato(1);
+        dto.setIdBloqueComponente(1);
+        dto.setExpedienteDTO(new ExpedienteDTO());
+        dto.getExpedienteDTO().setIdExpediente(1);
+        dto.setNmFila(0);
+        dto.setDsValor("123");
+        dto.setCdUsuAlta(Constantes.Test.TEST_ADMIN);
+        dto.setFcAltaFila(new Date());
+
+        dto = this.service.guardar(dto);
+
+        // No es nulo
+        Assert.assertNotNull(dto);
+
+        // Está relleno
+        this.testAtributos(dto, Boolean.TRUE);
+
+        Dato ent = this.sessionFactory.getCurrentSession().get(Dato.class, dto.getIdDato());
+        this.sessionFactory.getCurrentSession().evict(ent);
+
+        // Guardamos
+        dto.setDsValor("Prueba Test Mod");
+        dto = this.service.guardar(dto);
+
+        // La modificación es correcta
+        Assert.assertEquals("Prueba Test Mod", dto.getDsValor());
+
+    }
+
+    @Test
+    public void testBuscarPorId() {
+        try {
+            DatoDTO dto = this.service.buscarIdDatos(1);
+
+            // No es nulo
+            Assert.assertNotNull(dto);
+
+            // Está relleno el id
+            Assert.assertNotNull(dto.getIdDato());
+
+            this.testAtributos(dto, Boolean.FALSE);
+        } catch (final ServiceException e) {
+            log.error(e.getMessage());
+            fail(Constantes.Test.TEST_ERROR_PRUEBA + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testBuscar() {
+        try {
+            List<DatoDTO> lstDTO = this.service.buscar(0, -1, null, null);
+
+            // No es nulo
+            Assert.assertNotNull(lstDTO);
+
+            // Está relleno
+            Assert.assertFalse(lstDTO.isEmpty());
+
+            // Comprobamos los atributos obligatorios
+            // El DTO tiene que ser null safe.
+            Iterator<DatoDTO> it = lstDTO.iterator();
+            while (it.hasNext()) {
+                DatoDTO dto = it.next();
+
+                this.testAtributos(dto, Boolean.FALSE);
+            }
+
+            // Búsqueda vacia
+            List<AtlasFilter> filtros = new ArrayList<>();
+            filtros.add(new AtlasFilter("id", AtlasFilter.Operador.EMPTY));
+
+            lstDTO = this.service.buscar(0, -1, filtros, null);
+
+            // No es nulo
+            Assert.assertNotNull(lstDTO);
+
+            // Está vacio
+            Assert.assertTrue(lstDTO.isEmpty());
+
+        } catch (final ServiceException e) {
+            log.error(e.getMessage());
+            fail(Constantes.Test.TEST_ERROR_PRUEBA + e.getMessage());
+        }
+    }
+
+    /**
+     * Comprueba los atributos
+     *
+     * @param dto
+     * @parama relleno
+     */
+    private void testAtributos(DatoDTO dto, Boolean bRelleno) {
+
+        log.debug(dto.toString());
+
+        // Obligatorios
+        Assert.assertNotNull(dto.getIdDato());
+        Assert.assertNotNull(dto.getExpedienteDTO().getIdExpediente());
+        Assert.assertNotNull(dto.getIdBloqueComponente());
+        Assert.assertTrue(StringUtils.isNotBlank(dto.getDsValor()));
+
+        if (Boolean.TRUE.equals(bRelleno)) {
+            Assert.assertNotNull(dto.getNmFila());
+        }
+
+        // Null Safe
+    }
+
+}

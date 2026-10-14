@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration SYSTEM "./generador/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.bytecode.use_reflection_optimizer">false</property>
+        <property name="hibernate.connection.driver_class">oracle.jdbc.OracleDriver</property>
+        <property name="hibernate.connection.url">jdbc:oracle:thin:@icm21:1521:desabd11</property>
+        <property name="hibernate.connection.username">DBA_EJPL</property>
+        <property name="hibernate.connection.password">sis</property>
+        <property name="hibernate.default_schema">DBA_EJPL</property>
+        <property name="hibernate.dialect">atlas.core.database.CustomDialect</property>
+        <property name="hibernate.search.autoregister_listeners">false</property>
+    </session-factory>
+</hibernate-configuration>

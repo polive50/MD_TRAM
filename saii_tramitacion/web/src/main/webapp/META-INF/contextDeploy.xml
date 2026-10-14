@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="${nombreDespliegue}">
+    
+    <Resources atlasVersion="${atlasfrm-comunes-dependencias-compartidas.version}"
+        className="org.madrid.tomcat.CoreTomcatResources"></Resources>
+    <Resource factory="org.jboss.weld.resources.ManagerObjectFactory"
+        auth="Container" name="BeanManager"
+        type="javax.enterprise.inject.spi.BeanManager"></Resource>
+</Context>

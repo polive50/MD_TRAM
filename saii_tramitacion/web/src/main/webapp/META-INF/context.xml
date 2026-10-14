@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- CONTEXT PARA EJECUCIÓN EN LOCAL --><Context>
+<Resources libreriasExcluidas="atlasfrm-componentes-primefaces-lib-2.1.0.jar"/>   
+
+<Resource factory="org.jboss.weld.resources.ManagerObjectFactory"
+    auth="Container" name="BeanManager"
+    type="javax.enterprise.inject.spi.BeanManager"></Resource>
+
+<Resource maxWaitMillis="30000" minIdle="0" validationQuery="SELECT 1 FROM DUAL"
+    auth="Container" type="javax.sql.DataSource" url="${jdbc.url}"
+    numTestsPerEvictionRun="5" password="${jdbc.password}" maxIdle="5"
+    testWhileIdle="true" testOnBorrow="false" timeBetweenEvictionRunsMillis="60000"
+    minEvictableIdleTimeMillis="90000" maxTotal="20" testOnReturn="false"
+    name="jdbc/${dataSourceName}" driverClassName="${jdbc.driverClassName}"
+    username="${jdbc.username}"></Resource>
+</Context>
