@@ -1600,71 +1600,80 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
                 .get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_CONTRATO_RENUNCIA));
 
         // Calculamos el plazo de subsanacion
-        if (lstTramiteSubsanacion.contains(envioPtfr.getTramite().getIdValor())) {
-
-            // Recuperamos los datos del expediente
-            Expediente expediente = this.expedienteDAO.find(envioPtfr.getIdExpediente());
-
-            List<ExpedienteJusTecDTO> listExpJ = expedienteJusTecService
-                    .buscarPorExpediente(envioPtfr.getIdExpediente());
-
-            Boolean pendienteSubsanacionJCT = Boolean.FALSE;
-            Boolean pendienteSubsanacionContrato = Boolean.FALSE;
-
-            List<ExpedienteContratoDTO> listExpC = expedienteContratoService
-                    .buscarPorExpediente(envioPtfr.getIdExpediente());
-
-            if (listExpJ != null) {
-                for (ExpedienteJusTecDTO expJ : listExpJ) {
-                    if (expJ.getIdEstadoRevAdminDTO() != null
-                            && expJ.getIdEstadoRevAdminDTO().getIdValor() != null
-                            && expJ.getIdEstadoRevAdminDTO().getIdValor().equals(utilConstantes
-                                    .getGlobalCatalogosValores()
-                                    .get(Constantes.EstadoExpedienteJustec.PENDIENTE_DE_SUBSANACION))) {
-                        pendienteSubsanacionJCT = Boolean.TRUE;
-                    }
-                }
-            }
-
-            if (listExpC != null) {
-                for (ExpedienteContratoDTO expC : listExpC) {
-                    if (expC.getIdEstadoRevAdminDTO() != null
-                            && expC.getIdEstadoRevAdminDTO().getIdValor() != null
-                            && expC.getIdEstadoRevAdminDTO().getIdValor()
-                                    .equals(utilConstantes.getGlobalCatalogosValores().get(
-                                            Constantes.EstadoContrato.PENDIENTE_SUBSANACION))) {
-                        pendienteSubsanacionContrato = Boolean.TRUE;
-                    }
-                }
-            }
-
-            if (utilConstantes.getGlobalCatalogosValores()
-                    .get(Constantes.EstadoExpediente.PENDIENTE_SUBSANACION_REQUISITOS)
-                    .equals(expediente.getEstadoRevAdmin().getIdValor())
-                    || utilConstantes.getGlobalCatalogosValores()
-                            .get(Constantes.EstadoExpediente.PENDIENTE_SUBSANACION_REQUISITOS)
-                            .equals(expediente.getEstadoRevRequi().getIdValor())
-                    || Boolean.TRUE.equals(pendienteSubsanacionJCT)
-                    || Boolean.TRUE.equals(pendienteSubsanacionContrato)) {
-
-                if (Objects.isNull(envioPtfr.getFcIniPlazoSubsanacion())) {
-                    envioPtfr.setFcIniPlazoSubsanacion(envioPtfr.getFcRechazoNote());
-                    envioPtfr.setItIniPlazoVencido(Constantes.AfirmacionNegacion.N);
-                }
-
-                Date dFechaRechazoNote = Utils
-                        .asignarTiempoFechaFinalDia(envioPtfr.getFcRechazoNote());
-
-                envioPtfr.setFcFinPlazoSubsanacion(dFechaRechazoNote);
-                //esto no es verdad,
-            }
-
-        }
-        // MD-2148 : ponemos el if para los tramites de resol provisionales
-         else if (utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.DENEGACION_PROVISIONAL).equals(envioPtfr.getTramite().getIdValor())
+        if (lstTramiteSubsanacion.contains(envioPtfr.getTramite().getIdValor()) ||
+                ( utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.DENEGACION_PROVISIONAL).equals(envioPtfr.getTramite().getIdValor())
                 || utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.CONCESION_PROVISIONAL).equals(envioPtfr.getTramite().getIdValor())
                 || utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_DESISTIMIENTO_PROVISIONAL).equals(envioPtfr.getTramite().getIdValor())
-                || utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL).equals(envioPtfr.getTramite().getIdValor())) {
+                || utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL).equals(envioPtfr.getTramite().getIdValor()))) {
+
+            
+            //Comentamos MD-3135 44 BATCH
+            
+//            // Recuperamos los datos del expediente
+//            Expediente expediente = this.expedienteDAO.find(envioPtfr.getIdExpediente());
+//
+//            List<ExpedienteJusTecDTO> listExpJ = expedienteJusTecService
+//                    .buscarPorExpediente(envioPtfr.getIdExpediente());
+//
+//            Boolean pendienteSubsanacionJCT = Boolean.FALSE;
+//            Boolean pendienteSubsanacionContrato = Boolean.FALSE;
+//
+//            List<ExpedienteContratoDTO> listExpC = expedienteContratoService
+//                    .buscarPorExpediente(envioPtfr.getIdExpediente());
+//
+//            if (listExpJ != null) {
+//                for (ExpedienteJusTecDTO expJ : listExpJ) {
+//                    if (expJ.getIdEstadoRevAdminDTO() != null
+//                            && expJ.getIdEstadoRevAdminDTO().getIdValor() != null
+//                            && expJ.getIdEstadoRevAdminDTO().getIdValor().equals(utilConstantes
+//                                    .getGlobalCatalogosValores()
+//                                    .get(Constantes.EstadoExpedienteJustec.PENDIENTE_DE_SUBSANACION))) {
+//                        pendienteSubsanacionJCT = Boolean.TRUE;
+//                    }
+//                }
+//            }
+//
+//            if (listExpC != null) {
+//                for (ExpedienteContratoDTO expC : listExpC) {
+//                    if (expC.getIdEstadoRevAdminDTO() != null
+//                            && expC.getIdEstadoRevAdminDTO().getIdValor() != null
+//                            && expC.getIdEstadoRevAdminDTO().getIdValor()
+//                                    .equals(utilConstantes.getGlobalCatalogosValores().get(
+//                                            Constantes.EstadoContrato.PENDIENTE_SUBSANACION))) {
+//                        pendienteSubsanacionContrato = Boolean.TRUE;
+//                    }
+//                }
+//            }
+//
+//            if (utilConstantes.getGlobalCatalogosValores()
+//                    .get(Constantes.EstadoExpediente.PENDIENTE_SUBSANACION_REQUISITOS)
+//                    .equals(expediente.getEstadoRevAdmin().getIdValor())
+//                    || utilConstantes.getGlobalCatalogosValores()
+//                            .get(Constantes.EstadoExpediente.PENDIENTE_SUBSANACION_REQUISITOS)
+//                            .equals(expediente.getEstadoRevRequi().getIdValor())
+//                    || Boolean.TRUE.equals(pendienteSubsanacionJCT)
+//                    || Boolean.TRUE.equals(pendienteSubsanacionContrato)) {
+//                
+//
+//                if (Objects.isNull(envioPtfr.getFcIniPlazoSubsanacion())) {
+//                    
+//                    envioPtfr.setFcIniPlazoSubsanacion(envioPtfr.getFcRechazoNote());
+//                    envioPtfr.setItIniPlazoVencido(Constantes.AfirmacionNegacion.N);
+//                }
+//
+//                Date dFechaRechazoNote = Utils
+//                        .asignarTiempoFechaFinalDia(envioPtfr.getFcRechazoNote());
+//
+//                envioPtfr.setFcFinPlazoSubsanacion(dFechaRechazoNote);
+//                //esto no es verdad,
+//            }
+//
+//        }
+//        // MD-2148 : ponemos el if para los tramites de resol provisionales
+//         else if (utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.DENEGACION_PROVISIONAL).equals(envioPtfr.getTramite().getIdValor())
+//                || utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.CONCESION_PROVISIONAL).equals(envioPtfr.getTramite().getIdValor())
+//                || utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_DESISTIMIENTO_PROVISIONAL).equals(envioPtfr.getTramite().getIdValor())
+//                || utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL).equals(envioPtfr.getTramite().getIdValor())) {
             
             Expediente expediente = this.expedienteDAO.find(envioPtfr.getIdExpediente());
             
@@ -1695,7 +1704,7 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
                             DocumentoPtfrToDTO.INSTANCE.apply(envioPtfr),envioPtfr.getFcRechazoNote());
     
             envioPtfr.setFcFinPlazoSubsanacion( Utils.convertLocalDateToDateInstant(fcLimiteSubsanacion));
-        }
+        } 
 
         envioPtfr.setFcModifFila(new Date());
         envioPtfr.setCdUsuModif(Constantes.Utiles.COD_USU_BATCH_AUDITORIA);

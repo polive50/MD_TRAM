@@ -12,16 +12,15 @@ import org.madrid.saii.lib.dto.CatalogosValoresDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaPlaDTO;
 import org.madrid.saii.lib.dto.ExpedienteDTO;
-import org.madrid.saii.lib.dto.ExpedienteDocDTO;
 import org.madrid.saii.lib.dto.ExpedienteReqDTO;
 import org.madrid.saii.lib.services.InformeHelperPdfService;
 import org.madrid.saii.lib.util.ApplicationContextProvider;
 import org.madrid.saii.lib.util.Constantes;
-import org.madrid.saii.lib.util.UtilConstantes;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.PageSize;
+import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import atlas.core.exceptions.ServiceException;
@@ -43,7 +42,9 @@ public class TramiteExclusion extends Tramite {
         byte[] byteSalida = null;
         try {
 
-            Document document = new Document(PageSize.A4, 36, 36, 102, 36);
+            // VMM 14/10/26 MD-3142: mismo modelo de PDF que subsanacion administrativa (MD-2950): margen
+            // derecho de 85f para la marca de agua lateral y margen inferior de 110f para la firma/pie
+            Document document = new Document(PageSize.A4, 36f, 85f, 102f, 110f);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PdfWriter writer = PdfWriter.getInstance(document, baos);
 
@@ -58,50 +59,60 @@ public class TramiteExclusion extends Tramite {
                     : null;
 
             document.open();
-            String desImpreso=  Objects.nonNull(expedienteDTO) && Objects.nonNull(expedienteDTO.getImpresoDTO())
-                    ? expedienteDTO.getImpresoDTO().getDsDescripcion()
-                    : "";
             String cdExpediente=  Objects.nonNull(expedienteDTO)
                      ? expedienteDTO.getCdExpediente()
                      : "";
-            UtilConstantes utilConstantes = ApplicationContextProvider.getBean(UtilConstantes.class);
             
             InformeHelperPdfService informeHelperPdfService = ApplicationContextProvider.getBean(InformeHelperPdfService.class);
-            informeHelperPdfService.agregarTitulo(document, Constantes.Plantilla.TEXTO_TITULO,
-                    convocatoriaPlaDTO.getDsPlantilla(),desImpreso,cdExpediente, null, null);
+            // VMM 14/10/26 MD-3142: cabecera igual que subsanacion administrativa (MD-2950): el titulo
+            // de la plantilla (barra roja) es el nombre de la convocatoria (acronimo + titulo) y se
+            // separa del logo con agregarEspacioLogos=true; sin "Informe de tramite" ni impreso
+            StringBuilder dsConvocatoria = new StringBuilder();
+            dsConvocatoria.append(convocatoriaDTO.getCdAcronimo()).append(". ");
+            dsConvocatoria.append(convocatoriaDTO.getCdTitulo()).append(". ");
+
+            informeHelperPdfService.agregarTitulo(document, null, dsConvocatoria.toString(), null,
+                    cdExpediente, Boolean.TRUE, null);
 
             informeHelperPdfService.agregarFilaVacio(document, 1);
             String dsCatalogo = Objects.nonNull(catalogoValor) ? catalogoValor.getDsValor() : "";
 
-            StringBuilder dsConvocatoria = new StringBuilder();
-            dsConvocatoria.append(convocatoriaDTO.getCdAcronimo()).append(". ");
-            dsConvocatoria.append(convocatoriaDTO.getCdTitulo()).append(". ");
-            if (StringUtils.isNotBlank(convocatoriaDTO.getIdModalidadConvocatoria().getDsValor())) {
-                dsConvocatoria.append(convocatoriaDTO.getIdModalidadConvocatoria().getDsValor());
-            }
-
-            String dsExpediente = Objects.nonNull(expedienteDTO)
-                    ? expedienteDTO.getCdExpediente() + ". "
-                            + expedienteDTO.getInteresadoDTO().getCdNumIden() + " - "
-                            + expedienteDTO.getInteresadoDTO().getDsNombre() + " "
-                            + expedienteDTO.getInteresadoDTO().getDsApellido1() + " "
-                            + expedienteDTO.getInteresadoDTO().getDsApellido2() + ". " + dsCatalogo
+            String nifSolicitante = Objects.nonNull(expedienteDTO)
+                    ? expedienteDTO.getInteresadoDTO().getCdNumIden()
+                    : "";
+            // dsInteresado ya trae nombre+apellidos o razon social segun sea persona fisica o juridica
+            String nombreORazonSocial = Objects.nonNull(expedienteDTO)
+                    ? expedienteDTO.getInteresadoDTO().getDsInteresado()
                     : "";
 
             informeHelperPdfService.agregarSubTituloPlantilla(document,
-                    Constantes.Plantilla.TEXTO_CONVOCATORIA, dsConvocatoria.toString(), 11, null);
+                    Constantes.Plantilla.TEXTO_ASUNTO,
+                    convocatoriaPlaDTO.getTramiteDTO().getDsValor(), 14, null);
+            informeHelperPdfService.agregarEspacioPequeno(document);
             informeHelperPdfService.agregarSubTituloPlantilla(document,
-                    Constantes.Plantilla.TEXTO_PROCEDIMIENTO,
-                    convocatoriaPlaDTO.getTramiteDTO().getDsValor(), 12, null);
+                    Constantes.Plantilla.TEXTO_EXPEDIENTE, cdExpediente, 14, null);
+            informeHelperPdfService.agregarEspacioPequeno(document);
+            informeHelperPdfService.agregarSubTituloPlantilla(document,
+                    Constantes.Plantilla.TEXTO_NIF_SOLICITANTE, nifSolicitante, 14, null);
+            informeHelperPdfService.agregarEspacioPequeno(document);
+
+            if ("Persona jurídica".equals(dsCatalogo)) {
+                informeHelperPdfService.agregarSubTituloPlantilla(document,
+                        Constantes.Plantilla.TEXTO_RAZON_SOCIAL + ": ", nombreORazonSocial, 14, null);
+            } else {
+                informeHelperPdfService.agregarSubTituloPlantilla(document,
+                        Constantes.Plantilla.TEXTO_NOMBRE + ": ", nombreORazonSocial, 14, null);
+            }
+            informeHelperPdfService.agregarEspacioPequeno(document);
 
             if (Objects.nonNull(expedienteDTO)
                     && Boolean.TRUE.equals(expedienteDTO.getEsExpedienteSolicitante())) {
-                informeHelperPdfService.agregarSubTituloPlantilla(document,
-                        Constantes.Plantilla.TEXTO_EXPEDIENTE, dsExpediente, 9, null);
 
                 List<ExpedienteDTO> lstExpediente = this.expedienteService
                         .buscarParticipantesPorSolicitud(expedienteDTO.getIdSolicitud(), null);
                 if (!lstExpediente.isEmpty()) {
+                    informeHelperPdfService.agregarSubTituloPlantilla(document,
+                            Constantes.Plantilla.TEXTO_SUB_EXPEDIENTE, null, 15, null);
                     for (ExpedienteDTO expeDTO : lstExpediente) {
                         CatalogosValoresDTO catalogoValorDTO = this.catalogosValoresService
                                 .buscarNmConstante(expeDTO.getInteresadoDTO().getTipoActorDTO().getNmConstante());
@@ -117,63 +128,73 @@ public class TramiteExclusion extends Tramite {
                 }
 
             }
-            informeHelperPdfService.agregarTituloCabeceraFecha(document, Constantes.Evaluacion.TEXTO_FECHA,
-                    new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+            // VMM 14/10/26 MD-3142: la fecha ya no va en la cabecera, sale junto a "Firmado
+            // electronicamente" al pie (agregarLugarFechaFirmaElectronicaADM), como en subsanacion administrativa
+            informeHelperPdfService.agregarFilaVacio(document, 1);
+
+            // VMM 14/10/26 MD-3142: cuerpo del PDF: texto superior + tabla con los requisitos que no
+            // cumple (itCumple = 'N': requisito y motivo/observaciones) + texto inferior
+            String descripcionSup = Objects.nonNull(convocatoriaPlaDTO.getDsDescripcion())
+                    ? convocatoriaPlaDTO.getDsDescripcion()
+                    : "";
+            String descripcionInf = Objects.nonNull(convocatoriaPlaDTO.getDsDescripcionInf())
+                    ? convocatoriaPlaDTO.getDsDescripcionInf()
+                    : "";
+
+            if (StringUtils.isNotBlank(descripcionSup)) {
+                informeHelperPdfService.agregarTextoEnriquecidoADM(document, "", descripcionSup, 0, true);
+                informeHelperPdfService.agregarFilaVacio(document, 1);
+            }
+
+            PdfPTable tablaRequisitos = new PdfPTable(2);
+            tablaRequisitos.setWidthPercentage(100);
+            tablaRequisitos.setWidths(new float[] { 45f, 55f });
+            tablaRequisitos.addCell(informeHelperPdfService.celdaEtiquetaCabecera("Requisito", true));
+            tablaRequisitos.addCell(informeHelperPdfService.celdaEtiquetaCabecera("Motivo", true));
+            tablaRequisitos.setHeaderRows(1);
 
             if (Objects.nonNull(expedienteDTO)) {
-                int numOrden = 1;
                 List<ExpedienteReqDTO> listExpReq = expedienteDTO.getLstExpedienteReqDTO().stream()
                         .filter(x -> Objects.isNull(x.getFcBajaFila())
                                 && Constantes.AfirmacionNegacion.N.equals(x.getItCumple()))
                         .collect(Collectors.toList());
 
                 for (ExpedienteReqDTO expedienteReqDTO : listExpReq) {
-
-                    StringBuilder strDescripcion = new StringBuilder();
-                    strDescripcion.append(numOrden).append(") ");
-                    strDescripcion.append(expedienteReqDTO.getRequisitoDTO().getDsValor());
-                    if (StringUtils.isNotBlank(expedienteReqDTO.getTlObservaciones())) {
-                        strDescripcion.append(" - ").append(expedienteReqDTO.getTlObservaciones());
-                    }
-
-                    informeHelperPdfService.agregarSubTituloPlantilla(document, "",
-                            strDescripcion.toString(), 12, null);
-
-                    numOrden++;
+                    String requisito = Objects.nonNull(expedienteReqDTO.getRequisitoDTO())
+                            && Objects.nonNull(expedienteReqDTO.getRequisitoDTO().getDsValor())
+                                    ? expedienteReqDTO.getRequisitoDTO().getDsValor()
+                                    : "";
+                    String motivo = Objects.nonNull(expedienteReqDTO.getTlObservaciones())
+                            ? expedienteReqDTO.getTlObservaciones()
+                            : "";
+                    tablaRequisitos.addCell(informeHelperPdfService.celdaEtiqueta(requisito, true));
+                    tablaRequisitos.addCell(informeHelperPdfService.celdaEtiqueta(motivo, true));
                 }
             }
-            
-            if (Objects.nonNull(expedienteDTO)){
-                
-                String causa = "";
-                Integer idReqSub = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION);
-                
-                List<ExpedienteDocDTO> listExpDoc = expedienteDTO.getLstExpedienteDocDTO().stream()
-                        .filter(expeDoc -> idReqSub.equals(expeDoc.getEstadoDTO().getIdValor())
-                                && Objects.isNull(expeDoc.getFcBajaFila())
-                                && Objects.nonNull(expeDoc.getCdFica()))
-                        .collect(Collectors.toList());
-                for (ExpedienteDocDTO expedienteDocDTO : listExpDoc) {
-                    
-                    causa = expedienteDocDTO.getTlCausaDescripcion();
+            document.add(tablaRequisitos);
 
-                }
-    
-            informeHelperPdfService.agregarSubTituloPlantilla(document,
-                    Constantes.Plantilla.TEXTO_CAUSA_SUBSANACION, causa, 15, null);
+            if (StringUtils.isNotBlank(descripcionInf)) {
+                informeHelperPdfService.agregarFilaVacio(document, 1);
+                informeHelperPdfService.agregarTextoEnriquecidoADM(document, "", descripcionInf, 0, true);
             }
-            
+
+            // VMM 14/10/26 MD-3142: firma y pie como subsanacion administrativa. Si no cabe la firma
+            // (quedan menos de 140pt) se salta de pagina antes de pintarla
+            String dsFirmante = "";
+            if (Objects.nonNull(convocatoriaPlaDTO.getLstConvocatoriaPlaFirDTO())
+                    && StringUtils.isNotBlank(convocatoriaPlaDTO.getDsFirmante())) {
+                dsFirmante = convocatoriaPlaDTO.getDsFirmante();
+            }
+
+            if (writer.getVerticalPosition(false) < 140f) {
+                document.newPage();
+            }
 
             informeHelperPdfService.agregarFilaVacio(document, 1);
-
-            String descripcion = Objects.nonNull(convocatoriaPlaDTO.getDsDescripcion())
-                    ? convocatoriaPlaDTO.getDsDescripcion()
-                    : "";
-            informeHelperPdfService.agregarTextoEnriquecido(document, "", descripcion, 0, true);
-
             informeHelperPdfService.agregarFilaVacio(document, 1);
-            informeHelperPdfService.agregarContenidoFinal(document, writer, convocatoriaPlaDTO,
-                    convocatoriaDTO);
+            informeHelperPdfService.agregarLugarFechaFirmaElectronicaADM(document, writer, dsFirmante);
+            informeHelperPdfService.agregarContenidoFinalAdministrativo(document, writer,
+                    convocatoriaPlaDTO, convocatoriaDTO);
 
             document.close();
 
@@ -279,9 +300,11 @@ public class TramiteExclusion extends Tramite {
 
         // Contenido de datos editables
 
-        if (StringUtils.isNotBlank(convocatoriaPlaDTO.getDsDescripcion())) {
+        // VMM 14/10/26 MD-3142: texto superior + inferior (el inferior es opcional)
+        String textoDescripcionHtml = this.textoDescripcionUnificado(convocatoriaPlaDTO);
+        if (StringUtils.isNotBlank(textoDescripcionHtml)) {
             strCuerpoHtml.append("<p>")
-                    .append(convocatoriaPlaDTO.getDsDescripcion().replace("&nbsp;", "<br>"))
+                    .append(textoDescripcionHtml.replace("&nbsp;", "<br>"))
                     .append("</p> <br><br>");
         }
 

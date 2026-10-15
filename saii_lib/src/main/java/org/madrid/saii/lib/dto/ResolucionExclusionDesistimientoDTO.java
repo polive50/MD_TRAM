@@ -33,6 +33,9 @@ public class ResolucionExclusionDesistimientoDTO implements Serializable {
      * serial version UID
      */
     private static final long serialVersionUID = 1L;
+    
+    /** Identificador del expediente. */
+    private Integer idExpediente;
 
     /** Línea de ayuda de la convocatoria. */
     private String linea;
@@ -55,6 +58,7 @@ public class ResolucionExclusionDesistimientoDTO implements Serializable {
     /**
      * Constructor con los datos mostrados en el listado.
      *
+     * @param idExpediente identificador del expediente
      * @param linea línea de ayuda
      * @param nombreEmpresa nombre o razón social
      * @param numeroExpediente número de expediente
@@ -62,8 +66,10 @@ public class ResolucionExclusionDesistimientoDTO implements Serializable {
      * @param nif NIF de la empresa
      * @param codigoMotivo código del requisito incumplido
      */
-    public ResolucionExclusionDesistimientoDTO(String linea, String nombreEmpresa,
-            String numeroExpediente, String estadoExpediente, String nif, String codigoMotivo) {
+    public ResolucionExclusionDesistimientoDTO(Integer idExpediente, String linea,
+            String nombreEmpresa, String numeroExpediente, String estadoExpediente, String nif,
+            String codigoMotivo) {
+        this.idExpediente = idExpediente;
         this.linea = linea;
         this.nombreEmpresa = nombreEmpresa;
         this.numeroExpediente = numeroExpediente;

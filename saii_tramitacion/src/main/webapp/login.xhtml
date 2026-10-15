@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p" >
+<ui:composition template="/WEB-INF/layout/welcomeLayout.xhtml">
+
+    <ui:define name="content">
+        <div class="login-content">
+            <atlasp:loginSeguridad/>
+        </div>
+    </ui:define>
+
+    <ui:define name="footer">
+        <ui:include src="/WEB-INF/include/footerLogin.xhtml" />
+    </ui:define>
+</ui:composition>
+</html>

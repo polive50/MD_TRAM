@@ -80,4 +80,28 @@ public abstract class Tramite {
             ConvocatoriaPlaDTO convocatoriaPlaDTO, ExpedienteDTO expedienteDTO,
             String strConsejeria) throws ServiceException;
 
+    /**
+     * VMM 14/10/26 MD-3142: texto de la plantilla para el PDF y el HTML (cuerpo del correo): texto
+     * superior (dsDescripcion) y, si lo hay, texto inferior (dsDescripcionInf) a continuacion. El
+     * salto de linea entre ambos solo se anade si hay los dos, igual que ya hacia
+     * TramiteSubsanacionAdministrativa y ConvocatoriaComServiceImpl.enviarPorNote. Si no hay texto
+     * inferior (es opcional salvo en subsanacion administrativa y exclusion provisional) devuelve
+     * exactamente el texto superior, asi que esas plantillas no cambian.
+     *
+     * @param convocatoriaPlaDTO plantilla
+     * @return texto superior + inferior (nunca null)
+     */
+    protected String textoDescripcionUnificado(ConvocatoriaPlaDTO convocatoriaPlaDTO) {
+        String superior = convocatoriaPlaDTO != null && convocatoriaPlaDTO.getDsDescripcion() != null
+                ? convocatoriaPlaDTO.getDsDescripcion() : "";
+        String inferior = convocatoriaPlaDTO != null && convocatoriaPlaDTO.getDsDescripcionInf() != null
+                ? convocatoriaPlaDTO.getDsDescripcionInf() : "";
+
+        StringBuilder unificado = new StringBuilder(superior);
+        if (!superior.trim().isEmpty() && !inferior.trim().isEmpty()) {
+            unificado.append("<br/>");
+        }
+        return unificado.append(inferior).toString();
+    }
+
 }

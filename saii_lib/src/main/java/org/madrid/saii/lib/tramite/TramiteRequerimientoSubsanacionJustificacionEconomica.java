@@ -162,9 +162,8 @@ public class TramiteRequerimientoSubsanacionJustificacionEconomica extends Trami
 
             informeHelperPdfService.agregarFilaVacio(document, 1);
 
-            String descripcion = Objects.nonNull(convocatoriaPlaDTO.getDsDescripcion())
-                    ? convocatoriaPlaDTO.getDsDescripcion()
-                    : "";
+            // VMM 14/10/26 MD-3142: texto superior + inferior (el inferior es opcional)
+            String descripcion = this.textoDescripcionUnificado(convocatoriaPlaDTO);
             informeHelperPdfService.agregarTextoEnriquecido(document, "", descripcion, 0, true);
 
             informeHelperPdfService.agregarFilaVacio(document, 1);
@@ -274,9 +273,11 @@ public class TramiteRequerimientoSubsanacionJustificacionEconomica extends Trami
 
         // Contenido de datos editables
 
-        if (StringUtils.isNotBlank(convocatoriaPlaDTO.getDsDescripcion())) {
+        // VMM 14/10/26 MD-3142: texto superior + inferior (el inferior es opcional)
+        String textoDescripcionHtml = this.textoDescripcionUnificado(convocatoriaPlaDTO);
+        if (StringUtils.isNotBlank(textoDescripcionHtml)) {
             strCuerpoHtml.append("<p>")
-                    .append(convocatoriaPlaDTO.getDsDescripcion().replace("&nbsp;", "<br>"))
+                    .append(textoDescripcionHtml.replace("&nbsp;", "<br>"))
                     .append("</p> <br><br>");
         }
 

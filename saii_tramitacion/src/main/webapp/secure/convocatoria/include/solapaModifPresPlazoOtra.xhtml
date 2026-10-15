@@ -1,0 +1,2504 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p"
+    xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.listadoModificacionesPPO}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.BAvisoModifPresPlazoOtra}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.mostrarDetalleModifPres}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.mostrarDetalleModifPlazo}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.mostrarDetalleModifOtra}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.mostrarDetalleModifDoc}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.mostrarDetalleModifObservac}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.verNumeracion}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.totalAnualidades}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.listaNcolPresupuesto}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstBloqueComponenteColumna}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstBloqueComponenteFila}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstBloque}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAntesMod1}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAntesMod2}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept2}" /> 
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoAyudaConcedidaAntesMod}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoAyudaConcedidaAcept}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoAyudaConcedidaAntesMod2}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoAyudaConcedidaAcept2}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoAyudaConcedidaSolicitada}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoAyudaConcedidaSolicitada2}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.selectExpedienteModifDTO}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstPlazosAntesMod}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.listaNcolPlazo}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstBloqueComponenteColumnaPlazo}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstBloqueComponenteFilaPlazo}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstBloquePlazos}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstPlazosAcept}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.tlOtrasModificaciones}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.tlOtrasModifObservaciones}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstDocumentosModif}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.documentoSeleccionado}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.tlObservaciones}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.tlObservacionesModif}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.tlObservacionesModifPlazos}" /> 
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.observacionesTablaPresupuestaria}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.idExpediente}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.convocatoriaDTO}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.fcResolucion}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.estadoResolucionDTO}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.mostrarMensajeElegirFichero}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.esconderBotonCargarDatoPresup}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.esconderBotonCargarDatoPlazos}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.porcentajeIntensidadAyuda}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.presupuestoSeleccionado}" /> 
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif}" />
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.filaBloquePresupuestoSeleccionada}" /> 
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.archivoSubirDoc}" /> 
+    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.documentosHistoricoSeleccionado}" /> 
+     <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciable}" /> 
+    
+    
+    
+    <p:outputPanel id="panelModifPresPlazoOtra">
+    
+        <!-- PANEL DE MODIFICACIONES PRESUP/PLAZOS/OTRAS -->
+        <p:panelGrid columns="1" columnClasses="ui-g-12"
+                styleClass="ui-panelgrid-blank" layout="grid">
+
+            <h:outputText styleClass="tituloFormulario"
+            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.modifPresPlazoOtra']}" />
+
+            <!-- Tabla Modificaciones P/P/O -->
+            <atlasp:listaPaginada id="listaPaginadaModificaciones"
+                listAndCountMethod="#{expedienteModifPresPlazoOtraBean.obtenerListaModificaciones}"
+                sortMode="single" reflow="true" export="true" pijama="true"
+                exportTitle="Modificaciones Presupuestarias Plazos y Otras" exportFile="ModificacionesPPO">
+                
+                    <!-- Id Modificacion -->
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.modificacion.idModificacion']}"
+                        field="idModificacion" filtrable="false"
+                        exportable="true" filterMatchMode="startWith">
+                        <ui:define name="value">
+                            <h:outputText value="#{item.idModificacion}"
+                                styleClass="#{item.fcBajaFila == null ? '' : 'registroBaja'}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <!-- Fecha Solicitud -->
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.modificacion.fechaSolicitud']}"
+                        field="fcSolicitud" filtrable="false"
+                        exportable="true" filterMatchMode="exact">
+                        <p:calendar pattern="dd/MM/yyyy" mask="true"
+                            styleClass="atlas-cal" locale="es_ES">
+                        </p:calendar>
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{Utiles.comprobarFechas(item.fcSolicitud) == true ? '' : item.fcSolicitud}"
+                                styleClass="#{item.fcBajaFila == null ? '' : 'registroBaja'}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" />
+                            </h:outputText>
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <!-- Modif Presup -->
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.modificacion.modifPresup']}"
+                        field="itModPres"
+                        filtrable="false" exportable="true"
+                        filterMatchMode="startWith">
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{item.itModPres == 'S' ? 'SI' : 'NO'}"
+                                styleClass="#{item.fcBajaFila == null ? '' : 'registroBaja'}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <!-- Modif Plazo -->
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.modificacion.modifPlazo']}"
+                        field="itModPlazo"
+                        filtrable="false" exportable="true"
+                        filterMatchMode="startWith">
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{item.itModPlazo == 'S' ? 'SI' : 'NO'}"
+                                styleClass="#{item.fcBajaFila == null ? '' : 'registroBaja'}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <!-- Modif Otra -->
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.modificacion.modifOtra']}"
+                        field="itModOtra"
+                        filtrable="false" exportable="true"
+                        filterMatchMode="startWith">
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{item.itModOtra == 'S' ? 'SI' : 'NO'}"
+                                styleClass="#{item.fcBajaFila == null ? '' : 'registroBaja'}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <!-- Tipo Resolucion -->
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.modificacion.tipoResolucion']}"
+                        field="estadoResolucionDTO.dsValor"
+                        filtrable="false" exportable="true"
+                        filterMatchMode="startWith">
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{item.estadoResolucionDTO.dsValor}"
+                                styleClass="#{item.fcBajaFila == null ? '' : 'registroBaja'}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <!-- Fecha Resolucion -->
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.modificacion.fechaResolucion']}"
+                        field="fcResolucion"
+                        filtrable="false" exportable="true"
+                        filterMatchMode="startWith">
+                        <p:calendar pattern="dd/MM/yyyy" mask="true"
+                            styleClass="atlas-cal" locale="es_ES">
+                        </p:calendar>
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{Utiles.comprobarFechas(item.fcResolucion) == true ? '' : item.fcResolucion}"
+                                styleClass="#{item.fcBajaFila == null ? '' : 'registroBaja'}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" />
+                            </h:outputText>
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <!-- Estado -->
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.modificacion.estado']}"
+                        field="estadoDTO.dsValor"
+                        filtrable="false" exportable="true"
+                        filterMatchMode="startWith">
+                        <ui:define name="value">
+                            <h:outputText
+                                value="#{item.estadoDTO.dsValor}"
+                                styleClass="#{item.fcBajaFila == null ? '' : 'registroBaja'}" />
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+                    <!-- Acciones -->
+                    <atlasp:columnaListaPaginada
+                        label="#{bundle['listado.columna.acciones']}"
+                        order="false" styleClass="acciones" width="10%">
+                        <ui:define name="value">
+                            <p:panelGrid columns="1" columnClasses="ui-g-12 text-center" layout="grid" styleClass="ui-panelgrid-blank">
+                                <p:column>
+                                    <atlasp:button 
+                                        actionListener="#{expedienteModifPresPlazoOtraBean.verDetalleModif(item)}"
+                                        ajax="false" alt="#{bundle['boton.ver.detalle']}"
+                                        title="#{bundle['boton.ver.detalle']}"
+                                        icon="fas fa-search"
+                                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                        tipoBoton="btn-link" />
+                                </p:column>
+                            </p:panelGrid>
+                        </ui:define>
+                    </atlasp:columnaListaPaginada>
+             </atlasp:listaPaginada>
+        </p:panelGrid>
+        
+        <p:spacer height="10" />
+        
+        <div class="ui-g-12">
+            <h:outputText styleClass="label negrita"
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.modificacion.idModificacion']} #{expedienteModifPresPlazoOtraBean.selectExpedienteModifDTO.idModificacion}:" 
+                rendered="#{not empty expedienteModifPresPlazoOtraBean.selectExpedienteModifDTO and not empty expedienteModifPresPlazoOtraBean.selectExpedienteModifDTO.idModificacion}" />
+
+        </div>
+        
+        <p:spacer height="10" />
+        
+       <!-- VMM 26/09/26 MD-3067: aviso fuera del fieldset (colapsable) para que se vea siempre, este
+            desplegado o no el apartado. -->
+       <p:outputPanel rendered="#{!expedienteModifPresPlazoOtraBean.existeModifPresupuestariaCargada()}">
+           <i class="fa fa-exclamation-triangle" style="color:#b45309;margin-right:6px;" aria-hidden="true"></i>
+           <h:outputText style="color:#b45309;font-weight:bold;"
+               value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.aviso.presupuesto.no.cargado']}" />
+       </p:outputPanel>
+
+       <!-- COLAPSABLE MODIFICACIONES PRESUPUESTARIAS -->
+       <p:fieldset id="fsModifPresup"
+            legend="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.modifPresupuestarias']}"
+            collapsed="true" toggleable="true"
+            rendered="#{not empty expedienteModifPresPlazoOtraBean.lstBloqueComponenteFila}">
+
+ <!-- PRIMERA TABLA -->
+          <!-- VMM 30/09/26 MD-3079: columnas dinamicas segun IT_MOSTRAR_AYUDA (isMostrarTablaAyudaFinan),
+               igual que ya hace solapaFinanciacion.xhtml - la columna de "Ayuda Concedida" (2a columna)
+               siempre existe en el DOM aunque este vacia, asi que con columnClasses fijo la tabla de
+               presupuesto se quedaba siempre al 50% aunque la convocatoria no muestre ayuda. -->
+          <p:panelGrid
+            id="pgPresupuestoFinanciableAntesMod" columns="2"
+            layout="grid" styleClass="ui-panelgrid-blank"
+            columnClasses="#{expedienteModifPresPlazoOtraBean.isMostrarTablaAyudaFinan(1) ? 'ui-g-6 ui-md-6, ui-g-6 ui-md-6' : 'ui-g-12, ui-g-12'}" >
+            
+             <h:panelGroup>
+                <h:outputText 
+                   value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.presAntesModif']} #{expedienteModifPresPlazoOtraBean.verNumeracion?1:':'}" 
+                   style="font-weight: bold;text-transform: uppercase;"
+                   rendered="#{!empty expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAntesMod1}"/> 
+                
+                <!--   TP ANTES MODIF CON CONCEPTOS -->               
+                <p:dataTable id="presupFinanciableAntesMod" var="presupFinanciable" 
+                         value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAntesMod1}"
+                         sortBy="#{presupFinanciable.tipoFinanciacionDTO.ordenPartida}"
+                         styleClass="atlas-lp"
+                         rendered="#{!empty expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAntesMod1 and expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}">
+                          
+                <p:headerRow>
+                    <p:column colspan="#{expedienteModifPresPlazoOtraBean.listaAnualidades.size() + 2}"
+                              style="background-color: #E3EBF6 !important; text-align: left;">
+                        <h:outputText value="#{presupFinanciable.tipoFinanciacionDTO.dsValor}"
+                                      style="font-weight: bold; color: #2C3E50; text-transform: uppercase;"/>
+                    </p:column>
+                </p:headerRow>
+             
+                <p:column headerText="CONCEPTOS">
+                    <h:outputText value="#{presupFinanciable.tlConcepto}" style="padding-left: 10px;" />
+                    <f:facet name="footer">
+                        <h:outputText value="TOTAL" style="font-weight:bold; color: black; display: block; text-align: left;" />
+                    </f:facet>
+                </p:column>
+             
+                <p:columns value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}" var="anualidad" headerText="#{anualidad}º Anualidad">
+                    <f:facet name="header">
+                        <h:outputText value="#{anualidad}º Anualidad" />
+                    </f:facet>
+                
+                    <p:inputNumber value="#{presupFinanciable.lstExpedienteModifPresupMontoDTO[anualidad].nmImporteConcedido}"
+                                   rendered="#{!empty presupFinanciable.lstExpedienteModifPresupMontoDTO}"
+                                   symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" 
+                                   decimalSeparator="," thousandSeparator="." readonly="true" />
+                
+                    <p:inputNumber value="#{presupFinanciable.lstExpedientePresupMontoDTO[anualidad].nmImporte}"
+                                   rendered="#{empty presupFinanciable.lstExpedienteModifPresupMontoDTO}"
+                                   symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" 
+                                   decimalSeparator="," thousandSeparator="." readonly="true" />
+                
+                    <f:facet name="footer">
+                        <h:outputText value="#{expedienteModifPresPlazoOtraBean.getGranTotalVertical(anualidad, expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAntesMod1)}" 
+                                      style="font-weight:bold; color: black; display: block; text-align: left;">
+                            <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                        </h:outputText>
+                    </f:facet>
+                </p:columns>
+                
+                <p:column headerText="TOTAL">
+                    <p:inputNumber value="#{presupFinanciable.lstExpedienteModifPresupMontoDTO[presupFinanciable.lstExpedienteModifPresupMontoDTO.size() - 1].nmImporteConcedido}" 
+                                   rendered="#{!empty presupFinanciable.lstExpedienteModifPresupMontoDTO}"
+                                   readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                   inputStyle="font-weight: bold; background: #F8F9FA;"/>
+                                   
+                    <p:inputNumber value="#{presupFinanciable.lstExpedientePresupMontoDTO[presupFinanciable.lstExpedientePresupMontoDTO.size() - 1].nmImporte}" 
+                                   rendered="#{empty presupFinanciable.lstExpedienteModifPresupMontoDTO}"
+                                   readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                   inputStyle="font-weight: bold; background: #F8F9FA;"/>
+                    
+                    <f:facet name="footer">
+                        <h:outputText value="#{expedienteModifPresPlazoOtraBean.getGranTotalFinal(expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAntesMod1)}" 
+                                      style="font-weight:bold; color: black; display: block; text-align: left;">
+                            <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                        </h:outputText>
+                    </f:facet>
+                </p:column>
+            
+                <p:summaryRow rendered="#{presupFinanciable.tipoFinanciacionDTO.dsValor != 'TOTAL'}">
+                    <p:column style="text-align: left; background-color: #F8F9FA;">
+                        <h:outputText value="SUBTOTAL" style="font-weight: bold;" />
+                    </p:column>
+                
+                    <p:column colspan="#{expedienteModifPresPlazoOtraBean.listaAnualidades.size()}" style="padding: 0px !important; background-color: #F8F9FA;">
+                        <div style="display: flex; width: 100%;">
+                            <ui:repeat value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}" var="anualidad" varStatus="statusSub">
+                                <div style="flex: 1; padding: 4px; text-align: center;">
+                                    <p:inputNumber value="#{expedienteModifPresPlazoOtraBean.getSumaGrupo(presupFinanciable.tipoFinanciacionDTO, statusSub.index, expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAntesMod1)}" 
+                                                   readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                   inputStyle="font-weight: bold; text-align: left; background: #E3EBF6 !important; width: 100%; border: 1px solid #ced4da; color: black !important;"/>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </p:column>
+                    
+                    <p:column style="background-color: #F8F9FA;">
+                        <p:inputNumber value="#{expedienteModifPresPlazoOtraBean.getSumaTotalGrupo(presupFinanciable.tipoFinanciacionDTO, expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAntesMod1)}" 
+                                       readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                       inputStyle="font-weight: bold; text-align: left; background: #ffffff !important; border: 1px solid #ced4da;"/>
+                    </p:column>
+                </p:summaryRow>
+            </p:dataTable>
+
+          
+            <!--  TP ANTES MODIF SIN CONCEPTOS    -->
+            <p:dataTable id="presupPresentadoModif" var="presupFinanciable" styleClass="atlas-lp"
+                     value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAntesMod1}"
+                     rowIndexVar="rowIndex"
+                     rendered="#{!empty expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAntesMod1 and !expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}">
+                                             
+                <p:columnGroup type="header">
+                    <p:row>
+                        <p:column rowspan="2" headerText="" style="width: 45%;" />
+                        <p:repeat var="anualidad" value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}">
+                            <p:column headerText="#{anualidad}° Anualidad" />
+                        </p:repeat>
+                        <p:column rowspan="2" headerText="TOTAL" />
+                    </p:row>
+                </p:columnGroup>
+
+                <p:column style="width: 45%;">
+                    <h:outputText value="#{presupFinanciable.tipoFinanciacionDTO.dsValor}" />
+                </p:column>
+
+                <p:columns value="#{expedienteModifPresPlazoOtraBean.listaNcolPresupuesto}" var="nCol" columnIndexVar="colIndex">
+                    <p:inputNumber value="#{presupFinanciable.lstExpedienteModifPresupMontoDTO[nCol].nmImporteConcedido}"
+                                   rendered="#{!empty presupFinanciable.lstExpedienteModifPresupMontoDTO}"
+                                   symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s"
+                                   decimalSeparator="," thousandSeparator="." readonly="true" />
+
+                    <p:inputNumber value="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].nmImporte}"
+                                   rendered="#{empty presupFinanciable.lstExpedienteModifPresupMontoDTO}"
+                                   symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s"
+                                   decimalSeparator="," thousandSeparator="." readonly="true" />
+                </p:columns>
+            </p:dataTable>
+                
+            </h:panelGroup>
+                
+        
+            <!-- AYUDA CONCEDIDA (antes modif) -->
+            <h:panelGroup>
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.ayudaConcedida']}"
+                    rendered="#{!empty expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAntesMod1 and 
+                        expedienteModifPresPlazoOtraBean.isMostrarTablaAyudaFinan(1)}"
+                    style="font-weight: bold;text-transform: uppercase;" />
+                
+                <p:dataTable id="presupAyudaConcedidaAntesMod"
+                             var="presupAyudaConcedida" styleClass="atlas-lp"
+                             rowIndexVar="rowIndex"
+                             value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoAyudaConcedidaAntesMod}"
+                             emptyMessage="No se encontraron registros"
+                             rendered="#{!empty expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAntesMod1 and 
+                                 expedienteModifPresPlazoOtraBean.isMostrarTablaAyudaFinan(1)}">     
+                    <p:columnGroup type="header">
+                        <p:row>
+                            <p:column rowspan="2" headerText="" />
+                            <p:column rowspan="2" headerText="CONCEPTOS"
+                                    rendered="#{expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}" />
+                            <p:repeat var="anualidad"
+                                      value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}">
+                                <p:column
+                                    headerText="#{anualidad}° Anualidad" />
+                            </p:repeat>
+                            <p:column rowspan="2" headerText="TOTAL" />
+                        </p:row>
+                    </p:columnGroup>   
+                    <p:column>
+                        <h:outputText
+                            value="#{presupAyudaConcedida.tipoFinanciacionDTO.dsValor}" />
+                    </p:column>   
+                    <p:columns
+                        value="#{expedienteModifPresPlazoOtraBean.listaNcolPresupuesto}"
+                        var="nCol" columnIndexVar="colIndex">     
+                        
+                        <h:panelGroup>
+                                <h:outputText value="#{presupAyudaConcedida.tlConcepto}" rendered="#{expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup and nCol == 0}" />
+                            <p:inputNumber
+                                readonly="true"
+                                symbol=" €" minValue="0"
+                                maxValue="9999999999.99" symbolPosition="s"
+                                decimalSeparator="," thousandSeparator="."
+                                value="#{presupAyudaConcedida.lstExpedientePresupMontoDTO[nCol].nmImporte}"
+                                rendered="#{empty expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1
+                                            and (!expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup or nCol != 0)}">                        
+                            </p:inputNumber>
+                            <p:inputNumber
+                                readonly="true"
+                                symbol=" €" minValue="0"
+                                maxValue="9999999999.99" symbolPosition="s"
+                                decimalSeparator="," thousandSeparator="."
+                                value="#{presupAyudaConcedida.lstExpedienteModifPresupMontoDTO[nCol].nmImporteConcedido}"
+                                rendered="#{not empty expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1
+                                             and (!expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup or nCol != 0)}">                        
+                            </p:inputNumber>
+                        </h:panelGroup>
+                    </p:columns>   
+                </p:dataTable>
+            </h:panelGroup>                           
+        </p:panelGrid>     
+
+       <p:spacer height="5"/>
+       
+       
+<!-- SEGUNDA TABLA -->
+       
+       <!-- PANEL MODIFICACIONES PRESUPUESTARIAS SOLICITADAS -->
+       <!-- VMM 30/09/26 MD-3079: columnas dinamicas segun IT_MOSTRAR_AYUDA (isMostrarTablaAyuda), ver
+            mismo motivo en pgPresupuestoFinanciableAntesMod. -->
+       <p:panelGrid
+            id="pgPresupuestoFinanciableSolic" columns="2"
+            layout="grid" styleClass="ui-panelgrid-blank"
+            columnClasses="#{expedienteModifPresPlazoOtraBean.isMostrarTablaAyuda(1) ? 'ui-g-6 ui-md-6, ui-g-6 ui-md-6' : 'ui-g-12, ui-g-12'}">
+
+            <!--  Tabla modificaciones presupuestarias solicitadas -->
+            <h:panelGroup>
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.modifPresSolicitadas']} #{expedienteModifPresPlazoOtraBean.verNumeracion?1:':'}"
+                    style="font-weight: bold;text-transform: uppercase;" 
+                    rendered="#{!empty expedienteModifPresPlazoOtraBean.lstBloque[0].listaBloqueAuxDTO}"/>
+
+
+                 <!--  TP MODIF SOLICITADAS CON CONCEPTOS  -->
+                 <p:dataTable id="presupFinanciableSolic" var="presupuesto"
+                         value="#{expedienteModifPresPlazoOtraBean.lstBloque[0].listaBloqueAuxDTO}"
+                         sortBy="#{presupuesto.tipoFinanciacionDTO.ordenPartida}"
+                         styleClass="atlas-lp"
+                         rendered="#{!empty expedienteModifPresPlazoOtraBean.lstBloque[0].listaBloqueAuxDTO and expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}">
+
+                    <p:headerRow>
+                        <p:column colspan="#{expedienteModifPresPlazoOtraBean.listaAnualidades.size() + 3}"
+                                  style="background-color: #E3EBF6 !important; text-align: left;">
+                            <h:outputText value="#{presupuesto.tipoFinanciacionDTO.dsValor}"
+                                          style="font-weight: bold; color: #2C3E50; text-transform: uppercase;"/>
+                        </p:column>
+                    </p:headerRow>
+
+                    <p:column headerText="CONCEPTOS">
+                        <h:outputText value="#{presupuesto.datos[0].dsValor}" style="padding-left: 10px;" />
+                        <f:facet name="footer">
+                            <h:outputText value="TOTAL" style="font-weight:bold; color: black; display: block; text-align: left;" />
+                        </f:facet>
+                    </p:column>
+
+                    <p:columns value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}" var="anualidad" headerText="#{anualidad}º Anualidad">
+                        <f:facet name="header">
+                            <h:outputText value="#{anualidad}º Anualidad" />
+                        </f:facet>
+
+                        <p:inputNumber value="#{presupuesto.datos[anualidad].dsValor}"
+                                       symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                       readonly="true" />
+
+                        <f:facet name="footer">
+                            <h:outputText value="#{expedienteModifPresPlazoOtraBean.getGranTotalVerticalPres(anualidad, expedienteModifPresPlazoOtraBean.lstBloque[0].listaBloqueAuxDTO)}"
+                                          style="font-weight:bold; color: black; display: block; text-align: left;">
+                                <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                            </h:outputText>
+                        </f:facet>
+                    </p:columns>
+
+                    <p:column headerText="TOTAL">
+                        <p:inputNumber value="#{presupuesto.datos[expedienteModifPresPlazoOtraBean.listaNcolPresupuesto.size()-1].dsValor}"
+                                       readonly="true" symbol=" €" symbolPosition="s"
+                                       inputStyle="font-weight: bold; text-align: left background: #F8F9FA;"/>
+
+                        <f:facet name="footer">
+                            <h:outputText value="#{expedienteModifPresPlazoOtraBean.getGranTotalFinalPres(expedienteModifPresPlazoOtraBean.lstBloque[0].listaBloqueAuxDTO)}"
+                                          style="font-weight:bold; color: black; display: block; text-align: left;">
+                                <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                            </h:outputText>
+                        </f:facet>
+                    </p:column>
+
+                    <p:summaryRow rendered="#{presupuesto.tipoFinanciacionDTO.dsValor != 'TOTAL'}">
+                        <p:column style="text-align: left; background-color: #F8F9FA;">
+                            <h:outputText value="SUBTOTAL" style="font-weight: bold;" />
+                        </p:column>
+
+                        <p:column colspan="#{expedienteModifPresPlazoOtraBean.listaAnualidades.size()}" style="padding: 0px !important; background-color: #F8F9FA;">
+                            <div style="display: flex; width: 100%;">
+                                <ui:repeat value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}" var="anualidad">
+                                    <div style="flex: 1; padding: 4px; text-align: center;">
+                                        <p:inputNumber value="#{expedienteModifPresPlazoOtraBean.getSumaGrupoPres(presupuesto.tipoFinanciacionDTO, anualidad,
+                                                             expedienteModifPresPlazoOtraBean.lstBloque[0].listaBloqueAuxDTO)}"
+                                                       readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                       inputStyle="font-weight: bold; text-align: left background: #E3EBF6 !important; width: 100%; border: 1px solid #ced4da; color: black !important;"/>
+                                    </div>
+                                </ui:repeat>
+                            </div>
+                        </p:column>
+
+                        <p:column style="background-color: #F8F9FA;">
+                            <p:inputNumber value="#{expedienteModifPresPlazoOtraBean.getSumaTotalGrupoPres(presupuesto.tipoFinanciacionDTO, expedienteModifPresPlazoOtraBean.lstBloque[0].listaBloqueAuxDTO)}"
+                                           readonly="true" symbol=" €" symbolPosition="s"
+                                           decimalSeparator="," thousandSeparator="."
+                                           inputStyle="font-weight: bold; text-align: left background: #ffffff !important; border: 1px solid #ced4da;"/>
+                        </p:column>
+                    </p:summaryRow>
+                    <p:column headerText="ACCIONES" style="text-align: center; width: 140px;">
+                        <div style="display: flex; justify-content: space-around; gap: 5px;">
+
+                           <!-- VMM 30/09/26 MD-3070: mismo caso que "Ver Historico" - prepararSubida() solo
+                                prepara el estado del dialogo (no guarda nada), no hace falta un
+                                postback completo para abrirlo. -->
+                           <atlasp:button
+                                actionListener="#{expedienteModifPresPlazoOtraBean.prepararSubida(presupuesto)}"
+                                ajax="true" process="@this" update="dialogSubirExpedienteDocPresu"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                alt="Subir Documento"
+                                title="Subir Documento"
+                                icon="fas fa-upload"
+                                tipoBoton="btn-link"
+                                rendered="#{presupuesto.tipoFinanciacionDTO.dsValor != 'TOTAL'}" />
+
+                                <p:link href="#{request.contextPath}/DescargaFicaServlet"
+                                    target="_blank"
+                                    title="#{bundle['boton.descargar']}"
+                                    rendered="#{presupuesto.tipoFinanciacionDTO.dsValor != 'TOTAL' and not empty presupuesto.documentos}">
+
+                                <f:param name="cdFica" value="#{presupuesto.documentos[0].cdFica}" />
+                                <i class="fas fa-download"></i>
+                            </p:link>
+
+                            <!-- VMM 30/09/26 MD-3070: ajax="true" + process="@this" - esta accion es de solo
+                                 lectura (abre un dialogo a mostrar el historico), no hay motivo para
+                                 recargar y re-renderizar la pagina completa (ajax="false" hacia un
+                                 postback normal). Se restringe tambien el process para no procesar el
+                                 resto del formulario (ver mismo motivo en el boton Cerrar de la modal). -->
+                            <atlasp:button
+                                actionListener="#{expedienteModifPresPlazoOtraBean.prepararHistorico(presupuesto)}"
+                                ajax="true"
+                                process="@this"
+                                update="dialogHistoricoDocs"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                alt="Ver Histórico"
+                                title="Ver Histórico"
+                                icon="fas fa-folder"
+                                tipoBoton="btn-link"
+                                rendered="#{presupuesto.tipoFinanciacionDTO.dsValor != 'TOTAL' and not empty presupuesto.documentos}"  />
+
+                        </div>
+                        <f:facet name="footer">
+                            <h:outputText value="" />
+                        </f:facet>
+                    </p:column>
+                </p:dataTable>
+
+                <!-- TP MODIF SOLICITADAS SIN CONCEPTOS -->
+                <p:dataTable id="presupPresentadoSolic" var="presupuesto" styleClass="atlas-lp"
+                         rowIndexVar="rowIndex"
+                         value="#{expedienteModifPresPlazoOtraBean.lstBloque[0].listaBloqueAuxDTO}"
+                         sortBy="#{presupuesto.tipoFinanciacionDTO.ordenPartida}"
+                         rendered="#{!empty expedienteModifPresPlazoOtraBean.lstBloque[0].listaBloqueAuxDTO and !expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}">
+
+                        <!-- VMM 26/09/26 MD-3070: en convocatoria sin conceptos no hace falta documento
+                             asociado a cada partida presupuestaria, asi que se quita la columna de
+                             ACCIONES (Subir/Descargar/Ver Historico) de esta tabla. -->
+                        <p:columnGroup type="header">
+                            <p:row>
+                                <p:column rowspan="2" headerText="" style="width: 45%;" />
+                                <p:repeat var="anualidad" value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}">
+                                    <p:column headerText="#{anualidad}° Anualidad" />
+                                </p:repeat>
+                                <p:column rowspan="2" headerText="TOTAL" />
+                            </p:row>
+                        </p:columnGroup>
+
+                        <p:column style="width: 45%;">
+                            <h:outputText value="#{presupuesto.tipoFinanciacionDTO.dsValor}" />
+                        </p:column>
+
+                        <p:columns value="#{expedienteModifPresPlazoOtraBean.listaNcolPresupuesto}" var="nCol" columnIndexVar="colIndex">
+                            <p:inputNumber value="#{presupuesto.datos[nCol].dsValor}"
+                                           symbol=" €" minValue="0" maxValue="9999999999.99" readonly="true"
+                                           symbolPosition="s" decimalSeparator="," thousandSeparator="." />
+                        </p:columns>
+                    </p:dataTable>
+
+            </h:panelGroup>
+
+
+            <!-- AYUDA CONCEDIDA (modif solicitada) -->
+            <h:panelGroup>
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.ayudaConcedida']}"
+                    style="font-weight: bold;text-transform: uppercase;" 
+                    rendered="#{!empty expedienteModifPresPlazoOtraBean.lstBloque[0].listaBloqueAuxDTO and
+                            expedienteModifPresPlazoOtraBean.isMostrarTablaAyuda(1)}"/>
+                
+<!--                 <p:dataTable id="presupAyudaConcedidaSolic" -->
+<!--                              var="presupAyudaConcedidaS" styleClass="atlas-lp" -->
+<!--                              rowIndexVar="rowIndex" -->
+<!--                              value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoAyudaConcedidaSolicitada}" -->
+<!--                              emptyMessage="No se encontraron registros" -->
+<!--                              rendered="#{!empty expedienteModifPresPlazoOtraBean.lstBloque[0].listaBloqueAuxDTO and  -->
+<!--                                 expedienteModifPresPlazoOtraBean.isMostrarTablaAyuda(1)}">         -->
+<!--                     <p:columnGroup type="header"> -->
+<!--                         <p:row> -->
+<!--                             <p:column rowspan="2" headerText="" /> -->
+<!--                             <p:column rowspan="2" headerText="CONCEPTOS" -->
+<!--                                     rendered="#{expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}" /> -->
+<!--                             <p:repeat var="anualidad" -->
+<!--                                       value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}"> -->
+<!--                                 <p:column -->
+<!--                                     headerText="#{anualidad}° Anualidad" /> -->
+<!--                             </p:repeat> -->
+<!--                             <p:column rowspan="2" headerText="TOTAL" /> -->
+<!--                         </p:row> -->
+<!--                     </p:columnGroup>        -->
+<!--                     <p:column> -->
+<!--                         <h:outputText -->
+<!--                             value="#{presupAyudaConcedidaS.tipoFinanciacionDTO.dsValor}" /> -->
+<!--                     </p:column>    -->
+<!--                     <p:columns -->
+<!--                         value="#{expedienteModifPresPlazoOtraBean.listaNcolPresupuesto}" -->
+<!--                         var="nCol" columnIndexVar="colIndex" -->
+<!--                         rendered="#{!expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}">     -->
+<!--                         <p:inputNumber -->
+<!--                             readonly="true" -->
+<!--                             symbol=" €" minValue="0" -->
+<!--                             maxValue="9999999999.99" symbolPosition="s" -->
+<!--                             decimalSeparator="," thousandSeparator="." -->
+<!--                             value="#{presupAyudaConcedidaS.datos[nCol].dsValor}">                          -->
+<!--                         </p:inputNumber> -->
+<!--                     </p:columns>     -->
+                    
+<!--                     <p:columns -->
+<!--                         value="#{expedienteModifPresPlazoOtraBean.listaNcolPresupuesto}" -->
+<!--                         var="nCol" columnIndexVar="colIndex" -->
+<!--                         rendered="#{expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}">   -->
+<!--                         <h:panelGroup> -->
+<!--                                 <h:outputText value="#{presupAyudaConcedidaS.datos[nCol].dsValor}" rendered="#{presupAyudaConcedidaS.datos[nCol].nmColumna == 0}" />   -->
+<!--                             <p:inputNumber -->
+<!--                                 readonly="true" -->
+<!--                                 symbol=" €" minValue="0" -->
+<!--                                 maxValue="9999999999.99" symbolPosition="s" -->
+<!--                                 decimalSeparator="," thousandSeparator="." -->
+<!--                                 value="#{presupAyudaConcedidaS.datos[nCol].dsValor}"  -->
+<!--                                 rendered="#{presupAyudaConcedidaS.datos[nCol].nmColumna != 0}">                          -->
+<!--                             </p:inputNumber> -->
+<!--                         </h:panelGroup> -->
+<!--                     </p:columns>     -->
+<!--                 </p:dataTable> -->
+
+
+                            <p:dataTable id="presupAyudaConcedidaSolic"
+                                         var="presupAyudaConcedidaS" styleClass="atlas-lp"
+                                         rowIndexVar="rowIndex"
+                                         value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoAyudaConcedidaSolicitada}"
+                                         emptyMessage="No se encontraron registros"
+                                         rendered="#{!empty expedienteModifPresPlazoOtraBean.lstBloque[0].listaBloqueAuxDTO and expedienteModifPresPlazoOtraBean.isMostrarTablaAyuda(1)}">        
+                                
+                                <p:columnGroup type="header">
+                                    <p:row>
+                                        <p:column rowspan="2" headerText="" />
+                                        <p:column rowspan="2" headerText="CONCEPTOS" rendered="#{expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}" />
+                                        <p:repeat var="anualidad" value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}">
+                                            <p:column headerText="#{anualidad}° Anualidad" />
+                                        </p:repeat>
+                                        <p:column rowspan="2" headerText="TOTAL" />
+                                    </p:row>
+                                </p:columnGroup>       
+                        
+                                <p:column>
+                                    <h:outputText value="#{presupAyudaConcedidaS.tipoFinanciacionDTO.dsValor}" />
+                                </p:column>   
+                        
+                                <p:columns value="#{expedienteModifPresPlazoOtraBean.listaNcolPresupuesto}" var="nCol" columnIndexVar="colIndex"
+                                           rendered="#{!expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}">    
+                                    <h:outputText value="#{presupAyudaConcedidaS.datos[nCol].dsValor}" style="display: block; text-align: right; padding-right: 5px;">
+                                        <f:convertNumber pattern="#,##0.00 €" locale="es_ES" />
+                                    </h:outputText>
+                                </p:columns>    
+                                        
+                                <p:columns value="#{expedienteModifPresPlazoOtraBean.listaNcolPresupuesto}" var="nCol" columnIndexVar="colIndex"
+                                           rendered="#{expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}">  
+                                    <h:panelGroup>
+                                        <h:outputText value="#{presupAyudaConcedidaS.datos[nCol].dsValor}" rendered="#{presupAyudaConcedidaS.datos[nCol].nmColumna == 0}" />  
+                                        
+                                        <h:outputText value="#{presupAyudaConcedidaS.datos[nCol].dsValor}" rendered="#{presupAyudaConcedidaS.datos[nCol].nmColumna != 0}" style="display: block; text-align: right; padding-right: 5px;">
+                                            <f:convertNumber pattern="#,##0.00 €" locale="es_ES" />
+                                        </h:outputText>
+                                    </h:panelGroup>
+                                </p:columns>    
+                            </p:dataTable>
+                
+                
+            </h:panelGroup>
+        </p:panelGrid>
+
+        <p:spacer height="5"/>
+        
+         <p:panelGrid columns="1" columnClasses="ui-g-12"
+            layout="grid" styleClass="ui-panelgrid-blank"
+            id="pgCargarDatosModifPresup">
+            <p:commandButton
+                action="#{expedienteModifPresPlazoOtraBean.cargarDatosPresupuestoModif}"
+                ajax="true"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                alt="#{bundle['boton.cargar.datos']}"
+                title="#{bundle['boton.cargar.datos']}"
+                value="#{bundle['boton.cargar.datos']}"
+                rendered="#{!expedienteModifPresPlazoOtraBean.esconderBotonCargarDatoPresup}"
+                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                icon="fas fa-plus"
+                disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or not empty expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}">
+            </p:commandButton>
+                        
+        </p:panelGrid>
+        
+        
+<!-- TERCERA TABLA -->
+
+        <!-- PANEL MODIFICACIONES PRESUPUESTARIAS ACEPTADAS -->
+        <!-- VMM 30/09/26 MD-3079: columnas dinamicas segun IT_MOSTRAR_AYUDA (isMostrarTablaAyuda), ver
+             mismo motivo en pgPresupuestoFinanciableAntesMod. -->
+        <p:panelGrid id="pgPresupuestoFinanciableAcept" columns="2"
+            layout="grid" styleClass="ui-panelgrid-blank"
+            columnClasses="#{expedienteModifPresPlazoOtraBean.isMostrarTablaAyuda(1) ? 'ui-g-6 ui-md-6, ui-g-6 ui-md-6' : 'ui-g-12, ui-g-12'}"
+            rendered="#{not empty expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif}">
+            
+             <!-- Tabla modificaciones presupuestarias aceptadas -->
+            <h:panelGroup>
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.modifPresAceptadas']} #{expedienteModifPresPlazoOtraBean.verNumeracion?1:':'}"
+                    style="font-weight: bold;text-transform: uppercase;" />
+
+            <!-- TP MODIF ACEPTADAS CON CONCEPTOS -->
+            <p:dataTable id="presupFinanciableAceptT"
+                 var="presupFinanciableA"
+                 value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif}"
+                 sortBy="#{presupFinanciableA.tipoFinanciacionDTO.ordenPartida}"
+                 styleClass="atlas-lp"
+                 emptyMessage="No se encontraron registros"
+                 rendered="#{!empty expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif and expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}">
+
+                <p:headerRow>
+                    <p:column colspan="#{expedienteModifPresPlazoOtraBean.listaAnualidades.size() + 3}" 
+                              style="background-color: #E3EBF6 !important; text-align: left;">                             
+                        <h:outputText value="#{presupFinanciableA.tipoFinanciacionDTO.dsValor}" 
+                                      style="font-weight: bold; color: #2C3E50; text-transform: uppercase;"/>
+                    </p:column>
+                </p:headerRow>
+                
+                <p:column headerText="CONCEPTOS">
+                    <p:inputText value="#{presupFinanciableA.tlConcepto}"
+                                 style="width: 90%; padding-left: 5px;"
+                                 readonly="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO}"
+                                 rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor != 'TOTAL'}">
+                        <!-- VMM 17/09/26: sin p:ajax a proposito - el nombre de concepto se guarda al
+                             pulsar Guardar (guardarConceptoModif se llama desde guardarModifPresupuesto),
+                             igual que importes y observaciones de esta misma tabla. -->
+                    </p:inputText>
+                                                   
+                    <h:outputText value="TOTAL" 
+                                  style="font-weight: bold; color: #2C3E50; padding-left: 10px; text-transform: uppercase;" 
+                                  rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor == 'TOTAL'}" />
+                </p:column>
+                
+                <p:columns value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}" var="anualidad" columnIndexVar="colIndex" headerText="#{anualidad}º Anualidad">
+                    <f:facet name="header">
+                        <h:outputText value="#{anualidad}º Anualidad" />
+                    </f:facet>
+                
+                    <p:inputNumber value="#{presupFinanciableA.lstExpedienteModifPresupMontoDTO[anualidad].nmImporte}"
+                                   rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor != 'TOTAL' and not empty presupFinanciableA.lstExpedienteModifPresupMontoDTO}"
+                                   readonly="#{presupFinanciableA.lstExpedienteModifPresupMontoDTO[anualidad].esMontoTotal or expedienteModifPresPlazoOtraBean.modoConsultaModifPPO}"
+                                   symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                   styleClass="#{presupFinanciableA.lstExpedienteModifPresupMontoDTO[anualidad].esMontoTotal ? '' : (expedienteModifPresPlazoOtraBean.modoConsultaModifPPO?'':'inputNumberObligatorio')}">
+                        <!-- VMM 14/09/26 MD-2725: era colIndex (posicion 0-based) en vez de anualidad (numero
+                             real de anualidad, 1-based con conceptos) - nunca encontraba el monto real en
+                             edicionCeldaPresupuesto y editaba un DTO huerfano sin persistir nada. Ver el mismo
+                             patron correcto en solapaFinanciacion.xhtml (financiacionBean.edicionCeldaPresupuesto(presupFinanciable, anualidad, 1)). -->
+                        <p:ajax event="change" process="@this"
+                                onstart="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                listener="#{expedienteModifPresPlazoOtraBean.edicionCeldaPresupuesto(presupFinanciableA, anualidad, 1)}" />
+                    </p:inputNumber>
+
+<!--                     <p:inputNumber value="#{expedienteModifPresPlazoOtraBean.getGranTotalVerticalModif(colIndex, expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif)}"  -->
+<!--                                    rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor == 'TOTAL'}" -->
+<!--                                    readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="." -->
+<!--                                    inputStyle="font-weight: bold; text-align: left; background: #ffffff !important; border: 1px solid #ced4da; width: 100%; color: black !important;"/> -->
+                    <f:facet name="footer">
+                        <h:outputText value="#{expedienteModifPresPlazoOtraBean.getGranTotalVerticalModif(anualidad, expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif)}" 
+                                      style="font-weight:bold; color: black; display: block; text-align: left;">
+                            <f:convertNumber type="currency" currencySymbol="€" locale="es_ES" />
+                        </h:outputText>
+                    </f:facet>
+                </p:columns>
+                
+                <p:column headerText="TOTAL">
+                    <p:inputNumber value="#{presupFinanciableA.lstExpedienteModifPresupMontoDTO[presupFinanciableA.lstExpedienteModifPresupMontoDTO.size() - 1].nmImporte}"
+                                   rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor != 'TOTAL'}"
+                                   readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                   inputStyle="font-weight: bold; background: #F8F9FA; width: 100%;"/>
+
+                    <p:inputNumber value="#{expedienteModifPresPlazoOtraBean.getGranTotalFinalModif(expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif)}"
+                                   rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor == 'TOTAL'}"
+                                   readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                   inputStyle="font-weight: bold; text-align: left; background: #ffffff !important; border: 1px solid #ced4da; width: 100%; color: black !important;"/>
+                </p:column>
+
+                <p:column headerText="OBSERVACIONES" style="width: 25%;">
+                    <!-- VMM 14/09/26 MD-2725: sin p:ajax a proposito - la validacion de observaciones
+                         pendientes se hace al pulsar Guardar sobre el texto ya aplicado al modelo por
+                         el propio postback, no hace falta un roundtrip por cada campo al perder el foco. -->
+                    <p:inputText value="#{presupFinanciableA.lstExpedienteModifPresupMontoDTO[1].cdObservaciones}"
+                                 style="width: 95%;"
+                                 maxlength="500"
+                                 disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}"
+                                 rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor != 'TOTAL' and not empty presupFinanciableA.lstExpedienteModifPresupMontoDTO and presupFinanciableA.lstExpedienteModifPresupMontoDTO.size() > 0}" />
+
+                    <h:outputText value="" rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor == 'TOTAL'}" />
+                </p:column>
+
+                <p:summaryRow rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor != 'TOTAL'}">
+                    <p:column style="text-align: left; background-color: #F8F9FA;">
+                        <h:outputText value="SUBTOTAL" style="font-weight: bold;" />
+                    </p:column>
+                
+                    <p:column colspan="#{expedienteModifPresPlazoOtraBean.listaAnualidades.size()}" style="padding: 0px !important; background-color: #F8F9FA;">
+                        <div style="display: flex; width: 100%;">
+                            <ui:repeat value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}" var="anualidad" varStatus="statusSub">
+                                <div style="flex: 1; padding: 4px; text-align: center;">
+                                    <p:inputNumber value="#{expedienteModifPresPlazoOtraBean.getSumaGrupoModif(presupFinanciableA.tipoFinanciacionDTO, statusSub.index, expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif)}" 
+                                                   readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                                   inputStyle="font-weight: bold; text-align: left; background: #E3EBF6 !important; width: 100%; border: 1px solid #ced4da; color: black !important;"/>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </p:column>
+                                  
+                    <p:column style="background-color: #F8F9FA;">
+                        <p:inputNumber value="#{expedienteModifPresPlazoOtraBean.getSumaTotalGrupoModif(presupFinanciableA.tipoFinanciacionDTO, expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif)}"
+                                       readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                       inputStyle="font-weight: bold; text-align: left; background: #ffffff !important; border: 1px solid #ced4da; width: 100%;"/>
+                    </p:column>
+                </p:summaryRow>
+
+            </p:dataTable>
+
+            <!-- TP MODIF ACEPTADAS SIN CONCEPTOS -->
+            <p:dataTable id="presupPresentadoAceptT"
+                 var="presupFinanciableA"
+                 value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif}"
+                 sortBy="#{presupFinanciableA.tipoFinanciacionDTO.ordenPartida}"
+                 styleClass="atlas-lp"
+                 rowIndexVar="rowIndex"
+                 emptyMessage="No se encontraron registros"
+                 rendered="#{!empty expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif and !expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}">
+
+                <p:columnGroup type="header">
+                    <p:row>
+                        <p:column rowspan="2" headerText="" />
+                        <p:repeat var="anualidad" value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}">
+                            <p:column headerText="#{anualidad}° Anualidad" />
+                        </p:repeat>
+                        <p:column rowspan="2" headerText="TOTAL" />
+                        <p:column rowspan="2" headerText="OBSERVACIONES" />
+                    </p:row>
+                </p:columnGroup>
+
+                <p:column>
+                    <h:outputText value="#{presupFinanciableA.tipoFinanciacionDTO.dsValor}"/>
+<!--                                   style="#{presupFinanciableA.tipoFinanciacionDTO.dsValor == 'TOTAL' ? 'font-weight: bold; color: #2C3E50; text-transform: uppercase;' : ''}" /> -->
+                </p:column>
+                
+                <!-- VMM 29/09/26: la iteracion debe tener el mismo numero de columnas que la cabecera
+                     (una por anualidad, listaAnualidades) porque esta tabla ya tiene su propia columna
+                     TOTAL dedicada aparte (mas abajo). listaNcolPresupuesto tiene siempre una columna MAS
+                     (pensada para tablas que no tienen columna TOTAL propia y meten el total dentro de
+                     este mismo bucle, ver "TP ANTES MODIF SIN CONCEPTOS" un poco mas arriba) - usarla
+                     aqui producia una celda de cuerpo de mas por fila, desplazando TOTAL/OBSERVACIONES
+                     una posicion respecto a sus cabeceras. Se usa colIndex (0-based, igual que antes con
+                     nCol en este caso concreto) en vez del valor de listaAnualidades (1-based) para
+                     indexar el array, que sigue siendo 0-based para "sin conceptos". -->
+                <p:columns value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}" var="anualidad" columnIndexVar="colIndex">
+                    <p:inputNumber value="#{presupFinanciableA.lstExpedienteModifPresupMontoDTO[colIndex].nmImporte}"
+                                   rendered="#{not empty presupFinanciableA.lstExpedienteModifPresupMontoDTO}"
+                                   readonly="#{presupFinanciableA.lstExpedienteModifPresupMontoDTO[colIndex].esMontoTotal or expedienteModifPresPlazoOtraBean.modoConsultaModifPPO}"
+                                   symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                   styleClass="#{presupFinanciableA.lstExpedienteModifPresupMontoDTO[colIndex].esMontoTotal ? '' : (expedienteModifPresPlazoOtraBean.modoConsultaModifPPO?'':'inputNumberObligatorio')}">
+                        <p:ajax event="change" process="@this"
+                                onstart="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                listener="#{expedienteModifPresPlazoOtraBean.edicionCeldaPresupuesto(presupFinanciableA, colIndex, 1)}" />
+                    </p:inputNumber>
+                </p:columns>
+
+                <p:column>
+                    <!-- VMM 07/10/26 MD-3119: la fila TOTAL no mostraba el total general en esta tabla (sin
+                         conceptos); en la de con conceptos si (getGranTotalFinalModif suma los totales por
+                         fila, asi que vale igual aqui) y se actualiza al editar un importe. -->
+                    <p:inputNumber value="#{expedienteModifPresPlazoOtraBean.getGranTotalFinalModif(expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif)}"
+                                   rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor == 'TOTAL'}"
+                                   readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                   inputStyle="font-weight: bold; text-align: left; background: #ffffff !important; border: 1px solid #ced4da; width: 100%; color: black !important;"/>
+
+                    <p:inputNumber value="#{presupFinanciableA.lstExpedienteModifPresupMontoDTO[presupFinanciableA.lstExpedienteModifPresupMontoDTO.size() - 1].nmImporte}"
+                                   rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor != 'TOTAL'}"
+                                   readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                   inputStyle="font-weight: bold; background: #F8F9FA; width: 100%;"/>
+                </p:column>
+
+                <p:column>
+                    <!-- VMM 14/09/26 MD-2725: sin p:ajax a proposito - ver comentario en la tabla con conceptos.
+                         VMM 29/09/26: indice [0] en vez de [1] - en "sin conceptos" el array de montos es
+                         0-based (a diferencia de "con conceptos", donde es 1-based), asi que el indice
+                         equivalente a "primera anualidad" (donde se guarda la observacion de la fila,
+                         igual que en la tabla con conceptos) es 0, no 1. Con 1 sola anualidad, [1] caia
+                         justo en la fila TOTAL (ver posicionTotalFila en copiarListaPresupuestosMod), por
+                         eso se veian importes en la columna de Observaciones. -->
+                    <p:inputText value="#{presupFinanciableA.lstExpedienteModifPresupMontoDTO[0].cdObservaciones}"
+                                 style="width: 95%;"
+                                 maxlength="500"
+                                 disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}"
+                                 rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor != 'TOTAL' and not empty presupFinanciableA.lstExpedienteModifPresupMontoDTO and presupFinanciableA.lstExpedienteModifPresupMontoDTO.size() > 0}" />
+                </p:column>
+            </p:dataTable>
+
+
+            </h:panelGroup>
+                
+            <!-- AYUDA CONCEDIDA (modif aceptada) -->
+            <h:panelGroup>
+                <h:outputText
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.financiacion.ayudaConcedida']}"
+                    style="font-weight: bold;text-transform: uppercase;" 
+                    rendered="#{expedienteModifPresPlazoOtraBean.isMostrarTablaAyuda(1)}"/>
+                
+                
+<!--                 PARTE ORIGINAL -->
+<!--                 <p:dataTable id="presupAyudaConcedidaAcept" -->
+<!--                              var="presupAyudaConcedidaA" styleClass="atlas-lp" -->
+<!--                              rowIndexVar="rowIndex" -->
+<!--                              value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoAyudaConcedidaAcept}" -->
+<!--                              emptyMessage="No se encontraron registros" -->
+<!--                              rendered="#{expedienteModifPresPlazoOtraBean.isMostrarTablaAyuda(1)}">      -->
+<!--                     <p:columnGroup type="header"> -->
+<!--                         <p:row> -->
+<!--                             <p:column rowspan="2" headerText="" /> -->
+<!--                             <p:column rowspan="2" headerText="CONCEPTOS" -->
+<!--                                     rendered="#{expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}" /> -->
+<!--                             <p:repeat var="anualidad" -->
+<!--                                       value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}"> -->
+<!--                                 <p:column -->
+<!--                                     headerText="#{anualidad}° Anualidad" /> -->
+<!--                             </p:repeat> -->
+<!--                             <p:column rowspan="2" headerText="TOTAL" /> -->
+<!--                         </p:row> -->
+<!--                     </p:columnGroup>     -->
+<!--                     <p:column> -->
+<!--                         <h:outputText -->
+<!--                             value="#{presupAyudaConcedidaA.tipoFinanciacionDTO.dsValor}" /> -->
+<!--                     </p:column>    -->
+<!--                     <p:columns -->
+<!--                         value="#{expedienteModifPresPlazoOtraBean.listaNcolPresupuesto}" -->
+<!--                         var="nCol" columnIndexVar="colIndex" -->
+<!--                         rendered="#{!expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}">   -->
+<!--                         <p:inputNumber -->
+<!--                             readonly="true" -->
+<!--                             symbol=" €" minValue="0" -->
+<!--                             maxValue="9999999999.99" symbolPosition="s" -->
+<!--                             decimalSeparator="," thousandSeparator="." -->
+<!--                             value="#{presupAyudaConcedidaA.lstExpedienteModifPresupMontoDTO[nCol].nmImporte}">       -->
+<!--                         </p:inputNumber> -->
+<!--                     </p:columns> -->
+                    
+<!--                     <p:columns -->
+<!--                         value="#{expedienteModifPresPlazoOtraBean.listaNcolPresupuesto}" -->
+<!--                         var="nCol" columnIndexVar="colIndex" -->
+<!--                         rendered="#{expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}">   -->
+<!--                         <h:panelGroup> -->
+<!--                                 <h:outputText value="#{presupAyudaConcedidaA.tlConcepto}" rendered="#{expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup and nCol == 0}" /> -->
+<!--                             <p:inputNumber -->
+<!--                                 readonly="true" -->
+<!--                                 symbol=" €" minValue="0" -->
+<!--                                 maxValue="9999999999.99" symbolPosition="s" -->
+<!--                                 decimalSeparator="," thousandSeparator="." -->
+<!--                                 value="#{presupAyudaConcedidaA.lstExpedienteModifPresupMontoDTO[nCol].nmImporte}" -->
+<!--                                 rendered="#{!expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup or nCol != 0}">       -->
+<!--                             </p:inputNumber> -->
+<!--                         </h:panelGroup> -->
+<!--                     </p:columns> -->
+<!--                 </p:dataTable> -->
+
+
+                    <!-- PARTE MODIFICACIONES CAPADA  -->
+                    
+                    <p:dataTable id="presupAyudaConcedidaAcept"
+                                 var="presupAyudaConcedidaA" styleClass="atlas-lp"
+                                 rowIndexVar="rowIndex"
+                                 value="#{expedienteModifPresPlazoOtraBean.lstPresupuestoAyudaConcedidaAcept}"
+                                 emptyMessage="No se encontraron registros"
+                                 rendered="#{expedienteModifPresPlazoOtraBean.isMostrarTablaAyuda(1)}">     
+                        
+                        <p:columnGroup type="header">
+                            <p:row>
+                                <p:column rowspan="2" headerText="" />
+                                <p:column rowspan="2" headerText="CONCEPTOS"
+                                          rendered="#{expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}" />
+                                <p:repeat var="anualidad"
+                                          value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}">
+                                    <p:column headerText="#{anualidad}° Anualidad" />
+                                </p:repeat>
+                                <p:column rowspan="2" headerText="TOTAL" />
+                            </p:row>
+                        </p:columnGroup>    
+                        
+                        <p:column>
+                            <h:outputText value="#{presupAyudaConcedidaA.tipoFinanciacionDTO.dsValor}" />
+                        </p:column>   
+                        
+                        <p:columns value="#{expedienteModifPresPlazoOtraBean.listaNcolPresupuesto}"
+                                   var="nCol" columnIndexVar="colIndex"
+                                   rendered="#{!expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}">  
+                            
+                            <h:outputText value="#{presupAyudaConcedidaA.lstExpedienteModifPresupMontoDTO[colIndex].nmImporte}"
+                                          rendered="#{not empty presupAyudaConcedidaA.lstExpedienteModifPresupMontoDTO and presupAyudaConcedidaA.lstExpedienteModifPresupMontoDTO.size() > colIndex}">
+                                <f:convertNumber pattern="#,##0.00 €" locale="es_ES" />
+                            </h:outputText>
+                        </p:columns>
+                        
+                        <p:columns value="#{expedienteModifPresPlazoOtraBean.listaNcolPresupuesto}"
+                                   var="nCol" columnIndexVar="colIndex"
+                                   rendered="#{expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup}">  
+                            <h:panelGroup>
+                                <h:outputText value="#{presupAyudaConcedidaA.tlConcepto}" 
+                                              rendered="#{expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup and colIndex == 0}" />
+                                
+                                <h:outputText value="#{presupAyudaConcedidaA.lstExpedienteModifPresupMontoDTO[colIndex].nmImporte}"
+                                              rendered="#{( !expedienteModifPresPlazoOtraBean.esConvocatoriaConceptoPresup or colIndex != 0 ) and ( not empty presupAyudaConcedidaA.lstExpedienteModifPresupMontoDTO and presupAyudaConcedidaA.lstExpedienteModifPresupMontoDTO.size() > colIndex )}">
+                                    <f:convertNumber pattern="#,##0.00 €" locale="es_ES" />
+                                </h:outputText>
+                            </h:panelGroup>
+                        </p:columns>
+                    </p:dataTable>
+
+
+            </h:panelGroup>
+        </p:panelGrid>
+          
+          <p:panelGrid id="pgObservacionesPrincipal" columns="1"
+            layout="grid" styleClass="ui-panelgrid-blank"
+            columnClasses="ui-g-12 ui-md-12" >
+            
+             <!-- Area de texto de otras modificaciones -->
+            <h:outputText
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.modifOtras.Presupuestos']}"
+                style="font-weight: bold;text-transform: uppercase;" />
+                
+                <p:inputTextarea maxlength="2000" rows="10" style="width: 90%" readonly="true"
+                                value="#{expedienteModifPresPlazoOtraBean.observacionesTablaPresupuestaria}">
+                </p:inputTextarea>
+                
+           </p:panelGrid> 
+            
+
+               <div class="ui-g-12 ui-md-12 ui-lg-12" style="text-align: left;">
+<!--                     <atlasp:button ajax="false" -->
+<!--                        action="#{expedienteModifPresPlazoOtraBean.guardarModifPresupuesto}" -->
+<!--                        process="@form" -->
+<!--                        value="#{bundle['boton.guardar']}" -->
+<!--                        onclick="atlas.ui.Loading.showLoad('appLoading')" -->
+<!--                        icon="fas fa-save" tipoBoton="btn-success" /> -->
+                       
+                       <atlasp:button ajax="true"
+                   action="#{expedienteModifPresPlazoOtraBean.guardarModifPresupuesto}"
+                   process="presupFinanciableAceptT @this"
+                   update="presupFinanciableAceptT pgObservacionesPrincipal"
+                   value="#{bundle['boton.guardar']}"
+                   onclick="atlas.ui.Loading.showLoad('appLoading')"
+                   oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                   icon="fas fa-save" tipoBoton="btn-success"
+                   disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}" />
+
+                       <!-- VMM 07/10/26 MD-2905: descarga a Excel de las 3 tablas de presupuesto (una hoja por tabla).
+                            Siempre activo (no depende de modo consulta ni del estado de la modificacion). ajax="false"
+                            porque es una descarga de fichero, igual que btnDescargarResolucion. -->
+                       <p:commandButton id="btnDescargarDatosPresupuestarios"
+                            class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                            style="margin-left: 8px;"
+                            action="#{expedienteModifPresPlazoOtraBean.descargarDatosPresupuestariosExcel}"
+                            ajax="false"
+                            value="#{bundle['boton.descargar.datos.presupuestarios.excel']}"
+                            alt="#{bundle['boton.descargar.datos.presupuestarios.excel']}"
+                            title="#{bundle['boton.descargar.datos.presupuestarios.excel']}"
+                            icon="fa fa-download" />
+
+                    </div>
+
+
+        </p:fieldset>
+        
+        <p:spacer height="10" />
+        
+        <!-- VMM 26/09/26 MD-3067: aviso fuera del fieldset (colapsable) para que se vea siempre. -->
+        <p:outputPanel rendered="#{!expedienteModifPresPlazoOtraBean.existeModifPlazoCargada()}">
+            <i class="fa fa-exclamation-triangle" style="color:#b45309;margin-right:6px;" aria-hidden="true"></i>
+            <h:outputText style="color:#b45309;font-weight:bold;"
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.aviso.plazos.no.cargado']}" />
+        </p:outputPanel>
+
+        <!-- COLAPSABLE MODIFICACIONES DE PLAZOS -->
+        <p:fieldset id="fsModifPlazos"
+            legend="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.modifPlazos']}"
+            collapsed="true" toggleable="true"
+            rendered="#{not empty expedienteModifPresPlazoOtraBean.lstBloqueComponenteFilaPlazo}">
+
+           <!-- PANEL MODIFICACIONES DE PLAZOS ANTES DE LA MODIFICACION -->
+           <!-- VMM 30/09/26 MD-3079: columns="1" (no hay tabla de ayuda emparejada aqui, a diferencia
+                de las de presupuesto) pero arrastraba columnClasses="ui-g-6" de un copy-paste, dejando
+                la tabla siempre a media pantalla sin motivo. -->
+           <p:panelGrid id="pgPlazosAntesMod" columns="1"
+            layout="grid" styleClass="ui-panelgrid-blank"
+            columnClasses="ui-g-12" >
+            
+            <!-- Tabla modificaciones de plazos antes modif -->
+            <h:outputText
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.plazosAntesModif']}"
+                style="font-weight: bold;text-transform: uppercase;" 
+                rendered="#{!empty expedienteModifPresPlazoOtraBean.lstPlazosAntesMod}"/>
+                
+            <p:dataTable id="expAnualAntesMod" var="expedienteAnualidad"
+                styleClass="atlas-lp" editable="true" 
+                value="#{expedienteModifPresPlazoOtraBean.lstPlazosAntesMod}"
+                emptyMessage="No se encontraron registros"
+                rendered="#{!empty expedienteModifPresPlazoOtraBean.lstPlazosAntesMod}">
+                 <!-- VMM 15/09/26: se vuelve a ocultar la fecha inicio de ejecucion - no es editable
+                      y solo debe verse la fecha fin en las tablas de plazos de esta solapa. -->
+                 <p:columnGroup type="header">
+                    <p:row>
+                        <p:column
+                            headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.anualidades.anualidad']}" />
+                        <p:column
+                            headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.anualidades.fecha.fin.ejecucion']}" />
+                    </p:row>
+                  </p:columnGroup>
+                    <p:column>
+                        <h:outputText
+                            value="#{expedienteAnualidad.nmAnualidad}° Anualidad" />
+                    </p:column>
+                     <p:column>
+                        <h:outputText
+                            value="#{expedienteAnualidad.fcFinEjecucion}"
+                            rendered="#{empty expedienteModifPresPlazoOtraBean.lstPlazosAcept}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" yearRange="c-25:c+45"
+                                locale="es_ES"/>
+                        </h:outputText>
+                        <h:outputText
+                            value="#{expedienteAnualidad.fcFinEjecConcedido}"
+                            rendered="#{not empty expedienteModifPresPlazoOtraBean.lstPlazosAcept}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" yearRange="c-25:c+45"
+                                locale="es_ES"/>
+                        </h:outputText>
+                    </p:column> 
+            </p:dataTable>                         
+         </p:panelGrid>
+              
+         <p:spacer height="5"/>     
+                          
+           <!-- PANEL MODIFICACIONES DE PLAZOS SOLICITADAS -->
+           <!-- VMM 30/09/26 MD-3079: mismo motivo que pgPlazosAntesMod. -->
+           <p:panelGrid id="pgPlazosModSolic" columns="1"
+            layout="grid" styleClass="ui-panelgrid-blank"
+            columnClasses="ui-g-12" >
+            
+            <!-- Tabla modificaciones de plazos solicitadas -->
+            <h:outputText
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.modifPlazosSolicitadas']}"
+                style="font-weight: bold;text-transform: uppercase;" 
+                rendered="#{!empty expedienteModifPresPlazoOtraBean.lstBloquePlazos[0].listaBloqueAuxDTO}"/>
+                
+            <p:dataTable id="expAnualModSolic" var="plazoSolic"
+                styleClass="atlas-lp" editable="true" 
+                value="#{expedienteModifPresPlazoOtraBean.lstBloquePlazos[0].listaBloqueAuxDTO}"
+                emptyMessage="No se encontraron registros"
+                rendered="#{!empty expedienteModifPresPlazoOtraBean.lstBloquePlazos[0].listaBloqueAuxDTO}">                                           
+                     <p:columnGroup type="header">
+                        <p:row>
+                            <p:column
+                               headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.anualidades.anualidad']}" />
+                            <p:column
+                               headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.anualidades.fecha.fin.ejecucion']}" />
+                        </p:row>
+                    </p:columnGroup>
+                    <p:column>
+                        <h:outputText
+                            value="#{plazoSolic.nmOrden}° Anualidad" />
+                    </p:column>
+                    <!-- VMM 16/09/26: se vuelve a ocultar la fecha inicio de ejecucion - no es editable
+                         y solo debe verse la fecha fin. OJO: no asumir un indice fijo (ej. datos[1]) -
+                         cuando solo se solicita fecha fin (lo habitual, ya que la fecha inicio no es
+                         editable) datos trae un unico elemento en el indice 0, asi que hay que coger
+                         siempre el ULTIMO elemento de la lista, no una posicion fija. -->
+                    <p:column>
+                        <h:outputText value="#{expedienteModifPresPlazoOtraBean.obtenerFechaFinPlazoSolicitado(plazoSolic)}"  />
+                    </p:column>
+            </p:dataTable>                         
+         </p:panelGrid>
+         
+         <p:panelGrid columns="1" columnClasses="ui-g-12"
+                layout="grid" styleClass="ui-panelgrid-blank"
+                id="pgCargarDatosModifPLazos">
+                <p:commandButton
+                    action="#{expedienteModifPresPlazoOtraBean.cargarDatosPlazos}"
+                    ajax="true"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                    alt="#{bundle['boton.cargar.datos']}"
+                    title="#{bundle['boton.cargar.datos']}"
+                    value="#{bundle['boton.cargar.datos']}"
+                    rendered="#{!expedienteModifPresPlazoOtraBean.esconderBotonCargarDatoPlazos}"
+                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                    icon="fas fa-plus"
+                    disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}">
+                </p:commandButton>
+            </p:panelGrid>
+         
+         <p:spacer height="5"/>
+                          
+       <!-- PANEL MODIFICACIONES DE PLAZOS ACEPTADAS -->
+       <!-- VMM 30/09/26 MD-3079: mismo motivo que pgPlazosAntesMod. -->
+       <p:panelGrid id="pgPlazosModAcept" columns="1"
+        layout="grid" styleClass="ui-panelgrid-blank"
+        columnClasses="ui-g-12"
+        rendered="#{not empty expedienteModifPresPlazoOtraBean.lstPlazosAcept}">
+            
+            <!-- Tabla modificaciones de plazos aceptadas -->
+            <h:outputText
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.modifPlazosAceptadas']}"
+                style="font-weight: bold;text-transform: uppercase;" />
+                
+            <p:dataTable id="expAnualModAcept" var="expAnualModAcept"
+                styleClass="atlas-lp" 
+                value="#{expedienteModifPresPlazoOtraBean.lstPlazosAcept}"
+                emptyMessage="No se encontraron registros">                                              
+                <p:column
+                    headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.anualidades.anualidad']}">
+                    <h:outputText value="#{expAnualModAcept.nmAnualidad}° Anualidad" />
+                </p:column>
+                <!-- VMM 15/09/26: se vuelve a ocultar - no es editable y solo debe verse la fecha fin.
+                     La fecha inicio nunca se puede modificar aqui (ver verificarLimiteEdicionFinEjecucion,
+                     que ademas la fuerza siempre al valor de BD aunque llegara alterada). -->
+                <p:column
+                    headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.anualidades.fecha.fin.ejecucion']}">
+                    <p:calendar
+                        value="#{expAnualModAcept.fcFinEjecucion}"
+                        pattern="dd/MM/yyyy HH:mm"
+                        mask="99/99/9999 99:99"
+                        navigator="true"
+                        yearRange="c-25:c+45" locale="es_ES"
+                        styleClass="atlas-cal" >
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                        <!-- VMM 14/09/26 MD-2725: solo se puede modificar la fecha fin de ejecucion hasta 60
+                             dias antes de que llegue; se protege tambien server-side al guardar. -->
+                        <p:ajax event="change" process="@this"
+                                onstart="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                listener="#{expedienteModifPresPlazoOtraBean.validarFechaFinEjecucionPlazo(expAnualModAcept)}" />
+                    </p:calendar>
+                </p:column>
+            </p:dataTable>                         
+         </p:panelGrid>
+         
+         <p:panelGrid id="pgObservacionesPlazos" columns="1"
+            layout="grid" styleClass="ui-panelgrid-blank"
+            columnClasses="ui-g-12 ui-md-12" >
+            
+             <!-- Area de texto de otras modificaciones -->
+            <h:outputText
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.modifPlazosObservaciones']}"
+                style="font-weight: bold;text-transform: uppercase;" />
+                
+                <p:inputTextarea maxlength="2000" rows="10" style="width: 90%"
+                                value="#{expedienteModifPresPlazoOtraBean.tlObservacionesModifPlazos}">
+                </p:inputTextarea>
+                
+           </p:panelGrid> 
+         
+         
+          <div class="ui-g-12 ui-md-12 ui-lg-12"
+                style="text-align: left;">
+
+            <atlasp:button ajax="true"
+                    rendered="#{not empty expedienteModifPresPlazoOtraBean.lstPlazosAcept}"
+                    action="#{expedienteModifPresPlazoOtraBean.guardarModifPlazos}"
+                    value="#{bundle['boton.guardar']}"
+                    alt="#{bundle['boton.guardar']}"
+                    title="#{bundle['boton.guardar']}"
+                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                    icon="fas fa-save" tipoBoton="btn-success"
+                    disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.deshabilitarBotonesGuardar() or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}"/>
+            </div>
+
+       </p:fieldset>
+       
+      <p:spacer height="10" />
+
+      <!-- VMM 06/10/26 MD-3109: aviso fuera del fieldset (colapsable) para que se vea siempre, igual que el
+           de presupuesto/plazos/documental (MD-3067). "Finalizar revision" exige que las otras
+           modificaciones esten guardadas (existeModifOtraCargada) y antes no habia ningun aviso de ello.
+           El h:panelGroup siempre se renderiza para poder refrescarlo al pulsar Guardar. -->
+      <h:panelGroup id="avisoModifOtras" layout="block">
+          <p:outputPanel rendered="#{!expedienteModifPresPlazoOtraBean.existeModifOtraCargada()}">
+              <i class="fa fa-exclamation-triangle" style="color:#b45309;margin-right:6px;" aria-hidden="true"></i>
+              <h:outputText style="color:#b45309;font-weight:bold;"
+                  value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.aviso.otras.no.guardado']}" />
+          </p:outputPanel>
+      </h:panelGroup>
+
+      <!-- COLAPSABLE DE OTRAS MODIFICACIONES -->
+      <p:fieldset id="fsModifOtras"
+        legend="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.modifOtras']}"
+        collapsed="true" toggleable="true"
+        rendered="#{expedienteModifPresPlazoOtraBean.mostrarDetalleModifOtra}">
+                         
+           <p:panelGrid id="pgOtrasModif" columns="1"
+            layout="grid" styleClass="ui-panelgrid-blank"
+            columnClasses="ui-g-12 ui-md-12" >
+            
+            <!-- Area de texto de otras modificaciones -->
+            <h:outputText
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.modifOtras']}"
+                style="font-weight: bold;text-transform: uppercase;" />
+                
+                <p:inputTextarea maxlength="2000" rows="10" style="width: 90%" readonly="true"
+                                value="#{expedienteModifPresPlazoOtraBean.tlOtrasModificaciones}">
+                </p:inputTextarea>
+                
+                
+             <h:outputText
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.modifOtrasObservaciones']}"
+                style="font-weight: bold;text-transform: uppercase;" />
+                
+                <p:inputTextarea maxlength="2000" rows="10" style="width: 90%"
+                                value="#{expedienteModifPresPlazoOtraBean.tlOtrasModifObservaciones}">
+                </p:inputTextarea>
+                
+           </p:panelGrid> 
+         
+           <div class="ui-g-12 ui-md-12 ui-lg-12"
+            style="text-align: left;">
+
+            <atlasp:button 
+                    ajax="true"
+                    action="#{expedienteModifPresPlazoOtraBean.guardarModifOtras}"
+                    update="avisoModifOtras btnFinalizarRevisionModif"
+                    value="#{bundle['boton.guardar']}"
+                    alt="#{bundle['boton.guardar']}"
+                    title="#{bundle['boton.guardar']}"
+                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                    icon="fas fa-save" tipoBoton="btn-success"
+                    disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.deshabilitarBotonesGuardar() or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}"/>
+            </div>
+     </p:fieldset>
+   
+     <p:spacer height="10" />
+     
+     <!-- COLAPSABLE DE OBSERVACIONES -->
+      <p:fieldset id="fsModifObservaciones"
+        legend="#{bundle['documentos.historico.observaciones']}"
+        collapsed="true" toggleable="true"
+        rendered="#{expedienteModifPresPlazoOtraBean.mostrarDetalleModifObservac}">
+                         
+           <p:panelGrid id="pgObservaciones" columns="1"
+            layout="grid" styleClass="ui-panelgrid-blank"
+            columnClasses="ui-g-12 ui-md-12" >
+            
+            <!-- Area de texto de observaciones -->
+            <h:outputText
+                value="#{bundle['documentos.historico.observaciones']}"
+                style="font-weight: bold;text-transform: uppercase;" />
+                
+                <p:inputTextarea maxlength="2000" rows="10" style="width: 90%" readonly="true"
+                                value="#{expedienteModifPresPlazoOtraBean.tlObservacionesModif}">
+                </p:inputTextarea>
+                
+           </p:panelGrid> 
+         
+<!--            <div class="ui-g-12 ui-md-12 ui-lg-12" -->
+<!--             style="text-align: left;"> -->
+
+<!--             <atlasp:button  -->
+<!--                     ajax="true" -->
+<!--                     action="#{expedienteModifPresPlazoOtraBean.guardarModifObservaciones}" -->
+<!--                     value="#{bundle['boton.guardar']}" -->
+<!--                     alt="#{bundle['boton.guardar']}" -->
+<!--                     title="#{bundle['boton.guardar']}" -->
+<!--                     onclick="atlas.ui.Loading.showLoad('appLoading')" -->
+<!--                     oncomplete="atlas.ui.Loading.hideLoad('appLoading')" -->
+<!--                     icon="fas fa-save" tipoBoton="btn-success"  -->
+<!--                     rendered="#{not empty expedienteModifPresPlazoOtraBean.tlObservacionesModif}"/> -->
+<!--             </div>    -->
+     </p:fieldset>      
+   
+     <p:spacer height="10" />
+   
+     
+     <!-- VMM 26/09/26 MD-3067: aviso fuera del fieldset (colapsable) para que se vea siempre. -->
+     <p:outputPanel rendered="#{!expedienteModifPresPlazoOtraBean.esRevisionDocumentalOk()}">
+         <i class="fa fa-exclamation-triangle" style="color:#b45309;margin-right:6px;" aria-hidden="true"></i>
+         <h:outputText style="color:#b45309;font-weight:bold;"
+             value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.aviso.documental.no.revisado']}" />
+     </p:outputPanel>
+
+     <!-- COLAPSABLE DOCUMENTACION APORTADA DE MODIFICACIONES PPO -->
+     <p:fieldset id="fsModifDocumentacion"
+        legend="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.documentacion']}"
+        collapsed="true" toggleable="true"
+        rendered="#{expedienteModifPresPlazoOtraBean.mostrarDetalleModifDoc}">
+
+           <p:panelGrid id="pgDocumentacionModif" columns="1"
+            layout="grid" styleClass="ui-panelgrid-blank"
+            columnClasses="ui-12" >
+            
+            <!-- Tabla documentacion -->
+            <h:outputText
+                value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.documentacion']}"
+                style="font-weight: bold;text-transform: uppercase;" />
+                
+            <p:dataTable id="expDocumentosModif" var="expDocumentosModif"
+                styleClass="atlas-lp" editable="true" 
+                value="#{expedienteModifPresPlazoOtraBean.lstDocumentosModif}"
+                emptyMessage="No se encontraron registros">
+                <p:columnGroup type="header">
+                    <p:row>
+                        <p:column
+                            headerText="#{bundle['documentos.historico.tipo.documento']}" />
+                        <p:column 
+                            headerText="#{bundle['documentos.historico.observaciones']}" />
+                        <p:column
+                            headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.fecha']}" />
+                        <p:column
+                            headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.estado']}" />
+                        <p:column
+                            headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.obligatorio']}" />
+                        <p:column
+                            headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.fica']}" />
+                        <p:column
+                            headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.anexoEreg']}" />
+                        <p:column
+                            headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.listadoEreg']}" />
+                        <p:column
+                            headerText="#{bundle['listado.columna.acciones']}" />
+                    </p:row>
+                </p:columnGroup>
+                <p:column>
+                    <h:outputText
+                        value="#{expDocumentosModif.tipoDocumentoDTO.dsValor}" />
+                </p:column>
+                <p:column>
+                    <h:outputText
+                        value="#{expDocumentosModif.tlObservaciones}" />
+                </p:column>
+                <p:column>
+                    <h:outputText
+                        rendered="#{expDocumentosModif.fcAltaFila != null and expDocumentosModif.fcModifFila == null}"
+                        value="#{expDocumentosModif.fcAltaFila}"
+                        styleClass="#{expDocumentosModif.fcBajaFila == null ? '' : 'registroBaja'}">
+                        <f:convertDateTime type="date"
+                            pattern="dd/MM/yyyy - HH:mm:ss" />
+                    </h:outputText>
+                    <h:outputText
+                        rendered="#{expDocumentosModif.fcAltaFila != null and expDocumentosModif.fcModifFila != null}"
+                        value="#{expDocumentosModif.fcModifFila}"
+                        styleClass="#{expDocumentosModif.fcBajaFila == null ? '' : 'registroBaja'}">
+                        <f:convertDateTime type="date"
+                            pattern="dd/MM/yyyy - HH:mm:ss" />
+                    </h:outputText>
+
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{expDocumentosModif.estadoDTO.dsValor}" />
+                </p:column>
+                <p:column>
+                    <h:outputText
+                        value="#{expDocumentosModif.bloqueComponenteDTO.itObligatorio ? 'SI' : 'NO'}" />
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{expDocumentosModif.cdFica}" />
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{expDocumentosModif.cdAnexoEreg}" />
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{expDocumentosModif.cdAnexoEregPadre}" />
+                </p:column>
+                <p:column>
+                    <ui:fragment
+                                rendered="#{expDocumentosModif.cdAnexoEreg == ''}">
+<!--                         <atlasp:button -->
+<!--                             action="#{expedienteModifPresPlazoOtraBean.descargarDocumentoFica(expDocumentosModif.cdFica)}" -->
+<!--                             ajax="false" -->
+<!--                             alt="#{bundle['boton.descargar']}" -->
+<!--                             title="#{bundle['boton.descargar']}" -->
+<!--                             icon="fas fa-download" tipoBoton="btn-link" -->
+<!--                             rendered="#{expedienteModifPresPlazoOtraBean.habilitarBotonDescargaDoc(expDocumentosModif)}" /> -->
+                            
+                                                                
+                                    <p:link href="#{request.contextPath}/DescargaFicaServlet" 
+                                            target="_blank" 
+                                            title="#{bundle['boton.descargar']}"
+                                             rendered="#{expedienteModifPresPlazoOtraBean.habilitarBotonDescargaDoc(expDocumentosModif)}">
+                                        <f:param name="cdFica" value="#{expDocumentosModif.cdFica}" />
+                                        <i class="fas fa-download"></i>
+                                    </p:link>
+
+                        <!-- Subsanar -->
+                        <atlasp:button
+                            action="#{expedienteModifPresPlazoOtraBean.mostrarSubsanarDocumento(expDocumentosModif)}"
+                            ajax="true"
+                            alt="#{bundle['boton.subsanar']}"
+                            title="#{bundle['boton.subsanar']}"
+                            icon="fas fa-exclamation-triangle"
+                            tipoBoton="btn-link"
+                            render="panelSubsanarActa"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            rendered="#{expedienteModifPresPlazoOtraBean.habilitarBotonSubsanarDocumento( convocatoriasBean.convocatoriaDTO.idEstado.idValor, expDocumentosModif)}" />
+    
+                        <!-- Aprobar -->
+                        <atlasp:button
+                            action="#{expedienteModifPresPlazoOtraBean.aprobarDocumento(expDocumentosModif)}"
+                            ajax="true" alt="#{bundle['boton.aprobar']}"
+                            title="#{bundle['boton.aprobar']}"
+                            icon="fas fa-check" tipoBoton="btn-link"
+                            render="expDocumentosModif"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                            rendered="#{expedienteModifPresPlazoOtraBean.habilitarBotonAprobarDocumento( convocatoriasBean.convocatoriaDTO.idEstado.idValor, expDocumentosModif)}">
+                            <f:facet name="events">
+                                <p:confirm
+                                    header="#{bundle['popup.confirmar.operacion.titulo']}"
+                                    message="#{bundle['popup.confirmar.pregunta.aprobar']}"
+                                    icon="ui-icon-alert" />
+                            </f:facet>
+                        </atlasp:button>
+    
+                        <!-- Desaprobar -->
+                        <atlasp:button
+                            action="#{expedienteModifPresPlazoOtraBean.desaprobarDocumento(expDocumentosModif)}"
+                            ajax="true"
+                            alt="#{bundle['boton.desaprobar']}"
+                            title="#{bundle['boton.desaprobar']}"
+                            icon="fas fa-ban" tipoBoton="btn-link"
+                            render="expDocumentosModif"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                            rendered="#{expedienteModifPresPlazoOtraBean.habilitarBotonDesaprobarDocumento(convocatoriasBean.convocatoriaDTO.idEstado.idValor, expDocumentosModif)}">
+                            <f:facet name="events">
+                                <p:confirm
+                                    header="#{bundle['popup.confirmar.operacion.titulo']}"
+                                    message="#{bundle['popup.confirmar.pregunta.desaprobar']}"
+                                    icon="ui-icon-alert" />
+                            </f:facet>
+                        </atlasp:button>
+    
+                        <!-- Revertir -->
+                        <atlasp:button
+                            action="#{expedienteModifPresPlazoOtraBean.revertirEvaluacionDocumentoActas(expDocumentosModif)}"
+                            ajax="true"
+                            alt="#{bundle['boton.revertir']}"
+                            title="#{bundle['boton.revertir']}"
+                            icon="fas fa-history" tipoBoton="btn-link"
+                            render="expDocumentosModif"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                            rendered="#{expedienteModifPresPlazoOtraBean.habilitarBotonRevertirCalificacionDocumento(convocatoriasBean.convocatoriaDTO.idEstado.idValor, expDocumentosModif)}">
+                            <f:facet name="events">
+                                <p:confirm
+                                    header="#{bundle['popup.confirmar.operacion.titulo']}"
+                                    message="#{bundle['popup.confirmar.pregunta.revertir']}"
+                                    icon="ui-icon-alert" />
+                            </f:facet>
+                        </atlasp:button>
+                        
+                        <!-- Ver historico -->
+                        <atlasp:button
+                            action="#{expedienteModifPresPlazoOtraBean.mostrarHistoricoDocumento(expDocumentosModif)}"
+                            ajax="true"
+                            alt="#{bundle['boton.historico']}"
+                            title="#{bundle['boton.historico']}"
+                            icon="fas fa-folder-open"
+                            tipoBoton="btn-link"
+                            render="panelHistoricoDocumentoActas"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')" />
+    
+                        <!-- Ver observaciones -->
+                        <atlasp:button
+                            action="#{expedienteModifPresPlazoOtraBean.mostrarHistoricoDocumentoObservaciones(expDocumentosModif.tlObservaciones)}"
+                            ajax="true"
+                            alt="#{bundle['boton.observaciones']}"
+                            title="#{bundle['boton.observaciones']}"
+                            icon="fas fa-file-alt"
+                            tipoBoton="btn-link"
+                            render="panelObservacionesActas"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            rendered="#{expedienteModifPresPlazoOtraBean.habilitarBotonMostrarObservacionActas(expDocumentosModif)}" />
+                    </ui:fragment>   
+                    <ui:fragment
+                        rendered="#{expDocumentosModif.cdAnexoEreg != ''}">
+                        <!-- Descargar (EREG)-->
+                        <atlasp:button
+                            action="#{expedienteModifPresPlazoOtraBean.descargarDocumentoEreg(expDocumentosModif)}"
+                            execute="expDocumentosModif"
+                            render="expDocumentosModif"
+                            ajax="false"
+                            alt="#{bundle['boton.descargarEreg']}"
+                            title="#{bundle['boton.descargarEreg']}"
+                            icon="fas fa-cloud-download-alt"
+                            tipoBoton="btn-link" />
+                    </ui:fragment>
+                </p:column>
+            </p:dataTable>       
+            </p:panelGrid>
+            <p:commandButton id="btnFinalizarRevisionActas"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                action="#{expedienteModifPresPlazoOtraBean.finalizarRevisionOk}"
+                ajax="true"
+                value="#{bundle['boton.finalizar.revision']}"
+                alt="#{bundle['boton.finalizar.revision']}"
+                title="#{bundle['boton.finalizar.revision']}"
+                icon="far fa-check-square"
+                update="panelModifPresPlazoOtra"
+                onclick="atlas.ui.Loading.showLoad('appLoading') "
+                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                disabled="#{!expedienteModifPresPlazoOtraBean.habilitarBotonFinalizarRevisionActas(convocatoriasBean.modoConsulta,convocatoriasBean.convocatoriaDTO.idEstado.idValor)}">
+                <f:facet name="events">
+                    <p:confirm
+                        header="#{bundle['popup.confirmar.operacion.titulo']}"
+                        message="#{bundle['popup.confirmar.pregunta.grabar']}"
+                        icon="ui-icon-alert" />
+                </f:facet>
+            </p:commandButton>
+            
+            <p:commandButton id="btnEnviarActaColaNotificaciones"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-warning"
+                action="#{expedienteModifPresPlazoOtraBean.enviarColaNotificaciones(convocatoriasBean.convocatoriaDTO)}"
+                ajax="true"
+                value="#{bundle['boton.enviar.colaNotificaciones']}"
+                alt="#{bundle['boton.enviar.colaNotificaciones']}"
+                title="#{bundle['boton.enviar.colaNotificaciones']}"
+                icon="fas fa-paper-plane"
+                update="panelModifPresPlazoOtra"
+                onclick="atlas.ui.Loading.showLoad('appLoading') "
+                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                rendered="#{expedienteModifPresPlazoOtraBean.convocatoriaDTO.itActasComitesGestion != null 
+                                and expedienteModifPresPlazoOtraBean.convocatoriaDTO.itActasComitesGestion == 'S'}"
+                disabled="#{expedienteModifPresPlazoOtraBean.habilitarBotonEnviarSubanasarPortafirmasActas(convocatoriasBean.convocatoriaDTO.idEstado.idValor) or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}">
+                <f:facet name="events">
+                    <p:confirm
+                        header="#{bundle['popup.confirmar.operacion.titulo']}"
+                        message="#{bundle['popup.confirmar.pregunta.portafirmas']}"
+                        icon="ui-icon-alert" />
+                </f:facet>
+            </p:commandButton>
+            
+            <p:commandButton
+                disabled="#{expedienteModifPresPlazoOtraBean.habilitarBotonEnviarSubanasarPortafirmasActas(convocatoriasBean.convocatoriaDTO.idEstado.idValor)}"
+                rendered="#{expedienteModifPresPlazoOtraBean.convocatoriaDTO.itActasComitesGestion != null 
+                                and expedienteModifPresPlazoOtraBean.convocatoriaDTO.itActasComitesGestion == 'S'}"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-warning"
+                action="#{expedienteModifPresPlazoOtraBean.descargarBorradorSubsanarPortafirmas(convocatoriasBean.convocatoriaDTO)}"
+                ajax="false"
+                value="#{bundle['boton.descargar.borrador']}"
+                alt="#{bundle['boton.descargar.borrador']}"
+                title="#{bundle['boton.descargar.borrador']}"
+                icon="fas fa-download" tipoBoton="btn-warning">
+            </p:commandButton>                  
+        
+     </p:fieldset> 
+                  
+          <!-- VMM 09/09/26 MD-2725: ocultamos "Datos de Resolución" hasta que se
+               seleccione una modificación con la lupa - antes se veía siempre, con
+               los inputs vacíos y botones como "Descargar resolución" habilitados
+               sin haber ninguna modificación cargada. -->
+          <p:panelGrid columns="1" columnClasses="ui-g-12"
+                styleClass="ui-panelgrid-blank" layout="grid"
+                rendered="#{expedienteModifPresPlazoOtraBean.selectExpedienteModifDTO.idExpedienteModifPresPlazoOtra != null}">
+
+            <p:column>
+            <h:outputText styleClass="tituloFormulario"
+            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.datos.resolucion']}" />
+            
+            
+<!--             selectExpedienteModifDTO -->
+
+                <div class="ui-g-3 ui-md-3 ui-lg-1 ui-xl-1">
+                        <h:outputText styleClass="label"
+                            for="fcResolucion"
+                           value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.modificacion.fechaResolucion']}"  />
+                    </div>
+                    <div class="ui-g-9 ui-md-9 ui-lg-3 ui-xl-3">
+                    
+                        <atlasp:calendario
+                                    id="calendariofcResolucion"
+                                      value="#{expedienteModifPresPlazoOtraBean.fcResolucion}"
+                                      datePattern="dd/MM/yyyy"
+                                     disabled ="#{expedienteModifPresPlazoOtraBean.esModificacionEnEstadoIniciada() or expedienteModifPresPlazoOtraBean.habilitarFechaResolucion()}"
+                                     render="panelModifPresPlazoOtra"
+                                    >
+                        </atlasp:calendario>
+<!--                                 <h:outputText styleClass="espaciado" value="#{expedienteModifPresPlazoOtraBean.selectExpedienteModifDTO.fcResolucion}"> -->
+<!--                                         <f:convertDateTime pattern="dd 'de' MMMM 'de' yyyy" /> -->
+<!--                                 </h:outputText>     -->
+                    </div>
+                </p:column>
+                <p:column >
+
+                 <div class="ui-g-3 ui-md-3 ui-lg-1 ui-xl-1">
+                        <h:outputText styleClass="label"
+                            for="listaResoluciones"
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.modificacion.tipoResolucion']}" />
+                 </div>
+
+                 <div class="ui-g-9 ui-md-9 ui-lg-3 ui-xl-3">
+                          <p:column>                   
+                                <atlasp:comboValores id="listaResoluciones"
+                                enableManualInput="false" listWidth="300px"
+                                recargaAutomatica="false"
+                                externalProvider="#{comboBean.comboTipoResolucion}"
+                                value="#{expedienteModifPresPlazoOtraBean.estadoResolucionDTO.idValor}"
+                                styleClass="#{documentoBean.modoLecturaSubsanacion ? 'comboDisabled' : ''}"
+                                disabled ="#{expedienteModifPresPlazoOtraBean.esModificacionEnEstadoIniciada() or expedienteModifPresPlazoOtraBean.habilitarFechaResolucion()}"
+                                selectListener="#{expedienteModifPresPlazoOtraBean.cambioCausaTipoResolucion()}"
+                                render="panelModifPresPlazoOtra"
+                                 />
+                                
+                            </p:column>
+                 </div>
+                 </p:column>
+
+             <p:column >
+             
+             
+                <p:commandButton ajax="true" id="btnFinalizarRevisionModif"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                    value="#{bundle['boton.finalizar.revision']}"
+                    alt="#{bundle['boton.finalizar.revision']}"
+                    title="#{bundle['boton.finalizar.revision']}"
+                    icon="fa fa-check" update="panelModifPresPlazoOtra"
+                    disabled="#{expedienteModifPresPlazoOtraBean.esModificacionEnEstadoIniciada() or !expedienteModifPresPlazoOtraBean.habilitarFinalizarRevision()}"
+                    action="#{expedienteModifPresPlazoOtraBean.finalizarRevision}">
+                    <f:facet name="events">
+                        <p:confirm
+                            header="#{bundle['solapa.resol.boton.finalizar.revision.modif.titulo']}"
+                            icon="ui-icon-alert"
+                            message="#{bundle['solapa.resol.boton.finalizar.revision.modif.texto']}" />
+                    </f:facet>
+                </p:commandButton>
+                
+                <p:commandButton id="btnSubirResolucion"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-primary"
+                    action="#{expedienteModifPresPlazoOtraBean.subirResolucionDialog}"
+                    ajax="true"
+                    value="#{bundle['solapa.resol.boton.subir.resol']}"
+                    alt="#{bundle['solapa.resol.boton.subir.resol']}"
+                    title="#{bundle['solapa.resol.boton.subir.resol']}"
+                    icon="fa fa-upload" update="panelModifPresPlazoOtra"
+                    onclick="atlas.ui.Loading.showLoad('appLoading') "
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                    disabled ="#{expedienteModifPresPlazoOtraBean.esModificacionEnEstadoIniciada() or expedienteModifPresPlazoOtraBean.habilitarBotonSubirResolucion()}">
+                </p:commandButton>
+
+                <p:commandButton id="btnDescargarResolucion"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-primary"
+                    action="#{expedienteModifPresPlazoOtraBean.descargaFicheroResolucion}"
+                    ajax="false"
+                    value="#{bundle['solapa.resol.boton.bajar.resol']}"
+                    alt="#{bundle['solapa.resol.boton.bajar.resol']}"
+                    title="#{bundle['solapa.resol.boton.bajar.resol']}"
+                    icon="fa fa-download" update="panelModifPresPlazoOtra"
+                    disabled="#{expedienteModifPresPlazoOtraBean.esModificacionEnEstadoIniciada() or !expedienteModifPresPlazoOtraBean.habilitarBotonDescargar()}">
+                </p:commandButton>
+
+                <p:commandButton ajax="true"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-warning"
+                    value="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
+                    alt="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
+                    title="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
+                    icon="fa fa-paper-plane"
+                    update="panelModifPresPlazoOtra"
+                    disabled="#{expedienteModifPresPlazoOtraBean.esModificacionEnEstadoIniciada() or expedienteModifPresPlazoOtraBean.habilitarEnviarColaPortafirmasProvisional(convocatoriasBean.modoConsulta)}"
+                    action="#{expedienteModifPresPlazoOtraBean.enviarColaPortafirmasResolucion}">
+                    <f:facet name="events">
+                        <p:confirm
+                            header="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
+                            icon="ui-icon-alert"
+                            message="#{bundle['solapa.resol.boton.enviar.cola.portafirmas.enviar']}" />
+                    </f:facet>
+                </p:commandButton>
+
+        </p:column>
+
+
+    </p:panelGrid>
+
+    <!-- VMM 10/09/26 MD-2725: estado del envío a Portafirmas/NOTE de la resolución de esta
+         modificación, igual que en solapaResolucion.xhtml. -->
+    <p:panelGrid columns="6" style="width:100%;" styleClass="ui-panelgrid-compact"
+        rendered="#{expedienteModifPresPlazoOtraBean.selectExpedienteModifDTO.idExpedienteModifPresPlazoOtra != null}">
+
+        <!-- Fecha envío a Note -->
+        <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.fechaColaNote']}" style="font-weight:bold;" />
+        <p:inputText value="#{expedienteModifPresPlazoOtraBean.envioPortafirmasResolucionDTO.fcEnvioNote}" readonly="true"
+                     style="width:auto; min-width:200px;">
+            <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
+        </p:inputText>
+
+        <!-- Estado Note -->
+        <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.estadoNote']}" style="font-weight:bold;" />
+        <p:inputText value="Puesta a disposición" rendered="#{expedienteModifPresPlazoOtraBean.envioPortafirmasResolucionDTO.cdEstadoNote eq '1'}"
+                     style="width:auto; min-width:200px;" readonly="true"/>
+        <p:inputText value="Leído" rendered="#{expedienteModifPresPlazoOtraBean.envioPortafirmasResolucionDTO.cdEstadoNote eq '2'}"
+                     style="width:auto; min-width:200px;" readonly="true"/>
+        <p:inputText value="Rechazado" rendered="#{expedienteModifPresPlazoOtraBean.envioPortafirmasResolucionDTO.cdEstadoNote eq '3'}"
+                     style="width:auto; min-width:200px;" readonly="true"/>
+        <p:inputText value="Rechazado automáticamente" rendered="#{expedienteModifPresPlazoOtraBean.envioPortafirmasResolucionDTO.cdEstadoNote eq '4'}"
+                     style="width:auto; min-width:200px;" readonly="true"/>
+        <p:inputText value="Sin Notificación" rendered="#{expedienteModifPresPlazoOtraBean.envioPortafirmasResolucionDTO == null or expedienteModifPresPlazoOtraBean.envioPortafirmasResolucionDTO.cdEstadoNote == null}"
+                     style="width:auto; min-width:200px;" readonly="true" />
+
+        <!-- Fecha rechazo -->
+        <h:outputText rendered="#{expedienteModifPresPlazoOtraBean.envioPortafirmasResolucionDTO.cdEstadoNote eq '3' or expedienteModifPresPlazoOtraBean.envioPortafirmasResolucionDTO.cdEstadoNote eq '4'}"
+                      value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.fecha.rechazo']}" style="font-weight:bold;" />
+        <p:inputText value="#{expedienteModifPresPlazoOtraBean.envioPortafirmasResolucionDTO.fcRechazoNote}" readonly="true"
+                     rendered="#{expedienteModifPresPlazoOtraBean.envioPortafirmasResolucionDTO.cdEstadoNote eq '3' or expedienteModifPresPlazoOtraBean.envioPortafirmasResolucionDTO.cdEstadoNote eq '4'}"
+                     style="width:auto; min-width:200px;">
+            <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
+        </p:inputText>
+
+    </p:panelGrid>
+
+    </p:outputPanel>
+    
+    
+  <p:dialog id="dialogSubirExpedienteDocPresu"
+          widgetVar="dialogSubirExpedienteDocPresu"
+          header="Aportar Documento"
+          closable="false" dynamic="true" modal="true" width="25%"
+          onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        
+    <atlasp:facesMessages id="fmSubirExpedienteDocumentoPresu" modo="notificar" />
+    
+    <p:outputPanel id="panelSubida">
+        <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+            
+            <h:outputText value="#{bundle['convocatorias.tab.documentos.label.archivo']}" />
+            <p:fileUpload value="#{expedienteModifPresPlazoOtraBean.archivoSubirDoc}"
+                          mode="simple" skinSimple="true"
+                          label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}">
+            </p:fileUpload>
+
+        </p:panelGrid>
+        
+        <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+            <p:column>
+                <atlasp:button
+                    actionListener="#{expedienteModifPresPlazoOtraBean.gestionarSubidaFichero}"
+                    ajax="false" 
+                    value="#{bundle['popup.guardar']}"
+                    alt="#{bundle['popup.guardar']}"
+                    title="#{bundle['popup.guardar']}"
+                    icon="fas fa-save" tipoBoton="btn-success"
+                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                </atlasp:button>
+                
+                <atlasp:button 
+                    value="#{bundle['popup.cerrar']}"
+                    alt="#{bundle['popup.cerrar']}"
+                    title="#{bundle['popup.cerrar']}"
+                    icon="fas fa-times" tipoBoton="btn-secondary"
+                    oncomplete="PF('dialogSubirExpedienteDocPresu').hide();"
+                    onclick="atlas.ui.Loading.showLoad('appLoading')">
+                </atlasp:button>
+            </p:column>
+        </p:panelGrid>
+        
+    </p:outputPanel>
+</p:dialog>
+    
+    
+     <p:dialog id="dialogSubirResolucion"
+        widgetVar="dialogSubirResolucion"
+        header="#{bundle['solapa.resol.agregar.resolucion.modif']}"
+        closable="false" dynamic="true" modal="true" width="25%"
+        onShow="atlas.ui.Loading.hideLoad('appLoading')">
+
+        <atlasp:facesMessages id="fmSubirResolucion"
+            modo="notificar" />
+        <p:outputPanel id="outPanelSubirResolucion">
+            <!-- Titulo -->
+            <p:panelGrid columns="1" layout="grid"
+                styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                <h:outputText styleClass="tituloFormulario"
+                    value="#{bundle['solapa.resol.resolucion.modif.titulo']}" />
+            </p:panelGrid>
+
+            <atlasp:message tipo="info"
+                texto="#{bundle['solapa.resol.error.debe.seleccionar.fichero']}"
+                rendered="#{expedienteModifPresPlazoOtraBean.mostrarMensajeElegirFichero}" />
+
+            <p:panelGrid columns="1" layout="grid"
+                styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                
+                <!-- Archivo adjunto -->
+                <!-- VMM 31/10/25 MD-1388: solo permitir subir ficheros con formato .pdf -->
+                <h:outputText
+                    value="#{bundle['convocatorias.tab.documentos.label.archivo']}" />
+                <p:fileUpload value="#{expedienteModifPresPlazoOtraBean.archivoResolucion}"
+                    mode="simple" skinSimple="true"
+                    label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}"
+                    accept=".pdf"
+                    allowTypes="/(\.|\/)(pdf)$/"
+                    invalidFileMessage="Solo se permiten archivos PDF">
+                </p:fileUpload>
+
+            </p:panelGrid>
+            
+            <p:panelGrid columns="1" layout="grid"
+                styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                <p:column>
+                    <atlasp:button
+                        actionListener="#{expedienteModifPresPlazoOtraBean.cargarFicheroProvisional}"
+                        ajax="false" value="#{bundle['popup.guardar']}"
+                        alt="#{bundle['popup.guardar']}"
+                        title="#{bundle['popup.guardar']}"
+                        icon="fas fa-save" tipoBoton="btn-success"
+                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                    </atlasp:button>
+                    <atlasp:button value="#{bundle['popup.cerrar']}"
+                        alt="#{bundle['popup.cerrar']}"
+                        title="#{bundle['popup.cerrar']}"
+                        icon="fas fa-times" tipoBoton="btn-secondary"
+                        action="#{expedienteModifPresPlazoOtraBean.cerrarSubirResolucionDialog}"
+                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                    </atlasp:button>
+                </p:column>
+            </p:panelGrid>
+            
+        </p:outputPanel>
+    </p:dialog>
+    
+    <p:dialog id="dialogSubsanaDocumentoActa"
+        widgetVar="dialogSubsanaDocumentoActa"
+        header="#{bundle['documentos.subsanacion.denegacion.titulo']}"
+        closable="false" dynamic="true" modal="true" width="50%"
+        onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        <p:outputPanel id="panelSubsanarActa">
+            <atlasp:facesMessages id="fmSubsanaDocumentosActa"
+                modo="notificar" />
+
+            <p:panelGrid columns="2"
+                columnClasses="ui-g-12 ui-md-4 ui-lg-2 mtb-auto, ui-g-12 ui-md-8 ui-lg-10 mtb-auto"
+                layout="grid" styleClass="ui-panelgrid-blank">
+                <h:outputText
+                    value="#{bundle['documentos.subsanacion.expediente']}"
+                    styleClass="text-bold" />
+                <h:outputText
+                    value="#{expedienteBean.expedienteDTO.cdExpediente}" />
+
+                <h:outputText
+                    value="#{bundle['documentos.subsanacion.tipo.documento']}"
+                    styleClass="text-bold" />
+                <p:column>
+                    <!-- Documento-->
+                    <h:outputText
+                        value="#{expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO.dsValor}"
+                        rendered="#{(expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO != null and 
+                                    expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO.idValor != null) and
+                                    (!expedienteModifPresPlazoOtraBean.documentoSeleccionado.esDocumentoRequisito)}" />
+                    <h:outputText
+                        value="#{bundle['revision.expediente.documento.tipo.documento.vacio']}"
+                        rendered="#{(expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO == null or 
+                                        expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO.idValor == null) and 
+                                    (!expedienteModifPresPlazoOtraBean.documentoSeleccionado.esDocumentoRequisito) }" />
+
+                    <!-- Documento de requisito-->
+                    <h:outputText
+                        value="#{expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO.dsValor} (#{expedienteModifPresPlazoOtraBean.documentoSeleccionado.dsDocumentoRequisito})"
+                        rendered="#{(expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO != null and 
+                                    expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO.idValor != null) and
+                                    (expedienteModifPresPlazoOtraBean.documentoSeleccionado.esDocumentoRequisito)}" />
+                    <h:outputText
+                        value="#{bundle['revision.expediente.documento.tipo.documento.vacio']} (#{expedienteModifPresPlazoOtraBean.documentoSeleccionado.dsDocumentoRequisito})"
+                        rendered="#{(expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO == null or 
+                                        expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO.idValor == null) and 
+                                    (expedienteModifPresPlazoOtraBean.documentoSeleccionado.esDocumentoRequisito) }" />
+                </p:column>
+            </p:panelGrid>
+            <p:panelGrid columns="2"
+                columnClasses="ui-g-12 ui-md-4 ui-lg-2 mtb-auto, ui-g-12 ui-md-8 ui-lg-10 mtb-auto"
+                layout="grid" styleClass="ui-panelgrid-blank"
+                rendered="#{!expedienteModifPresPlazoOtraBean.documentoSeleccionado.esDocumentoRequisito}">
+                <h:outputText
+                    value="#{bundle['documentos.subsanacion.causa.denegacion']}" />
+                <p:column>
+                
+                    <atlasp:comboValores id="listaCausasActa"
+                        enableManualInput="false" listWidth="200px"
+                         styleClass="#{expedienteModifPresPlazoOtraBean.modoLecturaSubsanacion ? 'comboDisabled' : ''}"
+                        externalProvider="#{expedienteModifPresPlazoOtraBean.listaCausasSubsanacion(convocatoriasBean.convocatoriaDTO.idConvocatoria)}"
+                        render="panelSubsanarActa" ajaxUpdate="true"
+                        value="#{expedienteModifPresPlazoOtraBean.idCausaSubsanacion}"
+                        valueChangeListener="expedienteModifPresPlazoOtraBean.cambioCausaSelectItem"
+                        recargaAutomatica="true"
+                       disabled="#{expedienteModifPresPlazoOtraBean.modoLecturaSubsanacion}"  />
+
+                    <p:outputPanel id="causaInfoTooltipActa"
+                        styleClass="icono-info fas fa-fw fa-question-circle"
+                        alt="#{bundle['documentos.subsanacion.causa.denegacion.tooltip']}"
+                        title="#{bundle['documentos.subsanacion.causa.denegacion.tooltip']}" />
+                    <p:tooltip for="causaInfoTooltipActa"
+                        value="#{bundle['documentos.subsanacion.causa.denegacion.tooltip']}" />
+   
+                </p:column>
+
+                <h:outputText
+                    value="#{bundle['documentos.subsanacion.descripcion.denegacion']}" />
+                <p:column>
+                    <p:inputTextarea maxlength="2000" rows="2"
+                        style="width:91%;"
+                        styleClass="#{!expedienteModifPresPlazoOtraBean.modoLecturaSubsanacion and expedienteModifPresPlazoOtraBean.descripcionCausaObligatoria ? 'obligatorio' : ''}"
+                        value="#{expedienteModifPresPlazoOtraBean.descripcionCausaSubsanacion}"
+                        counter="contadorDescripcionActa"
+                        counterTemplate="{0} caracteres restantes."
+                        readonly="#{expedienteModifPresPlazoOtraBean.modoLecturaSubsanacion or 
+                                    !expedienteModifPresPlazoOtraBean.descripcionCausaObligatoria}" />
+                    <p:outputPanel id="descripcionInfoTooltipActa"
+                        styleClass="icono-info fas fa-fw fa-question-circle"
+                        alt="#{bundle['documentos.subsanacion.descripcion.denegacion.tooltip']}"
+                        title="#{bundle['documentos.subsanacion.descripcion.denegacion.tooltip']}" />
+                    <p:tooltip for="descripcionInfoTooltipActa"
+                        value="#{bundle['documentos.subsanacion.descripcion.denegacion.tooltip']}" />
+                    <br />
+                    <h:outputText id="contadorDescripcionActa"
+                        class="p-d-block" />
+                </p:column>
+            </p:panelGrid>
+
+            <p:panelGrid columns="2"
+                columnClasses="ui-g-12 ui-md-4 ui-lg-2 mtb-auto, ui-g-12 ui-md-8 ui-lg-10 mtb-auto"
+                layout="grid" styleClass="ui-panelgrid-blank"
+                rendered="#{expedienteModifPresPlazoOtraBean.documentoSeleccionado.esDocumentoRequisito}">
+                <h:outputText
+                    value="#{bundle['documentos.subsanacion.descripcion.observacion.requisito']}" />
+                <p:column>
+                    <p:inputTextarea maxlength="2000" rows="2"
+                        style="width:91%;"
+                        value="#{expedienteModifPresPlazoOtraBean.documentoSeleccionado.dsObservacionRequisito}"
+                        readonly="true" />
+                </p:column>
+            </p:panelGrid>
+
+            <p:panelGrid columns="1" columnClasses="ui-g-12"
+                layout="grid" styleClass="ui-panelgrid-blank">
+                <p:column>
+                    <atlasp:button
+                        action="#{expedienteModifPresPlazoOtraBean.grabarCausaSubsanarDocumento}"
+                        ajax="true" execute="panelSubsanarActa"
+                        value="#{bundle['boton.guardar']}"
+                        alt="#{bundle['boton.guardar']}"
+                        title="#{bundle['boton.guardar']}"
+                        icon="fas fa-save"
+                        render="panelModifPresPlazoOtra"
+                        tipoBoton="btn-success"
+                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                        rendered="#{!expedienteModifPresPlazoOtraBean.modoLecturaSubsanacion}">
+                        <f:facet name="events">
+                            <p:confirm
+                                header="#{bundle['popup.confirmar.operacion.titulo']}"
+                                message="#{bundle['popup.confirmar.pregunta.subsanar']}"
+                                icon="ui-icon-alert" />
+                        </f:facet>
+                    </atlasp:button>
+                    <!-- VMM 30/09/26 MD-3070: mismo problema que en el dialogo de Historico de Documentos -
+                         ajax="false" hacia un postback completo (recarga toda la pagina) solo para
+                         cerrar un dialogo sin guardar nada. Se cambia a ajax="true" + process="@this"
+                         (el metodo solo resetea variables, no necesita procesar el resto del formulario)
+                         y se oculta el dialogo al momento por JS, sin esperar al roundtrip. -->
+                    <atlasp:button
+                        action="#{expedienteModifPresPlazoOtraBean.cancelarCausaSubsanarDocumento}"
+                        ajax="true" process="@this" update="panelSubsanarActa"
+                        value="#{bundle['boton.cancelar']}"
+                        alt="#{bundle['boton.cancelar']}"
+                        title="#{bundle['boton.cancelar']}"
+                        icon="fas fa-times" tipoBoton="btn-secondary"
+                        onclick="atlas.ui.Loading.showLoad('appLoading'); PF('dialogSubsanaDocumentoActa').hide();"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                        rendered="#{!expedienteModifPresPlazoOtraBean.modoLecturaSubsanacion}" />
+                    <atlasp:button
+                        action="#{expedienteModifPresPlazoOtraBean.cancelarCausaSubsanarDocumento}"
+                        ajax="true" process="@this" update="panelSubsanarActa"
+                        value="#{bundle['boton.cerrar']}"
+                        alt="#{bundle['boton.cerrar']}"
+                        title="#{bundle['boton.cerrar']}"
+                        icon="fas fa-times" tipoBoton="btn-secondary"
+                        onclick="atlas.ui.Loading.showLoad('appLoading'); PF('dialogSubsanaDocumentoActa').hide();"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                        rendered="#{expedienteModifPresPlazoOtraBean.modoLecturaSubsanacion}" />
+                </p:column>
+            </p:panelGrid>
+        </p:outputPanel>
+    </p:dialog>
+    
+    <p:dialog id="dialogHistoricoDocumentosActas"
+        widgetVar="dialogHistoricoDocumentosActas"
+        header="#{bundle['documentos.historico.titulo']}"
+        closable="true" dynamic="true" modal="true" width="70%"
+        onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        <p:outputPanel id="panelHistoricoDocumentoActas">
+            <atlasp:facesMessages id="fmHistoricoDocumentoActas"
+                modo="notificar" />
+            <div class="ui-g">
+                <div class="ui-g-12 borde-contenedor">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-4 ui-lg-2 mtb-auto">
+                            <h:outputText
+                                value="#{bundle['documentos.historico.expediente']}"
+                                styleClass="text-bold" />
+                        </div>
+                        <div class="ui-g-12 ui-md-8 ui-lg-10 mtb-auto">
+                            <h:outputText
+                                value="#{expedienteBean.expedienteDTO.cdExpediente}" />
+                        </div>
+                        <div class="ui-g-12 ui-md-4 ui-lg-2 mtb-auto">
+                            <h:outputText
+                                value="#{bundle['documentos.historico.tipo.documento']}"
+                                styleClass="text-bold" />
+                        </div>
+                        <div class="ui-g-12 ui-md-8 ui-lg-10 mtb-auto">
+                            <!-- Documento-->
+                            <h:outputText
+                                value="#{expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO.dsValor}"
+                                rendered="#{(expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO != null and 
+                                            expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO.idValor != null) and 
+                                            (!expedienteModifPresPlazoOtraBean.documentoSeleccionado.esDocumentoRequisito) }" />
+                            <h:outputText
+                                value="#{bundle['revision.expediente.documento.tipo.documento.vacio']}"
+                                rendered="#{(expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO == null or 
+                                                expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO.idValor == null) and 
+                                            (!expedienteModifPresPlazoOtraBean.documentoSeleccionado.esDocumentoRequisito) }" />
+
+                            <!-- Documento de requisito-->
+                            <h:outputText
+                                value="#{expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO.dsValor} (#{expedienteModifPresPlazoOtraBean.documentoSeleccionado.dsDocumentoRequisito})"
+                                rendered="#{(expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO != null and 
+                                            expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO.idValor != null) and 
+                                            (expedienteModifPresPlazoOtraBean.documentoSeleccionado.esDocumentoRequisito) }" />
+                            <h:outputText
+                                value="#{bundle['revision.expediente.documento.tipo.documento.vacio']} (#{expedienteModifPresPlazoOtraBean.documentoSeleccionado.dsDocumentoRequisito})"
+                                rendered="#{(expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO == null or 
+                                                expedienteModifPresPlazoOtraBean.documentoSeleccionado.tipoDocumentoDTO.idValor == null) and 
+                                            (expedienteModifPresPlazoOtraBean.documentoSeleccionado.esDocumentoRequisito) }" />
+                        </div>
+                        <div class="ui-g-12">
+                            <atlasp:listaPaginada
+                                id="listaHistoricoDocumentoActas"
+                                listAndCountMethod="#{expedienteModifPresPlazoOtraBean.obtenerListaHistoricoDocumento}"
+                                export="true"
+                                exportTitle="HistoricoDocumentos"
+                                exportFile="HistoricoDocumentos"
+                                emptyMessage="No se encontraron registros"
+                                sortMode="single" reflow="true"
+                                pijama="true">
+                                <atlasp:columnaListaPaginada
+                                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.fecha.alta']}"
+                                    field="fcAltaFila" filtrable="false"
+                                    exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.fcAltaFila}">
+                                            <f:convertDateTime
+                                                type="date"
+                                                pattern="dd/MM/yyyy - HH:mm:ss" />
+                                        </h:outputText>
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    field="estado.dsValor"
+                                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.estado']}"
+                                    filtrable="false" exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.estadoDTO.dsValor}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    field="convocatoriaCau.causa.dsValor"
+                                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.causa.denegacion']}"
+                                    filtrable="false" exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.causaCatalogoTexto}" />
+                                    </ui:define>
+                                    
+<!--                                     value="#{item.IdCausaCatalogo.dsValor}" /> -->
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    field="tlCausaDescripcion"
+                                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.descripcion.causa.denegacion']}"
+                                    filtrable="false" exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.tlCausaDescripcion}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    field="cdUsuAlta"
+                                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.usuario.alta']}"
+                                    filtrable="false" exportable="true">
+                                    <ui:define name="value">
+                                        <h:outputText
+                                            value="#{item.cdUsuAlta}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    label="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.acccion']}"
+                                    order="false">
+                                    <ui:define name="value">
+                                        <div class="ui-g">
+                                            <div
+                                                class="ui-g-12 text-center">
+<!--                                                 <atlasp:button -->
+<!--                                                     action="#{expedienteModifPresPlazoOtraBean.descargarDocumentoFica(item.cdFica)}" -->
+<!--                                                     execute="panelHistoricoDocumentoActas" -->
+<!--                                                     ajax="false" -->
+<!--                                                     alt="#{bundle['boton.descargar']}" -->
+<!--                                                     title="#{bundle['boton.descargar']}" -->
+<!--                                                     icon="fas fa-download" -->
+<!--                                                     tipoBoton="btn-link" -->
+<!--                                                     oncomplete="PF('dialogHistoricoDocumentos').show()" /> -->
+                                                    
+                                                     <p:link href="#{request.contextPath}/DescargaFicaServlet" 
+                                                            target="_blank" 
+                                                            title="#{bundle['boton.descargar']}"
+                                                            rendered="#{item.cdFica != null}">
+                                                        <f:param name="cdFica" value="#{item.cdFica}" />
+                                                        <i class="fas fa-download"></i>
+                                                    </p:link>
+                                                <atlasp:button
+                                                    action="#{expedienteModifPresPlazoOtraBean.mostrarHistoricoDocumentoObservaciones(item.tlObservaciones)}"
+                                                    ajax="true"
+                                                    alt="#{bundle['boton.observaciones']}"
+                                                    title="#{bundle['boton.observaciones']}"
+                                                    icon="fas fa-file-alt"
+                                                    tipoBoton="btn-link"
+                                                    render="panelObservacionesActas"
+                                                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                                                    rendered="#{item.mostrarBotonObservaciones}" />
+                                            </div>
+                                        </div>
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                            </atlasp:listaPaginada>
+                        </div>
+                        <div class="ui-g-12">
+                            <!-- VMM 30/09/26 MD-3070: ajax="false" hacia un postback completo solo para cerrar
+                                 el dialogo; cerrarHistoricoDocumento() ya oculta el dialogo via
+                                 executeScript, asi que con ajax="true" + process="@this" basta. -->
+                            <atlasp:button
+                                action="#{expedienteModifPresPlazoOtraBean.cerrarHistoricoDocumento}"
+                                ajax="true" process="@this" update="panelHistoricoDocumentoActas"
+                                value="#{bundle['boton.cerrar']}"
+                                alt="#{bundle['boton.cerrar']}"
+                                title="#{bundle['boton.cerrar']}"
+                                icon="fas fa-times"
+                                tipoBoton="btn-secondary"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p:outputPanel>
+    </p:dialog>
+
+     <p:dialog id="dialogHistoricoDocumentosObservacionesActas"
+        widgetVar="dialogHistoricoDocumentosObservacionesActas"
+        header="#{bundle['documentos.historico.observaciones']}"
+        closable="false" dynamic="true" modal="true" width="70%"
+        onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        <p:outputPanel id="panelObservacionesActas">
+            <atlasp:facesMessages id="fmHistoricoDocumentoObservacionesActas"
+                modo="notificar" />
+            <div class="ui-g">
+                <div class="ui-g-12 borde-contenedor">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-12 ui-lg-12 mtb-auto">
+                            <h:outputText
+                                value="#{bundle['documentos.historico.observaciones']}"
+                                styleClass="text-bold" />
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-12 mtb-auto">
+                            <p:inputTextarea maxlength="2000" rows="2"
+                                readonly="true" style="width: 99%;"
+                                value="#{expedienteModifPresPlazoOtraBean.tlObservaciones}" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <!-- VMM 30/09/26 MD-3070: process="@this" - ya era ajax pero sin restringir el
+                                 process seguia procesando el formulario entero. -->
+                            <atlasp:button
+                                action="#{expedienteModifPresPlazoOtraBean.cerrarObservaciones}"
+                                ajax="true" process="@this" update="panelObservacionesActas"
+                                value="#{bundle['boton.cerrar']}"
+                                alt="#{bundle['boton.cerrar']}"
+                                title="#{bundle['boton.cerrar']}"
+                                icon="fas fa-times"
+                                tipoBoton="btn-secondary"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p:outputPanel>
+    </p:dialog>
+    
+    <p:dialog id="modalObservaciones" 
+                   header="#{bundle['titulo.modal.observaciones']}" 
+                   widgetVar="wvModalObs" 
+                   showEffect="fade" 
+                   hideEffect="fade" 
+                   modal="true" 
+                   width="500">
+    
+        <h:panelGroup id="panelContenidoObs">
+            <div class="p-field p-grid" style="padding: 15px;">
+                <p:outputLabel for="txtObs" value="Observaciones de la modificación:" style="font-weight:bold; display:block; margin-bottom:10px;"/>
+                
+                <p:inputTextarea id="txtObs"
+                                 value="#{expedienteModifPresPlazoOtraBean.presupuestoSeleccionado.cdObservaciones}" 
+                                 rows="6" 
+                                 style="width:100%;"
+                                 maxlength="4000"
+                                 placeholder="Indique aquí los motivos del cambio..."
+                                 counter="displayCount"
+                                 counterTemplate="{0} caracteres restantes." />
+                <h:outputText id="displayCount" style="font-size: 0.8em; color: #666;" />
+            </div>
+        </h:panelGroup>
+    
+        <f:facet name="footer">
+            <p:commandButton value="#{bundle['boton.cancelar']}" 
+                             onclick="PF('wvModalObs').hide()" 
+                             type="button" 
+                             styleClass="btn-secondary" />
+                            
+        </f:facet>
+    </p:dialog>
+    
+ <p:dialog id="dialogHistoricoDocs"
+          widgetVar="dialogHistoricoDocsWV"
+          header="Histórico de Documentos"
+          closable="true" 
+          dynamic="true" 
+          modal="true" 
+          width="70%"
+          onShow="atlas.ui.Loading.hideLoad('appLoading')">
+          
+    <p:outputPanel id="panelHistoricoDocs">
+        <atlasp:facesMessages id="fmHistoricoDocumentos" modo="notificar" />
+        
+        <div class="ui-g">
+            <div class="ui-g-12 borde-contenedor">
+                <div class="ui-g">
+                    
+                    <div class="ui-g-12">
+                        <atlasp:listaPaginada
+                            id="listaHistoricoDocsReal"
+                            listAndCountMethod="#{expedienteModifPresPlazoOtraBean.obtenerListaHistoricoDocsBean}"
+                            emptyMessage="No se encontraron registros"
+                            sortMode="single" 
+                            reflow="true"
+                            pijama="true">
+                            
+                            <atlasp:columnaListaPaginada
+                                label="Nombre de Documento"
+                                field="nombreFicheroFica" 
+                                filtrable="false"
+                                exportable="true">
+                                <ui:define name="value">
+                                    <i class="fas fa-file-alt" style="margin-right: 5px; color: #555;" />
+                                    <h:outputText value="#{item.nombreFicheroFica}" />
+                                </ui:define>
+                            </atlasp:columnaListaPaginada>
+
+                            <atlasp:columnaListaPaginada
+                                label="CD FICA"
+                                field="cdFica" 
+                                filtrable="false"
+                                exportable="true">
+                                <ui:define name="value">
+                                    <h:outputText value="#{item.cdFica}" style="font-family: monospace;" />
+                                </ui:define>
+                            </atlasp:columnaListaPaginada>
+
+                            <atlasp:columnaListaPaginada
+                                label="Fecha de Alta"
+                                field="fcAltaFila" 
+                                filtrable="false"
+                                exportable="true">
+                                <ui:define name="value">
+                                    <h:outputText value="#{item.fcAltaFila}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy - HH:mm:ss" timeZone="Europe/Madrid" />
+                                    </h:outputText>
+                                </ui:define>
+                            </atlasp:columnaListaPaginada>
+
+                            <atlasp:columnaListaPaginada
+                                label="Observaciones"
+                                field="tlObservacionesGestor" 
+                                filtrable="false"
+                                exportable="true">
+                                <ui:define name="value">
+                                    <h:outputText value="#{item.tlObservacionesGestor}" />
+                                </ui:define>
+                            </atlasp:columnaListaPaginada>
+
+                        </atlasp:listaPaginada>
+                    </div>
+                    
+                    <div class="ui-g-12" style="height: 10px;"></div>
+
+                    <div class="ui-g-12">
+                        <!-- VMM 30/09/26 MD-3070: process="@this" - sin esto, al no indicar process, la peticion
+                             ajax procesa TODO el formulario (toda la solapa comparte un unico h:form
+                             con el resto del expediente), asi que cerrar esta modal de solo lectura
+                             costaba lo mismo que un Guardar real. update ya limitaba el renderizado,
+                             pero no el procesamiento. -->
+                        <atlasp:button
+                            actionListener="#{expedienteModifPresPlazoOtraBean.setDocumentosHistoricoSeleccionado(null)}"
+                            ajax="true"
+                            process="@this"
+                            update="panelHistoricoDocs"
+                            value="#{bundle['boton.cerrar']}"
+                            alt="#{bundle['boton.cerrar']}"
+                            title="#{bundle['boton.cerrar']}"
+                            icon="fas fa-times"
+                            tipoBoton="btn-secondary"
+                            onclick="atlas.ui.Loading.showLoad('appLoading'); PF('dialogHistoricoDocsWV').hide();"
+                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </p:outputPanel>
+</p:dialog>
+
+
+
+    
+</ui:composition>

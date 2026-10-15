@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xml:lang="es"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
+
+    <h:outputScript library="atlas.core.js" name="atlasCore.js"  target="head" />
+    <h:outputScript library="js" name="atlas.js" target="head" />
+
+    <div id="modal-menu" class="modal-menu" style="display: none"/>
+
+    <p:sidebar widgetVar="securityAdvice" styleClass="atlas-sliderbar atlas-layout" position="top" baseZIndex="1000" style="display:none">
+        <div class="title-container">
+            <h1>
+                <h:outputText value="Aviso de seguridad" escape="false" />
+            </h1>
+            <h2>
+                <p><h:outputText value="#{systemInfoBean.getMessageByPolitica('avisoSeguridad.parrafo1')}" /></p>
+                <p><h:outputText value="#{systemInfoBean.getMessageByPolitica('avisoSeguridad.parrafo2')}" /></p>
+                <p><h:outputText value="#{systemInfoBean.getMessageByPolitica('avisoSeguridad.parrafo3')}" /></p>
+            </h2>
+        </div>
+    </p:sidebar>
+
+    <p:sidebar widgetVar="userInfoAccess" position="top"  baseZIndex="1000" class="atlas-sliderbar atlas-layout" style="display:none">
+        <ui:include src="/WEB-INF/include/userDetail.xhtml" />
+    </p:sidebar>
+
+    <atlasp:loading id="atlasLoading" modal="false" size="100" ajaxRender="false"  />
+
+    <div class="header-main atlas-layout">
+        <div class="header-left">
+            <p:commandLink id="atlasHideMenu"
+                title="esconer/mostrar menú vertical"
+                alt="esconer/mostrar menú vertical"
+                styleClass="fa fa-fw fa-bars"
+                onclick="atlas.ui.MenuVertical.slidePanel('.menu-vertical','.page-wrapper');return false;"
+                rendered="#{cargaMenuVertical or cargaMenuHorizontal}"/>
+
+            <a href="#" title="Inicio">
+                <p:ajaxStatus id="img_cab_sup_izq">
+                    <f:facet name="default">
+                        <h:graphicImage value="img/logo_responsive.png"
+                            title="Inicio" alt="Inicio" />
+                    </f:facet>
+                    <f:facet name="start">
+                        <i class="fa fa-fw fa-spinner fa-spin"/>
+                    </f:facet>
+                    <f:facet name="complete">
+                        <h:graphicImage value="img/logo_responsive.png"
+                            title="Inicio" alt="Inicio" />
+                    </f:facet>
+                    <f:facet name="success">
+                        <h:graphicImage value="img/logo_responsive.png"
+                            title="Inicio" alt="Inicio" />
+                    </f:facet>
+                    <f:facet name="error">
+                        <h:graphicImage value="img/logo_responsive.png"
+                            title="Inicio" alt="Inicio" />
+                    </f:facet>
+                </p:ajaxStatus>
+            </a>
+
+            <h:panelGroup styleClass="menu-horizontal tablet-hide" rendered="#{cargaMenuHorizontal}">
+                <ui:insert name="menuHorizontal">
+                    <atlasp:menuHorizontal />
+                </ui:insert>
+            </h:panelGroup>
+
+        </div>
+
+        <div class="header-center">
+            <ui:insert name="cabeceraCentral">
+                 <h:panelGroup styleClass="title-container tablet-hide" rendered="#{!cargaMenuHorizontal}">
+                    <h1><h:outputText  value="#{bundle['layout.subtitle']}" escape="false" /></h1>
+                </h:panelGroup>
+                <h:panelGroup styleClass="titulo-responsive">
+                    <h1><h:outputText  value="#{bundle['layout.subtitle']}" escape="false" /></h1>
+                </h:panelGroup>
+            </ui:insert>
+        </div>
+
+        <div class="header-right">
+
+                <p:commandLink id="atlasUserInfoAccess"
+                    rendered="#{plantillaSecure}"
+                    title="información del usuario"
+                    alt="información del usuario"
+                    styleClass="fa fa-fw fa-user"
+                    onclick="PF('userInfoAccess').show(); return false;"/>
+
+                <p:commandLink id="atlasLogOut"
+                    rendered="#{atlasApp['app.logout'] != 'false' and plantillaSecure}"
+                    title="#{bundle['header.cerrar']}"
+                    alt="#{bundle['header.cerrar']}"
+                    onclick="logoutForm.submit();return false;"
+                    styleClass="tablet-hide fa fa-fw fa-power-off"/>
+        </div>
+
+    </div>
+
+</ui:composition>

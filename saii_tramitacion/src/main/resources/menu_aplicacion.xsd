@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    
+    <xs:element name="menu">
+        <xs:annotation>
+            <xs:documentation>
+                Objeto principal que encapsula todos los elementos del menu.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="elemento" minOccurs="0" maxOccurs="1000" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="elemento" type="elementoType">
+        <xs:annotation>
+            <xs:documentation>
+                Elemento que encapsula la información que define a una opcion de menú. 
+            </xs:documentation>
+        </xs:annotation>    
+    </xs:element>
+    
+    <xs:complexType name="celdaMenuType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="texto" />
+        </xs:sequence>
+        <xs:attribute name="apartado" type="xs:string" />
+        <xs:attribute name="url-apartado" type="xs:string" />
+        <xs:attribute name="url-imagen" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    Atributo con la url de la imagen asociada a esta opción de menú.
+                    En principio, sólo útil para el menú visual.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>     
+    </xs:complexType>
+    
+    <xs:complexType name="elementoType">
+        <xs:annotation>
+            <xs:documentation>
+                Tipo que define la información asociada a una opción de
+                menú.
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:annotation>
+                <xs:documentation>
+                    Submenú asociado a esta opción de menú.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:element type="celdaMenuType" name="celda-menu"
+                minOccurs="0" maxOccurs="1" />
+            <xs:element ref="elemento" minOccurs="0" maxOccurs="1000" />
+        </xs:sequence>
+
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    Nivel en el que se encuentra este menu e
+                    identificación interna de la opción.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="nombre" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    Identificacion que recibira este elemento del menú.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="etiqueta" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    Etiqueta del bundle de la que sacar el nombre
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="nombre_navegacion" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    Identificacion que recibira esta opción en la barra
+                    de navegación
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="url" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    URL a la que se dirigira este el link generado por
+                    este elemento.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="perfil" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    Perfil requerido para que se muestre este elemento.
+                    Se pueden poner distintos perfiles separados por un
+                    punto y coma.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="no-url" type="xs:boolean">
+            <xs:annotation>
+                <xs:documentation>
+                    Variable que indica si el elemento generado sera un
+                    link o no.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="url-externa" type="xs:boolean"></xs:attribute>
+        <xs:attribute name="popup" type="xs:boolean"></xs:attribute>
+    </xs:complexType>
+</xs:schema>

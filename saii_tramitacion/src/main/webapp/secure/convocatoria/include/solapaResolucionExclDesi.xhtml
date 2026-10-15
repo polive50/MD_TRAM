@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
+
+    <atlasp:guardarEstado
+        value="#{resolucionConvBean.resolucionExclusionDesistimientoConjunta}" />
+
+    <p:outputPanel id="panelResolucionExclusionDesistimiento">
+
+        <h:panelGroup id="panelTipoResolucionExclusionDesistimiento" layout="block">
+    
+            <p:selectOneRadio id="tipoResolucionExclusionDesistimiento"
+                value="#{resolucionConvBean.resolucionExclusionDesistimientoConjunta}"
+                layout="grid" columns="2">
+                <f:selectItem
+                    itemLabel="#{bundle['resolucion.exclusion.desistimiento.tipo.conjunta']}"
+                    itemValue="true" />
+                <f:selectItem
+                    itemLabel="#{bundle['resolucion.exclusion.desistimiento.tipo.individual']}"
+                    itemValue="false" />
+                <p:ajax event="valueChange"
+                    listener="#{resolucionConvBean.cambiarTipoResolucionExclusionDesistimiento}"
+                    process="@this"
+                    update="panelTipoResolucionExclusionDesistimiento"
+                    partialSubmit="true"
+                    ignoreAutoUpdate="true"
+                    onstart="atlas.ui.Loading.showLoad('appLoading')"
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+            </p:selectOneRadio>
+    
+            <div class="space" />
+        
+            <h:outputText styleClass="tituloFormulario"
+                value="#{bundle['resolucion.exclusion.desistimiento.excluidos.titulo']}" />
+        
+            <atlasp:listaPaginada id="listaExcluidosDefinitivos"
+                listAndCountMethod="#{resolucionConvBean.obtenerExcluidosDefinitivos}"
+                sortMode="single" reflow="true" export="true" pijama="true"
+                exportTitle="#{bundle['resolucion.exclusion.desistimiento.excluidos.titulo']}"
+                exportFile="#{bundle['resolucion.exclusion.desistimiento.excluidos.fichero']}">
+        
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['resolucion.exclusion.desistimiento.linea']}"
+                    field="linea" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.linea}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+        
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['resolucion.exclusion.desistimiento.nombre.empresa']}"
+                    field="nombreEmpresa" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.nombreEmpresa}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+        
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['resolucion.exclusion.desistimiento.expediente']}"
+                    field="numeroExpediente" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.numeroExpediente}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+        
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['resolucion.exclusion.desistimiento.estado.expediente']}"
+                    field="estadoExpediente" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.estadoExpediente}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+        
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['resolucion.exclusion.desistimiento.nif']}"
+                    field="nif" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.nif}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+        
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['resolucion.exclusion.desistimiento.codigo.motivo']}"
+                    field="codigoMotivo" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.codigoMotivo}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+            </atlasp:listaPaginada>
+        
+            <h:panelGroup id="botoneraResolucionExclusion" layout="block"
+                rendered="#{resolucionConvBean.habilitarBotonesResolucionIndividual()}">
+                <atlasp:button id="botonSubirResolucionExclusion"
+                    ajax="true"
+                    action="#{resolucionConvBean.subirResolucionExclusionDialog}"
+                    value="#{bundle['resolucion.exclusion.desistimiento.exclusion.subir']}"
+                    alt="#{bundle['resolucion.exclusion.desistimiento.exclusion.subir']}"
+                    title="#{bundle['resolucion.exclusion.desistimiento.exclusion.subir']}"
+                    icon="fa fa-upload" tipoBoton="btn-primary"
+                    rendered="#{resolucionConvBean.habilitarBotonSubirResolucionExclusion(convocatoriasBean.modoConsulta)}">
+                </atlasp:button>
+        
+                <atlasp:button id="botonSubirResolucionExclusionDisabled" type="button"
+                    value="#{bundle['resolucion.exclusion.desistimiento.exclusion.subir']}"
+                    alt="#{bundle['resolucion.exclusion.desistimiento.exclusion.subir']}"
+                    title="#{bundle['resolucion.exclusion.desistimiento.exclusion.subir']}"
+                    icon="fa fa-upload" tipoBoton="btn-primary" disabled="true"
+                    rendered="#{!resolucionConvBean.habilitarBotonSubirResolucionExclusion(convocatoriasBean.modoConsulta)}" />
+        
+                <atlasp:button id="botonDescargarResolucionExclusion" ajax="false"
+                    action="#{resolucionConvBean.descargarFicheroResolucionExclusion}"
+                    value="#{bundle['resolucion.exclusion.desistimiento.exclusion.descargar']}"
+                    alt="#{bundle['resolucion.exclusion.desistimiento.exclusion.descargar']}"
+                    title="#{bundle['resolucion.exclusion.desistimiento.exclusion.descargar']}"
+                    icon="fa fa-download" tipoBoton="btn-primary"
+                    rendered="#{resolucionConvBean.habilitarBotonDescargarResolucionExclusion()}">
+                </atlasp:button>
+        
+                <atlasp:button id="botonDescargarResolucionExclusionDisabled" type="button"
+                    value="#{bundle['resolucion.exclusion.desistimiento.exclusion.descargar']}"
+                    alt="#{bundle['resolucion.exclusion.desistimiento.exclusion.descargar']}"
+                    title="#{bundle['resolucion.exclusion.desistimiento.exclusion.descargar']}"
+                    icon="fa fa-download" tipoBoton="btn-primary" disabled="true"
+                    rendered="#{!resolucionConvBean.habilitarBotonDescargarResolucionExclusion()}" />
+                    
+                <atlasp:button id="botonEnviarResolucionExclusionPortafirmas"
+                    ajax="true" process="@this"
+                    update="panelTipoResolucionExclusionDesistimiento :convocatoriaForm:convocatoriaFormMessages"
+                    action="#{resolucionConvBean.enviarResolucionExclusionPortafirmas}"
+                    value="#{bundle['boton.enviar.portafirma']}"
+                    alt="#{bundle['boton.enviar.portafirma']}"
+                    title="#{bundle['boton.enviar.portafirma']}"
+                    icon="fas fa-paper-plane" tipoBoton="btn-warning"
+                    disabled="#{!resolucionConvBean.habilitarEnviarResolucionExclusionPortafirmas(convocatoriasBean.modoConsulta)}" />
+            </h:panelGroup>
+        
+            <div class="space" />
+        
+            <h:outputText styleClass="tituloFormulario"
+                value="#{bundle['resolucion.exclusion.desistimiento.desistidos.titulo']}" />
+        
+            <atlasp:listaPaginada id="listaDesistidosDefinitivos"
+                listAndCountMethod="#{resolucionConvBean.obtenerDesistidosDefinitivos}"
+                sortMode="single" reflow="true" export="true" pijama="true"
+                exportTitle="#{bundle['resolucion.exclusion.desistimiento.desistidos.titulo']}"
+                exportFile="#{bundle['resolucion.exclusion.desistimiento.desistidos.fichero']}">
+        
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['resolucion.exclusion.desistimiento.linea']}"
+                    field="linea" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.linea}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+        
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['resolucion.exclusion.desistimiento.nombre.empresa']}"
+                    field="nombreEmpresa" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.nombreEmpresa}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+        
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['resolucion.exclusion.desistimiento.expediente']}"
+                    field="numeroExpediente" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.numeroExpediente}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+        
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['resolucion.exclusion.desistimiento.estado.expediente']}"
+                    field="estadoExpediente" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.estadoExpediente}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+        
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['resolucion.exclusion.desistimiento.nif']}"
+                    field="nif" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.nif}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+        
+                <atlasp:columnaListaPaginada
+                    label="#{bundle['resolucion.exclusion.desistimiento.codigo.motivo']}"
+                    field="codigoMotivo" filtrable="false" exportable="true">
+                    <ui:define name="value">
+                        <h:outputText value="#{item.codigoMotivo}" />
+                    </ui:define>
+                </atlasp:columnaListaPaginada>
+            </atlasp:listaPaginada>
+        
+            <h:panelGroup id="botoneraResolucionDesistimiento" layout="block"
+                rendered="#{resolucionConvBean.habilitarBotonesResolucionIndividual()}">
+                <atlasp:button id="botonSubirResolucionDesistimiento"
+                    ajax="true"
+                    action="#{resolucionConvBean.subirResolucionDesistimientoDialog}"
+                    value="#{bundle['resolucion.exclusion.desistimiento.desistimiento.subir']}"
+                    alt="#{bundle['resolucion.exclusion.desistimiento.desistimiento.subir']}"
+                    title="#{bundle['resolucion.exclusion.desistimiento.desistimiento.subir']}"
+                    icon="fa fa-upload" tipoBoton="btn-primary"
+                    rendered="#{resolucionConvBean.habilitarBotonSubirResolucionDesistimiento(convocatoriasBean.modoConsulta)}">
+                </atlasp:button>
+        
+                <atlasp:button id="botonSubirResolucionDesistimientoDisabled" type="button"
+                    value="#{bundle['resolucion.exclusion.desistimiento.desistimiento.subir']}"
+                    alt="#{bundle['resolucion.exclusion.desistimiento.desistimiento.subir']}"
+                    title="#{bundle['resolucion.exclusion.desistimiento.desistimiento.subir']}"
+                    icon="fa fa-upload" tipoBoton="btn-primary" disabled="true"
+                    rendered="#{!resolucionConvBean.habilitarBotonSubirResolucionDesistimiento(convocatoriasBean.modoConsulta)}" />
+        
+                <atlasp:button id="botonDescargarResolucionDesistimiento" ajax="false"
+                    action="#{resolucionConvBean.descargarFicheroResolucionDesistimiento}"
+                    value="#{bundle['resolucion.exclusion.desistimiento.desistimiento.descargar']}"
+                    alt="#{bundle['resolucion.exclusion.desistimiento.desistimiento.descargar']}"
+                    title="#{bundle['resolucion.exclusion.desistimiento.desistimiento.descargar']}"
+                    icon="fa fa-download" tipoBoton="btn-primary"
+                    rendered="#{resolucionConvBean.habilitarBotonDescargarResolucionDesistimiento()}">
+                </atlasp:button>
+        
+                <atlasp:button id="botonDescargarResolucionDesistimientoDisabled" type="button"
+                    value="#{bundle['resolucion.exclusion.desistimiento.desistimiento.descargar']}"
+                    alt="#{bundle['resolucion.exclusion.desistimiento.desistimiento.descargar']}"
+                    title="#{bundle['resolucion.exclusion.desistimiento.desistimiento.descargar']}"
+                    icon="fa fa-download" tipoBoton="btn-primary" disabled="true"
+                    rendered="#{!resolucionConvBean.habilitarBotonDescargarResolucionDesistimiento()}" />
+                
+                <atlasp:button id="botonEnviarResolucionDesistimientoPortafirmas"
+                    ajax="true" process="@this"
+                    update="panelTipoResolucionExclusionDesistimiento :convocatoriaForm:convocatoriaFormMessages"
+                    action="#{resolucionConvBean.enviarResolucionDesistimientoPortafirmas}"
+                    value="#{bundle['boton.enviar.portafirma']}"
+                    alt="#{bundle['boton.enviar.portafirma']}"
+                    title="#{bundle['boton.enviar.portafirma']}"
+                    icon="fas fa-paper-plane" tipoBoton="btn-warning"
+                    disabled="#{!resolucionConvBean.habilitarEnviarResolucionDesistimientoPortafirmas(convocatoriasBean.modoConsulta)}" />
+            </h:panelGroup>
+        
+            <div class="space" />
+        
+            <h:panelGroup id="botoneraResolucionExclusionDesistimiento" layout="block"
+                rendered="#{resolucionConvBean.resolucionExclusionDesistimientoConjunta}">
+        
+                <atlasp:button ajax="true"
+                    action="#{resolucionConvBean.subirResolucionExclusionDesistimientoDialog}"
+                    value="#{bundle['solapa.resol.boton.subir.resol.definitiva']}"
+                    alt="#{bundle['solapa.resol.boton.subir.resol.definitiva']}"
+                    title="#{bundle['solapa.resol.boton.subir.resol.definitiva']}"
+                    icon="fa fa-upload" tipoBoton="btn-primary"
+                    rendered="#{resolucionConvBean.habilitarBotonSubirResolucionConjunta(convocatoriasBean.modoConsulta)}">
+                </atlasp:button>
+        
+                <atlasp:button type="button"
+                    value="#{bundle['solapa.resol.boton.subir.resol.definitiva']}"
+                    alt="#{bundle['solapa.resol.boton.subir.resol.definitiva']}"
+                    title="#{bundle['solapa.resol.boton.subir.resol.definitiva']}"
+                    icon="fa fa-upload" tipoBoton="btn-primary" disabled="true"
+                    rendered="#{!resolucionConvBean.habilitarBotonSubirResolucionConjunta(convocatoriasBean.modoConsulta)}" />
+        
+                <atlasp:button ajax="false"
+                    action="#{resolucionConvBean.descargaFicheroDefinitivo}"
+                    value="#{bundle['solapa.resol.boton.bajar.resol.definitiva']}"
+                    alt="#{bundle['solapa.resol.boton.bajar.resol.definitiva']}"
+                    title="#{bundle['solapa.resol.boton.bajar.resol.definitiva']}"
+                    icon="fa fa-download" tipoBoton="btn-primary"
+                    rendered="#{resolucionConvBean.habilitarBotonDescargarResolucionConjunta()}">
+                </atlasp:button>
+        
+                <atlasp:button type="button"
+                    value="#{bundle['solapa.resol.boton.bajar.resol.definitiva']}"
+                    alt="#{bundle['solapa.resol.boton.bajar.resol.definitiva']}"
+                    title="#{bundle['solapa.resol.boton.bajar.resol.definitiva']}"
+                    icon="fa fa-download" tipoBoton="btn-primary" disabled="true"
+                    rendered="#{!resolucionConvBean.habilitarBotonDescargarResolucionConjunta()}" />
+        
+                <atlasp:button type="button"
+                    value="#{bundle['boton.enviar.portafirma']}"
+                    alt="#{bundle['boton.enviar.portafirma']}"
+                    title="#{bundle['boton.enviar.portafirma']}"
+                    icon="fas fa-paper-plane" tipoBoton="btn-warning"
+                    rendered="#{resolucionConvBean.habilitarBotonEnviarResolucionConjuntaPortafirmas(convocatoriasBean.modoConsulta)}">
+                </atlasp:button>
+        
+                <atlasp:button type="button"
+                    value="#{bundle['boton.enviar.portafirma']}"
+                    alt="#{bundle['boton.enviar.portafirma']}"
+                    title="#{bundle['boton.enviar.portafirma']}"
+                    icon="fas fa-paper-plane" tipoBoton="btn-warning" disabled="true"
+                    rendered="#{!resolucionConvBean.habilitarBotonEnviarResolucionConjuntaPortafirmas(convocatoriasBean.modoConsulta)}" />
+        
+            </h:panelGroup>
+                
+            <div class="space" />
+            
+            <h:panelGroup id="botoneraExcelResolucionExclusionDesistimiento" layout="block">
+                <atlasp:button ajax="false"
+                    action="#{resolucionConvBean.descargarExcelResolucionExclusionDesistimiento}"
+                    value="#{bundle['resolucion.exclusion.desistimiento.excel.descargar']}"
+                    alt="#{bundle['resolucion.exclusion.desistimiento.excel.descargar']}"
+                    title="#{bundle['resolucion.exclusion.desistimiento.excel.descargar']}"
+                    icon="fas fa-file-excel" tipoBoton="btn-success">
+                </atlasp:button>
+            </h:panelGroup>
+        </h:panelGroup>
+        
+        <p:dialog id="dialogSubirResolucionExclusion"
+            widgetVar="dialogSubirResolucionExclusion"
+            header="#{bundle['resolucion.exclusion.documento.titulo']}"
+            closable="false" dynamic="true" modal="true" width="25%"
+            onShow="atlas.ui.Loading.hideLoad('appLoading')">
+    
+            <atlasp:facesMessages id="fmSubirResolucionExclusion" modo="notificar" />
+    
+            <p:outputPanel id="outPanelSubirResolucionExclusion">
+                <p:panelGrid columns="1" layout="grid"
+                    styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                    <h:outputText styleClass="tituloFormulario"
+                        value="#{bundle['resolucion.exclusion.documento.titulo']}" />
+                </p:panelGrid>
+    
+                <atlasp:message tipo="info"
+                    texto="#{bundle['solapa.resol.error.debe.seleccionar.fichero']}"
+                    rendered="#{resolucionConvBean.mostrarMensajeElegirFichero}" />
+    
+                <p:panelGrid columns="1" layout="grid"
+                    styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                    <h:outputText
+                        value="#{bundle['convocatorias.tab.documentos.label.archivo']}" />
+                    <p:fileUpload value="#{resolucionConvBean.archivoResolucionExclusion}"
+                        mode="simple" skinSimple="true"
+                        label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}"
+                        accept=".pdf" allowTypes="/(\.|\/)(pdf)$/"
+                        invalidFileMessage="Solo se permiten archivos PDF" />
+                </p:panelGrid>
+    
+                <p:panelGrid columns="1" layout="grid"
+                    styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                    <p:column>
+                        <atlasp:button
+                            actionListener="#{resolucionConvBean.cargarFicheroResolucionExclusion}"
+                            ajax="false" value="#{bundle['popup.guardar']}"
+                            alt="#{bundle['popup.guardar']}" title="#{bundle['popup.guardar']}"
+                            icon="fas fa-save" tipoBoton="btn-success"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+    
+                        <atlasp:button value="#{bundle['popup.cerrar']}"
+                            alt="#{bundle['popup.cerrar']}" title="#{bundle['popup.cerrar']}"
+                            icon="fas fa-times" tipoBoton="btn-secondary"
+                            action="#{resolucionConvBean.cerrarSubirResolucionExclusionDialog}"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                    </p:column>
+                </p:panelGrid>
+            </p:outputPanel>
+        </p:dialog>
+        
+            <p:dialog id="dialogSubirResolucionDesistimiento"
+                widgetVar="dialogSubirResolucionDesistimiento"
+                header="#{bundle['resolucion.desistimiento.documento.titulo']}"
+                closable="false" dynamic="true" modal="true" width="25%"
+                onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        
+                <atlasp:facesMessages id="fmSubirResolucionDesistimiento" modo="notificar" />
+        
+                <p:outputPanel id="outPanelSubirResolucionDesistimiento">
+                    <p:panelGrid columns="1" layout="grid"
+                        styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                        <h:outputText styleClass="tituloFormulario"
+                            value="#{bundle['resolucion.desistimiento.documento.titulo']}" />
+                    </p:panelGrid>
+        
+                    <atlasp:message tipo="info"
+                        texto="#{bundle['solapa.resol.error.debe.seleccionar.fichero']}"
+                        rendered="#{resolucionConvBean.mostrarMensajeElegirFichero}" />
+        
+                    <p:panelGrid columns="1" layout="grid"
+                        styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                        <h:outputText
+                            value="#{bundle['convocatorias.tab.documentos.label.archivo']}" />
+                        <p:fileUpload value="#{resolucionConvBean.archivoResolucionDesistimiento}"
+                            mode="simple" skinSimple="true"
+                            label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}"
+                            accept=".pdf" allowTypes="/(\.|\/)(pdf)$/"
+                            invalidFileMessage="Solo se permiten archivos PDF" />
+                    </p:panelGrid>
+        
+                    <p:panelGrid columns="1" layout="grid"
+                        styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                        <p:column>
+                            <atlasp:button
+                                actionListener="#{resolucionConvBean.cargarFicheroResolucionDesistimiento}"
+                                ajax="false" value="#{bundle['popup.guardar']}"
+                                alt="#{bundle['popup.guardar']}" title="#{bundle['popup.guardar']}"
+                                icon="fas fa-save" tipoBoton="btn-success"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+        
+                            <atlasp:button value="#{bundle['popup.cerrar']}"
+                                alt="#{bundle['popup.cerrar']}" title="#{bundle['popup.cerrar']}"
+                                icon="fas fa-times" tipoBoton="btn-secondary"
+                                action="#{resolucionConvBean.cerrarSubirResolucionDesistimientoDialog}"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                        </p:column>
+                    </p:panelGrid>
+                </p:outputPanel>
+            </p:dialog>
+        <p:dialog id="dialogSubirResolucionExclusionDesistimiento"
+            widgetVar="dialogSubirResolucionExclusionDesistimiento"
+            header="#{bundle['resolucion.exclusion.desistimiento.resolucion.definitiva.titulo']}"
+            closable="false" dynamic="true" modal="true" width="25%"
+            onShow="atlas.ui.Loading.hideLoad('appLoading')">
+    
+            <atlasp:facesMessages id="fmSubirResolucionExclusionDesistimiento"
+                modo="notificar" />
+    
+            <p:outputPanel id="outPanelSubirResolucionExclusionDesistimiento">
+                <p:panelGrid columns="1" layout="grid"
+                    styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                    <h:outputText styleClass="tituloFormulario"
+                        value="#{bundle['resolucion.exclusion.desistimiento.resolucion.definitiva.titulo']}" />
+                </p:panelGrid>
+    
+                <atlasp:message tipo="info"
+                    texto="#{bundle['solapa.resol.error.debe.seleccionar.fichero']}"
+                    rendered="#{resolucionConvBean.mostrarMensajeElegirFichero}" />
+    
+                <p:panelGrid columns="1" layout="grid"
+                    styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                    <h:outputText
+                        value="#{bundle['convocatorias.tab.documentos.label.archivo']}" />
+                    <p:fileUpload
+                        value="#{resolucionConvBean.archivoResolucionDefinitiva}"
+                        mode="simple" skinSimple="true"
+                        label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}"
+                        accept=".pdf" allowTypes="/(\.|\/)(pdf)$/"
+                        invalidFileMessage="Solo se permiten archivos PDF">
+                    </p:fileUpload>
+                </p:panelGrid>
+    
+                <p:panelGrid columns="1" layout="grid"
+                    styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                    <p:column>
+                        <atlasp:button
+                            actionListener="#{resolucionConvBean.cargarFicheroResolucionExclusionDesistimiento}"
+                            ajax="false" value="#{bundle['popup.guardar']}"
+                            alt="#{bundle['popup.guardar']}"
+                            title="#{bundle['popup.guardar']}"
+                            icon="fas fa-save" tipoBoton="btn-success"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                        </atlasp:button>
+    
+                        <atlasp:button value="#{bundle['popup.cerrar']}"
+                            alt="#{bundle['popup.cerrar']}"
+                            title="#{bundle['popup.cerrar']}"
+                            icon="fas fa-times" tipoBoton="btn-secondary"
+                            action="#{resolucionConvBean.cerrarSubirResolucionExclusionDesistimientoDialog}"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                        </atlasp:button>
+                    </p:column>
+                </p:panelGrid>
+            </p:outputPanel>
+        </p:dialog>
+    </p:outputPanel>
+</ui:composition>

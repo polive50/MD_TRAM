@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:component   xmlns="http://www.w3.org/1999/xhtml" xml:lang="es"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
+
+    <ui:param name="appLoadingAjax" value="#{empty appLoadingAjax ? 'false' : appLoadingAjax}" />
+    <ui:param name="appLoadingModal" value="#{empty appLoadingModal ? 'true' : appLoadingModal}" />
+    <ui:param name="appLoadingOnLoadPage" value="#{empty appLoadingOnLoadPage ? 'false' : appLoadingOnLoadPage}" />
+
+    <atlasp:loading id="appLoading" modal="#{appLoadingModal}"  ajaxRender="#{appLoadingAjax}" onLoadPage="#{appLoadingOnLoadPage}"/>
+
+    <ui:insert name="commonApp"/>
+
+</ui:component>

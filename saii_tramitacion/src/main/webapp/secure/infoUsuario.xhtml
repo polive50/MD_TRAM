@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:atlas="http://atlas.core.componentes/jsf"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
+<head>
+<title value="#{bundle['index.ficha.infousuario.titulo']}"></title>
+</head>
+
+<f:metadata>
+    <f:viewAction action="#{infoUsuarioBean.loadUserData}" />
+</f:metadata>
+<ui:composition template="/WEB-INF/layout/atlasBaseLayout.xhtml">
+    <ui:param name="appLoadingOnLoadPage" value="true" />
+
+    <ui:param name="cargaMenuHorizontal" value="false" />
+    <ui:param name="cargaMenuVertical" value="true" />
+    <ui:param name="cargarRastroMigas" value="true" />
+
+
+    <ui:define name="content">
+        <h:form id="infoUsuarioForm" styleClass="form-atlas">
+
+            <div class="space" />
+
+            <atlasp:facesMessages id="infoUsuarioMessages"
+                modo="todo" escape="false" />
+
+            <p:fieldset legend="#{bundle['infoUsuario.titulo']}"
+                toggleable="false" collapsed="false">
+
+                <div class="space" />
+
+                <h:outputText
+                    value="#{bundle['infoUsuario.descripcion']}"
+                    escape="false" />
+
+                <br />
+                <br />
+
+                <p:fieldset
+                    legend="#{bundle['infoUsuario.titulo.datosAcceso']}"
+                    toggleable="true" toggleSpeed="300"
+                    collapsed="false">
+                    <div class="space" />
+                    <div class="space" />
+                    <div class="ui-g">
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.login']}" />
+                            <h:outputText id="outputTextNombre"
+                                styleClass="label"
+                                value="#{infoUsuarioBean.login}" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.roles']} " />
+                            <h:outputText id="outputTextRoles"
+                                styleClass="label"
+                                value="#{infoUsuarioBean.roles} - #{infoUsuarioBean.descripcionRol}" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.ip']} " />
+                            <h:outputText id="outputTextIp"
+                                styleClass="label"
+                                value="#{infoUsuarioBean.ip}" />
+                        </div>
+
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.fechaUltimoAcceso']} " />
+                            <h:outputText id="outputTextFecha"
+                                styleClass="label"
+                                value="#{infoUsuarioBean.fechaUltimoAcceso}" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.loginConCertificado']} " />
+                            <h:outputText
+                                id="outputTextloginConCertificado"
+                                styleClass="label"
+                                value="#{infoUsuarioBean.loginConCertificadoBo ? 'Si' : 'No'}" />
+                        </div>
+                    </div>
+
+                </p:fieldset>
+
+                <br />
+
+                <p:fieldset
+                    legend="#{bundle['infoUsuario.titulo.datosUnidad']}"
+                    toggleable="true" toggleSpeed="300"
+                    collapsed="false"
+                    rendered="#{infoUsuarioBean.rolAdministrador || infoUsuarioBean.rolSupervisor}">
+                    <div class="space" />
+                    <div class="space" />
+                    <div class="ui-g">
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.direccion']}" />
+                            <h:outputText id="outputTextDireccion"
+                                styleClass="label"
+                                value="#{infoUsuarioBean.direccion.cdUnidad} - #{infoUsuarioBean.direccion.dsUnidad}" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.subdireccion']} " />
+                            <h:outputText id="outputTextSubDireccion"
+                                styleClass="label"
+                                value="#{infoUsuarioBean.subDireccion.cdUnidad} - #{infoUsuarioBean.subDireccion.dsUnidad}" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.area']} " />
+                            <h:outputText id="outputTextArea"
+                                styleClass="label"
+                                value="#{infoUsuarioBean.unidadAdmin.cdUnidad} - #{infoUsuarioBean.unidadAdmin.dsUnidad}" />
+                        </div>
+
+                    </div>
+
+                </p:fieldset>
+
+
+                <br />
+
+                <p:fieldset
+                    legend="#{bundle['infoUsuario.titulo.datosPersonales']}"
+                    toggleable="true" toggleSpeed="300"
+                    collapsed="false"
+                    rendered="#{infoUsuarioBean.usuarioIntranet}">
+                    <div class="ui-g">
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.cdUsuario']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuPackUsuarioDto.cdUsuario}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsUsuario']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuPackUsuarioDto.dsUsuario}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dni']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuPackUsuarioDto.dni}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsNombre']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuPackUsuarioDto.dsNombre}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsApellido1']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuPackUsuarioDto.dsApellido1}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsApellido2']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuPackUsuarioDto.dsApellido2}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsDireccion']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuPackUsuarioDto.dsDireccion}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsTelefono']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuPackUsuarioDto.dsTelefono}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsOrganismo']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuPackUsuarioDto.dsOrganismo}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsDependencia']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuPackUsuarioDto.dsDependencia}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsPuestoTrabajo']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuPackUsuarioDto.dsPuestoTrabajo}"
+                                escape="false" />
+                        </div>
+
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.email']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuPackUsuarioDto.email}"
+                                escape="false" />
+                        </div>
+                    </div>
+
+                </p:fieldset>
+
+
+                <p:fieldset
+                    legend="#{bundle['infoUsuario.titulo.datosPersonales']}"
+                    toggleable="true" toggleSpeed="300"
+                    collapsed="false"
+                    rendered="#{infoUsuarioBean.usuarioInternet}">
+                    <div class="ui-g">
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.cdUsuario']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuiPackUsuarioDto.cdUsuario}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsUsuario']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuiPackUsuarioDto.dsUsuario}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dni']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuiPackUsuarioDto.cdNif}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsNombre']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuiPackUsuarioDto.dsNombre}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsApellido1']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuiPackUsuarioDto.dsApellido1}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsApellido2']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuiPackUsuarioDto.dsApellido2}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsDireccion']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuiPackUsuarioDto.dsDireccion}&nbsp;&nbsp;#{infoUsuarioBean.usuiPackUsuarioDto.dsDireccionCpMun}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsTelefono']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuiPackUsuarioDto.dsTelefono}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.dsOrganismo']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuiPackUsuarioDto.dsOrganismo}"
+                                escape="false" />
+                        </div>
+
+                        <div class="ui-g-12">
+                            <h:outputText styleClass="label negrita"
+                                value="#{bundle['infoUsuario.email']} " />
+                            <h:outputText styleClass="label"
+                                value="#{infoUsuarioBean.usuiPackUsuarioDto.cdEmail}"
+                                escape="false" />
+                        </div>
+                    </div>
+
+                </p:fieldset>
+
+
+                <br />
+                <br />
+
+            </p:fieldset>
+
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+    	<f:facet name="first">
+			<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"/>
+			<meta http-equiv="Pragma" content="no-cache" />
+		</f:facet>
+        <f:loadBundle basename="conf/application" var="atlasApp" />
+        <ui:decorate template="/WEB-INF/include/commonHead.xhtml">
+            <ui:define name="headerInsert">
+                <ui:insert name="headerInsert">
+                    <link type="text/css" rel="stylesheet" href="css/#{atlasApp['app.resources.name']}.css" />
+                    <script type="text/javascript" src="js/#{atlasApp['app.resources.name']}.js"></script>
+                </ui:insert>
+            </ui:define>
+        </ui:decorate>
+    </h:head>
+
+    <h:body id="index" class="main-welcome-body">
+
+        <!-- librería general de javascript atlas -->
+        <h:outputScript library="js" name="atlas.js" target="head"/>
+        <h:outputStylesheet library="atlas.core.css" name="atlas_welcome.css" />
+
+        <div class="main-welcome">
+
+            <div class="welcome-header">
+                <a href="#"><h:graphicImage value="img/login-header.jpg" alt="Comunidad de Madrid" title="Comunidad de Madrid"/></a>
+            </div>
+
+            <div class="welcome-title">
+                <h:outputText styleClass="titulo" value="#{bundle['layout.subtitle']}" escape="false"/>
+            </div>
+
+            <h:panelGroup styleClass="welcome-content-wrapper" layout="block">
+                <h:panelGroup layout="block" styleClass="welcome-content">
+                    <ui:insert name="content" />
+                </h:panelGroup>
+            </h:panelGroup>
+
+            <h:panelGroup layout="block" styleClass="welcome-footer">
+                <ui:insert name="footer" />
+            </h:panelGroup>
+        </div>
+    </h:body>
+</html>

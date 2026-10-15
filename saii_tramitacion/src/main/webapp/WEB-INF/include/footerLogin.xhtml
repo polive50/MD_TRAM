@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xml:lang="es"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:p="http://primefaces.org/ui">
+
+    <h:panelGroup styleClass="footer-content" layout="block">
+        <div class="info izq">
+            <span>#{bundle['footer.politica']} #{systemInfoBean.politicaAcceso}</span>
+        </div>
+        <div class="info centro">
+             <span>#{bundle['footer.version']} #{atlasApp['app.version']} - #{atlasApp['app.version.fecha']}</span>
+        </div>
+        <div class="info dcha">
+            <h:outputText styleClass="a"
+                 value="Atlas #{systemInfoBean.version}" />
+        </div>
+    </h:panelGroup>
+    <hr />
+	<h:panelGroup styleClass="footer-content bottomhr" layout="block">
+        <p:commandLink id="atlasAvisoLegalLogin"
+            onclick="window.open('https://www.comunidad.madrid/servicios/informacion-atencion-ciudadano/aviso-legal-privacidad#aviso-legal','_blank', 'width=665,height=745');return false;"
+            title="#{bundle['footer.link1.aviso']}" alt="#{bundle['footer.link1.aviso']}">
+            <h:outputText value="#{bundle['footer.link1.aviso']}" />
+        </p:commandLink>
+        <span class="separador-pie">
+            <h:outputText value="#{bundle['footer.separator']}" />
+        </span>
+	    <p:commandLink id="atlasPrivacidadLogin"
+            onclick="window.open('https://www.comunidad.madrid/servicios/informacion-atencion-ciudadano/aviso-legal-privacidad#privacidad','_blank', 'width=665,height=745');return false;"
+            title="#{bundle['footer.link2.privacidad']}" alt="#{bundle['footer.link2.privacidad']}">
+            <h:outputText value="#{bundle['footer.link2.privacidad']}" />
+        </p:commandLink>
+        <span class="separador-pie">
+            <h:outputText value="#{bundle['footer.separator']}" />
+        </span>
+        <p:commandLink id="atlasContactoLogin"
+            onclick="window.open('https://www.comunidad.madrid/servicios/informacion-atencion-ciudadano/contacta-opina','_blank', 'width=665,height=480');return false;"
+            title="#{bundle['footer.link3.contacto']}" alt="#{bundle['footer.link3.contacto']}">
+                <h:outputText value="#{bundle['footer.link3.contacto']}" />
+        </p:commandLink>
+    </h:panelGroup>
+</ui:composition>

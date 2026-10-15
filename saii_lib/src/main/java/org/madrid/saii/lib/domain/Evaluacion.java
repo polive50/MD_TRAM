@@ -24,6 +24,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import atlas.core.database.auditoria.AtlasAuditarCampo;
 import atlas.core.database.auditoria.AtlasAuditarCampo.TiposAuditoria;
 import atlas.core.database.auditoria.AtlasAuditarFila;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
@@ -122,6 +123,10 @@ public class Evaluacion implements Serializable {
     private Imagen imagenLogo;
     
     /* Representa el id del informe */
+    // VMM 15/10/26 MD-3142: sin esto Informe.toString -> listaEvaluacion -> Evaluacion.toString -> informe
+    // entra en bucle (StackOverflowError) cuando la coleccion esta cargada y se traza con DEBUG
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Informe informe;
 
     // ////////////////////////////////////////////////////////

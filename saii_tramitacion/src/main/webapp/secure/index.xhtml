@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/WEB-INF/layout/welcomeLayout.xhtml">
+
+    <ui:param name="appLoadingOnLoadPage" value="true" />
+
+    <ui:param name="cargaMenuHorizontal" value="false" />
+    <ui:param name="cargaMenuVertical" value="false" />
+    <ui:param name="cargarRastroMigas" value="false" />
+
+    <ui:define name="content">
+        <div class="atlasContenedorPadre">
+            <div class="atlasContenedorHijo"
+                style="text-align: left; padding-top: 0rem">
+                <h:outputText styleClass="tituloPagina"
+                    value="#{bundle['index.titulo']}" />
+                
+                <a
+                    href="#{faces.requestBaseURL}secure/convocatoria/listaConvocatoria.jsf?id=convocatoria">
+                    <div class="atlasFicha">
+                        <p>
+                            <i
+                                class="fas fa-bullhorn atlasContenidoColorAzul atlasIconoTamanoGrande"></i>
+                        </p>
+
+                        <div class="atlasFichaTitulo atlasContenidoColorAzul">
+                            <h:outputText value="#{bundle['inicio.label.convocatorias.titulo']}" />
+                        </div>
+
+                        <div class="atlasFichaCuerpo">
+                            <h:outputText value="#{bundle['inicio.label.convocatorias.descripcion']}" />
+                        </div>
+                    </div>
+                </a>
+               
+            </div>
+
+        </div>
+        
+    </ui:define>
+
+    <ui:define name="footer">
+        <ui:include src="/WEB-INF/include/footerLogin.xhtml" />
+    </ui:define>
+</ui:composition>
+</html>

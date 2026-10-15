@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
+
+
+    <!-- Historico -->
+    <atlasp:listaPaginada id="lstHistorio"
+        listAndCountMethod="#{expedienteBean.obtenerHistorico}"
+        reflow="true" pijama="true" sortMode="single" export="true"
+        exportTitle="Historico_Expediente"
+        exportFile="Historico_Expediente">
+
+        <atlasp:columnaListaPaginada field="fcAlta" filtrable="false"
+            exportable="true" order="false" label="Fecha">
+            <ui:define name="value">
+                <h:outputText value="#{item.fcAltaFila}">
+                    <f:convertDateTime type="date"
+                        pattern="dd/MM/yyyy - HH:mm:ss" />
+                </h:outputText>
+            </ui:define>
+        </atlasp:columnaListaPaginada>
+
+        <atlasp:columnaListaPaginada field="cdUsuAlta" filtrable="false"
+            exportable="true" order="false" label="Usuario">
+            <ui:define name="value">
+                <h:outputText value="#{item.cdUsuAlta}" />
+            </ui:define>
+        </atlasp:columnaListaPaginada>
+
+        <atlasp:columnaListaPaginada field="estado" filtrable="false"
+            exportable="true" order="false" label="Estado interno">
+            <ui:define name="value">
+                <h:outputText value="#{item.estadoDTO.dsValor}" />
+            </ui:define>
+        </atlasp:columnaListaPaginada>
+
+        <atlasp:columnaListaPaginada field="estadoBeneficiario"
+            filtrable="false" exportable="true" order="false"
+            label="Estado beneficiario">
+            <ui:define name="value">
+                <h:outputText
+                    value="#{item.estadoBeneficiarioDTO.dsValor}" />
+            </ui:define>
+        </atlasp:columnaListaPaginada>
+
+        <atlasp:columnaListaPaginada field="estadoRevAdmin"
+            filtrable="false" exportable="true" order="false"
+            label="Estado rev. adm.">
+            <ui:define name="value">
+                <h:outputText value="#{item.estadoRevAdminDTO.dsValor}" />
+            </ui:define>
+        </atlasp:columnaListaPaginada>
+
+        <atlasp:columnaListaPaginada field="estadoRevRequi"
+            filtrable="false" exportable="true" order="false"
+            label="Estado rev. req.">
+            <ui:define name="value">
+                <h:outputText value="#{item.estadoRevRequiDTO.dsValor}" />
+            </ui:define>
+        </atlasp:columnaListaPaginada>
+        
+        <atlasp:columnaListaPaginada field="estadoRevEval"
+            filtrable="false" exportable="true" order="false"
+            label="Estado rev. eval.">
+            <ui:define name="value">
+                <h:outputText value="#{item.estadoRevEvalDTO.dsValor}" />
+            </ui:define>
+        </atlasp:columnaListaPaginada>
+        
+        <atlasp:columnaListaPaginada field="estadoRevFinan"
+            filtrable="false" exportable="true" order="false"
+            label="Estado rev. finan.">
+            <ui:define name="value">
+                <h:outputText value="#{empty item.estadoRevFinanDTO.dsValor ? '' : item.estadoRevFinanDTO.dsValor}" />
+            </ui:define>
+        </atlasp:columnaListaPaginada>        
+
+    </atlasp:listaPaginada>
+
+
+</ui:composition>

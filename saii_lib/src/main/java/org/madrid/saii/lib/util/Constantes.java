@@ -826,6 +826,12 @@ public final class Constantes {
         
         /** Constante pendiente provisional */
         public static final Integer PENDIENTE_DEFINITIVO = 250;
+        
+        /** Constante pendiente provisional */
+        public static final Integer PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO = 251;
+        
+        /** Constante pendiente provisional */
+        public static final Integer PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO = 252;
 
         /** Constante Pendiente de revisión alegaciones */
         public static final Integer PENDIENTE_REVISION_ALEGACIONES = 229;
@@ -1972,6 +1978,9 @@ public final class Constantes {
         
         /** Constante filtro fcFirma */
         public static final String FILTRO_FCFIRMA = "fcFirma";
+        
+        /** Constante filtro nmNota */
+        public static final String FILTRO_NMNOTA = "nmNota";
         
         public static final String FILTRO_FCINIEJECUCION = "fcIniEjecucion";
         

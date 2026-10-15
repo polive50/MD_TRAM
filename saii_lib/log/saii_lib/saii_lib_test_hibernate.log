@@ -1,6 +1,0 @@
-[16/04/2024-15:53:19,809][INFO][HHH000412: Hibernate Core {5.2.12.Final}][org.hibernate.Version.logVersion][][][][][]
-[16/04/2024-15:53:19,811][INFO][HHH000206: hibernate.properties not found][org.hibernate.cfg.Environment.<clinit>][][][][][]
-[16/04/2024-15:53:19,957][INFO][HCANN000001: Hibernate Commons Annotations {5.0.1.Final}][org.hibernate.annotations.common.Version.<clinit>][][][][][]
-[16/04/2024-15:53:21,429][INFO][HHH000400: Using dialect: atlas.core.database.CustomDialect][org.hibernate.dialect.Dialect.<init>][][][][][]
-[16/04/2024-15:53:24,418][INFO][HHH000250: Starting update timestamps cache at region: org.hibernate.cache.spi.UpdateTimestampsCache][org.hibernate.cache.spi.UpdateTimestampsCache.<init>][][][][][]
-[16/04/2024-15:53:24,428][INFO][HHH000248: Starting query cache at region: org.hibernate.cache.internal.StandardQueryCache][org.hibernate.cache.internal.StandardQueryCache.<init>][][][][][]
