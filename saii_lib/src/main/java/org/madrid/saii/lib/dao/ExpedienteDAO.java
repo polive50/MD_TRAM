@@ -10,6 +10,7 @@ import org.madrid.saii.lib.domain.ExpedienteDoc;
 import org.madrid.saii.lib.dto.ExpedienteContratoDTO;
 import org.madrid.saii.lib.dto.ExpedienteDTO;
 import org.madrid.saii.lib.dto.ExpedienteFiltrosDTO;
+import org.madrid.saii.lib.dto.ResolucionConcesionDTO;
 import org.madrid.saii.lib.dto.ResolucionExclusionDesistimientoDTO;
 
 import atlas.core.exceptions.ServiceException;
@@ -271,5 +272,15 @@ public interface ExpedienteDAO extends BaseDAO<Expediente, Integer> {
     Map<Integer, Date> obtenerFcPresentacionPorLote(List<Integer> idsExpediente);
 
     Map<Integer, Object[]> obtenerEstadosExpedienteSolicitantePorLote(List<Integer> idsSolicitud);
+    
+    /**
+     * Obtiene los expedientes concedidos definitivos aceptados de la convocatoria.
+     *
+     * @param idConvocatoria identificador de la convocatoria
+     * @param idEstado identificador del estado concedido definitivo aceptado
+     * @return expedientes de la resolución de concesión
+     */
+    List<ResolucionConcesionDTO> listaResolucionConcesion(
+            Integer idConvocatoria, Integer idEstado);
 
 }

@@ -117,6 +117,11 @@ public class DocumentoDTO implements Serializable {
      */
     private Integer idTramite;
 
+    /**
+     * Campo identificador del asunto (trámite de notificación del ciudadano)
+     */
+    private Integer idAsunto;
+
     /***********************************
      * CAMPOS FICA***
      ***********************************/

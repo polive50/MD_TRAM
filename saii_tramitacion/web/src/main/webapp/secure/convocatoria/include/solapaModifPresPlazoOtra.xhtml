@@ -1114,11 +1114,13 @@
                    onclick="atlas.ui.Loading.showLoad('appLoading')"
                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
                    icon="fas fa-save" tipoBoton="btn-success"
-                   disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}" />
+                   disabled="#{expedienteModifPresPlazoOtraBean.esModificacionEnEstadoIniciada() or expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}" />
 
                        <!-- VMM 07/10/26 MD-2905: descarga a Excel de las 3 tablas de presupuesto (una hoja por tabla).
-                            Siempre activo (no depende de modo consulta ni del estado de la modificacion). ajax="false"
-                            porque es una descarga de fichero, igual que btnDescargarResolucion. -->
+                            No depende del modo consulta; VMM 14/10/26 MD-3138: pero no se activa mientras la
+                            modificacion este en estado Iniciada (hasta que se presente, en Pendiente revision),
+                            igual que Guardar. ajax="false" porque es una descarga de fichero, igual que
+                            btnDescargarResolucion. -->
                        <p:commandButton id="btnDescargarDatosPresupuestarios"
                             class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
                             style="margin-left: 8px;"
@@ -1127,6 +1129,7 @@
                             value="#{bundle['boton.descargar.datos.presupuestarios.excel']}"
                             alt="#{bundle['boton.descargar.datos.presupuestarios.excel']}"
                             title="#{bundle['boton.descargar.datos.presupuestarios.excel']}"
+                            disabled="#{expedienteModifPresPlazoOtraBean.esModificacionEnEstadoIniciada()}"
                             icon="fa fa-download" />
 
                     </div>
@@ -1286,8 +1289,10 @@
                      que ademas la fuerza siempre al valor de BD aunque llegara alterada). -->
                 <p:column
                     headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.anualidades.fecha.fin.ejecucion']}">
+                    <!-- VMM 16/10/26 MD-3121: disabled con la misma condicion que el boton Guardar de plazos -->
                     <p:calendar
                         value="#{expAnualModAcept.fcFinEjecucion}"
+                        disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.deshabilitarBotonesGuardar() or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}"
                         pattern="dd/MM/yyyy HH:mm"
                         mask="99/99/9999 99:99"
                         navigator="true"
@@ -1314,7 +1319,9 @@
                 value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.modifPlazosObservaciones']}"
                 style="font-weight: bold;text-transform: uppercase;" />
                 
+                <!-- VMM 16/10/26 MD-3121: disabled con la misma condicion que el boton Guardar de plazos -->
                 <p:inputTextarea maxlength="2000" rows="10" style="width: 90%"
+                                disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.deshabilitarBotonesGuardar() or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}"
                                 value="#{expedienteModifPresPlazoOtraBean.tlObservacionesModifPlazos}">
                 </p:inputTextarea>
                 
@@ -1376,7 +1383,9 @@
                 value="#{bundle['convocatorias.detalle.solicitudes.expedientes.modificacion.label.modifOtrasObservaciones']}"
                 style="font-weight: bold;text-transform: uppercase;" />
                 
+                <!-- VMM 16/10/26 MD-3121: disabled con la misma condicion que el boton Guardar de otras modificaciones -->
                 <p:inputTextarea maxlength="2000" rows="10" style="width: 90%"
+                                disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.deshabilitarBotonesGuardar() or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}"
                                 value="#{expedienteModifPresPlazoOtraBean.tlOtrasModifObservaciones}">
                 </p:inputTextarea>
                 
@@ -2457,9 +2466,23 @@
                                 </ui:define>
                             </atlasp:columnaListaPaginada>
 
+                            <!-- VMM 16/10/26 MD-3116: la observacion que escribe el beneficiario al subir el documento
+                                 se guarda en SAII_EXPEDIENTE_DOC.TL_OBSERVACIONES (tlObservaciones). Esta columna solo
+                                 mostraba la del gestor (tlObservacionesGestor), que aqui suele ser nula, asi que el
+                                 historico salia sin la observacion del beneficiario. Ahora hay una columna para cada una. -->
                             <atlasp:columnaListaPaginada
-                                label="Observaciones"
-                                field="tlObservacionesGestor" 
+                                label="Observaciones del beneficiario"
+                                field="tlObservaciones"
+                                filtrable="false"
+                                exportable="true">
+                                <ui:define name="value">
+                                    <h:outputText value="#{item.tlObservaciones}" />
+                                </ui:define>
+                            </atlasp:columnaListaPaginada>
+
+                            <atlasp:columnaListaPaginada
+                                label="Observaciones del gestor"
+                                field="tlObservacionesGestor"
                                 filtrable="false"
                                 exportable="true">
                                 <ui:define name="value">

@@ -79,6 +79,17 @@ public interface PdfService {
     DocumentoDTO descargarZipSolicitud(Integer idSolicitud) throws ServiceException;
 
     /**
+     * Crea un zip con los documentos de la solicitud
+     *
+     * @param idSolicitud
+     * @param filtrarEstado true (comportamiento por defecto) para excluir del zip los
+     *        documentos en estado de subsanación; false para incluirlos igualmente
+     * @return DocumentoDTO
+     * @throws ServiceException the service exception
+     */
+    DocumentoDTO descargarZipSolicitud(Integer idSolicitud, Boolean filtrarEstado) throws ServiceException;
+
+    /**
      * Genera el zip de descarga del expediente
      *
      * @param idExpediente the id expediente

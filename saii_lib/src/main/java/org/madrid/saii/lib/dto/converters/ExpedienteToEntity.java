@@ -289,7 +289,14 @@ public enum ExpedienteToEntity implements Function<ExpedienteDTO, Expediente> {
         if (utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.RECHAZADO_DEFINITIVO).equals(idEstado)) {
             idValorEstadoBenef = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpedienteBeneficiario.RECHAZADO_DEFINITIVO);
         }
-
+        
+        if (utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_CONCEDIDO_DEFINITIVO).equals(idEstado)
+                || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DENEGADO_DEFINITIVO).equals(idEstado) 
+                || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO).equals(idEstado) 
+                || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO).equals(idEstado)) {
+            idValorEstadoBenef = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpedienteBeneficiario.EN_TRAMITACION);
+        }
+        
         CatalogosValores catalogosV = new CatalogosValores();
         catalogosV.setCatalogo(new Catalogos());
         catalogosV.getCatalogo().setIdCatalogo(utilConstantes.getGlobalCatalogos().get(Constantes.Cata.ESTADO_EXPEDIENTE_BENEFICIARIO));

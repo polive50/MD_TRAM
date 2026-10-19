@@ -280,12 +280,12 @@
                     
                     
             <!-- MD-1237 JRFM Mensaje de evaluaciones de alegaciones realizadas -->
-            <atlasp:message tipo="info"
-                texto="#{bundle['solapa.resolucion.alegaciones.evalucion.alegacion']}"
-                rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.cdFicaValoracionAleg==null and
-                                                    expedienteBean.expedienteDTO.itAlegaciones != null and 
-                                                    expedienteBean.expedienteDTO.itAlegaciones eq 'S' 
-                                                    and convocatoriasBean.convocatoriaDTO.tipoResolModalidadDTO.cdTipoResolucion == 'C'}" />
+<!--             <atlasp:message tipo="info" -->
+<!--                 texto="#{bundle['solapa.resolucion.alegaciones.evalucion.alegacion']}" -->
+<!--                 rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.cdFicaValoracionAleg==null and -->
+<!--                                                     expedienteBean.expedienteDTO.itAlegaciones != null and  -->
+<!--                                                     expedienteBean.expedienteDTO.itAlegaciones eq 'S'  -->
+<!--                                                     and convocatoriasBean.convocatoriaDTO.tipoResolModalidadDTO.cdTipoResolucion == 'C'}" /> -->
             <!-- MD-1237 JRFM Mensaje de sin alegaciones pero en tiempo -->
             <atlasp:message tipo="info"
                 texto="#{bundle['solapa.resolucion.alegaciones.no.presentadas']}"
@@ -365,26 +365,26 @@
 <!--                             value="#{bundle['solapa.resolucion.alegaciones.revisadas.por.gestor']}" /> -->
                     </p:column>
 
-                    <atlasp:message tipo="info"
-                        texto="#{bundle['solapa.resolucion.pendiente.realizar.informe']}"
-                        rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.cdFicaValoracionAleg == null and 
-                                                    expedienteBean.expedienteDTO.itAlegaciones != null and 
-                                                    expedienteBean.expedienteDTO.itAlegaciones eq 'S'
-                                                    and convocatoriasBean.convocatoriaDTO.tipoResolModalidadDTO.cdTipoResolucion == 'C'}" />
-                    <atlasp:button
-                        action="#{resolucionBean.descargarDocumentoAlegacion}"
-                        icon="fas fa-file-download"
-                        rendered="#{expedienteBean.expedienteDTO.cdFicaValoracionAleg!=null}"
-                        value="#{bundle['solapa.resolucion.btn.descargar.informe.valoracion']}"
-                        tipoBoton="btn-primary" />
-                    <atlasp:button icon="fas fa-file-download"
-                        rendered="#{expedienteBean.expedienteDTO.cdFicaValoracionAleg==null and
-                                                    expedienteBean.expedienteDTO.itAlegaciones != null and 
-                                                    expedienteBean.expedienteDTO.itAlegaciones eq 'S' 
-                                                    and convocatoriasBean.convocatoriaDTO.tipoResolModalidadDTO.cdTipoResolucion == 'C'}"
-                        disabled="true"
-                        value="#{bundle['solapa.resolucion.btn.descargar.informe.valoracion']}"
-                        tipoBoton="btn-primary" />
+<!--                     <atlasp:message tipo="info" -->
+<!--                         texto="#{bundle['solapa.resolucion.pendiente.realizar.informe']}" -->
+<!--                         rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.cdFicaValoracionAleg == null and  -->
+<!--                                                     expedienteBean.expedienteDTO.itAlegaciones != null and  -->
+<!--                                                     expedienteBean.expedienteDTO.itAlegaciones eq 'S' -->
+<!--                                                     and convocatoriasBean.convocatoriaDTO.tipoResolModalidadDTO.cdTipoResolucion == 'C'}" /> -->
+<!--                     <atlasp:button -->
+<!--                         action="#{resolucionBean.descargarDocumentoAlegacion}" -->
+<!--                         icon="fas fa-file-download" -->
+<!--                         rendered="#{expedienteBean.expedienteDTO.cdFicaValoracionAleg!=null}" -->
+<!--                         value="#{bundle['solapa.resolucion.btn.descargar.informe.valoracion']}" -->
+<!--                         tipoBoton="btn-primary" /> -->
+<!--                     <atlasp:button icon="fas fa-file-download" -->
+<!--                         rendered="#{expedienteBean.expedienteDTO.cdFicaValoracionAleg==null and -->
+<!--                                                     expedienteBean.expedienteDTO.itAlegaciones != null and  -->
+<!--                                                     expedienteBean.expedienteDTO.itAlegaciones eq 'S'  -->
+<!--                                                     and convocatoriasBean.convocatoriaDTO.tipoResolModalidadDTO.cdTipoResolucion == 'C'}" -->
+<!--                         disabled="true" -->
+<!--                         value="#{bundle['solapa.resolucion.btn.descargar.informe.valoracion']}" -->
+<!--                         tipoBoton="btn-primary" /> -->
                 </p:panelGrid>
                 
                 <!--         campos nuevoas  -->

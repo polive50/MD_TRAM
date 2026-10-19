@@ -32,6 +32,7 @@ import org.madrid.saii.lib.domain.ExpedienteReq;
 import org.madrid.saii.lib.dto.CatalogosValoresDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaGestorDTO;
+import org.madrid.saii.lib.dto.ConvocatoriaPlaDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaReqDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaTipoDocDTO;
 import org.madrid.saii.lib.dto.DocumentoDTO;
@@ -46,6 +47,7 @@ import org.madrid.saii.lib.services.CataService;
 import org.madrid.saii.lib.services.CatalogosValoresService;
 import org.madrid.saii.lib.services.ConvocatoriaCauService;
 import org.madrid.saii.lib.services.ConvocatoriaGestorService;
+import org.madrid.saii.lib.services.ConvocatoriaPlaService;
 import org.madrid.saii.lib.services.ConvocatoriaReqService;
 import org.madrid.saii.lib.services.ConvocatoriaService;
 import org.madrid.saii.lib.services.DocumentoPtfrService;
@@ -54,8 +56,12 @@ import org.madrid.saii.lib.services.ExpedienteDocHistService;
 import org.madrid.saii.lib.services.ExpedienteDocService;
 import org.madrid.saii.lib.services.ExpedienteReqService;
 import org.madrid.saii.lib.services.ExpedienteService;
+import org.madrid.saii.lib.services.PdfService;
+import org.madrid.saii.lib.services.TramiteService;
+import org.madrid.saii.lib.services.UnidadAdminService;
 import org.madrid.saii.lib.services.adme.NoteAdmeService;
 import org.madrid.saii.lib.services.adme.PtfrAdmeService;
+import org.madrid.saii.lib.tramite.Tramite;
 import org.madrid.saii.lib.util.Constantes;
 import org.madrid.saii.lib.util.UtilConstantes;
 import org.madrid.saii.tramitacion.jsf.InfoUsuarioBean;
@@ -65,6 +71,7 @@ import org.primefaces.PrimeFaces;
 import org.primefaces.model.UploadedFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -202,6 +209,8 @@ public class RequisitoBean extends CatalogoBean<ExpedienteReq, Integer> {
     private String botonFinalizar = "convocatoriaForm:contenedorSolapas:contenedorRevisionSolapas:btnFinalizarRevRequi";
 
     private String botonExclusion = "convocatoriaForm:contenedorSolapas:contenedorRevisionSolapas:btnEnviarExcluirPortafirmas";
+    
+    private String botonExcluir = "convocatoriaForm:contenedorSolapas:contenedorRevisionSolapas:btnExcluir";
     
     private String botonDescargarExclusion = "convocatoriaForm:contenedorSolapas:contenedorRevisionSolapas:btnDescargarExcluir";
 
@@ -353,6 +362,30 @@ public class RequisitoBean extends CatalogoBean<ExpedienteReq, Integer> {
     @Autowired
     @Qualifier("convocatoriaGestorService")
     private ConvocatoriaGestorService convocatoriaGestorService;
+    
+    /**
+     * Servicio Tramite
+     */
+    @Autowired
+    @Qualifier("tramiteService")
+    private TramiteService tramiteService;
+    
+    /** Servicio PdfService */
+    @Lazy
+    @Autowired
+    @Qualifier("pdfService")
+    private PdfService pdfService;
+    
+    @Autowired
+    @Qualifier("unidadAdminService")
+    private UnidadAdminService unidadAdminService;
+    
+    /** Servicio Convocatoria Pla */
+    @Autowired
+    @Qualifier("convocatoriaPlaService")
+    @Setter
+    @Getter
+    private ConvocatoriaPlaService convocatoriaPlaService;
 
     // ////////////////////////////////////////////////////////
     // /////////////////////////////// BEANS
@@ -742,6 +775,7 @@ public class RequisitoBean extends CatalogoBean<ExpedienteReq, Integer> {
             //PrimeFaces.current().ajax().update(this.campoEstadoExpediente);
             PrimeFaces.current().ajax().update(this.botonFinalizar);
             PrimeFaces.current().ajax().update(this.botonExclusion);
+            PrimeFaces.current().ajax().update(this.botonExcluir);
             PrimeFaces.current().ajax().update(this.botonDescargarExclusion);
             PrimeFaces.current().ajax().update(this.botonSubsanar);
             
@@ -966,18 +1000,67 @@ public class RequisitoBean extends CatalogoBean<ExpedienteReq, Integer> {
             // MD-2147 Y lo cambiamos por la resolución de exclusion provisional 419
             
             //si tiene marcado el check lanzamos el prosoviosoonal y si no eld efinitivo
-            Integer tramite;
+            Integer idTramite;
+            Integer idTipoDocumento;
             
             if(Boolean.TRUE.equals(convDTO.getItResProvExclusion())) {
-                tramite = utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL);
+                idTipoDocumento = utilConstantes.getGlobalCatalogosValores()
+                        .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_PROVISIONAL);
+                idTramite = utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL);
             }else {
-                tramite = utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.EXCLUSION);
+                idTipoDocumento = utilConstantes.getGlobalCatalogosValores()
+                        .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_PROVISIONAL_EXCLUIDA);
+                idTramite = utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.EXCLUSION);
             }
             
+            List<AtlasFilter> filtrosEntrada = new ArrayList<>();
+
+            // Obtenemos datos de la convocatoria pla
+            filtrosEntrada.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDCONVOCATORIA, idConvocatoria,
+                    Operador.EQUALS));
+            filtrosEntrada.add(
+                    new AtlasFilter(Constantes.Filtro.FILTRO_TRAMITE, idTramite, Operador.EQUALS));
+
+            List<ConvocatoriaPlaDTO> lstItem = this.convocatoriaPlaService.buscar(0, -1, filtrosEntrada,
+                    null);
+
+            if (lstItem.isEmpty()) {
+                throw new ServiceException("No hay documentos para el tramite en el Portafirmas.");
+            }
+
+            ConvocatoriaPlaDTO convocatoriaPla = lstItem.get(0);
+            
+            String strConsejeria = this.unidadAdminService.obtenerConsejeria();
+            byte[] informeTramitePdf;
+            
+            Tramite tramite = tramiteService.getTramite(idTramite);
+            tramite.setPdfService(this.pdfService);
+            tramite.setCatalogosValoresService(this.catalogosValoresService);
+            tramite.setExpedienteService(this.expedienteService);
+            informeTramitePdf = tramite.formularioPdf(convDTO, convocatoriaPla, expedienteDTO,
+                    strConsejeria);
+            
+            this.expedienteDocDTO  = this.prepararMetadatosFicaPlantilla(informeTramitePdf,
+                    idTipoDocumento, idTramite);
+            this.expedienteDocDTO = this.expedienteDocService.subirDocumentoFica(this.expedienteDocDTO);
+            this.expedienteDocDTO = this.expedienteDocService.guardar(this.expedienteDocDTO);
+            
             Boolean insertado = documentoPtfrService.guardarEnvioEnDcoumentoPTFR(convDTO,
-                    expedienteDTO, idExpediente,tramite, null, null, null, null);
+                    expedienteDTO, idExpediente,idTramite, null, null, null, null);
+            
+
 
             if (insertado.equals(Boolean.TRUE)) {
+                Integer nmTramite;
+                if(Boolean.TRUE.equals(convDTO.getItResProvExclusion())) {
+                    nmTramite = Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL;
+                }else {
+                    nmTramite = Constantes.Tramite.EXCLUSION;
+                }
+                List<DocumentoPtfrDTO> docPtfrDto = this.documentoPtfrService
+                        .buscarPorExpedienteTramite(idExpediente,nmTramite);
+                this.expedienteDocDTO.setIdDocumentoPtfr(docPtfrDto.get(0).getIdDocumentoPtfr());
+                this.expedienteDocService.guardar(this.expedienteDocDTO);
                 
                 // MD-2147 quitamos la actualizacion de los valores del formulario
                 // this.actualizarValoresFormulario();
@@ -1059,10 +1142,14 @@ public class RequisitoBean extends CatalogoBean<ExpedienteReq, Integer> {
 
             ConvocatoriaDTO convDTO = this.convocatoriaService.buscarId(idConvocatoria);
 
-                Integer estado= utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO);
+                //Integer estado= utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO);
+            
+            Integer estado= utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO); // falta ver aqui que tipo de estado emtemos
+            
                
                 ExpedienteDTO expeDTO = this.expedienteService.guardarCambioEstadoRevReq(
-                        this.idExpediente, estado);         
+                        this.idExpediente, estado);
+                
                 // actualizamos el DTO
                 this.expedienteBean.setExpedienteDTO(expeDTO);
                 this.expedienteBean.getFinanciacionBean().setBAvisoFinanciacion(Boolean.FALSE);
@@ -1141,8 +1228,10 @@ public class RequisitoBean extends CatalogoBean<ExpedienteReq, Integer> {
                             .get(Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL);
                 }else {
                     // MD-2422 Creamos el expedientedoc
+//                     idTipoDocumento = utilConstantes.getGlobalCatalogosValores()
+//                            .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
                      idTipoDocumento = utilConstantes.getGlobalCatalogosValores()
-                            .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
+                             .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_PROVISIONAL);
                      idTipoDoc = utilConstantes.getGlobalCatalogosValores()
                             .get(Constantes.Tramite.EXCLUSION);
                 }
@@ -1345,6 +1434,79 @@ public class RequisitoBean extends CatalogoBean<ExpedienteReq, Integer> {
         return this.expedienteDocDTO;
 
     }
+    
+    /**
+     * 
+     * @param archivoResolucion
+     * @param propuestaResolucion
+     * @param tramite
+     * @return
+     */
+    public ExpedienteDocDTO prepararMetadatosFicaPlantilla(byte[] archivoResolucion,
+            Integer propuestaResolucion, Integer tramite) {
+
+        if (Objects.nonNull(archivoResolucion)) {
+
+            try {
+                ExpedienteDocDTO expeDocDTO = this.expedienteService.getExpedienteDocDTO(propuestaResolucion, 
+                        this.expedienteBean.getExpedienteDTO().getIdExpediente());
+//                InputStream fileInputStream = archivoResolucion.getInputstream();
+//                String nombreArchivo = archivoResolucion.getFileName();
+                this.expedienteDocDTO.setIdExpedienteDoc(
+                        expeDocDTO != null && expeDocDTO.getIdExpedienteDoc() != null
+                                ? expeDocDTO.getIdExpedienteDoc()
+                                : null);
+                this.expedienteDocDTO.setExpedienteDTO(this.expedienteBean.getExpedienteDTO());
+                this.expedienteDocDTO.setEstadoDTO(this.catalogosValoresService
+                        .buscarId(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REVISION_OK)));
+                this.expedienteDocDTO.setTipoDocumentoDTO(
+                        this.catalogosValoresService.buscarId(propuestaResolucion));
+                this.expedienteDocDTO.setFicaMetadatos(new FicaMetadatos());
+                this.expedienteDocDTO.setCdFica(expeDocDTO != null && expeDocDTO.getCdFica() != null
+                        ? expeDocDTO.getCdFica()
+                        : null);
+                this.expedienteDocDTO.getFicaMetadatos().setNombreFichero(this.catalogosValoresService.buscarId(tramite).getDsValor());
+                this.expedienteDocDTO.getFicaMetadatos().setFechaFichero(new Date());
+                this.expedienteDocDTO.getFicaMetadatos().setExtension("pdf");
+                this.expedienteDocDTO.getFicaMetadatos()
+                        .setUsuario(UserUtils.getUserName().toUpperCase());
+                this.expedienteDocDTO.getFicaMetadatos().setEncriptar(false);
+                this.expedienteDocDTO.setContenidoFichero(archivoResolucion);
+                this.expedienteDocDTO
+                        .setCdUsuAlta(expeDocDTO != null && expeDocDTO.getCdUsuAlta() != null
+                                ? expeDocDTO.getCdUsuAlta()
+                                : null);
+                this.expedienteDocDTO
+                        .setFcAltaFila(expeDocDTO != null && expeDocDTO.getFcAltaFila() != null
+                                ? expeDocDTO.getFcAltaFila()
+                                : null);
+                this.expedienteDocDTO
+                        .setCdUsuModif(expeDocDTO != null && expeDocDTO.getIdExpedienteDoc() != null
+                                ? UserUtils.getUserName().toUpperCase()
+                                : null);
+                this.expedienteDocDTO.setFcModifFila(
+                        expeDocDTO != null && expeDocDTO.getIdExpedienteDoc() != null ? new Date()
+                                : null);
+                this.expedienteDocDTO.setTramiteDTO(tramite == null ? new CatalogosValoresDTO()
+                        : this.catalogosValoresService.buscarId(tramite));
+
+            } catch (ServiceException e) {
+                AtlasMessageUtils.addErrorMessageFromBundle(
+                        ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_KO);
+                log.error(e.getMessage());
+            }
+
+        } else {
+
+            AtlasMessageUtils
+                    .addErrorMessageFromBundle(ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_KO);
+            log.info(ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_KO);
+
+        }
+
+        return this.expedienteDocDTO;
+
+    }
 
     /**
      * Método descargar un PDF con el formulario de exclusion a enviar a
@@ -1356,10 +1518,16 @@ public class RequisitoBean extends CatalogoBean<ExpedienteReq, Integer> {
 
         try {
 
+            // VMM 15/10/26 MD-3143: el borrador usa la misma plantilla que el envio a portafirmas: la de
+            // exclusion provisional (419) si la convocatoria tiene el check de resolucion provisional
+            // de exclusion y la de exclusion (412) si no
+            Integer tramiteBorrador = Boolean.TRUE.equals(convDTO.getItResProvExclusion())
+                    ? utilConstantes.getGlobalCatalogosValores()
+                            .get(Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL)
+                    : utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.EXCLUSION);
+
             byte[] archivoPdf = this.documentoPtfrService.enviarPortaFirmasBorrador(
-                    convDTO.getIdConvocatoria(),
-                    utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.EXCLUSION),
-                    this.idExpediente, null);
+                    convDTO.getIdConvocatoria(), tramiteBorrador, this.idExpediente, null);
 
             StringBuilder nombreArchivoPdf = new StringBuilder();
             nombreArchivoPdf.append(this.expedienteBean.getExpedienteDTO().getCdExpediente());

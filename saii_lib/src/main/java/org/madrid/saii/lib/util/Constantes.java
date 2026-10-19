@@ -827,11 +827,13 @@ public final class Constantes {
         /** Constante pendiente provisional */
         public static final Integer PENDIENTE_DEFINITIVO = 250;
         
-        /** Constante pendiente provisional */
         public static final Integer PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO = 251;
         
-        /** Constante pendiente provisional */
         public static final Integer PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO = 252;
+        
+        public static final Integer PROPUESTA_RESOLUCION_CONCEDIDO_DEFINITIVO = 253;
+       
+        public static final Integer PROPUESTA_RESOLUCION_DENEGADO_DEFINITIVO = 254;
 
         /** Constante Pendiente de revisión alegaciones */
         public static final Integer PENDIENTE_REVISION_ALEGACIONES = 229;
@@ -1220,6 +1222,26 @@ public final class Constantes {
          * Constante EstadoDocumentoPtfr codigo estado 'Rechazado'
          */
         public static final String DS_RECHAZADO = "Rechazado";
+
+    }
+
+    /**
+     * Constantes para los estados de SAII_NOTIFI_CIUD (catálogo idCatalogo=65)
+     */
+    public static final class EstadoNotifiCiud {
+
+        /**
+         * Constructor de clase
+         */
+        protected EstadoNotifiCiud() {
+
+        }
+
+        /** Estado inicial al presentar la notificación del ciudadano */
+        public static final Integer PENDIENTE_REVISION = 850;
+
+        /** Estado cuando la administración ha resuelto la notificación */
+        public static final Integer RESUELTA = 851;
 
     }
 
@@ -1910,6 +1932,15 @@ public final class Constantes {
         public static final String FILTRO_EXPEDIENTE_SOLICITUD_IDSOLICITUD = "expediente.solicitud.idSolicitud";
         
         public static final String FILTRO_EXPEDIENTE_EXPEDIENTE_PADRE = "expediente.idExpedientePadre";
+
+        /** Constante del nombre del campo cdEreg (p.ej. NotificacionCiudadano) */
+        public static final String FILTRO_CDEREG = "cdEreg";
+
+        /** Constante del nombre del campo asunto.idValor (NotificacionCiudadano) */
+        public static final String FILTRO_NOTIFICACION_CIUDADANO_ID_ASUNTO = "asunto.idValor";
+
+        /** Constante del nombre del campo notificacionCiudadano.idNotificacion (NotificacionCiudadanoDoc) */
+        public static final String FILTRO_NOTIFICACION_CIUDADANO_DOC_ID_NOTIFICACION = "notificacionCiudadano.idNotificacion";
 
         /** Constante del nombre del campo estadoRevAdmin.idValor */
         public static final String FILTRO_EXPEDIENTE_ESTADO_REV_ADMIN = "estadoRevAdmin.idValor";
@@ -3084,8 +3115,14 @@ public final class Constantes {
         /** Constante Asunto Alegaciones excluido provisional */
         public static final String ASUNTO_ALEGACIONES_EXCLUIDO_PROVISIONAL = "Presentación de alegaciones excluido provisional";
 
-        /** Constante Asunto Desistimiento expreso */
-        public static final String ASUNTO_DESISTIMIENTO_EXPRESO = "Presentación de desistimiento expreso";
+        /** Constante Asunto Notificación del ciudadano */
+        public static final String ASUNTO_DESISTIMIENTO_EXPRESO = "Presentación de notificación del ciudadano";
+
+        /** Constante Expone (Notificación del ciudadano) */
+        public static final String EXPONE = "Expone: \n";
+
+        /** Constante Solicita (Notificación del ciudadano) */
+        public static final String SOLICITA = "Solicita: \n";
 
     }
 
@@ -3382,8 +3419,11 @@ public final class Constantes {
         
         /** Constante itAutoriza */
         public static final String IT_AUTORIZA = "itAutoriza";
-        
+
         public static final String ID_CONVOCATORIA = "id_convocatoria";
+
+        /** Constante idAsunto (notificación del ciudadano) */
+        public static final String ID_ASUNTO = "idAsunto";
 
     }
 
@@ -3812,7 +3852,7 @@ public final class Constantes {
         public static final Integer DESISTIMIENTO = 411;
 
         
-        public static final Integer DESISTIMIENTO_EXPRESO = 700;
+        public static final Integer NOTIFICACION_CIUDADANO = 701;
 
         /** Constante Tramite de Exclusión de expediente */
         public static final Integer EXCLUSION = 412;

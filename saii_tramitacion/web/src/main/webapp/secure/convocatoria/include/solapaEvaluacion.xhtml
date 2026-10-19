@@ -237,15 +237,8 @@
                 layout="grid" styleClass="ui-panelgrid-blank">
                 <h:outputText styleClass="tituloNotaExp"
                     value="#{expedienteBean.cadenaNotaMaxima}" />
-                <p:inputNumber id="orden" minValue="0"
-                    maxValue="#{expedienteBean.convocatoriaDTO.nmCalificacionMax}"
-                    decimalPlaces="0" thousandSeparator=""
-                    readonly="#{expedienteBean.expedienteDTO.modoConsulta or convocatoriasBean.modoConsulta}"
-                    value="#{expedienteBean.expedienteDTO.nmNota}">
-                    <p:ajax event="blur" process="@this"
-                        listener="#{expedienteBean.guardarNotaEvaluacion}"
-                        disabled="#{expedienteBean.expedienteDTO.modoConsulta or convocatoriasBean.modoConsulta}" />
-                </p:inputNumber>
+                <h:outputText id="orden"
+                    value="#{expedienteBean.expedienteDTO.nmNota}" />
             </p:panelGrid>
 
             <p:panelGrid id="pgBotoneraAprobarRechazar" columns="1"

@@ -64,6 +64,7 @@ import org.madrid.saii.lib.dto.PtfrConsultaTiposDocumentoDTO;
 import org.madrid.saii.lib.dto.PtfrRecuperaDocFirmadoDTO;
 import org.madrid.saii.lib.dto.SolicitudDTO;
 import org.madrid.saii.lib.dto.converters.CatalogosValoresToEntity;
+import org.madrid.saii.lib.dto.converters.ConvocatoriaToDTO;
 import org.madrid.saii.lib.dto.converters.ConvocatoriaToEntity;
 import org.madrid.saii.lib.dto.converters.DocumentoPtfrToDTO;
 import org.madrid.saii.lib.dto.converters.DocumentoPtfrToEntity;
@@ -1468,10 +1469,27 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
 
             Solicitud solicitud = this.solicitudDAO
                     .find(expediente.getSolicitud().getIdSolicitud());
+            
+            
+            Convocatoria conv = this.convocatoriaDAO.find(solicitud.getConvocatoria().getIdConvocatoria());
+            ConvocatoriaDTO convDTO =  ConvocatoriaToDTO.INSTANCE.apply(conv);
+            
+            Integer diasSubsanacion;
+            
+            if("C".equals(convDTO.getTipoResolModalidadDTO().getCdTipoResolucion())){
+                
+                if( conv.getNmDiasHabilesAudiencia() != null) {
+                    diasSubsanacion = conv.getNmDiasHabilesAudiencia();
+                }else {
+                    diasSubsanacion = solicitud.getConvocatoria().getNmDiasSubsanacion();
+                }
+            }else {
+                diasSubsanacion = solicitud.getConvocatoria().getNmDiasSubsanacion();
+            }
 
             LocalDateTime fcLimiteSubsanacion = this.expedienteService
                     .calcularFechaLimiteSubsanacion(
-                            solicitud.getConvocatoria().getNmDiasSubsanacion(),
+                            diasSubsanacion,
                             DocumentoPtfrToDTO.INSTANCE.apply(envioPtfr), fechaLecturaLimite);
 
             envioPtfr.setFcFinPlazoSubsanacion( Utils.convertLocalDateToDateInstant(fcLimiteSubsanacion));
@@ -1576,9 +1594,8 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
     private void consultarLecturaNotificacionNoteRechazado(DocumentoPtfr envioPtfr,
             String fechaRechazoNote, String cdEstadoNote, FicaFichero ficaAcuseRecibo) throws ServiceException {
 
-        envioPtfr.setFcLecturaNote(null);
-        envioPtfr.setFcRechazoNote(
-                Utils.convertADateTime(fechaRechazoNote, Constantes.Utiles.FORMATO_FECHA_HORA));
+        envioPtfr.setFcLecturaNote(Utils.convertADateTime(fechaRechazoNote, Constantes.Utiles.FORMATO_FECHA_HORA));
+        envioPtfr.setFcRechazoNote(Utils.convertADateTime(fechaRechazoNote, Constantes.Utiles.FORMATO_FECHA_HORA));
         envioPtfr.setCdEstadoNote(cdEstadoNote);
         if (ficaAcuseRecibo != null) {
             envioPtfr.setCdFicaAcuseReciboNote(
@@ -1697,10 +1714,31 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
     
             Solicitud solicitud = this.solicitudDAO
                     .find(expediente.getSolicitud().getIdSolicitud());
+            
+            Convocatoria conv = this.convocatoriaDAO.find(solicitud.getConvocatoria().getIdConvocatoria());
+            ConvocatoriaDTO convDTO =  ConvocatoriaToDTO.INSTANCE.apply(conv);
+            
+            Integer diasSubsanacion;
+            
+            if("C".equals(convDTO.getTipoResolModalidadDTO().getCdTipoResolucion()) && ( utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.DENEGACION_PROVISIONAL).equals(envioPtfr.getTramite().getIdValor())
+                    || utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.CONCESION_PROVISIONAL).equals(envioPtfr.getTramite().getIdValor())
+                    || utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_DESISTIMIENTO_PROVISIONAL).equals(envioPtfr.getTramite().getIdValor())
+                    || utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL).equals(envioPtfr.getTramite().getIdValor()))){
+                
+                if( conv.getNmDiasHabilesAudiencia() != null) {
+                    diasSubsanacion = conv.getNmDiasHabilesAudiencia();
+                }else {
+                    diasSubsanacion = solicitud.getConvocatoria().getNmDiasSubsanacion();
+                }
+                
+            }else {
+                diasSubsanacion = solicitud.getConvocatoria().getNmDiasSubsanacion();
+            }
+           
     
             LocalDateTime fcLimiteSubsanacion = this.expedienteService
                     .calcularFechaLimiteSubsanacion(
-                            solicitud.getConvocatoria().getNmDiasSubsanacion(),
+                            diasSubsanacion,
                             DocumentoPtfrToDTO.INSTANCE.apply(envioPtfr),envioPtfr.getFcRechazoNote());
     
             envioPtfr.setFcFinPlazoSubsanacion( Utils.convertLocalDateToDateInstant(fcLimiteSubsanacion));

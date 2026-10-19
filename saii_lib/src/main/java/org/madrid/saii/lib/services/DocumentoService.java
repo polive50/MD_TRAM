@@ -60,7 +60,24 @@ public interface DocumentoService {
      */
     List<DocumentoDTO> obtenerDocumentosExpediente(final ExpedienteDTO expedienteDTO,
             final Boolean bFica, Integer idTramite, final List<ExpedienteDocDTO> lstExpDocDTO) throws ServiceException;
-    
+
+    /**
+     * Obtiene la lista de documentos de un expediente.
+     *
+     * @param expedienteDTO
+     * @param bFica true si recupera el fichero de fica / false si no
+     * @param idTramite
+     * @param lstExpDocDTO
+     * @param filtrarEstado true (comportamiento por defecto) para excluir los documentos en
+     *        estado de subsanación (REQUIERE_SUBSANACION, REQUIERE_SUBSANACION_NOTIFICADO,
+     *        EN_TRAMITE_SUBSANACION); false para incluirlos igualmente
+     * @return List<DocumentoDTO>
+     * @throws ServiceException the service exception
+     */
+    List<DocumentoDTO> obtenerDocumentosExpediente(final ExpedienteDTO expedienteDTO,
+            final Boolean bFica, Integer idTramite, final List<ExpedienteDocDTO> lstExpDocDTO,
+            final Boolean filtrarEstado) throws ServiceException;
+
     /**
      * Obtener la lista de documentos de un expediente
      * y solo descarga los documentos marcados como descargables

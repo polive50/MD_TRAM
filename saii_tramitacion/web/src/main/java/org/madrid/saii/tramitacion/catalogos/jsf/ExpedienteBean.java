@@ -13,8 +13,10 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -264,6 +266,11 @@ public class ExpedienteBean extends CatalogoBean<Expediente, Integer> {
     
     /* lista de numero de interrupciones (multiregistro) */
     private List<Integer> lstNumFilasMultiregistro;
+
+    /* VMM 15/10/26 MD-3152: filas de cada bloque multiregistro, por idBloque. Antes solo habia
+     * lstNumFilasMultiregistro, compartida por todos los bloques multiregistro del formulario, asi que
+     * el ultimo bloque calculado pisaba el numero de filas de los demas */
+    private Map<Integer, List<Integer>> lstNumFilasMultiregistroPorBloque = new HashMap<>();
 
     // ////////////////////////////////////////////////////////
     // /////////////////////////////// SERVICIOS
@@ -747,6 +754,9 @@ public class ExpedienteBean extends CatalogoBean<Expediente, Integer> {
                                                 Objects.isNull(b.getIdBloquePadre()))
                                         .collect(Collectors.toList()));
                         
+                        // VMM 15/10/26 MD-3152: filas de cada bloque multiregistro (se rellena en agregarBloqueMultiregistro)
+                        this.lstNumFilasMultiregistroPorBloque = new HashMap<>();
+
                         //Modificamos formato fecha para componentes subtipo fecha
                         for(BloqueDTO bloque: expediente.getImpresoDTO().getLstBloqueDTO()) {
                                    
@@ -809,6 +819,7 @@ public class ExpedienteBean extends CatalogoBean<Expediente, Integer> {
                         }
                     }
                     
+
                     this.setExpedienteDTO(expediente);
                    
                     if (expediente.getExpedienteContratoSustitucion() != null) {
@@ -870,6 +881,7 @@ public class ExpedienteBean extends CatalogoBean<Expediente, Integer> {
                             dto.getBlMostrarMensajeAprobarDenegarDefinitivoIndividual4());
                     this.getExpedienteDTO().setBlMostrarMensajeAprobarDenegarDefinitivoIndividual5(
                             dto.getBlMostrarMensajeAprobarDenegarDefinitivoIndividual5());
+
                     
                     
                     //GIM 29/01/26 MD-2242 vamos buscar si tienen un dopcumentod e resolucion definito o provisional en la cola sin fecha de lectura, 
@@ -1139,7 +1151,41 @@ public class ExpedienteBean extends CatalogoBean<Expediente, Integer> {
               }            
            }
        }    
+       this.lstNumFilasMultiregistro = null;
        this.formatearBloqueMultiregistro(listaSubbloqueDTO);
+       // VMM 15/10/26 MD-3152: guardamos las filas de ESTE bloque (formatearBloqueMultiregistro las deja
+       // en lstNumFilasMultiregistro, que el siguiente bloque multiregistro sobrescribe)
+       // y quitamos las filas en las que todos los campos estan vacios (el formulario de la solicitud guarda
+       // una primera fila vacia, NM_FILA = 1)
+       List<Integer> filasBloque = new ArrayList<>();
+       if (this.lstNumFilasMultiregistro != null) {
+           for (Integer fila : this.lstNumFilasMultiregistro) {
+               if (this.filaMultiregistroTieneValor(listaSubbloqueDTO, fila)) {
+                   filasBloque.add(fila);
+               }
+           }
+       }
+       this.lstNumFilasMultiregistroPorBloque.put(bloque.getIdBloque(), filasBloque);
+   }
+
+   /**
+    * VMM 15/10/26 MD-3152: indica si algun campo de la fila (indice) del bloque multiregistro tiene valor
+    */
+   private boolean filaMultiregistroTieneValor(List<BloqueDTO> listaSubbloqueDTO, int fila) {
+       for (BloqueDTO subBloque : listaSubbloqueDTO) {
+           if (Boolean.TRUE.equals(subBloque.getEsTipoDocumento())
+                   || subBloque.getLstBloqueComponenteDTO() == null) {
+               continue;
+           }
+           for (BloqueComponenteDTO blqComp : subBloque.getLstBloqueComponenteDTO()) {
+               if (blqComp.getDatos() != null && blqComp.getDatos().size() > fila
+                       && blqComp.getDatos().get(fila) != null
+                       && StringUtils.isNotBlank(blqComp.getDatos().get(fila).getDsValor())) {
+                   return true;
+               }
+           }
+       }
+       return false;
    }
 
 
@@ -2319,7 +2365,12 @@ public class ExpedienteBean extends CatalogoBean<Expediente, Integer> {
             AtlasSort orden = ((List<AtlasSort>) orderBean).get(0);
             Comparator<ExpedienteDTO> comparador = this.obtenerComparadorExpediente(orden.getProperty());
             if (comparador != null) {
-                filtrados.sort(orden.isAscendente() ? comparador : comparador.reversed());
+                Comparator<ExpedienteDTO> ordenado = orden.isAscendente() ? comparador : comparador.reversed();
+                if ("nmNota".equals(orden.getProperty())) {
+                    ordenado = Comparator.comparing((ExpedienteDTO e) -> e.getNmNota() == null)
+                            .thenComparing(ordenado);
+                }
+                filtrados.sort(ordenado);
             }
         }
 
@@ -2386,6 +2437,9 @@ public class ExpedienteBean extends CatalogoBean<Expediente, Integer> {
                     Comparator.nullsLast(Comparator.naturalOrder()));
         case "estadoRevFinan":
             return Comparator.comparing(e -> e.getEstadoRevFinanDTO() != null ? e.getEstadoRevFinanDTO().getDsValor() : null,
+                    Comparator.nullsLast(Comparator.naturalOrder()));
+        case "nmNota":
+            return Comparator.comparing(ExpedienteDTO::getNmNota,
                     Comparator.nullsLast(Comparator.naturalOrder()));
         default:
             return null;
@@ -3132,11 +3186,9 @@ public class ExpedienteBean extends CatalogoBean<Expediente, Integer> {
         // Ajusta a la zona horaria local 
         ZoneId zone = ZoneId.of("Europe/Madrid"); //ZoneId.systemDefault(); //este default tb esta sumando un dia de mas
        
-        //vamos a tener que restar el dia que está sumando de más
+        // VMM 16/10/26 MD-3150: ver ExpedienteModifPresPlazoOtraBean.formatFecha - atZone(Europe/Madrid) ya
+        // da la fecha correcta, no hay que restar un dia (se veia 15/03 en vez de 16/03)
         LocalDateTime localDateTime = instant.atZone(zone).toLocalDateTime();
-        if (localDateTime.getHour() == 0 && localDateTime.getMinute() == 0) {
-            localDateTime = localDateTime.minusDays(1);
-        }
          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         return localDateTime.format(formatter);
     }

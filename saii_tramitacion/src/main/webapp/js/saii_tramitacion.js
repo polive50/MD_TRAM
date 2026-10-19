@@ -1,1 +1,0 @@
-/* Fichero global de aplicación para código Javascript */

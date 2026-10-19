@@ -432,6 +432,7 @@
             alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.regresarSolicitudes']}"
             title="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.regresarSolicitudes']}"
             icon="fas fa-chevron-left" tipoBoton="btn-secondary"
+            actionListener="#{solicitudBean.filtrar}"
             action="#{convocatoriasBean.irASolapa(0)}"
             onclick="atlas.ui.Loading.showLoad('appLoading')"
             oncomplete="atlas.ui.Loading.hideLoad('appLoading')"/>

@@ -257,7 +257,8 @@
                             value="#{solicitudBean.estadoFilter}"
                             label=""
                             updateLabel="true" filter="false" panelStyle="width:300px">
-                            <f:selectItems value="#{solicitudBean.tablaSeleccionada eq 'expedientes' ? comboBean.getComboEstadoExpediente() : comboBean.getComboEstadoSolicitud()}" />
+                            <!-- VMM 15/10/26 MD-3125: sin los estados que solo se listan con "Mostrar Iniciadas" marcado -->
+                            <f:selectItems value="#{solicitudBean.tablaSeleccionada eq 'expedientes' ? comboBean.getComboEstadoExpediente(solicitudBean.mostrarIniciadas) : comboBean.getComboEstadoSolicitud(solicitudBean.mostrarIniciadas)}" />
                         </p:selectCheckboxMenu>
                         <p:outputPanel
                             styleClass="icono fa fa-fw fa-question-circle"
@@ -283,7 +284,9 @@
                         value="#{solicitudBean.mostrarIniciadas}">
 
                         <f:facet name="events">
-                            <p:ajax update="@form" />
+                            <!-- VMM 15/10/26 MD-3125: al desmarcar se quitan del filtro de Estado los estados que
+                                 dependen del check, y el combo se vuelve a pintar (update @form) sin ellos -->
+                            <p:ajax listener="#{solicitudBean.alCambiarMostrarIniciadas}" update="@form" />
                         </f:facet>
 
                     </p:selectBooleanCheckbox >
@@ -702,7 +705,7 @@
             
             <atlasp:columnaListaPaginada
                 label="#{bundle['convocatorias.detalle.solicitudes.expedientes.evaluacion.label.nota']}"
-                order="false" filtrable="false" exportable="true">
+                field="nmNota" filtrable="false" exportable="true">
                 <ui:define name="value">
                     <h:outputText value="#{solicitudBean.mapaNotaExpedienteSolicitudes[item.idSolicitud]}"
                         styleClass="#{item.fcBajaFila == null ? '' : 'registroBaja'}" />

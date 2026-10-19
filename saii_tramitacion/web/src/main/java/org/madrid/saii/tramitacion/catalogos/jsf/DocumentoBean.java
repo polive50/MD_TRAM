@@ -2776,7 +2776,7 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
     public void desistirDefinitivo(ConvocatoriaDTO convDTO) {
         try {
 
-                Integer estado = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO);
+                Integer estado = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO);
             
                 ExpedienteDTO expeDTO = this.expedienteService.guardarCambioEstadoRevAdmin(
                         this.idExpediente, estado);

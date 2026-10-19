@@ -747,7 +747,9 @@
                  layout="grid"
                  styleClass="ui-panelgrid-blank">
                  
-                    <p:dataTable var="indice" value="#{expedienteBean.lstNumFilasMultiregistro}" styleClass="atlas-lp">
+                    <!-- VMM 15/10/26 MD-3152: filas de ESTE bloque (antes lstNumFilasMultiregistro, que era la del
+                         ultimo bloque multiregistro calculado y se aplicaba a todos) -->
+                    <p:dataTable var="indice" value="#{expedienteBean.lstNumFilasMultiregistroPorBloque[bloque.idBloque]}" styleClass="atlas-lp">
                     
                         <p:columns value="#{bloque.lstBloqueComponenteDTO}" var="bloqueComponente"
                                    headerText="#{bloqueComponente.componenteDTO.dsNombre}" columnIndexVar="i">

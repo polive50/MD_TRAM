@@ -27,6 +27,7 @@ import org.madrid.saii.lib.dto.ExpedienteModifPresPlazoOtraDTO;
 import org.madrid.saii.lib.dto.ExpedienteReqDTO;
 import org.madrid.saii.lib.dto.ImpresoDTO;
 import org.madrid.saii.lib.dto.InteresadoDTO;
+import org.madrid.saii.lib.dto.NotificacionCiudadanoDTO;
 import org.madrid.saii.lib.dto.RegistroEregDTO;
 import org.madrid.saii.lib.dto.ResponseDTO;
 import org.madrid.saii.lib.dto.SolicitudDTO;
@@ -450,9 +451,10 @@ public interface ExpedienteService extends BaseService<Expediente, Integer, Expe
             String dniLogin, String cdNumIdenFuncional) throws ServiceException;
 
     /**
-     * Método para presentar el trámite de Desistimiento expreso.
+     * Método para presentar el trámite de Notificación del ciudadano.
      *
      * @param idExpediente id del expediente
+     * @param idAsunto id del valor de catálogo del asunto (idCatalogo=64)
      * @param tlExpone texto del campo "Expone"
      * @param tlSolicita texto del campo "Solicita"
      * @param cdNumIden cd num iden
@@ -461,9 +463,23 @@ public interface ExpedienteService extends BaseService<Expediente, Integer, Expe
      * @return RegistroEregDTO con los datos del registro EREG
      * @throws ServiceException Excepción ocurrido en el servicio
      */
-    RegistroEregDTO presentarDesistimientoExpreso(Integer idExpediente, String tlExpone,
-            String tlSolicita, String cdNumIden, String dniLogin, String cdNumIdenFuncional)
-            throws ServiceException;
+    RegistroEregDTO presentarDesistimientoExpreso(Integer idExpediente, Integer idAsunto,
+            String tlExpone, String tlSolicita, String cdNumIden, String dniLogin,
+            String cdNumIdenFuncional) throws ServiceException;
+
+    /**
+     * Método para buscar la notificación del ciudadano "en curso" (dada de
+     * alta pero todavía no presentada) de un expediente y asunto, junto con
+     * sus documentos adicionales ya enlazados. Si no existe ninguna, se
+     * devuelve un DTO vacío.
+     *
+     * @param idExpediente Identificador del expediente
+     * @param idAsunto Identificador del valor de catálogo del asunto (idCatalogo=64)
+     * @return NotificacionCiudadanoDTO
+     * @throws ServiceException Excepción ocurrido en el servicio
+     */
+    NotificacionCiudadanoDTO buscarNotificacionCiudadanoEnCurso(Integer idExpediente,
+            Integer idAsunto) throws ServiceException;
 
     /**
      * Método para comprobar que exista el tipo de documento "Resolución
@@ -790,13 +806,14 @@ public interface ExpedienteService extends BaseService<Expediente, Integer, Expe
     /**
      * Método para procesar el cambio de alegaciones
      * @param idExpediente
+     * @param idConvocatoria 
      * @param activarConcederDenegar 
      * @param idEstado
      * @param alegacionrevisada
      * @return
      * @throws ServiceException
      */
-    ExpedienteDTO procesarRevisionAlegacionGestor(Integer idExpediente, String alegacionRevisada, Boolean activarConcederDenegar)
+    ExpedienteDTO procesarRevisionAlegacionGestor(Integer idExpediente, Integer idConvocatoria, String alegacionRevisada, Boolean activarConcederDenegar)
             throws ServiceException;
 
     /**
@@ -897,6 +914,19 @@ public interface ExpedienteService extends BaseService<Expediente, Integer, Expe
     * @throws ServiceException
     */
    Integer countExpedienteEstructurado(List<Integer> lstIdSolicitud, Boolean mostrarIniciadas) throws ServiceException;
+
+   /**
+    * VMM 16/10/26 MD-3125: como obtenerExpedienteEstructurado(lstIdSolicitud, index, pageSize, orderBean,
+    * mostrarIniciadas) pero devolviendo solo los expedientes (y participantes) cuyo estado esta en
+    * lstEstadoExpediente (si es null o vacia no se filtra por estado)
+    */
+   List<ExpedienteDTO> obtenerExpedienteEstructurado(List<Integer> lstIdSolicitud, final int index, final int pageSize, Object orderBean, Boolean mostrarIniciadas, List<Integer> lstEstadoExpediente) throws ServiceException;
+
+   /**
+    * VMM 16/10/26 MD-3125: como countExpedienteEstructurado(lstIdSolicitud, mostrarIniciadas) pero contando
+    * solo los expedientes cuyo estado esta en lstEstadoExpediente (si es null o vacia no se filtra por estado)
+    */
+   Integer countExpedienteEstructurado(List<Integer> lstIdSolicitud, Boolean mostrarIniciadas, List<Integer> lstEstadoExpediente) throws ServiceException;
    
    /**
     * Obtiene la fecha de presentacion del expediente en base a la solicitud indicada

@@ -18,6 +18,8 @@ import org.madrid.saii.lib.dao.ExpedienteDocDAO;
 import org.madrid.saii.lib.dao.ExpedienteDocHistDAO;
 import org.madrid.saii.lib.dao.ExpedienteHistDAO;
 import org.madrid.saii.lib.dao.ExpedienteReqDAO;
+import org.madrid.saii.lib.dao.NotificacionCiudadanoDAO;
+import org.madrid.saii.lib.dao.NotificacionCiudadanoDocDAO;
 import org.madrid.saii.lib.dao.SolicitudDAO;
 import org.madrid.saii.lib.domain.CatalogosValores;
 import org.madrid.saii.lib.domain.Dato;
@@ -27,6 +29,8 @@ import org.madrid.saii.lib.domain.ExpedienteContrato;
 import org.madrid.saii.lib.domain.ExpedienteDoc;
 import org.madrid.saii.lib.domain.ExpedienteModfPresupPlazosOtrosDoc;
 import org.madrid.saii.lib.domain.ExpedienteModifPresPlazoOtra;
+import org.madrid.saii.lib.domain.NotificacionCiudadano;
+import org.madrid.saii.lib.domain.NotificacionCiudadanoDoc;
 import org.madrid.saii.lib.domain.Solicitud;
 import org.madrid.saii.lib.dto.BloqueComponenteDTO;
 import org.madrid.saii.lib.dto.BloqueDTO;
@@ -134,6 +138,18 @@ public class ExpedienteDocServiceImpl extends
     @Autowired
     @Qualifier("expedienteDocDAO")
     private ExpedienteDocDAO expedienteDocDAO;
+
+    @Autowired
+    @Qualifier("notificacionCiudadanoDAO")
+    private NotificacionCiudadanoDAO notificacionCiudadanoDAO;
+
+    @Autowired
+    @Qualifier("notificacionCiudadanoDocDAO")
+    private NotificacionCiudadanoDocDAO notificacionCiudadanoDocDAO;
+
+    @Autowired
+    @Qualifier("notificacionCiudadanoService")
+    private NotificacionCiudadanoService notificacionCiudadanoService;
 
     /**
      * DAO ConvocatoriaTipoDoc
@@ -767,6 +783,18 @@ public class ExpedienteDocServiceImpl extends
             expedienteDoc.setCdUsuAlta(cdNumIden);
             expedienteDoc.setFcAltaFila(date);
             this.insertOrUpdate(expedienteDoc);
+
+            // Trámite de notificación del ciudadano: el documento adicional
+            // se vincula de inmediato a la notificación "en curso" (dada de
+            // alta pero todavía no presentada) en SAII_NOTIFI_CIUD_DOC, para
+            // que al presentar solo se anexen los documentos de esta
+            // notificación y no los de otras notificaciones anteriores o
+            // posteriores del mismo expediente
+            if (documentoDTO.getIdTramite() != null
+                    && documentoDTO.getIdTramite().equals(Constantes.Tramite.NOTIFICACION_CIUDADANO)) {
+                this.vincularNotificacionCiudadanoEnCurso(expedienteDoc,
+                        documentoDTO.getIdExpediente(), documentoDTO.getIdAsunto(), cdNumIden, date);
+            }
         }
 
         // this.expedienteDocHistDAO.crearHistorico(expedienteDoc, cdNumIden);
@@ -780,6 +808,56 @@ public class ExpedienteDocServiceImpl extends
     
 
         return docSubido;
+    }
+
+    /**
+     * Vincula un documento adicional del trámite de notificación del
+     * ciudadano a la notificación "en curso" del expediente: la que
+     * coincide en expediente y asunto, y todavía no ha sido presentada (no
+     * tiene CD_EREG). Si no existe ninguna todavía, se crea una nueva. Esto
+     * permite que, al pulsar "Presentar", solo se anexen los documentos de
+     * esa notificación concreta (SAII_NOTIFI_CIUD_DOC), y no documentos de
+     * otras notificaciones anteriores o posteriores del mismo expediente.
+     *
+     * @param expedienteDoc documento recién insertado
+     * @param idExpediente expediente al que pertenece la notificación
+     * @param idAsunto asunto de la notificación (obligatorio en BBDD)
+     * @param cdNumIden usuario de auditoría
+     * @param date fecha de auditoría
+     */
+    private void vincularNotificacionCiudadanoEnCurso(ExpedienteDoc expedienteDoc,
+            Integer idExpediente, Integer idAsunto, String cdNumIden, Date date)
+            throws ServiceException {
+
+        if (idAsunto == null) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+
+        NotificacionCiudadano notificacionCiudadano = this.notificacionCiudadanoService
+                .buscarEnCursoEntidad(idExpediente, idAsunto);
+        boolean esNueva = Objects.isNull(notificacionCiudadano);
+
+        if (esNueva) {
+            notificacionCiudadano = new NotificacionCiudadano();
+            Expediente expAux = new Expediente();
+            expAux.setIdExpediente(idExpediente);
+            notificacionCiudadano.setExpediente(expAux);
+
+            CatalogosValores asunto = new CatalogosValores();
+            asunto.setIdValor(idAsunto);
+            notificacionCiudadano.setAsunto(asunto);
+
+            notificacionCiudadano.setCdUsuAlta(cdNumIden);
+            notificacionCiudadano.setFcAltaFila(date);
+            notificacionCiudadano = this.notificacionCiudadanoDAO.insert(notificacionCiudadano);
+        }
+
+        NotificacionCiudadanoDoc notificacionCiudadanoDoc = new NotificacionCiudadanoDoc();
+        notificacionCiudadanoDoc.setNotificacionCiudadano(notificacionCiudadano);
+        notificacionCiudadanoDoc.setExpedienteDoc(expedienteDoc);
+        notificacionCiudadanoDoc.setCdUsuAlta(cdNumIden);
+        notificacionCiudadanoDoc.setFcAltaFila(date);
+        this.notificacionCiudadanoDocDAO.insert(notificacionCiudadanoDoc);
     }
 
     /**

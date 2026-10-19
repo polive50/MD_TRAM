@@ -87,6 +87,17 @@
                 <atlasp:guardarEstado value="#{financiacionBean.esConvocatoriaConceptoPresup}" />
                 
                 <atlasp:guardarEstado value="#{solicitudBean.tablaSeleccionada}" />
+                <!-- VMM 16/10/26 MD-3125: filtros de solapaSolicitudes. El tabView es dynamic="true", asi que
+                     el guardarEstado que hay dentro de solapaSolicitudes.xhtml solo existe mientras esa solapa
+                     esta activa y los filtros se perdian al entrar en los expedientes de una solicitud
+                     (solapa 1) y volver. Aqui, a nivel de formulario, se conservan siempre. -->
+                <atlasp:guardarEstado value="#{solicitudBean.interesadoFilter}" />
+                <atlasp:guardarEstado value="#{solicitudBean.areaCientificaFilter}" />
+                <atlasp:guardarEstado value="#{solicitudBean.estadoFilter}" />
+                <atlasp:guardarEstado value="#{solicitudBean.organismoFilter}" />
+                <atlasp:guardarEstado value="#{solicitudBean.acronimoEntidadFilter}" />
+                <atlasp:guardarEstado value="#{solicitudBean.codExpedienteFilter}" />
+                <atlasp:guardarEstado value="#{solicitudBean.mostrarIniciadas}" />
                 <!-- MD-1593 JRFM Ya no es necesario guardar el listado de expedientes -->
                 <!-- <atlasp:guardarEstado value="#{solicitudBean.lstExpedientes}" /> -->
                                 

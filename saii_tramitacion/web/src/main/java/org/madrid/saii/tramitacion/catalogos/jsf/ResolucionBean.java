@@ -2408,7 +2408,7 @@ public class ResolucionBean {
     
     public void aprobarAlegacion() throws ServiceException {
         ExpedienteDTO expedienteDTO = this.expedienteService.procesarRevisionAlegacionGestor(
-                this.expedienteBean.getIdExpediente(),
+                this.expedienteBean.getIdExpediente(),this.expedienteBean.getIdConvocatoria(),
                 Constantes.AfirmacionNegacion.S, this.activarConcederDenegar);
         this.expedienteBean.setExpedienteDTO(expedienteDTO);
         this.activarConcederDenegar = expedienteDTO.getActivarConcederDenegar();
@@ -2427,7 +2427,7 @@ public class ResolucionBean {
     
     public void rechazarAlegacion() throws ServiceException {
         ExpedienteDTO expedienteDTO = this.expedienteService.procesarRevisionAlegacionGestor(
-                this.expedienteBean.getIdExpediente(),
+                this.expedienteBean.getIdExpediente(),this.expedienteBean.getIdConvocatoria(),
                 Constantes.AfirmacionNegacion.N,  this.activarConcederDenegar);
         this.expedienteBean.setExpedienteDTO(expedienteDTO);
         this.activarConcederDenegar = expedienteDTO.getActivarConcederDenegar();

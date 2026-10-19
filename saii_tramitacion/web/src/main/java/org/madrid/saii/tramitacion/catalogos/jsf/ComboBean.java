@@ -194,6 +194,46 @@ public class ComboBean extends CatalogoBean<Catalogos, Integer> {
     }
 
     /**
+     * VMM 15/10/26 MD-3125: igual que getComboEstadoSolicitud() pero sin los estados que solo se listan
+     * cuando esta marcado "Mostrar Iniciadas" (SolicitudBean.obtenerListaSolicitudes anade INICIADA a los
+     * estados visibles solo con el check), para no ofrecer un estado que luego no devolveria resultados.
+     */
+    public List<SelectItem> getComboEstadoSolicitud(Boolean mostrarIniciadas) throws ServiceException {
+        List<SelectItem> lstItem = this.getComboEstadoSolicitud();
+        if (!Boolean.TRUE.equals(mostrarIniciadas)) {
+            this.quitarEstados(lstItem, Constantes.EstadoSolicitud.INICIADA);
+        }
+        return lstItem;
+    }
+
+    /**
+     * VMM 15/10/26 MD-3125: igual que getComboEstadoExpediente() pero sin los estados de expediente que
+     * ExpedienteServiceImpl.obtenerExpedienteEstructurado/countExpedienteEstructurado excluyen cuando NO esta
+     * marcado "Mostrar Iniciadas" (iniciados, propuestos, no aceptados y rechazados definitivos)
+     */
+    public List<SelectItem> getComboEstadoExpediente(Boolean mostrarIniciadas) throws ServiceException {
+        List<SelectItem> lstItem = this.getComboEstadoExpediente();
+        if (!Boolean.TRUE.equals(mostrarIniciadas)) {
+            this.quitarEstados(lstItem, Constantes.EstadoExpediente.INICIADA,
+                    Constantes.EstadoExpediente.PROPUESTA, Constantes.EstadoExpediente.NO_ACEPTADA,
+                    Constantes.EstadoExpediente.RECHAZADO_DEFINITIVO);
+        }
+        return lstItem;
+    }
+
+    /**
+     * VMM 15/10/26 MD-3125: quita del combo los estados cuyo nm_constante se indica (la lista que
+     * devuelve combo() es nueva en cada llamada, asi que se puede modificar)
+     */
+    private void quitarEstados(List<SelectItem> lstItem, Integer... nmConstantes) {
+        List<Integer> idsOcultos = new ArrayList<>();
+        for (Integer nmConstante : nmConstantes) {
+            idsOcultos.add(utilConstantes.getGlobalCatalogosValores().get(nmConstante));
+        }
+        lstItem.removeIf(item -> idsOcultos.contains(item.getValue()));
+    }
+
+    /**
      * Metodo que rellena el combo de CatalogosValoresDTO para los tipos de
      * documentacion
      * @throws ServiceException

@@ -104,5 +104,10 @@ public class RegistroEregDTO implements Serializable {
      * Atributo que representa si la descarga será del ZIP de la justificación económica
      */
     private Boolean esDescargaZipJusEco;
-    
+
+    /**
+     * Atributo que representa si la descarga será del ZIP de la notificación del ciudadano
+     */
+    private Boolean esDescargaZipNotificacionCiudadano;
+
 }

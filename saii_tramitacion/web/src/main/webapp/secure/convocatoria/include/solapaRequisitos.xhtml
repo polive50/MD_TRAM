@@ -434,7 +434,7 @@
                 alt="#{convocatoriasBean.convocatoriaDTO.itResProvExclusion ? bundle['boton.enviar.exclusion'] : bundle['boton.enviar.exclusion.def']}"
                 title="#{convocatoriasBean.convocatoriaDTO.itResProvExclusion ? bundle['boton.enviar.exclusion'] : bundle['boton.enviar.exclusion.def']}"
                 icon="fas fa-times-circle"
-                disabled="#{!requisitoBean.activarBotonDescaregar or requisitoBean.isExpedienteRechazadoDefinitivo()}"
+                disabled="#{!requisitoBean.activarBotonDescaregar}"
                 update="@this"
                 onclick="atlas.ui.Loading.showLoad('appLoading')"
                 oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
@@ -920,6 +920,10 @@
                     value="#{convocatoriasBean.convocatoriaDTO.itResProvExclusion ? bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.resolucion.exclusion.provisional'] : 
                                     bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.resolucion.exclusion.definitiva']}" />
             </p:panelGrid>
+            
+            <h:outputText styleClass="label"
+                        value="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.resolucion']}" />
+            
 
             <p:panelGrid columns="2" layout="grid"
                 styleClass="ui-panelgrid-blank"
@@ -942,6 +946,15 @@
                         ajax="false" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.adjuntar.documento']}"
                         alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.adjuntar.documento']}"
                         title="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.adjuntar.documento']}"
+                        icon="fas fa-save" tipoBoton="btn-success"
+                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                    </atlasp:button>
+                    <atlasp:button
+                        actionListener="#{requisitoBean.enviarExcluirPortafirmasReq}"
+                        ajax="false" value="#{bundle['convocatorias.tab.documentos.label.desistimiento.plantilla']}"
+                        alt="#{bundle['convocatorias.tab.documentos.label.desistimiento.plantilla']}"
+                        title="#{bundle['convocatorias.tab.documentos.label.desistimiento.plantilla']}"
                         icon="fas fa-save" tipoBoton="btn-success"
                         onclick="atlas.ui.Loading.showLoad('appLoading')"
                         oncomplete="atlas.ui.Loading.hideLoad('appLoading')">

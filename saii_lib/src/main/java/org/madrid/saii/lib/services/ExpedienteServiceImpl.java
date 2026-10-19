@@ -42,6 +42,8 @@ import org.madrid.saii.lib.dao.ExpedienteJustecDocDAO;
 import org.madrid.saii.lib.dao.ExpedienteModifPresPlazoOtraDAO;
 import org.madrid.saii.lib.dao.ExpedienteReqDAO;
 import org.madrid.saii.lib.dao.InteresadoDAO;
+import org.madrid.saii.lib.dao.NotificacionCiudadanoDAO;
+import org.madrid.saii.lib.dao.NotificacionCiudadanoDocDAO;
 import org.madrid.saii.lib.dao.SolicitudDAO;
 import org.madrid.saii.lib.dao.TipoResolModalidadDAO;
 import org.madrid.saii.lib.domain.BloqueComponente;
@@ -68,6 +70,8 @@ import org.madrid.saii.lib.domain.ExpedienteReq;
 import org.madrid.saii.lib.domain.ExpedienteReqHist;
 import org.madrid.saii.lib.domain.Impreso;
 import org.madrid.saii.lib.domain.Interesado;
+import org.madrid.saii.lib.domain.NotificacionCiudadano;
+import org.madrid.saii.lib.domain.NotificacionCiudadanoDoc;
 import org.madrid.saii.lib.domain.Solicitud;
 import org.madrid.saii.lib.domain.TipoResolModalidad;
 import org.madrid.saii.lib.dto.BloqueComponenteDTO;
@@ -108,6 +112,7 @@ import org.madrid.saii.lib.dto.InformeDTO;
 import org.madrid.saii.lib.dto.InformeEvalDocDTO;
 import org.madrid.saii.lib.dto.InteresadoDTO;
 import org.madrid.saii.lib.dto.NoteEnviarNotificacionDTO;
+import org.madrid.saii.lib.dto.NotificacionCiudadanoDTO;
 import org.madrid.saii.lib.dto.PtfrRecuperaDocFirmadoDTO;
 import org.madrid.saii.lib.dto.RegistroEregDTO;
 import org.madrid.saii.lib.dto.RepresentanteJurDTO;
@@ -459,10 +464,31 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
     @Autowired
     @Qualifier("expedienteReqDAO")
     private ExpedienteReqDAO expedienteReqDAO;
-    
+
     @Autowired
     @Qualifier("expedienteReqHistService")
     private ExpedienteReqHistService expedienteReqHistService;
+
+    /**
+     * DAO de NotificacionCiudadano
+     */
+    @Autowired
+    @Qualifier("notificacionCiudadanoDAO")
+    private NotificacionCiudadanoDAO notificacionCiudadanoDAO;
+
+    /**
+     * DAO de NotificacionCiudadanoDoc
+     */
+    @Autowired
+    @Qualifier("notificacionCiudadanoDocDAO")
+    private NotificacionCiudadanoDocDAO notificacionCiudadanoDocDAO;
+
+    /**
+     * Servicio de NotificacionCiudadano
+     */
+    @Autowired
+    @Qualifier("notificacionCiudadanoService")
+    private NotificacionCiudadanoService notificacionCiudadanoService;
 
     /**
      * DAO para generar historicos
@@ -4816,10 +4842,24 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
             Boolean esDescargaZipSolicitud, Boolean esDescargaZipAlegacion,
             Boolean esDescargaZipSubsanacion, String asunto, Integer idTramite)
             throws ServiceException {
-        
+        return this.prepararRespuestaEregAleg(expedienteDTO, esDescargaZipSolicitud,
+                esDescargaZipAlegacion, esDescargaZipSubsanacion, asunto, idTramite, null);
+    }
+
+    /**
+     * @param lstExpDocDTO documentos adicionales a anexar al listado de
+     *        anexos de la entrada EREG (puede ser null para los trámites que
+     *        no los necesitan, p.ej. alegaciones)
+     */
+    private RegistroEregDTO prepararRespuestaEregAleg(ExpedienteDTO expedienteDTO,
+            Boolean esDescargaZipSolicitud, Boolean esDescargaZipAlegacion,
+            Boolean esDescargaZipSubsanacion, String asunto, Integer idTramite,
+            List<ExpedienteDocDTO> lstExpDocDTO)
+            throws ServiceException {
+
         String dniLogin = expedienteDTO.getDniUserLogin();
         String cifEntidadLogin= expedienteDTO.getCifEntidadLogin();
-        
+
         if (idTramite != null
                 // MD-2190 se quita la condición de ser un trámite de alegación exclusión provisional
 //                && idTramite.equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.ALEGACIONES_EXCLUSION_PROVISIONAL))
@@ -4831,7 +4871,7 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
 
         // Generamos el listado de anexos en ereg
         String cdListadoDocEreg = this.pdfService.generarFirmarListadoAnexos(expedienteDTO,
-                idTramite, asunto, null);
+                idTramite, asunto, lstExpDocDTO);
 
         if (StringUtils.isBlank(cdListadoDocEreg)) {
             throw new ServiceException(
@@ -4861,6 +4901,9 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
         if(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.ALEGACIONES)
                 .equals(idTramite)) {
             registroEregDTO.setCdEreg(Utils.formatearNmEreg(expedienteDTO.getCdEregAlegaciones()));
+        }else if(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.NOTIFICACION_CIUDADANO)
+                .equals(idTramite)) {
+            registroEregDTO.setCdEreg(Utils.formatearNmEreg(expedienteDTO.getCdEregNotifiCiud()));
         }else {
             registroEregDTO.setCdEreg(Utils.formatearNmEreg(expedienteDTO.getCdEreg()));
         }
@@ -6655,9 +6698,9 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
                 DocumentoPtfr peticionPortafirmas = this.documentoPtfrDAO
                         .find(opExpedienteDoc.get().getIdDocumentoPtfr());
                 // Si no existe dato de plazo de subsanación, lo calculamos
-                if (Objects.isNull(peticionPortafirmas.getFcFinPlazoSubsanacion())) {
+               /* if (Objects.isNull(peticionPortafirmas.getFcFinPlazoSubsanacion())) {
                     this.actualizarFechaPlazoSubsanacion(peticionPortafirmas, cdNumIden);
-                }
+                }*/
                 if (Objects.nonNull(peticionPortafirmas.getFcFinPlazoSubsanacion())) {
 
                     LocalDateTime fcLimiteSubsanacion = Utils.convertDateToLocalDateTimeInstant(
@@ -6714,9 +6757,9 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
                         .find(opExpedienteReq.get().getDocumentoPtfrDTO().getIdDocumentoPtfr());
 
                 // Si no existe dato de plazo de subsanación, lo calculamos
-                if (Objects.isNull(peticionPortafirmas.getFcFinPlazoSubsanacion())) {
+                /*if (Objects.isNull(peticionPortafirmas.getFcFinPlazoSubsanacion())) {
                     this.actualizarFechaPlazoSubsanacion(peticionPortafirmas, cdNumIden);
-                }
+                }*/
 
                 if (Objects.nonNull(peticionPortafirmas.getFcFinPlazoSubsanacion())) {
 
@@ -7096,17 +7139,19 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
     }
 
     /**
-     * Presenta el trámite de Desistimiento expreso: registra un documento con
-     * el texto de expone/solicita, marca el expediente como no aceptada la
-     * ayuda y lo envía a registro EREG.
+     * Presenta el trámite de Notificación del ciudadano: completa la
+     * notificación "en curso" (dada de alta al subir documentos adicionales,
+     * o creada aquí si no se subió ninguno) con el asunto/expone/solicita en
+     * SAII_NOTIFI_CIUD, recupera los documentos ya enlazados a ella en
+     * SAII_NOTIFI_CIUD_DOC y lo envía a registro EREG.
      */
     @Override
     @Transactional(readOnly = false, rollbackFor = ServiceException.class, propagation = Propagation.REQUIRES_NEW)
-    public RegistroEregDTO presentarDesistimientoExpreso(Integer idExpediente, String tlExpone,
-            String tlSolicita, String cdNumIden, String dniLogin, String cdNumIdenFuncional)
-            throws ServiceException {
+    public RegistroEregDTO presentarDesistimientoExpreso(Integer idExpediente, Integer idAsunto,
+            String tlExpone, String tlSolicita, String cdNumIden, String dniLogin,
+            String cdNumIdenFuncional) throws ServiceException {
 
-        if (Objects.isNull(idExpediente)) {
+        if (Objects.isNull(idExpediente) || Objects.isNull(idAsunto)) {
             throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
         }
 
@@ -7116,37 +7161,35 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
         }
 
         Integer idTramite = utilConstantes.getGlobalCatalogosValores()
-                .get(Constantes.Tramite.DESISTIMIENTO_EXPRESO);
+                .get(Constantes.Tramite.NOTIFICACION_CIUDADANO);
 
-        // Creamos el documento con el texto de expone/solicita
-        ExpedienteDoc expedienteDoc = new ExpedienteDoc();
-        expedienteDoc.setEstado(catalogosValoresService
-                .find(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REVISION_OK)));
-        expedienteDoc.setTramite(catalogosValoresService.find(idTramite));
-        expedienteDoc.setItAdicional(Constantes.AfirmacionNegacion.N);
-        expedienteDoc.setTlObservaciones(
-                "Expone: " + tlExpone + System.lineSeparator() + System.lineSeparator()
-                        + "Solicita: " + tlSolicita);
+        // Buscamos si ya existe una notificación "en curso" para este
+        // expediente y asunto (dada de alta al subir documentos adicionales,
+        // pero todavía no presentada: no tiene CD_EREG). Si existe, la
+        // reutilizamos (ya tiene documentos enlazados en
+        // SAII_NOTIFI_CIUD_DOC); si no, la creamos ahora
+        NotificacionCiudadano notificacionCiudadano = this.notificacionCiudadanoService
+                .buscarEnCursoEntidad(idExpediente, idAsunto);
 
-        Expediente expAux = new Expediente();
-        expAux.setIdExpediente(idExpediente);
-        expedienteDoc.setExpediente(expAux);
+        if (Objects.isNull(notificacionCiudadano)) {
+            notificacionCiudadano = new NotificacionCiudadano();
+            Expediente expAux = new Expediente();
+            expAux.setIdExpediente(idExpediente);
+            notificacionCiudadano.setExpediente(expAux);
+            notificacionCiudadano.setAsunto(catalogosValoresService.find(idAsunto));
+            notificacionCiudadano.setCdUsuAlta(cdNumIden);
+            notificacionCiudadano.setFcAltaFila(new Date());
+            notificacionCiudadano = this.notificacionCiudadanoDAO.insert(notificacionCiudadano);
+        }
 
-        expedienteDoc.setCdUsuAlta(cdNumIden);
-        expedienteDoc.setFcAltaFila(new Date());
+        notificacionCiudadano.setTlExpone(tlExpone);
+        notificacionCiudadano.setTlSolicita(tlSolicita);
+        notificacionCiudadano.setEstado(catalogosValoresService.find(utilConstantes
+                .getGlobalCatalogosValores().get(Constantes.EstadoNotifiCiud.PENDIENTE_REVISION)));
 
-        expedienteDoc = this.expedienteDocDAO.insert(expedienteDoc);
-        this.expedienteDocHistDAO.crearHistorico(expedienteDoc, cdNumIden);
-
-        // Marcamos el expediente como que no acepta la ayuda
-        expediente.setItAceptaAyuda(Constantes.AfirmacionNegacion.N);
-        expediente.setCdUsuModif(cdNumIden);
-        expediente.setFcModifFila(new Date());
-        expediente = this.getDao().merge(expediente);
-        this.expedienteHistDAO.crearHistorico(expediente, cdNumIden);
-
-        // Recuperamos los datos actualizados del expediente
-        ExpedienteDTO expedienteDTO = this.buscarIdSimple(idExpediente, Boolean.FALSE);
+        // Recuperamos los datos actualizados del expediente (datos completos,
+        // necesitamos el impreso para obtener el código de asunto EREG)
+        ExpedienteDTO expedienteDTO = this.buscarIdSimple(idExpediente, Boolean.TRUE);
         String cifEntidadLogin = null;
         if (!cdNumIdenFuncional.equalsIgnoreCase(dniLogin)) {
             cifEntidadLogin = cdNumIdenFuncional;
@@ -7154,10 +7197,89 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
         expedienteDTO.setDniUserLogin(dniLogin);
         expedienteDTO.setCifEntidadLogin(cifEntidadLogin);
 
-        // retornamos respuesta ereg
-        return this.prepararRespuestaEregAleg(expedienteDTO, Boolean.FALSE, Boolean.FALSE,
-                Boolean.FALSE, Constantes.ReciboPresentacion.ASUNTO_DESISTIMIENTO_EXPRESO,
-                idTramite);
+        // Se recupera el código de asunto EREG del impreso del expediente
+        // (mismo criterio que en alegaciones/subsanaciones) y la unidad
+        // administrativa destino
+        String cdAsunto = null;
+        if (expedienteDTO.getImpresoDTO() != null
+                && StringUtils.isNotBlank(expedienteDTO.getImpresoDTO().getCdIdentificacion())) {
+            String cdIdentificacion = expedienteDTO.getImpresoDTO().getCdIdentificacion();
+            Integer indexContains = cdIdentificacion.indexOf('_');
+            cdAsunto = indexContains < 0 ? cdIdentificacion
+                    : cdIdentificacion.substring(0, indexContains);
+        }
+        Solicitud solicitud = this.solicitudDAO.find(expedienteDTO.getIdSolicitud());
+        Integer unidadAdmin = this.pdfService.calcularUnidadAdmin(solicitud);
+        UnidadAdminDTO unidadAdminDTO = this.unidadAdminService.buscarId(unidadAdmin);
+        String cdUnidad = unidadAdminDTO.getCdUnidad();
+
+        // Registramos una nueva entrada en EREG específica para este trámite
+        log.info("Se va a generar la entrada en EREG de notificación del ciudadano");
+        expedienteDTO = this.eregAdmeService.generarEntradaNotificacionCiudadano(expedienteDTO,
+                cdAsunto, cdUnidad);
+        log.info("Código: " + expedienteDTO.getCdEregNotifiCiud());
+        log.info("Destino: " + expedienteDTO.getDsDestinoEreg());
+
+        // Guardamos el código EREG de la notificación (valor íntegro, tal
+        // cual lo devuelve EREG, sin formatear)
+        notificacionCiudadano.setCdEreg(expedienteDTO.getCdEregNotifiCiud());
+        notificacionCiudadano.setDsDestinoEreg(expedienteDTO.getDsDestinoEreg());
+        notificacionCiudadano.setFcFirmaEreg(new Date());
+        notificacionCiudadano.setCdUsuModif(cdNumIden);
+        notificacionCiudadano.setFcModifFila(new Date());
+        notificacionCiudadano = this.notificacionCiudadanoDAO.merge(notificacionCiudadano);
+
+        // Recuperamos únicamente los documentos adicionales ya vinculados a
+        // esta notificación concreta en SAII_NOTIFI_CIUD_DOC (enlazados en el
+        // momento de subirlos), nunca los de otras notificaciones anteriores
+        // o posteriores del mismo expediente
+        List<AtlasFilter> filtrosDocEnlazados = new ArrayList<>();
+        filtrosDocEnlazados.add(new AtlasFilter(
+                Constantes.Filtro.FILTRO_NOTIFICACION_CIUDADANO_DOC_ID_NOTIFICACION,
+                notificacionCiudadano.getIdNotificacion(), Operador.EQUALS));
+        filtrosDocEnlazados.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
+        // El documento puede haber sido borrado (baja lógica en
+        // SAII_EXPEDIENTE_DOC) sin que se haya dado de baja la relación en
+        // SAII_NOTIFI_CIUD_DOC, así que se excluyen también esos casos
+        filtrosDocEnlazados.add(new AtlasFilter(Constantes.Filtro.FILTRO_EXPEDIENTE_DOC_FCBAJA,
+                Operador.NULL));
+        List<NotificacionCiudadanoDoc> lstDocEnlazados = this.notificacionCiudadanoDocDAO
+                .find(filtrosDocEnlazados, null);
+
+        List<ExpedienteDoc> lstDocPendientesEnlazar = lstDocEnlazados.stream()
+                .map(NotificacionCiudadanoDoc::getExpedienteDoc).collect(Collectors.toList());
+
+        // Datos obligatorios del trámite que deben figurar en el PDF del
+        // recibo de presentación, independientemente de si se aporta o no
+        // documentación adicional (opcional)
+        expedienteDTO.setDsAsuntoNotifiCiud(notificacionCiudadano.getAsunto().getDsValor());
+        expedienteDTO.setTlExponeNotifiCiud(tlExpone);
+        expedienteDTO.setTlSolicitaNotifiCiud(tlSolicita);
+
+        // Generamos y firmamos el recibo de presentación / listado de
+        // anexos de este trámite y lo anexamos a la entrada EREG recién
+        // creada (actualiza también el código EREG y estado de cada
+        // documento adicional pendiente de enlazar)
+        List<ExpedienteDocDTO> lstExpedienteDocDTO = lstDocPendientesEnlazar.stream()
+                .map(ExpedienteDocToDTO.INSTANCE).collect(Collectors.toList());
+
+        RegistroEregDTO registroEregDTO = this.prepararRespuestaEregAleg(expedienteDTO,
+                Boolean.FALSE, Boolean.FALSE, Boolean.FALSE,
+                Constantes.ReciboPresentacion.ASUNTO_DESISTIMIENTO_EXPRESO, idTramite,
+                lstExpedienteDocDTO);
+        registroEregDTO.setCdEreg(Utils.formatearNmEreg(notificacionCiudadano.getCdEreg()));
+        registroEregDTO.setEsDescargaZipNotificacionCiudadano(Boolean.TRUE);
+
+        return registroEregDTO;
+    }
+
+    /**
+     *
+     */
+    @Override
+    public NotificacionCiudadanoDTO buscarNotificacionCiudadanoEnCurso(Integer idExpediente,
+            Integer idAsunto) throws ServiceException {
+        return this.notificacionCiudadanoService.buscarEnCurso(idExpediente, idAsunto);
     }
 
     /**
@@ -9929,7 +10051,7 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
      */
     @Override
     @Transactional(readOnly = false)
-    public ExpedienteDTO procesarRevisionAlegacionGestor(Integer idExpediente,
+    public ExpedienteDTO procesarRevisionAlegacionGestor(Integer idExpediente,Integer idConvocatoria,
             String alegacionRevisada, Boolean activarConcederDenegar ) throws ServiceException {
         Expediente expediente = this.find(idExpediente);
         
@@ -9983,15 +10105,35 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
 
         }else if(Constantes.AfirmacionNegacion.N.equals(alegacionRevisada)) {
             //rechazada
+            
+            ConvocatoriaDTO convo  = this.convocatoriaService.buscarId(idConvocatoria);
+            
+            Boolean esConjunta = Boolean.FALSE;
+            
+            if(convo.getTipoResolModalidadDTO() != null &&  convo.getTipoResolModalidadDTO().getCdTipoResolucion() != null) {
+                esConjunta =  convo.getTipoResolModalidadDTO().getCdTipoResolucion().equals(Constantes.Convocatoria.RESOL_CONJ);
+            }
+                               
             expediente.setItAlegacionRevisada(Constantes.AfirmacionNegacion.N);
             
             if(expediente.getEstadoProvisional().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.APROBADO_PROVISIONAL)) ||
                     expediente.getEstadoProvisional().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DENEGADO_PROVISIONAL))) {
                 
                 if(expediente.getEstadoProvisional().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.APROBADO_PROVISIONAL))) {
-                    this.cambiarEstado(idExpediente,utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.APROBADO_PROVISIONAL), null);                       
+                    
+                    if (Boolean.TRUE.equals(esConjunta)) {
+                        this.cambiarEstado(idExpediente,utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_CONCEDIDO_DEFINITIVO), null);  
+                    }else {
+                        this.cambiarEstado(idExpediente,utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.APROBADO_PROVISIONAL), null);  
+                    }
+                                               
                 }else if( expediente.getEstadoProvisional().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DENEGADO_PROVISIONAL))) {
-                    this.cambiarEstado(idExpediente,utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DENEGADO_PROVISIONAL), null);   
+                    
+                    if (Boolean.TRUE.equals(esConjunta)) {
+                        this.cambiarEstado(idExpediente,utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DENEGADO_DEFINITIVO), null);  
+                    }else {
+                        this.cambiarEstado(idExpediente,utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DENEGADO_PROVISIONAL), null);  
+                    }                                         
                 }
                 
                 //por hacer en la MD-2150
@@ -10001,9 +10143,21 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
                     expediente.getEstadoProvisional().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL))){
                                
                 if(expediente.getEstadoProvisional().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL))) {
-                    this.cambiarEstado(idExpediente,utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL), null);                       
+                    
+                    if (Boolean.TRUE.equals(esConjunta)) {
+                        this.cambiarEstado(idExpediente,utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO), null);     
+                    }else {
+                        this.cambiarEstado(idExpediente,utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL), null);
+                    }
+       
                 }else if( expediente.getEstadoProvisional().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL))) {
-                    this.cambiarEstado(idExpediente,utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL), null);   
+                    
+                    if (Boolean.TRUE.equals(esConjunta)) {
+                        this.cambiarEstado(idExpediente,utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO), null);   
+                    }else {
+                        this.cambiarEstado(idExpediente,utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL), null);
+                    }   
+                    
                 }
                 
                 activarConcederDenegar = Boolean.FALSE;
@@ -10032,6 +10186,19 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
         expedienteDTO.setEstadoDTO(CatalogosValoresToDTO.INSTANCE.apply(expediente.getEstado()));
         expedienteDTO.setItAlegacionRevisada(expediente.getItAlegacionRevisada());
         expedienteDTO.setActivarConcederDenegar(activarConcederDenegar);
+        
+        List<AtlasFilter> filtros = new ArrayList<>();
+
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDEXPEDIENTE, idExpediente,
+                Operador.EQUALS));
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_TRAMITE,
+                utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL),
+                Operador.EQUALS));
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
+        List<DocumentoPtfr> lstDocPtfr = this.documentoPtfrDAO.find(filtros, null);
+        for (DocumentoPtfr docPtfr : lstDocPtfr) {
+            this.documentoPtfrDAO.deleteLogico(docPtfr);
+        }
 
         return expedienteDTO;
     }
@@ -10310,7 +10477,14 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
             // Convertir valor con símbolo euro a
             // numérico
             if (datoDTO.getIdDato() != null) {
-                this.datoService.delete(datoDTO.getIdDato());
+                // Borrado lógico (no físico): un Dato que en algún momento se adjuntó a un
+                // documento queda referenciado para siempre desde SAII_EXPEDIENTE_DOC_HIST
+                // (histórico, nunca se borra ni se actualiza), así que un DELETE físico aquí
+                // falla por la FK ID_DATO de esa tabla aunque el documento ya se haya borrado.
+                // El resto de la app ya trata los Dato dados de baja como inexistentes
+                // (rellenarValoresNoRelacionables filtra FC_BAJA_FILA IS NULL), así que el
+                // borrado lógico es equivalente a efectos de UI y evita el error.
+                this.datoService.borradoLogico(datoDTO.getIdDato());
 
             }
         }
@@ -10939,7 +11113,22 @@ public String toUnicodeEscaped(String input) {
     @Override
     public List<ExpedienteDTO> obtenerExpedienteEstructurado(List<Integer> lstIdSolicitud, int index, int pageSize,
             Object orderBean, Boolean mostrarIniciadas) throws ServiceException {
-        
+        return this.obtenerExpedienteEstructurado(lstIdSolicitud, index, pageSize, orderBean,
+                mostrarIniciadas, null);
+    }
+
+    /**
+     * VMM 16/10/26 MD-3125: igual que el anterior pero, si se indica lstEstadoExpediente, devuelve SOLO los
+     * expedientes (solicitante/coordinador y sus participantes) cuyo estado esta en esa lista. Antes el filtro
+     * de estado de expediente de solapaSolicitudes solo acotaba las solicitudes (las que tuvieran algun
+     * expediente en esos estados) y luego se listaban todos los expedientes de esas solicitudes, con lo que
+     * salian expedientes en otros estados.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<ExpedienteDTO> obtenerExpedienteEstructurado(List<Integer> lstIdSolicitud, int index, int pageSize,
+            Object orderBean, Boolean mostrarIniciadas, List<Integer> lstEstadoExpediente) throws ServiceException {
+
         List<AtlasSort> ordenamiento = new ArrayList<>();
         ordenamiento.add(new AtlasSort("idExpediente", true));
 
@@ -10970,6 +11159,12 @@ public String toUnicodeEscaped(String input) {
                     Operador.NOT_IN));
         }
         
+        // VMM 16/10/26 MD-3125: filtro por estado del expediente (se combina con el de arriba)
+        if (lstEstadoExpediente != null && !lstEstadoExpediente.isEmpty()) {
+            filtrosExpediente.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR,
+                    lstEstadoExpediente, Operador.IN));
+        }
+
         List<AtlasSort> ordeExpediente = null;
         if (Objects.isNull(orderBean)) {
             ordeExpediente = ordenamiento;
@@ -11033,6 +11228,12 @@ public String toUnicodeEscaped(String input) {
                             Operador.NOT_IN));
                 }
                 
+                // VMM 16/10/26 MD-3125: tambien los participantes se filtran por el estado indicado
+                if (lstEstadoExpediente != null && !lstEstadoExpediente.isEmpty()) {
+                    filtrosEntrada.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR,
+                            lstEstadoExpediente, Operador.IN));
+                }
+
                 //VMM 28/01/26 MD-2063: ordenamos los expedientes participantes igual que los del solicitante
                 List<ExpedienteDTO> lstExpPartic = this.buscar(0, -1, filtrosEntrada, ordeExpediente);
     
@@ -11070,6 +11271,16 @@ public String toUnicodeEscaped(String input) {
     
     @Override
     public Integer countExpedienteEstructurado(List<Integer> lstIdSolicitud, Boolean mostrarIniciadas) throws ServiceException {
+        return this.countExpedienteEstructurado(lstIdSolicitud, mostrarIniciadas, null);
+    }
+
+    /**
+     * VMM 16/10/26 MD-3125: igual que el anterior pero, si se indica lstEstadoExpediente, cuenta solo los
+     * expedientes cuyo estado esta en esa lista (ver obtenerExpedienteEstructurado con el mismo parametro)
+     */
+    @Override
+    public Integer countExpedienteEstructurado(List<Integer> lstIdSolicitud, Boolean mostrarIniciadas,
+            List<Integer> lstEstadoExpediente) throws ServiceException {
 
         // Configuramos lista de tipo de actores de primer nivel
         List<Integer> lstActores = new ArrayList<>();
@@ -11098,8 +11309,14 @@ public String toUnicodeEscaped(String input) {
                     Operador.NOT_IN));
         }
         
+        // VMM 16/10/26 MD-3125: filtro por estado del expediente (se combina con el de arriba)
+        if (lstEstadoExpediente != null && !lstEstadoExpediente.isEmpty()) {
+            filtrosExpediente.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR,
+                    lstEstadoExpediente, Operador.IN));
+        }
+
         List<AtlasSort> ordeExpediente = new ArrayList<>();
-        
+
         List<ExpedienteDTO> lstExpedienteDTO = this.buscar(0, -1, filtrosExpediente, ordeExpediente);
     
         return lstExpedienteDTO.size();

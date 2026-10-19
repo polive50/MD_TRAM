@@ -2,6 +2,7 @@ package org.madrid.saii.tramitacion.catalogos.jsf;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -378,11 +379,13 @@ public class SolicitudBean extends CatalogoBean<Solicitud, Integer> {
  // Variables de control en el Bean (deben resetearse si cambian los filtros de búsqueda manual)
     private int ultimoIndex = -1;
     private int ultimoPageSize = -1;
+    private String ultimaOrdenacion;
     private AtlasListAndCount<SolicitudDTO> listadoCacheado = null;
 
     public AtlasListAndCount<SolicitudDTO> obtenerListaSolicitudes(final int index, final int pageSize, Object orderBean, Object filtros) {
         // Si los parámetros son los mismos que la última vez en este ciclo de renderizado, devolvemos la caché
-        if (this.listadoCacheado != null && this.ultimoIndex == index && this.ultimoPageSize == pageSize) {
+        if (this.listadoCacheado != null && this.ultimoIndex == index && this.ultimoPageSize == pageSize
+                && Objects.equals(this.ultimaOrdenacion, String.valueOf(orderBean))) {
             return this.listadoCacheado;
         }
 
@@ -392,6 +395,7 @@ public class SolicitudBean extends CatalogoBean<Solicitud, Integer> {
         // Guardamos en la caché del Bean para las siguientes llamadas del ciclo JSF
         this.ultimoIndex = index;
         this.ultimoPageSize = pageSize;
+        this.ultimaOrdenacion = String.valueOf(orderBean);
         this.listadoCacheado = resultadoNuevo;
 
         return resultadoNuevo;
@@ -436,10 +440,20 @@ public class SolicitudBean extends CatalogoBean<Solicitud, Integer> {
                 } else {
                     orden = (List<AtlasSort>) orderBean;
                 }
+                
+                // La nota ya se carga en el mapa del listado. Se aplica el mismo
+                // patron de ordenacion y paginacion que en la solapa de expedientes.
+                AtlasSort ordenNota = orden.stream()
+                        .filter(o -> "nmNota".equals(o.getProperty()))
+                        .findFirst().orElse(null);
+                if (ordenNota != null) {
+                    orden = Collections.singletonList(new AtlasSort(Constantes.Filtro.FILTRO_FCALTA, false));
+                }
 
                 // 4. Recuperación paginada de registros (E hidratación batch de alertas interna)
                 List<SolicitudDTO> listadoSolicitudes = this.solicitudService
-                        .buscarSolicitudesTramitacion(index, pageSize, filtrosEntrada, orden,
+                        .buscarSolicitudesTramitacion(ordenNota == null ? index : 0,
+                                ordenNota == null ? pageSize : -1, filtrosEntrada, orden,
                                 this.idConvocatoria, this.mostrarIniciadas, this.nmDiasSubsanacion);
                 
                 // 5. Tratamiento batch en memoria para la fecha de presentación
@@ -520,6 +534,20 @@ public class SolicitudBean extends CatalogoBean<Solicitud, Integer> {
                         }
                     }
                 }
+                
+                if (ordenNota != null) {
+                    Comparator<SolicitudDTO> comparador = Comparator.comparing(
+                            sol -> this.mapaNotaExpedienteSolicitudes.get(sol.getIdSolicitud()),
+                            Comparator.nullsLast(Comparator.naturalOrder()));
+                    listadoSolicitudes.sort(Comparator.comparing(
+                            (SolicitudDTO sol) -> this.mapaNotaExpedienteSolicitudes.get(sol.getIdSolicitud()) == null)
+                            .thenComparing(ordenNota.isAscendente() ? comparador : comparador.reversed()));
+                    int desde = Math.min(index, listadoSolicitudes.size());
+                    int hasta = pageSize > 0 ? Math.min(desde + pageSize, listadoSolicitudes.size())
+                            : listadoSolicitudes.size();
+                    listadoSolicitudes = new ArrayList<>(listadoSolicitudes.subList(desde, hasta));
+                }
+                
 
                 listado.setResultados(listadoSolicitudes);
             }
@@ -623,7 +651,10 @@ public class SolicitudBean extends CatalogoBean<Solicitud, Integer> {
                     ordenSolicitud.add(new AtlasSort(Constantes.Filtro.FILTRO_FCALTA, Boolean.FALSE));
                 }else {
                     //VMM MD-2063: ordenamos por los campos correspondientes de la solicitud si hemos seleccionado y ordenado los expedientes
-                    if (orderBean.toString().contains(Constantes.Filtro.FILTRO_FCFIRMA)) {
+                    if (orderBean.toString().contains("nmNota")) {
+                        // La consulta previa obtiene solicitudes; la nota se ordena despues en expedientes.
+                        ordenSolicitud.add(new AtlasSort(Constantes.Filtro.FILTRO_FCALTA, Boolean.FALSE));
+                    }else if (orderBean.toString().contains(Constantes.Filtro.FILTRO_FCFIRMA)) {
                         ordenSolicitud.add(new AtlasSort(Constantes.Filtro.FILTRO_FCALTA, Boolean.FALSE));
                         
                     }else if (orderBean.toString().contains(Constantes.Filtro.FILTRO_CD_EXPEDIENTE)) {
@@ -696,8 +727,11 @@ public class SolicitudBean extends CatalogoBean<Solicitud, Integer> {
                     ordenExpediente = (List<AtlasSort>) orderBean;
                 }               
                 
-                List<ExpedienteDTO> lstRet = this.expedienteService.obtenerExpedienteEstructurado(lstIdSol, index, pageSize, ordenExpediente, this.mostrarIniciadas);
-                
+                AtlasSort ordenNota = ordenExpediente.stream()
+                        .filter(o -> "nmNota".equals(o.getProperty())).findFirst().orElse(null);
+                List<ExpedienteDTO> lstRet = this.expedienteService.obtenerExpedienteEstructurado(lstIdSol,
+                        ordenNota == null ? index : 0, ordenNota == null ? pageSize : -1,
+                        ordenExpediente, this.mostrarIniciadas, this.estadoFilter); // VMM 16/10/26 MD-3125: solo expedientes en los estados filtrados
                 //VMM 01/04/26 MD-2041: cambiamos HashMap por LinkedHashMap para que mantenga el orden que tenia establecido
                 Map<Integer, ExpedienteDTO> mapaExpedientesUnicos = new LinkedHashMap<>();
                 for (ExpedienteDTO exp : lstRet) {
@@ -713,8 +747,18 @@ public class SolicitudBean extends CatalogoBean<Solicitud, Integer> {
                     exp.setFcPresentacion(this.expedienteService.obtenerFcPresentacionBySolicitud(exp.getIdSolicitud(), exp.getIdExpediente()));
                 }
                 
+                if (ordenNota != null) {
+                    Comparator<Integer> ordenNumerico = ordenNota.isAscendente()
+                            ? Comparator.naturalOrder() : Comparator.reverseOrder();
+                    lstRet.sort(Comparator.comparing(ExpedienteDTO::getNmNota,
+                            Comparator.nullsLast(ordenNumerico)));
+                    int desde = Math.min(index, lstRet.size());
+                    int hasta = pageSize > 0 ? Math.min(desde + pageSize, lstRet.size()) : lstRet.size();
+                    lstRet = new ArrayList<>(lstRet.subList(desde, hasta));
+                }
+                
                 listado.setResultados(lstRet);
-                listado.setTotal(this.expedienteService.countExpedienteEstructurado(lstIdSol, this.mostrarIniciadas));
+                listado.setTotal(this.expedienteService.countExpedienteEstructurado(lstIdSol, this.mostrarIniciadas, this.estadoFilter)); // VMM 16/10/26 MD-3125
             }
         } catch (ServiceException exc) {
             log.error(ConstantesWeb.Err.ERROR_LISTADO);
@@ -751,6 +795,33 @@ public class SolicitudBean extends CatalogoBean<Solicitud, Integer> {
      */
     public void alCambiarTablaSeleccionada() {
         this.estadoFilter = new ArrayList<>();
+    }
+
+    /**
+     * VMM 15/10/26 MD-3125: al desmarcar "Mostrar Iniciadas" se quitan del filtro de Estado los estados
+     * que solo se listan con el check marcado (el combo ya no los ofrece, ver
+     * ComboBean.getComboEstadoSolicitud/getComboEstadoExpediente(mostrarIniciadas)); si se dejaran
+     * seleccionados el listado saldria vacio. Al marcarlo no hace falta tocar nada, solo reaparecen en el combo.
+     */
+    public void alCambiarMostrarIniciadas() {
+        if (Boolean.TRUE.equals(this.mostrarIniciadas) || this.estadoFilter == null
+                || this.estadoFilter.isEmpty()) {
+            return;
+        }
+
+        List<Integer> nmConstantesOcultos = new ArrayList<>();
+        if (Constantes.RadioSelectOpcion.OPCION_EXPEDIENTES.equals(this.tablaSeleccionada)) {
+            nmConstantesOcultos.add(Constantes.EstadoExpediente.INICIADA);
+            nmConstantesOcultos.add(Constantes.EstadoExpediente.PROPUESTA);
+            nmConstantesOcultos.add(Constantes.EstadoExpediente.NO_ACEPTADA);
+            nmConstantesOcultos.add(Constantes.EstadoExpediente.RECHAZADO_DEFINITIVO);
+        } else {
+            nmConstantesOcultos.add(Constantes.EstadoSolicitud.INICIADA);
+        }
+
+        for (Integer nmConstante : nmConstantesOcultos) {
+            this.estadoFilter.remove(utilConstantes.getGlobalCatalogosValores().get(nmConstante));
+        }
     }
 
     /**
@@ -887,7 +958,13 @@ public class SolicitudBean extends CatalogoBean<Solicitud, Integer> {
         this.setTotalEntidades(0);
         this.setRealizarBusqueda(Boolean.FALSE);
         this.setFiltros(new ArrayList<>());
+        // VMM 16/10/26 MD-3125: inicializarSolicitud() devuelve la vista a "solicitudes"; al borrar los filtros
+        // se mantiene la vista (solicitudes o expedientes) que tenia el usuario, solo se limpian los filtros
+        String tablaSeleccionadaActual = this.tablaSeleccionada;
         this.inicializarSolicitud();
+        if (StringUtils.isNotBlank(tablaSeleccionadaActual)) {
+            this.tablaSeleccionada = tablaSeleccionadaActual;
+        }
         this.filtrar();
 
     }

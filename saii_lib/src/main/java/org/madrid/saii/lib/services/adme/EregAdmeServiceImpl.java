@@ -609,7 +609,51 @@ public class EregAdmeServiceImpl implements EregAdmeService {
         }
         return dtoSalida;
     }
-    
-    
-    
+
+    @Override
+    public ExpedienteDTO generarEntradaNotificacionCiudadano(ExpedienteDTO dto, String cdAsunto,
+            String cdUnidad) throws ServiceException {
+        ExpedienteDTO dtoSalida = dto;
+        try {
+            EregRegistrarEntradaIN entrada = new EregRegistrarEntradaIN();
+            entrada.setCdaplicacion(Constantes.AplicativoSaii.CODIGO_APLICATIVO);
+            entrada.setCdorigenanoreg(EregAdmeService.ConstantesEreg.ENTRADA_EREG_INTERNET);
+            entrada.setCod_asunto(cdAsunto);
+            entrada.setInterNifcif(dto.getInteresadoDTO().getCdNumIden());
+            entrada.setInterNombre(dto.getInteresadoDTO().getDsNombre());
+            entrada.setInterApellido1(dto.getInteresadoDTO().getDsApellido1());
+            entrada.setInterApellido2(dto.getInteresadoDTO().getDsApellido2());
+            entrada.setPreNifcif(dto.getInteresadoDTO().getCdNumIden());
+            entrada.setPreNombre(dto.getInteresadoDTO().getDsNombre());
+            entrada.setPreApellido1(dto.getInteresadoDTO().getDsApellido1());
+            entrada.setPreApellido2(dto.getInteresadoDTO().getDsApellido2());
+            if (StringUtils.isBlank(dto.getInteresadoDTO().getDsApellido1())) {
+                entrada.setInterNombre(dto.getInteresadoDTO().getDsNombre());
+                entrada.setInterApellido1("-");
+                entrada.setInterApellido2("-");
+                entrada.setInterRazonsocial(dto.getInteresadoDTO().getDsNombre());
+                entrada.setPreNombre(dto.getInteresadoDTO().getDsNombre());
+                entrada.setPreApellido1("-");
+                entrada.setPreApellido2("-");
+            }
+            entrada.setEstadodocumento(EregAdmeService.ConstantesEregEstado.ESTADO_DOCUMENTO_EREG);
+            entrada.setCdunidaddest("09" + cdUnidad);
+            EregRegistrarEntradaOUT salida = this.eregAltaService.registrarEntrada(entrada);
+            if (EregAdmeService.ConstantesEregEstado.ESTADO_SIN_ERRORES
+                    .equals(salida.getCdstatus())) {
+
+                dtoSalida.setCdEregNotifiCiud(salida.getCddocum());
+                dtoSalida.setDsDestinoEreg(salida.getDsunidaddest());
+            } else {
+                log.error("Error al registrar la entrada en EREG con código " + salida.getCdstatus()
+                + " del expediente: " + dto.toString());
+                throw new ServiceException(salida.getDsstatus());
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new ServiceException("Ocurrió un error al registrar entrada en el servicio EREG");
+        }
+        return dtoSalida;
+    }
+
 }

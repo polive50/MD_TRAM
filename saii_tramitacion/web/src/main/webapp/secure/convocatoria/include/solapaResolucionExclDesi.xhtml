@@ -95,7 +95,8 @@
                 </atlasp:columnaListaPaginada>
             </atlasp:listaPaginada>
         
-            <h:panelGroup id="botoneraResolucionExclusion" layout="block">
+            <h:panelGroup id="botoneraResolucionExclusion" layout="block"
+                rendered="#{resolucionConvBean.habilitarBotonesResolucionIndividual()}">
                 <atlasp:button id="botonSubirResolucionExclusion"
                     ajax="true"
                     action="#{resolucionConvBean.subirResolucionExclusionDialog}"
@@ -128,6 +129,16 @@
                     title="#{bundle['resolucion.exclusion.desistimiento.exclusion.descargar']}"
                     icon="fa fa-download" tipoBoton="btn-primary" disabled="true"
                     rendered="#{!resolucionConvBean.habilitarBotonDescargarResolucionExclusion()}" />
+                    
+                <atlasp:button id="botonEnviarResolucionExclusionPortafirmas"
+                    ajax="true" process="@this"
+                    update="panelTipoResolucionExclusionDesistimiento :convocatoriaForm:convocatoriaFormMessages"
+                    action="#{resolucionConvBean.enviarResolucionExclusionPortafirmas}"
+                    value="#{bundle['boton.enviar.portafirma']}"
+                    alt="#{bundle['boton.enviar.portafirma']}"
+                    title="#{bundle['boton.enviar.portafirma']}"
+                    icon="fas fa-paper-plane" tipoBoton="btn-warning"
+                    disabled="#{!resolucionConvBean.habilitarEnviarResolucionExclusionPortafirmas(convocatoriasBean.modoConsulta)}" />
             </h:panelGroup>
         
             <div class="space" />
@@ -190,7 +201,8 @@
                 </atlasp:columnaListaPaginada>
             </atlasp:listaPaginada>
         
-            <h:panelGroup id="botoneraResolucionDesistimiento" layout="block">
+            <h:panelGroup id="botoneraResolucionDesistimiento" layout="block"
+                rendered="#{resolucionConvBean.habilitarBotonesResolucionIndividual()}">
                 <atlasp:button id="botonSubirResolucionDesistimiento"
                     ajax="true"
                     action="#{resolucionConvBean.subirResolucionDesistimientoDialog}"
@@ -223,11 +235,22 @@
                     title="#{bundle['resolucion.exclusion.desistimiento.desistimiento.descargar']}"
                     icon="fa fa-download" tipoBoton="btn-primary" disabled="true"
                     rendered="#{!resolucionConvBean.habilitarBotonDescargarResolucionDesistimiento()}" />
+                
+                <atlasp:button id="botonEnviarResolucionDesistimientoPortafirmas"
+                    ajax="true" process="@this"
+                    update="panelTipoResolucionExclusionDesistimiento :convocatoriaForm:convocatoriaFormMessages"
+                    action="#{resolucionConvBean.enviarResolucionDesistimientoPortafirmas}"
+                    value="#{bundle['boton.enviar.portafirma']}"
+                    alt="#{bundle['boton.enviar.portafirma']}"
+                    title="#{bundle['boton.enviar.portafirma']}"
+                    icon="fas fa-paper-plane" tipoBoton="btn-warning"
+                    disabled="#{!resolucionConvBean.habilitarEnviarResolucionDesistimientoPortafirmas(convocatoriasBean.modoConsulta)}" />
             </h:panelGroup>
         
             <div class="space" />
         
-            <h:panelGroup id="botoneraResolucionExclusionDesistimiento" layout="block">
+            <h:panelGroup id="botoneraResolucionExclusionDesistimiento" layout="block"
+                rendered="#{resolucionConvBean.resolucionExclusionDesistimientoConjunta}">
         
                 <atlasp:button ajax="true"
                     action="#{resolucionConvBean.subirResolucionExclusionDesistimientoDialog}"
@@ -276,6 +299,11 @@
                     icon="fas fa-paper-plane" tipoBoton="btn-warning" disabled="true"
                     rendered="#{!resolucionConvBean.habilitarBotonEnviarResolucionConjuntaPortafirmas(convocatoriasBean.modoConsulta)}" />
         
+            </h:panelGroup>
+                
+            <div class="space" />
+            
+            <h:panelGroup id="botoneraExcelResolucionExclusionDesistimiento" layout="block">
                 <atlasp:button ajax="false"
                     action="#{resolucionConvBean.descargarExcelResolucionExclusionDesistimiento}"
                     value="#{bundle['resolucion.exclusion.desistimiento.excel.descargar']}"

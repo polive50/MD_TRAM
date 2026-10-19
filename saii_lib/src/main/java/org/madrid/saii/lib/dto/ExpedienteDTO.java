@@ -667,6 +667,24 @@ public class ExpedienteDTO extends AuditoriaDTO implements Serializable {
     private String cdEregAlegaciones;
 
     /**
+     * Código de la entrada EREG generada para el trámite de Notificación
+     * del ciudadano. No se persiste en SAII_EXPEDIENTE: se guarda en
+     * SAII_NOTIFI_CIUD.CD_EREG.
+     */
+    private String cdEregNotifiCiud;
+
+    /**
+     * Campos transitorios (no persistidos en SAII_EXPEDIENTE) usados para
+     * generar el PDF de recibo de presentación del trámite de Notificación
+     * del ciudadano.
+     */
+    private String dsAsuntoNotifiCiud;
+
+    private String tlExponeNotifiCiud;
+
+    private String tlSolicitaNotifiCiud;
+
+    /**
      * Campo fcFirmaAlegaciones
      */
     private Date fcFirmaAlegaciones;

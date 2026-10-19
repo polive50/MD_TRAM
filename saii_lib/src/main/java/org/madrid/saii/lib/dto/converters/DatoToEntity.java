@@ -49,8 +49,9 @@ public enum DatoToEntity implements Function<DatoDTO, Dato> {
             if(entity.getExpediente() == null) {
                 entity.setExpediente(new Expediente());
             }
-            
-            if(entity.getExpediente() != null) {
+
+            if(entity.getExpediente() != null && dto.getExpedienteDTO() != null
+                    && dto.getExpedienteDTO().getIdExpediente() != null) {
                 entity.getExpediente().setIdExpediente(dto.getExpedienteDTO().getIdExpediente());
             }
             

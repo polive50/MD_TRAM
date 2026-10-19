@@ -193,4 +193,19 @@ public interface EregAdmeService {
     ExpedienteDTO generarEntradaAlegaciones(ExpedienteDTO dto, String cdAsunto, String cdUnidad
             ) throws ServiceException;
 
+    /**
+     * Genera una nueva entrada en EREG para el trámite de Notificación del
+     * ciudadano. El código devuelto se guarda en
+     * {@link ExpedienteDTO#getCdEregNotifiCiud()} y debe persistirse en
+     * SAII_NOTIFI_CIUD.CD_EREG, no en el expediente.
+     *
+     * @param dto
+     * @param cdAsunto
+     * @param cdUnidad
+     * @return
+     * @throws ServiceException
+     */
+    ExpedienteDTO generarEntradaNotificacionCiudadano(ExpedienteDTO dto, String cdAsunto,
+            String cdUnidad) throws ServiceException;
+
 }

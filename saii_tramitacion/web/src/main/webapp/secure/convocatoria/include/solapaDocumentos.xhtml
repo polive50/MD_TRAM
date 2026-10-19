@@ -2239,6 +2239,19 @@
                     value="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.fecha.entrada']}" />
                  <p:column>
                     <div class="ui-g-12 ui-md-4 ui-lg-3">
+<!--                         <p:calendar -->
+<!--                             id="fechaRegistroBIS" -->
+<!--                             disabled="#{convocatoriasBean.modoConsulta}" -->
+<!--                             value="#{documentoBean.formularioDocExternoDTO.fcRegistro}" -->
+<!--                             pattern="dd/MM/yyyy HH:mm" -->
+<!--                             mask="99/99/9999 99:99" -->
+<!--                             navigator="true" -->
+<!--                             yearRange="c-25:c+45" locale="es_ES" -->
+<!--                             styleClass="atlas-cal" -->
+<!--                             > -->
+<!--                             <f:convertDateTime -->
+<!--                                 pattern="dd/MM/yyyy HH:mm" /> -->
+<!--                         </p:calendar> -->
                         <p:calendar
                             id="fechaRegistroBIS"
                             disabled="#{convocatoriasBean.modoConsulta}"
@@ -2246,11 +2259,12 @@
                             pattern="dd/MM/yyyy HH:mm"
                             mask="99/99/9999 99:99"
                             navigator="true"
-                            yearRange="c-25:c+45" locale="es_ES"
+                            yearRange="c-25:c+45" 
+                            locale="es_ES"
                             styleClass="atlas-cal"
-                            >
-                            <f:convertDateTime
-                                pattern="dd/MM/yyyy HH:mm" />
+                            showOn="both"
+                            panelStyle="z-index: 100000 !important;">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
                         </p:calendar>
                     </div>
                  
@@ -2336,6 +2350,12 @@
 
             </p:panelGrid>
         </p:outputPanel>
+        <style>
+        #ui-datepicker-div {
+            position: absolute !important;
+            z-index: 999999 !important;
+        }
+    </style>
     </p:dialog>
 
 </ui:composition>

@@ -219,6 +219,7 @@
             title="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.regresarExpedientes']}"
             icon="fas fa-chevron-left" 
             tipoBoton="btn-secondary"
+            actionListener="#{solicitudBean.filtrar}"
             action="#{convocatoriasBean.irASolapaSegunTablaSeleccionada(solicitudBean.tablaSeleccionada)}"
             onclick="atlas.ui.Loading.showLoad('appLoading')"
             oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />

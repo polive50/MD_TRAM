@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
+    <atlasp:listaPaginada id="listaConcedidosDefinitivosAceptados"
+        listAndCountMethod="#{resolucionConvBean.obtenerConcedidosDefinitivosAceptados}"
+        sortMode="single" reflow="true" export="true" pijama="true"
+        exportTitle="#{bundle['resolucion.concesion.subpestana.titulo']}"
+        exportFile="#{bundle['resolucion.concesion.fichero']}">
+        <atlasp:columnaListaPaginada
+            label="#{bundle['resolucion.concesion.linea']}"
+            field="linea" filtrable="false" exportable="true">
+            <ui:define name="value">
+                <h:outputText value="#{item.linea}" />
+            </ui:define>
+        </atlasp:columnaListaPaginada>
+        <atlasp:columnaListaPaginada
+            label="#{bundle['resolucion.concesion.nombre.empresa']}"
+            field="nombreEmpresa" filtrable="false" exportable="true">
+            <ui:define name="value">
+                <h:outputText value="#{item.nombreEmpresa}" />
+            </ui:define>
+        </atlasp:columnaListaPaginada>
+        <atlasp:columnaListaPaginada
+            label="#{bundle['resolucion.concesion.expediente']}"
+            field="numeroExpediente" filtrable="false" exportable="true">
+            <ui:define name="value">
+                <h:outputText value="#{item.numeroExpediente}" />
+            </ui:define>
+        </atlasp:columnaListaPaginada>
+        <atlasp:columnaListaPaginada
+            label="#{bundle['resolucion.concesion.nif']}"
+            field="nif" filtrable="false" exportable="true">
+            <ui:define name="value">
+                <h:outputText value="#{item.nif}" />
+            </ui:define>
+        </atlasp:columnaListaPaginada>
+    </atlasp:listaPaginada>
+    
+    <h:panelGroup id="botoneraResolucionConcesion" layout="block">
+        <atlasp:button id="botonSubirResolucionConcesion" ajax="true"
+            action="#{resolucionConvBean.subirResolucionConcesionDialog}"
+            value="#{bundle['resolucion.concesion.documento.subir']}"
+            alt="#{bundle['resolucion.concesion.documento.subir']}"
+            title="#{bundle['resolucion.concesion.documento.subir']}"
+            icon="fa fa-upload" tipoBoton="btn-primary"
+            disabled="#{!resolucionConvBean.habilitarBotonSubirResolucionConcesion()}"
+            process="@this" update="outPanelSubirResolucionConcesion" />
+        <atlasp:button id="botonDescargarExcelResolucionConcesion" ajax="false"
+            action="#{resolucionConvBean.descargarExcelResolucionConcesion}"
+            value="#{bundle['resolucion.concesion.excel.descargar']}"
+            alt="#{bundle['resolucion.concesion.excel.descargar']}"
+            title="#{bundle['resolucion.concesion.excel.descargar']}"
+            icon="fas fa-file-excel" tipoBoton="btn-success">
+        </atlasp:button>
+    </h:panelGroup>
+    
+    <p:dialog id="dialogSubirResolucionConcesion"
+            widgetVar="dialogSubirResolucionConcesion"
+            header="#{bundle['resolucion.concesion.documento.titulo']}"
+            closable="false" dynamic="true" modal="true" width="25%"
+            onShow="atlas.ui.Loading.hideLoad('appLoading')">
+            <atlasp:facesMessages id="fmSubirResolucionConcesion" modo="notificar" />
+            <p:outputPanel id="outPanelSubirResolucionConcesion">
+                <p:panelGrid columns="1" layout="grid"
+                    styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                    <h:outputText styleClass="tituloFormulario"
+                        value="#{bundle['resolucion.concesion.documento.titulo']}" />
+                </p:panelGrid>
+                <atlasp:message tipo="info"
+                    texto="#{bundle['solapa.resol.error.debe.seleccionar.fichero']}"
+                    rendered="#{resolucionConvBean.mostrarMensajeElegirFichero}" />
+                <p:panelGrid columns="1" layout="grid"
+                    styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                    <h:outputText
+                        value="#{bundle['convocatorias.tab.documentos.label.archivo']}" />
+                    <p:fileUpload value="#{resolucionConvBean.archivoResolucionConcesion}"
+                        mode="simple" skinSimple="true"
+                        label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}"
+                        accept=".pdf" allowTypes="/(\.|\/)(pdf)$/"
+                        invalidFileMessage="Solo se permiten archivos PDF" />
+                </p:panelGrid>
+                <p:panelGrid columns="1" layout="grid"
+                    styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                    <p:column>
+                        <atlasp:button
+                            actionListener="#{resolucionConvBean.cargarFicheroResolucionConcesion}"
+                            ajax="false" value="#{bundle['popup.guardar']}"
+                            alt="#{bundle['popup.guardar']}" title="#{bundle['popup.guardar']}"
+                            icon="fas fa-save" tipoBoton="btn-success"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                        <atlasp:button value="#{bundle['popup.cerrar']}"
+                            alt="#{bundle['popup.cerrar']}" title="#{bundle['popup.cerrar']}"
+                            icon="fas fa-times" tipoBoton="btn-secondary"
+                            action="#{resolucionConvBean.cerrarSubirResolucionConcesionDialog}"
+                            process="@this" update="outPanelSubirResolucionConcesion"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                    </p:column>
+                </p:panelGrid>
+            </p:outputPanel>
+        </p:dialog>
+    
+</ui:composition>

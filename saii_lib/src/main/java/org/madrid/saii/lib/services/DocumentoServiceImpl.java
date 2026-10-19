@@ -240,7 +240,21 @@ public class DocumentoServiceImpl implements DocumentoService {
     public List<DocumentoDTO> obtenerDocumentosExpediente(ExpedienteDTO expedienteDTO,
             Boolean bFica, Integer idTramite, List<ExpedienteDocDTO> lstExpDocDTO) throws ServiceException {
 
-        List<ExpedienteDocDTO> lstExpedienteDocDTO = this.obtenerListaExpedientes(expedienteDTO, idTramite);
+        List<ExpedienteDocDTO> lstExpedienteDocDTO = this.obtenerListaExpedientes(expedienteDTO, idTramite, Boolean.TRUE);
+
+        return obtenerListaDocumentoDTO(lstExpDocDTO, lstExpedienteDocDTO, bFica);
+    }
+
+    /**
+     *
+     */
+    @Override
+    public List<DocumentoDTO> obtenerDocumentosExpediente(ExpedienteDTO expedienteDTO,
+            Boolean bFica, Integer idTramite, List<ExpedienteDocDTO> lstExpDocDTO,
+            Boolean filtrarEstado) throws ServiceException {
+
+        List<ExpedienteDocDTO> lstExpedienteDocDTO = this.obtenerListaExpedientes(expedienteDTO, idTramite,
+                filtrarEstado);
 
         return obtenerListaDocumentoDTO(lstExpDocDTO, lstExpedienteDocDTO, bFica);
     }
@@ -276,16 +290,31 @@ public class DocumentoServiceImpl implements DocumentoService {
     }
     
     /**
-     * 
+     *
      * @param expedienteDTO
      * @param idTramite
      * @return
      */
     private List<ExpedienteDocDTO> obtenerListaExpedientes(ExpedienteDTO expedienteDTO, Integer idTramite) {
-        
+        return this.obtenerListaExpedientes(expedienteDTO, idTramite, Boolean.TRUE);
+    }
+
+    /**
+     *
+     * @param expedienteDTO
+     * @param idTramite
+     * @param filtrarEstado true (comportamiento por defecto) para excluir también los
+     *        documentos en estado de subsanación (REQUIERE_SUBSANACION,
+     *        REQUIERE_SUBSANACION_NOTIFICADO, EN_TRAMITE_SUBSANACION); false para no aplicar
+     *        ese filtro y devolverlos igualmente
+     * @return
+     */
+    private List<ExpedienteDocDTO> obtenerListaExpedientes(ExpedienteDTO expedienteDTO, Integer idTramite,
+            Boolean filtrarEstado) {
+
 
         //VMM 30/09/24 MD-610: filtrar aqui por el id tramite en caso de que se pase por param segun venga
-        // Nos quedamos con los que tienen cdFica y no están dados de baja 
+        // Nos quedamos con los que tienen cdFica y no están dados de baja
         List<ExpedienteDocDTO> lstExpedienteDocDTO = null;
         if (idTramite != null) {
             lstExpedienteDocDTO = expedienteDTO.getLstExpedienteDocDTO().stream()
@@ -297,28 +326,32 @@ public class DocumentoServiceImpl implements DocumentoService {
                     .filter(x -> x.getFcBajaFila() == null && x.getCdFica() != null)
                     .collect(Collectors.toList());
         }
-        
+
         Integer idPendPre = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PENDIENTE_PRESENTAR);
-        Integer idReaSub = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION);
         Integer idSinSub = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.SIN_SUBIR);
-        Integer idReqSubNot = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION_NOTIFICADO);
-        Integer idEnTraSub = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.EN_TRAMITE_SUBSANACION);
-        
+
         // Quitamos los estados:
         // - Pendiente de presentar -> subido nuevo
         lstExpedienteDocDTO.removeIf(x -> idPendPre.equals(x.getEstadoDTO().getIdValor()));
-        // - Requiere subsanacion -> registros marcados como requiere
-        // subsanacion
-        lstExpedienteDocDTO.removeIf(x -> idReaSub.equals(x.getEstadoDTO().getIdValor()));
         // - Sin subir -> registros habilitados para subsanar requisitos
         lstExpedienteDocDTO.removeIf(x -> idSinSub.equals(x.getEstadoDTO().getIdValor()));
-        // - Requiere subsanacion notificado -> registros notificados para
-        // subsanar
-        lstExpedienteDocDTO.removeIf(x -> idReqSubNot.equals(x.getEstadoDTO().getIdValor()));
-        // - En tramite subsanación -> se ha subido una subsanación pero aún no
-        // se ha presentado
-        lstExpedienteDocDTO.removeIf(x -> idEnTraSub.equals(x.getEstadoDTO().getIdValor()));
-        
+
+        if (!Boolean.FALSE.equals(filtrarEstado)) {
+            Integer idReaSub = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION);
+            Integer idReqSubNot = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION_NOTIFICADO);
+            Integer idEnTraSub = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.EN_TRAMITE_SUBSANACION);
+
+            // - Requiere subsanacion -> registros marcados como requiere
+            // subsanacion
+            lstExpedienteDocDTO.removeIf(x -> idReaSub.equals(x.getEstadoDTO().getIdValor()));
+            // - Requiere subsanacion notificado -> registros notificados para
+            // subsanar
+            lstExpedienteDocDTO.removeIf(x -> idReqSubNot.equals(x.getEstadoDTO().getIdValor()));
+            // - En tramite subsanación -> se ha subido una subsanación pero aún no
+            // se ha presentado
+            lstExpedienteDocDTO.removeIf(x -> idEnTraSub.equals(x.getEstadoDTO().getIdValor()));
+        }
+
         return lstExpedienteDocDTO;
     }
     

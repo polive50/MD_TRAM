@@ -35,6 +35,7 @@ import org.madrid.saii.lib.dto.ExpedienteContratoDTO;
 import org.madrid.saii.lib.dto.ExpedienteDTO;
 import org.madrid.saii.lib.dto.ExpedienteFiltrosDTO;
 import org.madrid.saii.lib.dto.ExpedienteReqDTO;
+import org.madrid.saii.lib.dto.ResolucionConcesionDTO;
 import org.madrid.saii.lib.dto.ResolucionExclusionDesistimientoDTO;
 import org.madrid.saii.lib.dto.SolicitudDTO;
 import org.madrid.saii.lib.dto.TipoResolModalidadDTO;
@@ -2757,6 +2758,34 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
         return listado;
     }
     
+    @Override
+    public List<ResolucionConcesionDTO> listaResolucionConcesion(
+            Integer idConvocatoria, Integer idEstado) {
+        StringBuilder queryHql = new StringBuilder();
+        queryHql.append(" select new org.madrid.saii.lib.dto.ResolucionConcesionDTO(");
+        queryHql.append(" co.idLineaAyuda.dsValor, ex.interesado.dsNombre,");
+        queryHql.append(" ex.cdExpediente, ex.interesado.cdNumIden)");
+        queryHql.append(" from Expediente ex");
+        queryHql.append(" join ex.solicitud so");
+        queryHql.append(" join so.convocatoria co");
+        queryHql.append(" where co.idConvocatoria = :idConvocatoria");
+        queryHql.append(" and ex.estado.idValor = :idEstado");
+        queryHql.append(" and co.fcBajaFila is null");
+        queryHql.append(" and so.fcBajaFila is null");
+        queryHql.append(" and ex.fcBajaFila is null");
+        queryHql.append(" order by co.idLineaAyuda.dsValor, ex.interesado.dsNombre,");
+        queryHql.append(" ex.cdExpediente, ex.idExpediente");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("idConvocatoria", idConvocatoria);
+        params.put("idEstado", idEstado);
+
+        @SuppressWarnings("unchecked")
+        List<ResolucionConcesionDTO> listado =
+                (List<ResolucionConcesionDTO>) super.executeHQLQueryList(
+                        queryHql.toString(), params);
+        return listado;
+    }
     
     public Map<Integer, Long> contarExpedientesPendientesPorSolicitud(List<Integer> idsSolicitud) {
         if (idsSolicitud == null || idsSolicitud.isEmpty()) {

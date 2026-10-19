@@ -1233,10 +1233,16 @@ public class ExpedienteModifPresPlazoOtraBean {
                                          // Ordenamos de más nuevo a más antiguo por fcAltaFila
                                          docsOrdenados = listaDocs.stream()
                                                  .filter(d -> d.getFcAltaFila() != null)
+                                                 // VMM 14/10/26 MD-3141: solo documentos con fichero (cdFica). Los que el
+                                                 // beneficiario borro antes de presentar quedan en SAII_EXPEDIENTE_DOC sin
+                                                 // cdFica (ni nombre de fichero) y no son ficheros existentes: con ellos
+                                                 // se pintaban los iconos de descarga e historico del concepto y la
+                                                 // descarga fallaba (DescargaFicaServlet sin cdFica) sacando del programa.
+                                                 .filter(d -> d.getCdFica() != null)
                                                  .sorted((d1, d2) -> d2.getFcAltaFila().compareTo(d1.getFcAltaFila()))
                                                  .collect(Collectors.toList());
                                      }
-                                     
+
                                      // VMM 30/09/26 MD-3070: rellenamos nombreFicheroFica (ver enriquecerNombreFicheroFica) -
                                      // expedienteDocService.buscar() usa el converter generico, que no lo informa.
                                      this.enriquecerNombreFicheroFica(docsOrdenados);
@@ -1430,7 +1436,7 @@ public class ExpedienteModifPresPlazoOtraBean {
                                .filter(dato -> dato.getNmColumna() != 0) // Ignorar elementos donde nmColumna sea 0
                                .mapToDouble(dato -> Objects.nonNull(dato.getDsValor())
                                        && Boolean.FALSE.equals(dato.getEsMontoTotal())
-                                               ? Double.valueOf(dato.getDsValor())
+                                               ? this.parseImporteDsValor(dato.getDsValor())
                                                : 0)
                                .sum();
 
@@ -1438,8 +1444,13 @@ public class ExpedienteModifPresPlazoOtraBean {
                        dto.setDsValor(String.valueOf(sumaFila));
                        dto.setEsMontoTotal(Boolean.TRUE);
                        dto.setNmColumna(bloqueComp.getDatos().size());
-                       lstDatoDTO.add(dto);
-                       
+                       // VMM 14/10/26 MD-3138: el total de la fila se anadia a lstDatoDTO (la lista original),
+                       // no a los datos que pinta la tabla (bloqueComp.getDatos(), que es una copia filtrada),
+                       // asi que en una partida con un unico concepto la fila se quedaba sin celda de total y
+                       // getSumaTotalGrupoPres (que lee el indice listaAnualidades.size() + 1) devolvia 0 en
+                       // el SUBTOTAL de la columna TOTAL. La rama de varios conceptos ya lo anade a los datos.
+                       bloqueComp.getDatos().add(dto);
+
                        lstFilas.add(bloqueComp);
                        
                    }else if(lstDatoDTO.size() > listaAnualidades.size()+2) {
@@ -1484,7 +1495,7 @@ public class ExpedienteModifPresPlazoOtraBean {
                                    .filter(dato -> dato.getNmColumna() != 0) // Ignorar elementos donde nmColumna sea 0
                                    .mapToDouble(dato -> Objects.nonNull(dato.getDsValor())
                                            && Boolean.FALSE.equals(dato.getEsMontoTotal())
-                                                   ? Double.valueOf(dato.getDsValor())
+                                                   ? this.parseImporteDsValor(dato.getDsValor())
                                                    : 0)
                                    .sum();
 
@@ -1539,7 +1550,7 @@ public class ExpedienteModifPresPlazoOtraBean {
                        if (!fila.getDatos().isEmpty() && fila.getDatos().size() > i
                                && StringUtils.isNotBlank(fila.getDatos().get(i).getDsValor())
                                && fila.getDatos().get(i).getNmColumna() != 0) { // Ignorar elementos donde nmColumna es 0
-                           sumaColumna += Double.valueOf(fila.getDatos().get(i).getDsValor());
+                           sumaColumna += this.parseImporteDsValor(fila.getDatos().get(i).getDsValor());
                        }
                    }
 
@@ -1573,7 +1584,7 @@ public class ExpedienteModifPresPlazoOtraBean {
            for (BloqueComponenteDTO fila : bloque.getListaBloqueAuxDTO()) {
                if (!fila.getDatos().isEmpty() && fila.getDatos().size() > i
                        && StringUtils.isNotBlank(fila.getDatos().get(i).getDsValor())) {
-                   sumaColumna += Double.valueOf(fila.getDatos().get(i).getDsValor());
+                   sumaColumna += this.parseImporteDsValor(fila.getDatos().get(i).getDsValor());
                }
            }   
            // log.info("agregando monto total " + sumaColumna + " en la columna " + i);
@@ -1594,7 +1605,7 @@ public class ExpedienteModifPresPlazoOtraBean {
            double sumaFila = bloque.getListaBloqueAuxDTO().get(i).getDatos().stream()
                    .mapToDouble(dato -> Objects.nonNull(dato.getDsValor())
                            && Boolean.FALSE.equals(dato.getEsMontoTotal())
-                                   ? Double.valueOf(dato.getDsValor())
+                                   ? this.parseImporteDsValor(dato.getDsValor())
                                    : 0).sum();
 
            DatoDTO dto = new DatoDTO();
@@ -3220,6 +3231,8 @@ public class ExpedienteModifPresPlazoOtraBean {
                     if (listaDocsRecien != null && !listaDocsRecien.isEmpty()) {
                         docsRecienOrdenados = listaDocsRecien.stream()
                                 .filter(d -> d.getFcAltaFila() != null)
+                                // VMM 14/10/26 MD-3141: solo documentos con fichero, ver obtenerPresupuestoSolicitado
+                                .filter(d -> d.getCdFica() != null)
                                 .sorted((d1, d2) -> d2.getFcAltaFila().compareTo(d1.getFcAltaFila()))
                                 .collect(Collectors.toList());
                     }
@@ -5812,7 +5825,11 @@ public class ExpedienteModifPresPlazoOtraBean {
         // y no entra en el flujo del if. Caso contrario, el popup observaciones
         // se ha llamado desde el popup historico, y se volverá a abrir el popup
         // historico, despues de cerrar el de observaciones.
-        if (null != this.documentoSeleccionado) {
+        // VMM 16/10/26 MD-3151: documentoSeleccionado se inicializa a un ExpedienteDocDTO vacio (new, sin id) al
+        // cargar la solapa, asi que en una sesion nueva (sin haber abierto antes ningun historico) no era null y
+        // se llamaba a mostrarHistoricoDocumento con idExpedienteDoc null -> buscarId(null) lanzaba
+        // IllegalArgumentException "id to load is required for loading" y sacaba del programa.
+        if (null != this.documentoSeleccionado && this.documentoSeleccionado.getIdExpedienteDoc() != null) {
             this.mostrarHistoricoDocumento(this.documentoSeleccionado);
         }
     }
@@ -6169,11 +6186,11 @@ public class ExpedienteModifPresPlazoOtraBean {
         // Ajusta a la zona horaria local 
         ZoneId zone = ZoneId.of("Europe/Madrid"); //ZoneId.systemDefault(); //este default tb esta sumando un dia de mas
        
-        //vamos a tener que restar el dia que está sumando de más
+        // VMM 16/10/26 MD-3150: el dato se guarda como instante UTC (p.ej. 2027-03-15T23:00:00.000Z para el
+        // 16/03/2027 00:00 hora de Madrid), y atZone(Europe/Madrid) ya lo pasa a la fecha correcta. Antes se
+        // restaba ademas un dia cuando la hora salia 00:00 ("el dia que esta sumando de mas"), con lo que la
+        // fecha solicitada se veia un dia antes (15/03 en vez de 16/03).
         LocalDateTime localDateTime = instant.atZone(zone).toLocalDateTime();
-        if (localDateTime.getHour() == 0 && localDateTime.getMinute() == 0) {
-            localDateTime = localDateTime.minusDays(1);
-        }
          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         return localDateTime.format(formatter);
     }
@@ -6263,9 +6280,12 @@ public class ExpedienteModifPresPlazoOtraBean {
                           && plazosAceptados.get(0).getDatos().get(0).getDsValor() != null) {
                      
                       String literal = plazosAceptados.get(0).getDatos().get(0).getDsValor().substring(0, 19); 
-                      LocalDateTime ldt = LocalDateTime.parse(literal);  
-                      
-                      Date fechaFin = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+                      LocalDateTime ldt = LocalDateTime.parse(literal);
+
+                      // VMM 16/10/26 MD-3150: el literal (sin la Z) es la hora UTC del instante guardado en SAII_DATO,
+                      // no una hora local: con atZone(systemDefault) 2027-03-14T23:00 quedaba como las 23:00
+                      // locales del dia 14 y se veia 14/03/2027 23:00 en vez de 15/03/2027 00:00 (Madrid)
+                      Date fechaFin = Date.from(ldt.atZone(ZoneId.of("UTC")).toInstant());
                       
                       expedienteModifPlazoDTO.setFcFinEjecucion(fechaFin); 
                   }else {
@@ -6283,6 +6303,11 @@ public class ExpedienteModifPresPlazoOtraBean {
             //obtenemos los plazos de antes de la modificacion de la tabla temp de plazos
             //para copiarlos a la tabla de plazos a aceptar
             this.lstPlazosAcept = lstModifPlazosAnualidadesAux;
+            // VMM 16/10/26 MD-3150: la tabla "plazos antes de solicitud" muestra fcFinEjecConcedido cuando ya hay
+            // plazos aceptados, pero lstPlazosAntesMod venia de convertirExpAnualToExpModifPlazo (solo informa
+            // fcFinEjecucion), asi que tras "Cargar datos" salia en blanco hasta recargar. Al recargar ya se usa la
+            // misma lista que los aceptados (ver obtenerPlazo), asi que se hace igual aqui.
+            this.lstPlazosAntesMod = lstModifPlazosAnualidadesAux;
 
             this.validarEstilo();
 
@@ -6866,6 +6891,26 @@ public class ExpedienteModifPresPlazoOtraBean {
     /**
      * Calcula la suma vertical de todos los conceptos de una partida específica para una columna dada.
      */
+    /**
+     * VMM 14/10/26 MD-3123: convierte el dsValor (String) de un DatoDTO a importe, tratando
+     * null/blanco/no numerico como 0.0 en vez de lanzar NullPointerException/NumberFormatException
+     * (Double.parseDouble no admite null). Una modificacion presentada puede traer un concepto sin importe
+     * (DS_VALOR nulo en SAII_DATO, que el informe muestra en blanco), y esas excepciones al calcular los
+     * totales de la tabla de modificaciones solicitadas podian impedir que se pintara. Admite coma
+     * decimal/punto de miles y punto decimal. Mismo criterio que FinanciacionBean.parseImporteDsValor.
+     */
+    private double parseImporteDsValor(String dsValor) {
+        String valorNormalizado = Utils.normalizarSeparadorDecimal(dsValor);
+        if (StringUtils.isBlank(valorNormalizado)) {
+            return 0.0;
+        }
+        try {
+            return Double.parseDouble(valorNormalizado);
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
+    }
+
     public Double getSumaGrupoPres(CatalogosValoresDTO partida, int nCol, List<BloqueComponenteDTO> lstPresup) {
         if (lstPresup == null || partida == null) {
             return 0.0;
@@ -6878,7 +6923,9 @@ public class ExpedienteModifPresPlazoOtraBean {
             // nCol es el índice que viene del front (ya ajustado con el ternario)
             if (p.getDatos() != null && nCol < p.getDatos().size()
                     && p.getIdBloqueComponente() != null) { //para que no coja el ultimo registro de la fila TOTAL
-                Double imp = Double.parseDouble(p.getDatos().get(nCol).getDsValor());
+                // VMM 14/10/26 MD-3123: parseImporteDsValor en vez de Double.parseDouble, que lanza
+                // NullPointerException con un importe nulo (modificacion presentada con un concepto sin importe)
+                Double imp = this.parseImporteDsValor(p.getDatos().get(nCol).getDsValor());
                 return (imp != null) ? imp : 0.0;
             }
             return 0.0;
@@ -6907,7 +6954,8 @@ public class ExpedienteModifPresPlazoOtraBean {
                 .mapToDouble(p -> {
                     if (p.getDatos() != null && indexTotal < p.getDatos().size()
                             && p.getIdBloqueComponente() != null) { //para que no coja el ultimo registro de la fila TOTAL
-                        Double imp = Double.parseDouble(p.getDatos().get(indexTotal).getDsValor());
+                        // VMM 14/10/26 MD-3123: ver parseImporteDsValor
+                        Double imp = this.parseImporteDsValor(p.getDatos().get(indexTotal).getDsValor());
                         return (imp != null) ? imp : 0.0;
                     }
                     return 0.0;
@@ -6924,7 +6972,9 @@ public class ExpedienteModifPresPlazoOtraBean {
         .filter(p -> p.getDatos() != null && nCol < p.getDatos().size()
                     && p.getIdBloqueComponente() != null) //para que no coja el ultimo registro de la fila TOTAL
         .mapToDouble(p -> {
-            Double imp = Double.parseDouble(p.getDatos().get(nCol).getDsValor());
+            // VMM 16/10/26 MD-3123: Double.parseDouble(null) lanzaba NPE al pintar el pie de la tabla cuando
+            // aun no hay datos cargados (dsValor null) y cortaba la pagina; ver parseImporteDsValor
+            Double imp = this.parseImporteDsValor(p.getDatos().get(nCol).getDsValor());
             return (imp != null) ? imp : 0.0;
         })
         .sum();

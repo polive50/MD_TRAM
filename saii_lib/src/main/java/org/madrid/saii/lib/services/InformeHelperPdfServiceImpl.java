@@ -6638,17 +6638,25 @@ public class InformeHelperPdfServiceImpl implements InformeHelperPdfService {
     }
 
     // Procesa clases ql-align y ql-indent
+    // VMM 15/10/26 MD-3142: cada <p> se parsea por separado y se le aplica SU alineacion y SU sangria.
+    // Antes se parseaba todo el HTML de una vez y se asignaban las clases por posicion (i-esimo <p> ->
+    // i-esimo Paragraph), pero normalizarHtml anade un <br/> tras cada </p> y HTMLWorker genera un
+    // Paragraph por cada uno, asi que hay el doble de Paragraph que de <p> y las sangrias/centrados
+    // caian en lineas que no eran (holaaaa sin sangria, "esto es cursiva" con ella, etc.)
     private List<Element> parsearHtmlAElementos(String textoDesc) {
         List<Element> resultado = new ArrayList<>();
-        
-        final float sangriaPuntosPorNivel = 36f;
-        List<Integer> alineacionesPorParrafo = new ArrayList<>();
-        List<Float> sangriasPorParrafo = new ArrayList<>();
 
-        Matcher tagP = Pattern.compile("(?i)<p\\b([^>]*)>").matcher(textoDesc);
-        while (tagP.find()) {
+        final float sangriaPuntosPorNivel = 36f;
+
+        Matcher bloqueP = Pattern.compile("(?is)<p\\b([^>]*)>(.*?)</p>").matcher(textoDesc);
+        int posicion = 0;
+        while (bloqueP.find()) {
+            // Lo que haya fuera de los <p> (los <br/> que anade normalizarHtml, o contenido sin <p>)
+            agregarFragmentoHtml(resultado, textoDesc.substring(posicion, bloqueP.start()),
+                    Element.ALIGN_JUSTIFIED, 0f);
+
             String clase = "";
-            Matcher claseMatcher = Pattern.compile("class=\"([^\"]*)\"").matcher(tagP.group(1));
+            Matcher claseMatcher = Pattern.compile("class=\"([^\"]*)\"").matcher(bloqueP.group(1));
             if (claseMatcher.find()) {
                 clase = claseMatcher.group(1);
             }
@@ -6657,33 +6665,39 @@ public class InformeHelperPdfServiceImpl implements InformeHelperPdfService {
             if (clase.contains("ql-align-center")) alineacion = Element.ALIGN_CENTER;
             else if (clase.contains("ql-align-right")) alineacion = Element.ALIGN_RIGHT;
             else if (clase.contains("ql-align-justify")) alineacion = Element.ALIGN_JUSTIFIED;
-            
-            alineacionesPorParrafo.add(alineacion);
 
             float sangria = 0f;
             Matcher indentMatcher = Pattern.compile("ql-indent-(\\d+)").matcher(clase);
             if (indentMatcher.find()) {
                 sangria = Integer.parseInt(indentMatcher.group(1)) * sangriaPuntosPorNivel;
             }
-            sangriasPorParrafo.add(sangria);
-        }
 
+            agregarFragmentoHtml(resultado,
+                    "<p style='margin:0;padding:0;'>" + bloqueP.group(2) + "</p>", alineacion, sangria);
+            posicion = bloqueP.end();
+        }
+        agregarFragmentoHtml(resultado, textoDesc.substring(posicion), Element.ALIGN_JUSTIFIED, 0f);
+
+        return resultado;
+    }
+
+    // Parsea un fragmento HTML y aplica la misma alineacion y sangria a todos sus parrafos
+    private void agregarFragmentoHtml(List<Element> resultado, String html, int alineacion,
+            float sangria) {
+        if (StringUtils.isBlank(html)) {
+            return;
+        }
         try {
-            List<Element> elementos = HTMLWorker.parseToList(new StringReader(textoDesc), null);
-            int indiceParrafo = 0;
+            List<Element> elementos = HTMLWorker.parseToList(new StringReader(html), null);
 
             for (Element element : elementos) {
                 if (element instanceof Paragraph) {
                     Paragraph original = (Paragraph) element;
                     Paragraph pModificado = new Paragraph();
 
-                    int alineacion = indiceParrafo < alineacionesPorParrafo.size() ? alineacionesPorParrafo.get(indiceParrafo) : Element.ALIGN_JUSTIFIED;
-                    float sangria = indiceParrafo < sangriasPorParrafo.size() ? sangriasPorParrafo.get(indiceParrafo) : 0f;
-
                     pModificado.setAlignment(alineacion);
                     pModificado.setIndentationLeft(sangria);
                     pModificado.setLeading(12, 0);
-                    indiceParrafo++;
 
                     for (Chunk chunk : original.getChunks()) {
                         Font f = new Font(chunk.getFont());
@@ -6699,8 +6713,6 @@ public class InformeHelperPdfServiceImpl implements InformeHelperPdfService {
         } catch (IOException e) {
             log.error("Error procesando HTML: " + e.getMessage(), e);
         }
-
-        return resultado;
     }
     
     

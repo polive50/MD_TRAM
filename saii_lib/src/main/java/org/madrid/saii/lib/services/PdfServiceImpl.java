@@ -890,7 +890,13 @@ public class PdfServiceImpl implements PdfService {
                         utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.TRAMITE_PRESENTACION_JUSTIFICACION_ECONOMICA),
                         lstExpDocDTO);
 
-            
+
+        }else if (utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.NOTIFICACION_CIUDADANO)
+                .equals(idTramite)) {
+            cdListadoDocEreg = this.generaFirmaReciboPresentacionNotifiCiud(dto,
+                    utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.NOTIFICACION_CIUDADANO),
+                    lstExpDocDTO);
+
         }else {
             cdListadoDocEreg = this.generaFirmaReciboPresentacion(dto, utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.PRESENTACION), lstExpDocDTO);
         }
@@ -908,7 +914,12 @@ public class PdfServiceImpl implements PdfService {
                 pdfReciboPresentacion.setCodigoEreg(dto.getCdEreg());
                 pdfReciboPresentacion.setFcRegistro(new Date());
                 this.expedienteDocDAO.insertOrUpdate(pdfReciboPresentacion);
-            
+
+            } else if (utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.NOTIFICACION_CIUDADANO)
+                    .equals(idTramite)) {
+                pdfReciboPresentacion.setCodigoEreg(dto.getCdEregNotifiCiud());
+                pdfReciboPresentacion.setFcRegistro(new Date());
+                this.expedienteDocDAO.insertOrUpdate(pdfReciboPresentacion);
             }
             
             log.info("TEST PRESENTAR: Insertó documento expedienteDoc");
@@ -960,8 +971,14 @@ public class PdfServiceImpl implements PdfService {
                     docAnexo.setEstado(
                             new CatalogosValores(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PENDIENTE_REVISION_SUBSANACION)));
                     docAnexo.getEstado().setNmConstante(Constantes.EstadoDocumento.PENDIENTE_REVISION_SUBSANACION);
-                    docAnexo.setCodigoEreg(dto.getCdEregSubsanaReq());
-                    docAnexo.setFcRegistro(dto.getFcFirmaSubsanaReq());
+                    if(dto.getCdEregSubsanaReq() != null) {
+                        docAnexo.setCodigoEreg(dto.getCdEregSubsanaReq());
+                        docAnexo.setFcRegistro(dto.getFcFirmaSubsanaReq());
+                    }else {
+                        docAnexo.setCodigoEreg(dto.getCdEregSubsanaAdm());
+                        docAnexo.setFcRegistro(dto.getFcFirmaSubsanaAdm()); 
+                    }
+                   
                     listaDocumentos.add(docAnexo);
                 }
             }else if (utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.ACEPTACION_DESISTIMIENTO_AYUDA).equals(idTramite)) {
@@ -1003,7 +1020,38 @@ public class PdfServiceImpl implements PdfService {
                     listaDocumentos.add(docAnexo);
                 }
 
-                    
+            } else if (utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.NOTIFICACION_CIUDADANO).equals(idTramite)) {
+
+                if (lstExpDocDTO != null) {
+                    for (ExpedienteDocDTO docDTO : lstExpDocDTO) {
+                        ExpedienteDoc docAnexo = this.expedienteDocDAO
+                                .find(docDTO.getIdExpedienteDoc());
+                        docAnexo.setEstado(
+                                new CatalogosValores(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REVISION_OK)));
+                        docAnexo.getEstado().setNmConstante(Constantes.EstadoDocumento.REVISION_OK);
+                        docAnexo.setCodigoEreg(dto.getCdEregNotifiCiud());
+                        docAnexo.setFcRegistro(new Date());
+                        listaDocumentos.add(docAnexo);
+                    }
+                }
+                
+            }  else if (utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.ALEGACIONES).equals(idTramite)) {
+
+                List<AtlasFilter> filtros = new ArrayList<>();
+                
+                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_EXPEDIENTE_IDEXPEDIENTE,
+                        dto.getIdExpediente(), Operador.EQUALS));
+                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_TRAMITE, idTramite, Operador.EQUALS));
+                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_CDFICA, Operador.NOT_NULL));
+                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_CDANEXOEREG, Operador.NULL));
+                filtros.add(
+                        new AtlasFilter(Constantes.Filtro.FILTRO_CDANEXOEREGPADRE, Operador.NULL));
+
+                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
+
+                listaDocumentos = this.expedienteDocDAO.find(filtros, null);
+                fcFirma= dto.getFcFirmaAlegaciones();
+                cdEreg= dto.getCdEregAlegaciones(); 
                 
             } else {
                 // Marcamos los documentos con padre
@@ -1022,13 +1070,7 @@ public class PdfServiceImpl implements PdfService {
                 cdEreg= dto.getCdEreg(); 
             }
             
-            // tramite alegaciones
-            if (utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.ALEGACIONES)
-                    .equals(idTramite)) {
-                fcFirma= dto.getFcFirmaAlegaciones();
-                cdEreg= dto.getCdEregAlegaciones();
-            }
-                
+           
 
             // Usuario de persona física extracomunitario: no tiene NIF/NIE, la auditoría
             // debe usar una constante en lugar de su identificador.
@@ -1905,6 +1947,112 @@ public class PdfServiceImpl implements PdfService {
     }
 
     /**
+     * Método que genera el documento pdf de recibo de presentación del
+     * trámite de Notificación del ciudadano. A diferencia de
+     * {@link #generarRecibo(ConvocatoriaDTO, ConvocatoriaPlaDTO, String, ExpedienteDTO, InteresadoDTO, List, ImpresoDTO)}
+     * no depende de una plantilla de convocatoria (ConvocatoriaPlaDTO), ya
+     * que este trámite no tiene impreso asociado, y siempre debe mostrar el
+     * asunto/expone/solicita indicados por el ciudadano (son obligatorios),
+     * aportando documentación adicional de forma opcional.
+     */
+    private byte[] generarReciboNotificacionCiudadano(ConvocatoriaDTO convocatoriaDTO,
+            ExpedienteDTO expedienteDTO, InteresadoDTO interesado,
+            List<DocumentoDTO> lstDocumentoDTO, ImpresoDTO impresoDTO, String dsAsunto,
+            String tlExpone, String tlSolicita) throws ServiceException {
+
+        byte[] bytesSalida = null;
+
+        try {
+
+            Document document = new Document(PageSize.A4, 36, 36, 102, 36);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            String cdEreg = expedienteDTO.getCdEregNotifiCiud();
+            Map<String, String> mapaDatosEntrada = new HashMap<>();
+            mapaDatosEntrada.put("codigo", Utils.formatearNmEreg(cdEreg));
+            mapaDatosEntrada.put("destino", expedienteDTO.getDsDestinoEreg());
+            mapaDatosEntrada.put("fecha",
+                    Utils.dateToString(new Date(), Constantes.Utiles.FORMATO_FECHA_HORA));
+
+            this.generarCabeceraPdf(convocatoriaDTO, impresoDTO.getImagenLogoDTO(), document, baos,
+                    Boolean.TRUE, mapaDatosEntrada);
+
+            document.open();
+
+            // MD-2869: ver comentario equivalente en generarRecibo()
+            Boolean esFondoEuropeo = Constantes.AfirmacionNegacion.S
+                    .equals(convocatoriaDTO.getItFondosEuropa());
+            Boolean agregarEspacioLogos = Boolean.TRUE.equals(esFondoEuropeo)
+                    || (impresoDTO.getImagenLogoDTO() != null
+                            && StringUtils.isNotBlank(impresoDTO.getImagenLogoDTO().getCdFica()));
+
+            informeHelperPdfService.agregarTitulo(document, Constantes.ReciboPresentacion.TEXTOTITULO,
+                    convocatoriaDTO.getCdTitulo(), "Notificación del ciudadano",
+                    expedienteDTO.getCdExpediente(), agregarEspacioLogos, Boolean.TRUE);
+
+            informeHelperPdfService.agregarFilaVacio(document, 1);
+
+            informeHelperPdfService.agregarSubTituloDes(document, Constantes.ReciboPresentacion.ASUNTO,
+                    dsAsunto, tipoLetra10Bold, tipoLetra9, 2);
+
+            informeHelperPdfService.agregarFilaVacio(document, 1);
+
+            informeHelperPdfService.agregarSubTituloDes(document,
+                    Constantes.ReciboPresentacion.DATOS_INTERESADO, null, tipoLetra10Bold, null, 1);
+
+            informeHelperPdfService.agregarSubTituloDes(document,
+                    "  " + Constantes.ReciboPresentacion.INTERESADO,
+                    interesado.getDsNombre() + " " + interesado.getDsApellido1() + " "
+                            + interesado.getDsApellido2() + "     NIF: "
+                            + interesado.getCdNumIden(),
+                    tipoLetra9, tipoLetra9, 2);
+
+            informeHelperPdfService.agregarSubTituloDes(document,
+                    "  " + Constantes.ReciboPresentacion.EXPEDIENTE,
+                    expedienteDTO.getCdExpediente() + "     Anexo: " + cdEreg,
+                    tipoLetra9, tipoLetra9, 2);
+
+            informeHelperPdfService.agregarFilaVacio(document, 1);
+
+            // Contenido obligatorio del trámite: expone y solicita
+            informeHelperPdfService.agregarSubTituloDes(document, Constantes.ReciboPresentacion.EXPONE,
+                    tlExpone, tipoLetra10Bold, tipoLetra9, 2);
+
+            informeHelperPdfService.agregarFilaVacio(document, 1);
+
+            informeHelperPdfService.agregarSubTituloDes(document, Constantes.ReciboPresentacion.SOLICITA,
+                    tlSolicita, tipoLetra10Bold, tipoLetra9, 2);
+
+            informeHelperPdfService.agregarFilaVacio(document, 1);
+
+            informeHelperPdfService.agregarSubTituloDes(document,
+                    Constantes.ReciboPresentacion.DOCUMENTACION, null, tipoLetra10Bold, null, 1);
+
+            if (lstDocumentoDTO != null && !lstDocumentoDTO.isEmpty()) {
+                informeHelperPdfService.agregarSubTituloDes(document,
+                        "  " + Constantes.ReciboPresentacion.DOCUMENTACION_DESCRIPCION, null,
+                        tipoLetra9, null, 1);
+            } else {
+                informeHelperPdfService.agregarSubTituloDes(document,
+                        "  " + Constantes.ReciboPresentacion.NO_DOCUMENTACION_DESCRIPCION, null,
+                        tipoLetra9, null, 1);
+            }
+
+            informeHelperPdfService.agregarListadoDocumentos(document, lstDocumentoDTO);
+
+            document.close();
+
+            bytesSalida = baos.toByteArray();
+
+        } catch (DocumentException e) {
+            log.error("Error al crear el recibo de notificación del ciudadano: " + e.getMessage());
+        }
+
+        return bytesSalida;
+    }
+
+    /**
      * Método que genera el documento pdf de listado de documentacion para el
      * anexo JCT
      *
@@ -2186,6 +2334,11 @@ public class PdfServiceImpl implements PdfService {
      */
     @Override
     public DocumentoDTO descargarZipSolicitud(Integer idSolicitud) throws ServiceException {
+        return this.descargarZipSolicitud(idSolicitud, Boolean.TRUE);
+    }
+
+    @Override
+    public DocumentoDTO descargarZipSolicitud(Integer idSolicitud, Boolean filtrarEstado) throws ServiceException {
 
         DocumentoDTO documentoDTO = new DocumentoDTO();
 
@@ -2199,7 +2352,7 @@ public class PdfServiceImpl implements PdfService {
             ZipOutputStream zos = new ZipOutputStream(baos);
 
             for (ExpedienteDTO dto : lstExpedientesDTO) {
-                this.empaquetarZip(dto, zos);
+                this.empaquetarZip(dto, zos, filtrarEstado);
             }
 
             zos.closeEntry();
@@ -2461,6 +2614,64 @@ public class PdfServiceImpl implements PdfService {
     }
 
     /**
+     * Método que genera el PDF de recibo de presentación del trámite de
+     * Notificación del ciudadano (asunto/expone/solicita + documentación
+     * adicional opcional), lo firma y lo anexa a la entrada EREG creada
+     * específicamente para este trámite ({@link ExpedienteDTO#getCdEregNotifiCiud()}).
+     *
+     * @param dto ExpedienteDTO
+     * @param idTramite trámite de notificación del ciudadano
+     * @param lstDoc documentos adicionales a anexar (puede ser vacía)
+     * @return String código del anexo
+     * @throws ServiceException
+     */
+    private String generaFirmaReciboPresentacionNotifiCiud(ExpedienteDTO dto, Integer idTramite,
+            List<ExpedienteDocDTO> lstDoc) throws ServiceException {
+
+        byte[] listadoDoc = this.generarAnexoDocumentacionNotifiCiud(dto, idTramite, lstDoc);
+        listadoDoc = this.eregAdmeService.firmarDatos(listadoDoc);
+        log.info("Se va a anexar el listado. Tamaño: " + listadoDoc.length);
+
+        return this.eregAdmeService.anexarFicheroAnexo(dto.getCdEregNotifiCiud(), listadoDoc,
+                EregAdmeService.ConstantesEregTipoAnexos.LISTADO_DOC_ANEXOS);
+
+    }
+
+    /**
+     * Método que recupera los datos necesarios (interesado, convocatoria,
+     * impreso y documentos adicionales) y genera el PDF de recibo del
+     * trámite de Notificación del ciudadano.
+     */
+    private byte[] generarAnexoDocumentacionNotifiCiud(ExpedienteDTO expedienteDTO, Integer idTramite,
+            List<ExpedienteDocDTO> lstDoc) throws ServiceException {
+
+        // Recuperamos el listado de documentos adicionales adjuntos (puede
+        // ser vacío: no son obligatorios)
+        List<DocumentoDTO> lstDocumentosDTO = this.documentoService
+                .obtenerDocumentosExpediente(expedienteDTO, Boolean.FALSE, idTramite, lstDoc);
+        log.info("Documentos recuperados notificación del ciudadano: " + lstDocumentosDTO.size());
+
+        Solicitud solicitud = this.solicitudDAO.find(expedienteDTO.getIdSolicitud());
+
+        InteresadoDTO interesado = this.interesadoService
+                .buscarId(expedienteDTO.getInteresadoDTO().getIdInteresado());
+
+        ConvocatoriaDTO convocatoriaDTO = this.convocatoriaService
+                .buscarId(solicitud.getConvocatoria().getIdConvocatoria());
+
+        List<Integer> lstTipoImpreso = new ArrayList<>();
+        lstTipoImpreso.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.TipoImpreso.FORMULARIO_SOLICITUD));
+        ImpresoDTO impresoDTO = this.impresoService.buscarPorConvActor(
+                convocatoriaDTO.getIdConvocatoria(),
+                expedienteDTO.getConvocatoriaActDTO().getIdActor(), lstTipoImpreso);
+        impresoDTO = impresoDTO == null ? new ImpresoDTO() : impresoDTO;
+
+        return this.generarReciboNotificacionCiudadano(convocatoriaDTO, expedienteDTO, interesado,
+                lstDocumentosDTO, impresoDTO, expedienteDTO.getDsAsuntoNotifiCiud(),
+                expedienteDTO.getTlExponeNotifiCiud(), expedienteDTO.getTlSolicitaNotifiCiud());
+    }
+
+    /**
      * Método que genera el documento PDF con el anexo, lo firma y lo sube a
      * EREG
      *
@@ -2527,8 +2738,9 @@ public class PdfServiceImpl implements PdfService {
                 cdEregSubsana = expedienteContratoDTO.getCdEregSubsana();
             }else if(idTramite != null && (idTramite
                     .equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_ADMINISTRATIVA))
-                    ||idTramite
-                    .equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_REQUISITO )))) {
+                    ||idTramite.equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_REQUISITO ))
+                    || idTramite.equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.NOTIFICACION_CIUDADANO))
+                    )) {
                 
                 ExpedienteDocDTO expedienteDocDTO = this.expedienteDocService.buscarId(idExpedienteDoc);
                 if(expedienteDocDTO != null) {
@@ -2539,7 +2751,7 @@ public class PdfServiceImpl implements PdfService {
             }else if (idTramite != null && idTramite
                     .equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.ALEGACIONES))) {
                 cdEregSubsana =dto.getCdEregAlegaciones();
-                
+
             }
 
             // Obtenemos los listados de recibos de presentacion
@@ -2601,15 +2813,26 @@ public class PdfServiceImpl implements PdfService {
      * @throws ServiceException
      */                          
     private void empaquetarZip(ExpedienteDTO dto, ZipOutputStream zos) throws ServiceException {
+        this.empaquetarZip(dto, zos, Boolean.TRUE);
+    }
+
+    /**
+     * @param dto Expediente
+     * @param zos zip
+     * @param filtrarEstado true (comportamiento por defecto) para excluir del zip los
+     *        documentos en estado de subsanación; false para incluirlos igualmente
+     * @throws ServiceException
+     */
+    private void empaquetarZip(ExpedienteDTO dto, ZipOutputStream zos, Boolean filtrarEstado) throws ServiceException {
 
         try {
 
             // Obtenemos el impreso relleno de cada expediente
             byte[] impreso = this.descargarExpediente(dto).getContenidoFichero();
            if(impreso != null) {
-               log.debug("impreso solicitud: " + Base64.getEncoder().encodeToString(impreso)); 
+               log.debug("impreso solicitud: " + Base64.getEncoder().encodeToString(impreso));
            }
-           
+
             String cdEregEXP = dto.getCdEreg();
             // Obtenemos los listados de anexos de cada expediente
             // VMM 30/09/24 MD-610: pasar aqui por param el tramite 400 en vez
@@ -2624,7 +2847,7 @@ public class PdfServiceImpl implements PdfService {
 
             // Obtenemos los documentos subidos a FICA de cada expediente
             List<DocumentoDTO> lstDocumentosFICA = this.documentoService
-                    .obtenerDocumentosExpediente(dto, Boolean.TRUE, utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.PRESENTACION), null);
+                    .obtenerDocumentosExpediente(dto, Boolean.TRUE, utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.PRESENTACION), null, filtrarEstado);
 
             String cdExpediente = dto.getCdExpediente().replace("/", "_");
 
