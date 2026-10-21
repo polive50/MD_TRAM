@@ -14,7 +14,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.madrid.saii</groupId>
 	<artifactId>saii_tramitacion</artifactId>
-	<version>1.5.149</version>
+	<version>1.5.151</version>
 	<packaging>pom</packaging>
 	<name>${project.artifactId}</name>
 	<description>Aplicación web ${project.artifactId}</description>

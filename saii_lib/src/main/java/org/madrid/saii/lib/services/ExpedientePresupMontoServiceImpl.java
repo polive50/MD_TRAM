@@ -148,8 +148,18 @@ public class ExpedientePresupMontoServiceImpl
         // NonUniqueObjectException por tener ya otra instancia asociada a esa misma fila. merge()
         // esta pensado precisamente para este caso: concilia el estado sobre la instancia ya
         // gestionada (o la carga si no habia ninguna) en vez de exigir que sea la unica.
-        ExpedientePresupMonto entidadFusionada = this.getDao()
-                .merge(ExpedientePresupMontoToEntity.INSTANCE.apply(expedientePresupMontoDTO));
+        ExpedientePresupMonto entidadAGuardar = ExpedientePresupMontoToEntity.INSTANCE.apply(expedientePresupMontoDTO);
+
+        // VMM 20/10/26 MD-3156: el DTO no lleva los campos de auditoria y desde el batch (volcado de las
+        // modificaciones resueltas, ResolucionModificacionServiceImpl) no hay sesion web, asi que
+        // UserUtils.getUserName() da vacio y CD_USU_MODIF se quedaba sin informar. Mismo fallback que ya usa
+        // crearNuevoConceptoHijo para CD_USU_ALTA.
+        if (entidadAGuardar != null && StringUtils.isBlank(UserUtils.getUserName())) {
+            entidadAGuardar.setCdUsuModif(Constantes.Utiles.COD_USU_BATCH_AUDITORIA);
+            entidadAGuardar.setFcModifFila(new Date());
+        }
+
+        ExpedientePresupMonto entidadFusionada = this.getDao().merge(entidadAGuardar);
         ExpedientePresupMontoDTO expPresupMontoDTO = ExpedientePresupMontoToDTO.INSTANCE.apply(entidadFusionada);
 
         expedientePresMontHistService.getDao().crearHistorico(ExpedientePresupMontoToEntity.INSTANCE.apply(expPresupMontoDTO));

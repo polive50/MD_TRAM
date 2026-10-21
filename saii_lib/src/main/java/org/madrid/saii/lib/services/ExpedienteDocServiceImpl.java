@@ -440,6 +440,14 @@ public class ExpedienteDocServiceImpl extends
             expeDocu = this.buscarPorExpedienteTipoDocumento(idExpediente, idTipoDocumento,
                     idTramite);
 
+            // VMM 20/10/26 MD-3163: si la busqueda por tipo+tramite no encuentra el doc (p.ej. tipo "Otros"
+            // sin tipo informado) y el DTO viene de la fila del listado (constructor de proyeccion, que no
+            // trae CD_USU_ALTA), la entidad construida desde el DTO hacia un UPDATE con CD_USU_ALTA = NULL
+            // (ORA-01407). Si el doc ya existe (idExpedienteDoc informado) se parte de la fila de BD.
+            if (expeDocu == null && expedienteDocDTO.getIdExpedienteDoc() != null) {
+                expeDocu = this.expedienteDocDAO.find(expedienteDocDTO.getIdExpedienteDoc());
+            }
+
             if (expeDocu == null) {
                 expeDocu = ExpedienteDocToEntity.INSTANCE.apply(expedienteDocDTO);
             }

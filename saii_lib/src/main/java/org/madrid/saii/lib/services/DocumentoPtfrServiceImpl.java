@@ -402,6 +402,8 @@ public class DocumentoPtfrServiceImpl extends
         tramitesNoFormPdf
                 .add(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL));
         tramitesNoFormPdf.add(utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO));
+        tramitesNoFormPdf.add(utilConstantes.getGlobalCatalogosValores()
                 .get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_ADMINISTRATIVA));
         tramitesNoFormPdf.add(utilConstantes.getGlobalCatalogosValores()
                 .get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_REQUISITO));
@@ -686,7 +688,9 @@ public class DocumentoPtfrServiceImpl extends
             ExpedienteDTO expediente, Integer idExpediente, Integer idtramite,
             byte[] documentoAdjunto, Integer idExpedienteJustec, Integer idPresupuestoModif, Integer idExpedienteJusEco)
             throws ServiceException {
+        Boolean vuelta = Boolean.FALSE;
         try {
+
             DocumentoPtfr documentoPtfr = this.crearEnvioDocumentoPtfr(convocatoria, expediente,
                     idtramite, documentoAdjunto, idExpedienteJustec, idPresupuestoModif,
                     idExpedienteJusEco, null);
@@ -730,8 +734,7 @@ public class DocumentoPtfrServiceImpl extends
         if (idExpedienteJustec != null) {
             documentoPtfr.setidExpedienteJustec(idExpedienteJustec);
         }
-
-        //VMM 17/10/25 MD-1586: incluimos el idExpedienteJusEco
+      //VMM 17/10/25 MD-1586: incluimos el idExpedienteJusEco
         if (idExpedienteJusEco != null) {
             documentoPtfr.setIdExpedienteJusEco(idExpedienteJusEco);
         }
@@ -2763,6 +2766,8 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
                 .get(Constantes.Tramite.RESOLUCION_CONVOCATORIA_PROVISIONAL));
         lstTramite.add(utilConstantes.getGlobalCatalogosValores()
                 .get(Constantes.Tramite.RESOLUCION_CONVOCATORIA_DEFINITIVO));
+        lstTramite.add(utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO));
         if (lstTramite.contains(idTipoTramite)) {
             filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_TRAMITE, idTipoTramite,
                     Operador.EQUALS));
@@ -3115,29 +3120,44 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
         this.actualizarEstadoInternoExpedienteBatch(expediente,
                 idEstadoInterno, esRevAdmin);
     }
-
+    
     @Override
     @Transactional(readOnly = false, rollbackFor = { ServiceException.class, RuntimeException.class })
     public Integer enviarResolucionIndividualDefinitiva(ConvocatoriaDTO convocatoria,
             Integer idExpedienteDoc, Integer tramite, byte[] documentoAdjunto,
             Integer idDocPtfrPadre, String usuario)
             throws ServiceException {
+        
+        if (!Constantes.Tramite.EXCLUSION.equals(tramite)
+                && !Constantes.Tramite.DESISTIMIENTO.equals(tramite)) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+        return this.enviarResolucionDefinitiva(convocatoria, idExpedienteDoc, tramite,
+                documentoAdjunto, idDocPtfrPadre, usuario);
+    }
+
+    /** Valida y encola un documento individual o conjunto y actualiza su expediente. */
+    private Integer enviarResolucionDefinitiva(ConvocatoriaDTO convocatoria,
+            Integer idExpedienteDoc, Integer tramite, byte[] documentoAdjunto,
+            Integer idDocPtfrPadre, String usuario) throws ServiceException {
+        boolean conjunta = Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite);
         boolean exclusion = Constantes.Tramite.EXCLUSION.equals(tramite);
-        if ((!exclusion && !Constantes.Tramite.DESISTIMIENTO.equals(tramite))
+        if ((!conjunta && !exclusion && !Constantes.Tramite.DESISTIMIENTO.equals(tramite))
                 || documentoAdjunto == null || documentoAdjunto.length == 0
                 || idDocPtfrPadre == null || idDocPtfrPadre < 0) {
             throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
         }
         ExpedienteDoc documento = this.expedienteDocDAO.find(idExpedienteDoc);
         Integer idTramite = this.utilConstantes.getGlobalCatalogosValores().get(tramite);
-        Integer estadoPropuesta = this.utilConstantes.getGlobalCatalogosValores().get(exclusion
-                ? Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO
-                : Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO);
+//        Integer estadoPropuesta = this.utilConstantes.getGlobalCatalogosValores().get(exclusion
+//                ? Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO
+//                : Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO);
         if (documento == null || documento.getFcBajaFila() != null
                 || documento.getExpediente() == null || documento.getCdFica() == null
                 || documento.getTipoDocumento() == null || documento.getTramite() == null
                 || !this.utilConstantes.getGlobalCatalogosValores()
-                        .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA)
+                        .get(conjunta ? Constantes.TipoDocumento.PROPUESTA_RESOLUCION_CONJUNTA_DEFINITIVA
+                                : Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA)
                         .equals(documento.getTipoDocumento().getIdValor())
                 || !idTramite.equals(documento.getTramite().getIdValor())) {
             throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
@@ -3151,6 +3171,14 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
         if (this.consultarDocumentoPortafirmaPorTramite(expediente.getIdExpediente(), idTramite)) {
             return null;
         }
+        if (conjunta) {
+            exclusion = this.utilConstantes.getGlobalCatalogosValores().get(
+                    Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO)
+                    .equals(expediente.getEstado().getIdValor());
+        }
+        Integer estadoPropuesta = this.utilConstantes.getGlobalCatalogosValores().get(exclusion
+                ? Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO
+                : Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO);
         if (!estadoPropuesta.equals(expediente.getEstado().getIdValor())) {
             throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
         }
@@ -3181,5 +3209,14 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
                         : Constantes.EstadoExpediente.DESISTIDO), usuario);
         return peticion.getIdDocumentoPtfr();
     }
-
+    
+    @Override
+    @Transactional(readOnly = false, rollbackFor = { ServiceException.class, RuntimeException.class })
+    public Integer enviarResolucionConjuntaDefinitiva(ConvocatoriaDTO convocatoria,
+            Integer idExpedienteDoc, byte[] documentoAdjunto, Integer idDocPtfrPadre,
+            String usuario) throws ServiceException {
+        return this.enviarResolucionDefinitiva(convocatoria, idExpedienteDoc,
+                Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO, documentoAdjunto,
+                idDocPtfrPadre, usuario);
+    }
 }

@@ -139,7 +139,6 @@
                     title="#{bundle['boton.enviar.portafirma']}"
                     icon="fas fa-paper-plane" tipoBoton="btn-warning" disabled="false"
                     rendered="#{resolucionConvBean.habilitarEnviarResolucionExclusionPortafirmas(convocatoriasBean.modoConsulta)}" />
-
                 <atlasp:button id="botonEnviarResolucionExclusionPortafirmasDisabled" type="button"
                     value="#{bundle['boton.enviar.portafirma']}"
                     alt="#{bundle['boton.enviar.portafirma']}"
@@ -252,13 +251,14 @@
                     title="#{bundle['boton.enviar.portafirma']}"
                     icon="fas fa-paper-plane" tipoBoton="btn-warning" disabled="false"
                     rendered="#{resolucionConvBean.habilitarEnviarResolucionDesistimientoPortafirmas(convocatoriasBean.modoConsulta)}" />
-
+                
                 <atlasp:button id="botonEnviarResolucionDesistimientoPortafirmasDisabled" type="button"
                     value="#{bundle['boton.enviar.portafirma']}"
                     alt="#{bundle['boton.enviar.portafirma']}"
                     title="#{bundle['boton.enviar.portafirma']}"
                     icon="fas fa-paper-plane" tipoBoton="btn-warning" disabled="true"
                     rendered="#{!resolucionConvBean.habilitarEnviarResolucionDesistimientoPortafirmas(convocatoriasBean.modoConsulta)}" />
+                    
             </h:panelGroup>
         
             <div class="space" />
@@ -283,7 +283,7 @@
                     rendered="#{!resolucionConvBean.habilitarBotonSubirResolucionConjunta(convocatoriasBean.modoConsulta)}" />
         
                 <atlasp:button ajax="false"
-                    action="#{resolucionConvBean.descargaFicheroDefinitivo}"
+                    action="#{resolucionConvBean.descargarFicheroResolucionExclusionDesistimiento}"
                     value="#{bundle['solapa.resol.boton.bajar.resol.definitiva']}"
                     alt="#{bundle['solapa.resol.boton.bajar.resol.definitiva']}"
                     title="#{bundle['solapa.resol.boton.bajar.resol.definitiva']}"
@@ -298,15 +298,18 @@
                     icon="fa fa-download" tipoBoton="btn-primary" disabled="true"
                     rendered="#{!resolucionConvBean.habilitarBotonDescargarResolucionConjunta()}" />
         
-                <atlasp:button type="button"
+                <atlasp:button id="botonEnviarResolucionConjuntaPortafirmas"
+                    ajax="true" process="@this"
+                    update="panelTipoResolucionExclusionDesistimiento :convocatoriaForm:convocatoriaFormMessages"
+                    action="#{resolucionConvBean.enviarResolucionConjuntaPortafirmas}"
                     value="#{bundle['boton.enviar.portafirma']}"
                     alt="#{bundle['boton.enviar.portafirma']}"
                     title="#{bundle['boton.enviar.portafirma']}"
-                    icon="fas fa-paper-plane" tipoBoton="btn-warning"
+                    icon="fas fa-paper-plane" tipoBoton="btn-warning" disabled="false"
                     rendered="#{resolucionConvBean.habilitarBotonEnviarResolucionConjuntaPortafirmas(convocatoriasBean.modoConsulta)}">
                 </atlasp:button>
         
-                <atlasp:button type="button"
+                <atlasp:button id="botonEnviarResolucionConjuntaPortafirmasDisabled" type="button"
                     value="#{bundle['boton.enviar.portafirma']}"
                     alt="#{bundle['boton.enviar.portafirma']}"
                     title="#{bundle['boton.enviar.portafirma']}"
@@ -328,10 +331,6 @@
             </h:panelGroup>
         </h:panelGroup>
         
-        <p:remoteCommand name="actualizarBotoneraResolucionIndividual"
-            process="@this" ignoreAutoUpdate="true"
-            update="botoneraResolucionExclusion botoneraResolucionDesistimiento" />
-
         <p:dialog id="dialogSubirResolucionExclusion"
             widgetVar="dialogSubirResolucionExclusion"
             header="#{bundle['resolucion.exclusion.documento.titulo']}"

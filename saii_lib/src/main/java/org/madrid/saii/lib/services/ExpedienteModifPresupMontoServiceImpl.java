@@ -130,7 +130,12 @@ public class ExpedienteModifPresupMontoServiceImpl
    @Transactional(readOnly = false)
    public void actualizar(ExpedienteModifPresupMontoDTO expedienteModifPresupMontoDTO)
             throws ServiceException {
-       expedienteModifPresupMontoDTO.setCdUsuModif(UserUtils.getUserName());
+       // VMM 20/10/26 MD-3156: desde el batch (volcado de las modificaciones resueltas) no hay sesion web y
+       // UserUtils.getUserName() da vacio: se informa el usuario de auditoria del batch
+       String cdUsuModif = UserUtils.getUserName();
+       expedienteModifPresupMontoDTO.setCdUsuModif(
+               cdUsuModif != null && !cdUsuModif.trim().isEmpty() ? cdUsuModif
+                       : Constantes.Utiles.COD_USU_BATCH_AUDITORIA);
        expedienteModifPresupMontoDTO.setFcModifFila(new Date());
        // VMM 24/09/26 MD-2725: update() (session.update()) rechaza esta fila con
        // NonUniqueObjectException si el llamante ya la cargo en la sesion actual (p.ej. desde la

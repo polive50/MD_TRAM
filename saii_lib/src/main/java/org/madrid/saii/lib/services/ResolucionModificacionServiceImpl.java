@@ -1,6 +1,7 @@
 package org.madrid.saii.lib.services;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -111,6 +112,10 @@ public class ResolucionModificacionServiceImpl implements ResolucionModificacion
             if (Constantes.AfirmacionNegacion.S.equals(expdienteModifPresupuesto.getItModPlazo())) {
                 this.aplicarResolucionPlazos(expdienteModifPresupuesto);
             }
+
+            // VMM 20/10/26 MD-3156: la modificacion pasa a Resuelta por el batch: campos de auditoria del batch
+            expdienteModifPresupuesto.setCdUsuModif(Constantes.Utiles.COD_USU_BATCH_AUDITORIA);
+            expdienteModifPresupuesto.setFcModifFila(new Date());
 
             this.expedienteModifPresPlazoOtraService.insertOrUpdate(expdienteModifPresupuesto);
 
@@ -296,6 +301,9 @@ public class ResolucionModificacionServiceImpl implements ResolucionModificacion
             if (anualidad != null) {
                 anualidad.setFcFinEjecucion(plazoModif.getFcFinEjecucion());
                 anualidad.setFcIniEjecucion(plazoModif.getFcIniEjecucion());
+                // VMM 20/10/26 MD-3156: campos de auditoria del batch (no hay sesion web)
+                anualidad.setCdUsuModif(Constantes.Utiles.COD_USU_BATCH_AUDITORIA);
+                anualidad.setFcModifFila(new Date());
                 this.expedienteAnualidadService.insertOrUpdate(anualidad);
             }
         }

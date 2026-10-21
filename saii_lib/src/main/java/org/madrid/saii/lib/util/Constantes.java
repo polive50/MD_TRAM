@@ -335,6 +335,9 @@ public final class Constantes {
 
         /** Constante Generación de la propuesta de resolución concesion ***/
         public static final Integer RESOLUCION_DEFINITIVA = 304;
+        
+        /** Propuesta de resolución conjunta definitiva de exclusión y desistimiento. */
+        public static final Integer PROPUESTA_RESOLUCION_CONJUNTA_DEFINITIVA = 311;
 
         /** Constante Alegaciones */
         public static final Integer ALEGACIONES = 172;
@@ -3869,6 +3872,9 @@ public final class Constantes {
         public static final Integer RESOLUCION_DESISTIMIENTO_PROVISIONAL = 418;
         
         public static final Integer RESOLUCION_EXCLUSION_PROVISIONAL= 419;
+        
+        /** Exclusión y desistimiento conjunto de expedientes. */
+        public static final Integer RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO = 450;
         
         /* Constante Tramite Concesión provisional */
         public static final Integer CONCESION_DEFINITIVA = 448;

@@ -17,7 +17,10 @@
     <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.mostrarDetalleModifOtra}" />
     <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.mostrarDetalleModifDoc}" />
     <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.mostrarDetalleModifObservac}" />
-    <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO}" />
+    <!-- VMM 19/10/26 MD-3148: modoConsultaModifPPO ya no se guarda con guardarEstado: es un valor derivado que se
+         calcula en getModoConsultaModifPPO() a partir de la modificacion seleccionada. Guardado y restaurado,
+         al cambiar de expediente se volvia a aplicar el valor del anterior despues de recalcularlo. -->
+
     <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.verNumeracion}" />
     <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.listaAnualidades}" />
     <atlasp:guardarEstado value="#{expedienteModifPresPlazoOtraBean.totalAnualidades}" />
@@ -843,14 +846,19 @@
                 </p:column>
 
                 <p:column headerText="OBSERVACIONES" style="width: 25%;">
-                    <!-- VMM 14/09/26 MD-2725: sin p:ajax a proposito - la validacion de observaciones
+                    <!-- VMM 14/09/26 MD-2725: sin p:ajax a proposito (SUSTITUIDO, ver MD-3148 abajo) - la validacion de observaciones
                          pendientes se hace al pulsar Guardar sobre el texto ya aplicado al modelo por
                          el propio postback, no hace falta un roundtrip por cada campo al perder el foco. -->
                     <p:inputText value="#{presupFinanciableA.lstExpedienteModifPresupMontoDTO[1].cdObservaciones}"
                                  style="width: 95%;"
                                  maxlength="500"
                                  disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}"
-                                 rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor != 'TOTAL' and not empty presupFinanciableA.lstExpedienteModifPresupMontoDTO and presupFinanciableA.lstExpedienteModifPresupMontoDTO.size() > 0}" />
+                                 rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor != 'TOTAL' and not empty presupFinanciableA.lstExpedienteModifPresupMontoDTO and presupFinanciableA.lstExpedienteModifPresupMontoDTO.size() > 0}">
+                        <!-- VMM 19/10/26 MD-3148: la observacion se aplica al modelo al salir del campo (sin repintar). Sin
+                             esto el texto solo existia en el navegador hasta pulsar Guardar, y al editar otro importe
+                             edicionCeldaPresupuesto repinta toda la tabla desde el modelo y se perdia. -->
+                        <p:ajax event="change" process="@this" update="@none" />
+                    </p:inputText>
 
                     <h:outputText value="" rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor == 'TOTAL'}" />
                 </p:column>
@@ -956,7 +964,12 @@
                                  style="width: 95%;"
                                  maxlength="500"
                                  disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}"
-                                 rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor != 'TOTAL' and not empty presupFinanciableA.lstExpedienteModifPresupMontoDTO and presupFinanciableA.lstExpedienteModifPresupMontoDTO.size() > 0}" />
+                                 rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor != 'TOTAL' and not empty presupFinanciableA.lstExpedienteModifPresupMontoDTO and presupFinanciableA.lstExpedienteModifPresupMontoDTO.size() > 0}">
+                        <!-- VMM 19/10/26 MD-3148: la observacion se aplica al modelo al salir del campo (sin repintar). Sin
+                             esto el texto solo existia en el navegador hasta pulsar Guardar, y al editar otro importe
+                             edicionCeldaPresupuesto repinta toda la tabla desde el modelo y se perdia. -->
+                        <p:ajax event="change" process="@this" update="@none" />
+                    </p:inputText>
                 </p:column>
             </p:dataTable>
 
@@ -1106,15 +1119,26 @@
 <!--                        onclick="atlas.ui.Loading.showLoad('appLoading')" -->
 <!--                        icon="fas fa-save" tipoBoton="btn-success" /> -->
                        
-                       <atlasp:button ajax="true"
-                   action="#{expedienteModifPresPlazoOtraBean.guardarModifPresupuesto}"
-                   process="presupFinanciableAceptT @this"
-                   update="presupFinanciableAceptT pgObservacionesPrincipal"
-                   value="#{bundle['boton.guardar']}"
-                   onclick="atlas.ui.Loading.showLoad('appLoading')"
-                   oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
-                   icon="fas fa-save" tipoBoton="btn-success"
-                   disabled="#{expedienteModifPresPlazoOtraBean.esModificacionEnEstadoIniciada() or expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}" />
+                       <!-- VMM 19/10/26 MD-3148: p:commandButton en vez de atlasp:button. El componente de Atlas dejaba el
+                            disabled del boton interno "pegado" en el estado de la vista: al entrar en un expediente
+                            con la modificacion Resuelta (1761) el Guardar salia deshabilitado y seguia asi al abrir
+                            otro con la modificacion Pendiente revision (1767), y al reves, aunque la expresion diera
+                            false (HTML con disabled="disabled"). Con p:commandButton el disabled se evalua en cada
+                            pintado, igual que ya hacen btnDescargarDatosPresupuestarios y btnFinalizarRevisionModif.
+                            process/update en @form porque es lo que el componente de Atlas enviaba en la practica
+                            (ignoraba el process/update indicado y mandaba "convocatoriaForm"). -->
+                       <p:commandButton id="btnGuardarPresupuestos"
+                            class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                            ajax="true"
+                            action="#{expedienteModifPresPlazoOtraBean.guardarModifPresupuesto}"
+                            process="@form" update="@form"
+                            value="#{bundle['boton.guardar']}"
+                            alt="#{bundle['boton.guardar']}"
+                            title="#{bundle['boton.guardar']}"
+                            onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                            icon="fas fa-save"
+                            disabled="#{expedienteModifPresPlazoOtraBean.esModificacionEnEstadoIniciada() or expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}" />
 
                        <!-- VMM 07/10/26 MD-2905: descarga a Excel de las 3 tablas de presupuesto (una hoja por tabla).
                             No depende del modo consulta; VMM 14/10/26 MD-3138: pero no se activa mientras la
@@ -1331,15 +1355,23 @@
           <div class="ui-g-12 ui-md-12 ui-lg-12"
                 style="text-align: left;">
 
-            <atlasp:button ajax="true"
+            <!-- VMM 20/10/26 MD-3121: p:commandButton en vez de atlasp:button (ver el mismo cambio en btnGuardarPresupuestos,
+                 MD-3148): el componente de Atlas deja el disabled "pegado" en el estado de la vista, y al pulsar
+                 Finalizar revision (la modificacion pasa a Pendiente Resolucion Modificaciones) el Guardar seguia
+                 habilitado aunque deshabilitarBotonesGuardar() ya devolvia true. process/update en @form porque es lo
+                 que el componente de Atlas enviaba en la practica. -->
+            <p:commandButton id="btnGuardarPlazos"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                    ajax="true"
                     rendered="#{not empty expedienteModifPresPlazoOtraBean.lstPlazosAcept}"
                     action="#{expedienteModifPresPlazoOtraBean.guardarModifPlazos}"
+                    process="@form" update="@form"
                     value="#{bundle['boton.guardar']}"
                     alt="#{bundle['boton.guardar']}"
                     title="#{bundle['boton.guardar']}"
                     onclick="atlas.ui.Loading.showLoad('appLoading')"
                     oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
-                    icon="fas fa-save" tipoBoton="btn-success"
+                    icon="fas fa-save"
                     disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.deshabilitarBotonesGuardar() or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}"/>
             </div>
 
@@ -1394,16 +1426,21 @@
            <div class="ui-g-12 ui-md-12 ui-lg-12"
             style="text-align: left;">
 
-            <atlasp:button 
+            <!-- VMM 20/10/26 MD-3121: p:commandButton en vez de atlasp:button, mismo motivo que btnGuardarPlazos.
+                 El update="avisoModifOtras btnFinalizarRevisionModif" que llevaba el atlasp:button no se aplicaba (el
+                 componente enviaba "convocatoriaForm"), asi que se mantiene @form para que el aviso y el boton
+                 Finalizar revision se sigan refrescando igual. -->
+            <p:commandButton id="btnGuardarOtras"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
                     ajax="true"
                     action="#{expedienteModifPresPlazoOtraBean.guardarModifOtras}"
-                    update="avisoModifOtras btnFinalizarRevisionModif"
+                    process="@form" update="@form"
                     value="#{bundle['boton.guardar']}"
                     alt="#{bundle['boton.guardar']}"
                     title="#{bundle['boton.guardar']}"
                     onclick="atlas.ui.Loading.showLoad('appLoading')"
                     oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
-                    icon="fas fa-save" tipoBoton="btn-success"
+                    icon="fas fa-save"
                     disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.deshabilitarBotonesGuardar() or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}"/>
             </div>
      </p:fieldset>
@@ -1425,26 +1462,31 @@
                 value="#{bundle['documentos.historico.observaciones']}"
                 style="font-weight: bold;text-transform: uppercase;" />
                 
-                <p:inputTextarea maxlength="2000" rows="10" style="width: 90%" readonly="true"
+                <p:inputTextarea maxlength="2000" rows="10" style="width: 90%"
+                                disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.deshabilitarBotonesGuardar() or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}"
                                 value="#{expedienteModifPresPlazoOtraBean.tlObservacionesModif}">
                 </p:inputTextarea>
                 
            </p:panelGrid> 
          
-<!--            <div class="ui-g-12 ui-md-12 ui-lg-12" -->
-<!--             style="text-align: left;"> -->
-
-<!--             <atlasp:button  -->
-<!--                     ajax="true" -->
-<!--                     action="#{expedienteModifPresPlazoOtraBean.guardarModifObservaciones}" -->
-<!--                     value="#{bundle['boton.guardar']}" -->
-<!--                     alt="#{bundle['boton.guardar']}" -->
-<!--                     title="#{bundle['boton.guardar']}" -->
-<!--                     onclick="atlas.ui.Loading.showLoad('appLoading')" -->
-<!--                     oncomplete="atlas.ui.Loading.hideLoad('appLoading')" -->
-<!--                     icon="fas fa-save" tipoBoton="btn-success"  -->
-<!--                     rendered="#{not empty expedienteModifPresPlazoOtraBean.tlObservacionesModif}"/> -->
-<!--             </div>    -->
+            <!-- VMM 20/10/26 MD-3121: Guardar de Observaciones (antes comentado). El texto solo es editable, y este boton
+                 solo se habilita, con la modificacion en Pendiente revision (misma condicion que el resto de bloques).
+                 guardarModifObservaciones ya existia: guarda el texto en la modificacion y, al volver a abrirla,
+                 obtenerDatosModifObservaciones recupera lo guardado por el gestor en vez del texto inicial del beneficiario. -->
+            <div class="ui-g-12 ui-md-12 ui-lg-12" style="text-align: left;">
+                <p:commandButton id="btnGuardarObservaciones"
+                        class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                        ajax="true"
+                        action="#{expedienteModifPresPlazoOtraBean.guardarModifObservaciones}"
+                        process="@form" update="@form"
+                        value="#{bundle['boton.guardar']}"
+                        alt="#{bundle['boton.guardar']}"
+                        title="#{bundle['boton.guardar']}"
+                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                        icon="fas fa-save"
+                        disabled="#{expedienteModifPresPlazoOtraBean.modoConsultaModifPPO or expedienteModifPresPlazoOtraBean.deshabilitarBotonesGuardar() or expedienteModifPresPlazoOtraBean.isExpedienteRechazadoDefinitivo()}"/>
+            </div>
      </p:fieldset>      
    
      <p:spacer height="10" />
@@ -1745,12 +1787,16 @@
                     </div>
                     <div class="ui-g-9 ui-md-9 ui-lg-3 ui-xl-3">
                     
+                        <!-- VMM 19/10/26 MD-3148: render solo de btnSubirResolucion (lo unico que depende de fecha y tipo, ver
+                             habilitarBotonSubirResolucion) en vez de toda la solapa (panelModifPresPlazoOtra): cada eleccion
+                             tardaba 35-88 s en repintarla entera y, al elegir tipo y fecha seguidas, se solapaban dos peticiones
+                             pesadas que se pisaban el estado (el tipo se perdia y la pantalla fallaba). -->
                         <atlasp:calendario
                                     id="calendariofcResolucion"
                                       value="#{expedienteModifPresPlazoOtraBean.fcResolucion}"
                                       datePattern="dd/MM/yyyy"
                                      disabled ="#{expedienteModifPresPlazoOtraBean.esModificacionEnEstadoIniciada() or expedienteModifPresPlazoOtraBean.habilitarFechaResolucion()}"
-                                     render="panelModifPresPlazoOtra"
+                                     render="listaResoluciones btnSubirResolucion"
                                     >
                         </atlasp:calendario>
 <!--                                 <h:outputText styleClass="espaciado" value="#{expedienteModifPresPlazoOtraBean.selectExpedienteModifDTO.fcResolucion}"> -->
@@ -1768,15 +1814,19 @@
 
                  <div class="ui-g-9 ui-md-9 ui-lg-3 ui-xl-3">
                           <p:column>                   
+                                <!-- VMM 20/10/26 MD-3148: habilitacion en cascada fecha -> tipo -> boton Subir resolucion. El tipo
+                                     solo se habilita cuando ya hay fecha (el calendario repinta este combo al elegirla, ver su render), asi no
+                                     se pueden lanzar a la vez las dos peticiones (que se pisaban el estado y quitaban el valor del combo). El
+                                     boton ya esta deshabilitado mientras falte la fecha o el tipo (habilitarBotonSubirResolucion). -->
                                 <atlasp:comboValores id="listaResoluciones"
                                 enableManualInput="false" listWidth="300px"
                                 recargaAutomatica="false"
                                 externalProvider="#{comboBean.comboTipoResolucion}"
                                 value="#{expedienteModifPresPlazoOtraBean.estadoResolucionDTO.idValor}"
                                 styleClass="#{documentoBean.modoLecturaSubsanacion ? 'comboDisabled' : ''}"
-                                disabled ="#{expedienteModifPresPlazoOtraBean.esModificacionEnEstadoIniciada() or expedienteModifPresPlazoOtraBean.habilitarFechaResolucion()}"
+                                disabled ="#{expedienteModifPresPlazoOtraBean.esModificacionEnEstadoIniciada() or expedienteModifPresPlazoOtraBean.habilitarFechaResolucion() or expedienteModifPresPlazoOtraBean.fcResolucion == null}"
                                 selectListener="#{expedienteModifPresPlazoOtraBean.cambioCausaTipoResolucion()}"
-                                render="panelModifPresPlazoOtra"
+                                render="btnSubirResolucion"
                                  />
                                 
                             </p:column>

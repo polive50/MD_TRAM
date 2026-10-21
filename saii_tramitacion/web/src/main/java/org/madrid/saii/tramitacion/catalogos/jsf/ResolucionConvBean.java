@@ -43,7 +43,6 @@ import org.madrid.saii.lib.util.UtilConstantes;
 import org.madrid.saii.tramitacion.jsf.InfoUsuarioBean;
 import org.madrid.saii.tramitacion.jsf.utils.ConstantesWeb;
 import org.madrid.saii.tramitacion.jsf.utils.UtilesWeb;
-import org.primefaces.PrimeFaces;
 import org.primefaces.model.UploadedFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -1075,22 +1074,24 @@ public class ResolucionConvBean {
     }
 
     /**
-     * Indica si se puede subir una resolución individual.
+     * Indica si se puede subir una resolución definitiva individual o conjunta.
      *
-     * @param tramite constante del trámite de exclusión o desistimiento
+     * @param tramite constante del trámite individual o conjunto
      * @param esModoConsulta indica si la convocatoria está en modo consulta
      * @return {@code true} cuando el botón debe estar habilitado
      */
-    public boolean habilitarBotonSubirResolucionIndividual(Integer tramite,
+    public boolean habilitarBotonSubirResolucionDefinitiva(Integer tramite,
             Boolean esModoConsulta) {
-        if (!this.habilitarBotonesResolucionIndividual()
-                || Boolean.TRUE.equals(esModoConsulta)) {
+        boolean modoCorrecto = Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)
+                ? Boolean.TRUE.equals(this.resolucionExclusionDesistimientoConjunta)
+                : this.habilitarBotonesResolucionIndividual();
+        if (!modoCorrecto || Boolean.TRUE.equals(esModoConsulta)) {
             return false;
         }
         try {
             Integer idTramite = this.utilConstantes.getGlobalCatalogosValores().get(tramite);
             for (ResolucionExclusionDesistimientoDTO elemento
-                    : this.obtenerExpedientesResolucionIndividual(tramite)) {
+                    : this.obtenerExpedientesResolucionDefinitiva(tramite)) {
                 if (!this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(
                         elemento.getIdExpediente(), idTramite)) {
                     return true;
@@ -1104,50 +1105,52 @@ public class ResolucionConvBean {
 
     /** Indica si se puede subir la resolución individual de exclusión. */
     public boolean habilitarBotonSubirResolucionExclusion(Boolean esModoConsulta) {
-        return this.habilitarBotonSubirResolucionIndividual(Constantes.Tramite.EXCLUSION,
+        return this.habilitarBotonSubirResolucionDefinitiva(Constantes.Tramite.EXCLUSION,
                 esModoConsulta);
     }
 
     /** Indica si se puede descargar la resolución individual de exclusión. */
     public boolean habilitarBotonDescargarResolucionExclusion() {
         return this.habilitarBotonesResolucionIndividual()
-                && this.existeResolucionIndividual(Constantes.Tramite.EXCLUSION);
+                && this.existeResolucionDefinitiva(Constantes.Tramite.EXCLUSION);
     }
 
     /** Indica si se puede subir la resolución individual de desistimiento. */
     public boolean habilitarBotonSubirResolucionDesistimiento(Boolean esModoConsulta) {
-        return this.habilitarBotonSubirResolucionIndividual(Constantes.Tramite.DESISTIMIENTO,
+        return this.habilitarBotonSubirResolucionDefinitiva(Constantes.Tramite.DESISTIMIENTO,
                 esModoConsulta);
     }
 
     /** Indica si se puede descargar la resolución individual de desistimiento. */
     public boolean habilitarBotonDescargarResolucionDesistimiento() {
         return this.habilitarBotonesResolucionIndividual()
-                && this.existeResolucionIndividual(Constantes.Tramite.DESISTIMIENTO);
+                && this.existeResolucionDefinitiva(Constantes.Tramite.DESISTIMIENTO);
     }
     
     /** Envía a Portafirmas la resolución individual de desistimiento. */
     public void enviarResolucionDesistimientoPortafirmas() {
-        this.enviarResolucionIndividualPortafirmas(Constantes.Tramite.DESISTIMIENTO);
+        this.enviarResolucionDefinitivaPortafirmas(Constantes.Tramite.DESISTIMIENTO);
     }
 
-    /** Indica si se puede enviar una resolución individual a Portafirmas. */
-    public boolean habilitarEnviarResolucionIndividualPortafirmas(Integer tramite,
+    /** Indica si se puede enviar una resolución individual o conjunta a Portafirmas. */
+    public boolean habilitarEnviarResolucionDefinitivaPortafirmas(Integer tramite,
             Boolean esModoConsulta) {
-        if (!this.habilitarBotonesResolucionIndividual()
-                || Boolean.TRUE.equals(esModoConsulta)
+        boolean modoCorrecto = Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)
+                ? Boolean.TRUE.equals(this.resolucionExclusionDesistimientoConjunta)
+                : this.habilitarBotonesResolucionIndividual();
+        if (!modoCorrecto || Boolean.TRUE.equals(esModoConsulta)
                 || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) {
             return false;
         }
         try {
             for (ResolucionExclusionDesistimientoDTO elemento
-                    : this.obtenerExpedientesResolucionIndividual(tramite)) {
-                ExpedienteDocDTO documento = this.getDocumentoResolucionIndividual(tramite,
+                    : this.obtenerExpedientesResolucionDefinitiva(tramite)) {
+                ExpedienteDocDTO documento = this.getDocumentoResolucionDefinitiva(tramite,
                         elemento.getIdExpediente());
                 if (documento != null && documento.getCdFica() != null
-                        && !this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(
+                        && Boolean.FALSE.equals(this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(
                         elemento.getIdExpediente(),
-                        this.utilConstantes.getGlobalCatalogosValores().get(tramite))) {
+                        this.utilConstantes.getGlobalCatalogosValores().get(tramite)))) {
                     return true;
                 }
             }
@@ -1158,21 +1161,21 @@ public class ResolucionConvBean {
     }
 
     public boolean habilitarEnviarResolucionExclusionPortafirmas(Boolean esModoConsulta) {
-        return this.habilitarEnviarResolucionIndividualPortafirmas(Constantes.Tramite.EXCLUSION,
+        return this.habilitarEnviarResolucionDefinitivaPortafirmas(Constantes.Tramite.EXCLUSION,
                 esModoConsulta);
     }
 
     /** Envía a Portafirmas la resolución individual de exclusión. */
     public void enviarResolucionExclusionPortafirmas() {
-        this.enviarResolucionIndividualPortafirmas(Constantes.Tramite.EXCLUSION);
+        this.enviarResolucionDefinitivaPortafirmas(Constantes.Tramite.EXCLUSION);
     }
 
     public boolean habilitarEnviarResolucionDesistimientoPortafirmas(Boolean esModoConsulta) {
-        return this.habilitarEnviarResolucionIndividualPortafirmas(Constantes.Tramite.DESISTIMIENTO,
+        return this.habilitarEnviarResolucionDefinitivaPortafirmas(Constantes.Tramite.DESISTIMIENTO,
                 esModoConsulta);
     }
 
-    private void enviarResolucionIndividualPortafirmas(Integer tramite) {
+    private void enviarResolucionDefinitivaPortafirmas(Integer tramite) {
         try {
             if (this.convocatoriaDTO == null) {
                 this.convocatoriaDTO = this.convocatoriaService.buscarId(this.idConvocatoria);
@@ -1182,24 +1185,32 @@ public class ResolucionConvBean {
             Integer idDocPtfrPadre = 0;
             boolean error = false;
             for (ResolucionExclusionDesistimientoDTO elemento
-                    : this.obtenerExpedientesResolucionIndividual(tramite)) {
+                    : this.obtenerExpedientesResolucionDefinitiva(tramite)) {
                 Integer idExpediente = elemento.getIdExpediente();
                 try {
                     if (this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(
                             idExpediente, idTramite)) {
                         continue;
                     }
-                    ExpedienteDocDTO documento = this.getDocumentoResolucionIndividual(tramite,
+                    ExpedienteDocDTO documento = this.getDocumentoResolucionDefinitiva(tramite,
                             idExpediente);
                     if (documento == null || documento.getCdFica() == null) {
                         error = true;
                         continue;
                     }
                     FicaFichero fichero = this.ficaService.recuperar(documento.getCdFica());
-                    Integer idDocumentoPtfr = this.documentoPtfrService.enviarResolucionIndividualDefinitiva(
-                            this.convocatoriaDTO, documento.getIdExpedienteDoc(), tramite,
-                            fichero.getDatosFichero(), idDocPtfrPadre,
-                            UserUtils.getUserName().toUpperCase());
+                    Integer idDocumentoPtfr;
+                    if (Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)) {
+                        idDocumentoPtfr = this.documentoPtfrService.enviarResolucionConjuntaDefinitiva(
+                                this.convocatoriaDTO, documento.getIdExpedienteDoc(),
+                                fichero.getDatosFichero(), idDocPtfrPadre,
+                                UserUtils.getUserName().toUpperCase());
+                    } else {
+                        idDocumentoPtfr = this.documentoPtfrService.enviarResolucionIndividualDefinitiva(
+                                this.convocatoriaDTO, documento.getIdExpedienteDoc(), tramite,
+                                fichero.getDatosFichero(), idDocPtfrPadre,
+                                UserUtils.getUserName().toUpperCase());
+                    }
                     if (idDocumentoPtfr != null) {
                         if (idDocPtfrPadre == 0) {
                             idDocPtfrPadre = idDocumentoPtfr;
@@ -1223,11 +1234,18 @@ public class ResolucionConvBean {
         }
     }
 
-    private List<ResolucionExclusionDesistimientoDTO> obtenerExpedientesResolucionIndividual(
+    private List<ResolucionExclusionDesistimientoDTO> obtenerExpedientesResolucionDefinitiva(
             Integer tramite) {
+        if (Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)) {
+            List<ResolucionExclusionDesistimientoDTO> expedientes = new ArrayList<>(
+                    this.obtenerExpedientesResolucionDefinitiva(Constantes.Tramite.EXCLUSION));
+            expedientes.addAll(this.obtenerExpedientesResolucionDefinitiva(
+                    Constantes.Tramite.DESISTIMIENTO));
+            return this.agruparMotivos(expedientes);
+        }
         Integer estado = Constantes.Tramite.EXCLUSION.equals(tramite)
                 ? Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO
-                : Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO;
+                        : Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO;
         return this.agruparMotivos(this.expedienteDAO.listaResolucionExclusionDesistimiento(
                 this.idConvocatoria, this.utilConstantes.getGlobalCatalogosValores().get(estado),
                 Constantes.Cata.REQUISITOS));
@@ -1240,9 +1258,8 @@ public class ResolucionConvBean {
      * @return {@code true} cuando el botón debe estar habilitado
      */
     public boolean habilitarBotonSubirResolucionConjunta(Boolean esModoConsulta) {
-        return Boolean.TRUE.equals(this.resolucionExclusionDesistimientoConjunta)
-                && !Boolean.TRUE.equals(esModoConsulta)
-                && this.getCodigoFicaResolucionExclusionDesistimiento() == null;
+        return this.habilitarBotonSubirResolucionDefinitiva(
+                Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO, esModoConsulta);
     }
 
     /**
@@ -1262,8 +1279,8 @@ public class ResolucionConvBean {
      * @return {@code true} cuando el botón debe estar habilitado
      */
     public boolean habilitarBotonEnviarResolucionConjuntaPortafirmas(Boolean esModoConsulta) {
-        return this.habilitarBotonDescargarResolucionConjunta()
-                && !Boolean.TRUE.equals(esModoConsulta);
+        return this.habilitarEnviarResolucionDefinitivaPortafirmas(
+                Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO, esModoConsulta);
     }
 
 
@@ -1272,65 +1289,46 @@ public class ResolucionConvBean {
      * desistimiento y guarda su referencia documental.
      */
     public void cargarFicheroResolucionExclusionDesistimiento() {
-        try {
-            if (Objects.nonNull(this.archivoResolucionDefinitiva)
-                    && Objects.nonNull(this.archivoResolucionDefinitiva.getFileName())
-                    && !this.archivoResolucionDefinitiva.getFileName().isEmpty()) {
-                Integer tipoDocumento = utilConstantes.getGlobalCatalogosValores()
-                        .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
-                Integer tramite = utilConstantes.getGlobalCatalogosValores()
-                        .get(Constantes.Tramite.EXCLUSION);
-                //Comprobamos que no se haya subido ya el documento
-                ExpedienteDocDTO documentoExistente = this.getExpedienteDocDTO(tipoDocumento);
-                if (Objects.nonNull(documentoExistente)
-                        && Objects.nonNull(documentoExistente.getCdFica())) {
-                    AtlasMessageUtils.addErrorMessageFromBundle(
-                            ConstantesWeb.Mensajes.RESOLUCION_EXCLUSION_DESISTIMIENTO_EXISTE);
-                    this.archivoResolucionDefinitiva = null;
-                    PrimefacesUtils.mostrarPopupPF("dialogSubirResolucionExclusionDesistimiento");
-                    return;
-                }
-                this.prepararMetadatosFica(this.archivoResolucionDefinitiva, tipoDocumento,
-                        tramite);
-                this.expedienteDocDTO = this.expedienteDocService
-                        .guardarExterno(this.expedienteDocDTO);
-                AtlasMessageUtils.addInfoMessageFromBundle(ConstantesWeb.Mensajes.GUARDAR_OK);
-                this.mostrarMensajeElegirFichero = Boolean.FALSE;
-                this.archivoResolucionDefinitiva = null;
-            } else {
-                this.mostrarMensajeElegirFichero = Boolean.TRUE;
-                PrimefacesUtils.mostrarPopupPF("dialogSubirResolucionExclusionDesistimiento");
-            }
-        } catch (ServiceException e) {
-            AtlasMessageUtils
-                    .addErrorMessageFromBundle(ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_KO);
-            log.error(e.getMessage());
-        }
+        this.cargarFicheroResolucionDefinitiva(this.archivoResolucionDefinitiva,
+                Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO,
+                "dialogSubirResolucionExclusionDesistimiento");
+    }
+    
+    /** Descarga la resolución conjunta de exclusión y desistimiento. */
+    public void descargarFicheroResolucionExclusionDesistimiento() {
+        this.descargarFicheroResolucionDefinitiva(
+                Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO);
+    }
+
+    /** Envía a Portafirmas los dos listados con el mismo trámite conjunto. */
+    public void enviarResolucionConjuntaPortafirmas() {
+        this.enviarResolucionDefinitivaPortafirmas(
+                Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO);
     }
     
     /** Sube a FICA la resolución individual de exclusión. */
     public void cargarFicheroResolucionExclusion() {
-        this.cargarFicheroResolucionIndividual(this.archivoResolucionExclusion,
+        this.cargarFicheroResolucionDefinitiva(this.archivoResolucionExclusion,
                 Constantes.Tramite.EXCLUSION, "dialogSubirResolucionExclusion");
     }
 
     /** Sube a FICA la resolución individual de desistimiento. */
     public void cargarFicheroResolucionDesistimiento() {
-        this.cargarFicheroResolucionIndividual(this.archivoResolucionDesistimiento,
+        this.cargarFicheroResolucionDefinitiva(this.archivoResolucionDesistimiento,
                 Constantes.Tramite.DESISTIMIENTO, "dialogSubirResolucionDesistimiento");
     }
 
     /** Descarga de FICA la resolución individual de exclusión. */
     public void descargarFicheroResolucionExclusion() {
-        this.descargarFicheroResolucionIndividual(Constantes.Tramite.EXCLUSION);
+        this.descargarFicheroResolucionDefinitiva(Constantes.Tramite.EXCLUSION);
     }
 
     /** Descarga de FICA la resolución individual de desistimiento. */
     public void descargarFicheroResolucionDesistimiento() {
-        this.descargarFicheroResolucionIndividual(Constantes.Tramite.DESISTIMIENTO);
+        this.descargarFicheroResolucionDefinitiva(Constantes.Tramite.DESISTIMIENTO);
     }
 
-    private void cargarFicheroResolucionIndividual(UploadedFile archivo, Integer tramite,
+    private void cargarFicheroResolucionDefinitiva(UploadedFile archivo, Integer tramite,
             String dialogo) {
         try {
             if (archivo == null || archivo.getFileName() == null
@@ -1339,11 +1337,10 @@ public class ResolucionConvBean {
                 PrimefacesUtils.mostrarPopupPF(dialogo);
                 return;
             }
-            Integer tipoDocumento = this.utilConstantes.getGlobalCatalogosValores()
-                    .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
+            Integer tipoDocumento = this.obtenerTipoDocumentoResolucionDefinitiva(tramite);
             Integer idTramite = this.utilConstantes.getGlobalCatalogosValores().get(tramite);
             List<ResolucionExclusionDesistimientoDTO> expedientes =
-                    this.obtenerExpedientesResolucionIndividual(tramite);
+                    this.obtenerExpedientesResolucionDefinitiva(tramite);
             int guardados = 0;
             byte[] contenido;
             try (InputStream entrada = archivo.getInputstream()) {
@@ -1355,7 +1352,7 @@ public class ResolucionConvBean {
                         idExpediente, idTramite)) {
                     continue;
                 }
-                ExpedienteDocDTO documento = this.getDocumentoResolucionIndividual(tramite,
+                ExpedienteDocDTO documento = this.getDocumentoResolucionDefinitiva(tramite,
                         idExpediente);
                 if (documento == null) {
                     documento = new ExpedienteDocDTO();
@@ -1395,20 +1392,25 @@ public class ResolucionConvBean {
             this.mostrarMensajeElegirFichero = Boolean.FALSE;
             if (Constantes.Tramite.EXCLUSION.equals(tramite)) {
                 this.archivoResolucionExclusion = null;
-            } else {
+            } else if (Constantes.Tramite.DESISTIMIENTO.equals(tramite)) {
                 this.archivoResolucionDesistimiento = null;
+            } else {
+                this.archivoResolucionDefinitiva = null;
             }
-            PrimeFaces.current().executeScript("actualizarBotoneraResolucionIndividual();");
-        } catch (ServiceException | IOException e) {
+//            PrimeFaces.current().executeScript(
+//                    Constantes.Tramite.EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)
+//                            ? "actualizarBotoneraResolucionConjunta();"
+//                            : "actualizarBotoneraResolucionIndividual();");
+        }  catch (ServiceException | IOException e) {
             AtlasMessageUtils.addErrorMessageFromBundle(
                     ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_KO);
             log.error(e.getMessage(), e);
         }
     }
 
-    private void descargarFicheroResolucionIndividual(Integer tramite) {
+    private void descargarFicheroResolucionDefinitiva(Integer tramite) {
         try {
-            ExpedienteDocDTO documento = this.getDocumentoResolucionIndividual(tramite);
+            ExpedienteDocDTO documento = this.getDocumentoResolucionDefinitiva(tramite);
             if (documento != null && documento.getCdFica() != null) {
                 FicaFichero fichero = this.ficaService.recuperar(documento.getCdFica());
                 UtilesWeb.openFile(fichero.getDatosFichero(), fichero.getExtension(),
@@ -1424,25 +1426,32 @@ public class ResolucionConvBean {
         }
     }
 
-    private boolean existeResolucionIndividual(Integer tramite) {
-        ExpedienteDocDTO documento = this.getDocumentoResolucionIndividual(tramite);
+    private boolean existeResolucionDefinitiva(Integer tramite) {
+        ExpedienteDocDTO documento = this.getDocumentoResolucionDefinitiva(tramite);
         return documento != null && documento.getCdFica() != null;
     }
 
-    private ExpedienteDocDTO getDocumentoResolucionIndividual(Integer tramite) {
+    private ExpedienteDocDTO getDocumentoResolucionDefinitiva(Integer tramite) {
         try {
             Integer estadoPropuesta = Constantes.Tramite.EXCLUSION.equals(tramite)
                     ? Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO
                     : Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO;
             Integer estadoFinal = Constantes.Tramite.EXCLUSION.equals(tramite)
                     ? Constantes.EstadoExpediente.EXCLUIDO : Constantes.EstadoExpediente.DESISTIDO;
-            List<AtlasFilter> filtros = this.filtrosDocumentoResolucionIndividual(tramite);
+            List<AtlasFilter> filtros = this.filtrosDocumentoResolucionDefinitiva(tramite);
             filtros.add(new AtlasFilter("expediente.solicitud.convocatoria.idConvocatoria",
                     this.idConvocatoria, Operador.EQUALS));
             filtros.add(new AtlasFilter("expediente.fcBajaFila", Operador.NULL));
-            filtros.add(new AtlasFilter("expediente.estado.idValor", Arrays.asList(
+            List<Integer> estados = new ArrayList<>(Arrays.asList(
                     this.utilConstantes.getGlobalCatalogosValores().get(estadoPropuesta),
-                    this.utilConstantes.getGlobalCatalogosValores().get(estadoFinal)), Operador.IN));
+                    this.utilConstantes.getGlobalCatalogosValores().get(estadoFinal)));
+            if (Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)) {
+                estados.add(this.utilConstantes.getGlobalCatalogosValores().get(
+                        Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO));
+                estados.add(this.utilConstantes.getGlobalCatalogosValores().get(
+                        Constantes.EstadoExpediente.EXCLUIDO));
+            }
+            filtros.add(new AtlasFilter("expediente.estado.idValor", estados, Operador.IN));
             List<AtlasSort> orden = new ArrayList<>();
             orden.add(new AtlasSort(Constantes.Filtro.FILTRO_FECHA_ALTA, false));
             List<ExpedienteDocDTO> documentos = this.expedienteDocService.buscar(0, 1, filtros, orden);
@@ -1453,9 +1462,9 @@ public class ResolucionConvBean {
         }
     }
 
-    private ExpedienteDocDTO getDocumentoResolucionIndividual(Integer tramite,
+    private ExpedienteDocDTO getDocumentoResolucionDefinitiva(Integer tramite,
             Integer idExpediente) throws ServiceException {
-        List<AtlasFilter> filtros = this.filtrosDocumentoResolucionIndividual(tramite);
+        List<AtlasFilter> filtros = this.filtrosDocumentoResolucionDefinitiva(tramite);
         filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_EXPEDIENTE_IDEXPEDIENTE,
                 idExpediente, Operador.EQUALS));
         List<AtlasSort> orden = new ArrayList<>();
@@ -1464,9 +1473,8 @@ public class ResolucionConvBean {
         return documentos.isEmpty() ? null : documentos.get(0);
     }
 
-    private List<AtlasFilter> filtrosDocumentoResolucionIndividual(Integer tramite) {
-        Integer tipoDocumento = this.utilConstantes.getGlobalCatalogosValores()
-                .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
+    private List<AtlasFilter> filtrosDocumentoResolucionDefinitiva(Integer tramite) {
+        Integer tipoDocumento = this.obtenerTipoDocumentoResolucionDefinitiva(tramite);
         Integer idTramite = this.utilConstantes.getGlobalCatalogosValores().get(tramite);
         List<AtlasFilter> filtros = new ArrayList<>();
         filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
@@ -1476,16 +1484,22 @@ public class ResolucionConvBean {
         return filtros;
     }
     
+    /** Obtiene el tipo documental según se trate de resolución individual o conjunta. */
+    private Integer obtenerTipoDocumentoResolucionDefinitiva(Integer tramite) {
+        return this.utilConstantes.getGlobalCatalogosValores().get(
+                Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)
+                        ? Constantes.TipoDocumento.PROPUESTA_RESOLUCION_CONJUNTA_DEFINITIVA
+                        : Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
+    }
+
     /**
-     * Obtiene el código FICA de la resolución conjunta de exclusión y
-     * desistimiento para su descarga mediante el servlet común de documentos.
+     * Obtiene el código FICA de la resolución conjunta de exclusión y desistimiento.
      *
      * @return código FICA del documento o {@code null} si todavía no se ha subido
      */
     public Integer getCodigoFicaResolucionExclusionDesistimiento() {
-        ExpedienteDocDTO documento = this.getExpedienteDocDTO(
-                utilConstantes.getGlobalCatalogosValores()
-                        .get(Constantes.TipoDocumento.RESOLUCION_CONVOCATORIA_DEFINITIVO));
+        ExpedienteDocDTO documento = this.getDocumentoResolucionDefinitiva(
+                Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO);
         return documento != null ? documento.getCdFica() : null;
     }
     

@@ -267,6 +267,7 @@ public class ExpedienteModifPresPlazoOtraBean {
 
     /* modoConsulta */
     private Boolean modoConsultaModifPPO;
+
        
     /* ExpedienteAnualidad Antes Modif */
     private List<ExpedienteModifPlazoDTO> lstPlazosAntesMod;
@@ -636,6 +637,23 @@ public class ExpedienteModifPresPlazoOtraBean {
                && this.expedienteBean.getExpedienteDTO().getEstadoDTO() != null
                && utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.RECHAZADO_DEFINITIVO)
                        .equals(this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor());
+   }
+
+   /**
+    * VMM 19/10/26 MD-3148: modo consulta de la modificacion seleccionada. Es un valor DERIVADO (sale de la
+    * modificacion seleccionada, del rol del usuario y del modo consulta de la convocatoria), asi que no debe
+    * guardarse y restaurarse con atlasp:guardarEstado: al cambiar de expediente (p.ej. del 1761, con la
+    * modificacion Resuelta, al 1767, en Pendiente revision) se restauraba el valor del anterior DESPUES de
+    * recalcularlo en verDetalleModif, y el Guardar quedaba deshabilitado (y al reves). Cuando hay una
+    * modificacion seleccionada se recalcula en cada lectura (solo compara valores en memoria); si no la hay se
+    * devuelve el valor que tenga. Dentro de esModoConsulta() se usa el campo directamente, no este getter.
+    */
+   public Boolean getModoConsultaModifPPO() {
+       if (this.selectExpedienteModifDTO != null
+               && this.selectExpedienteModifDTO.getIdExpedienteModifPresPlazoOtra() != null) {
+           this.esModoConsulta();
+       }
+       return this.modoConsultaModifPPO;
    }
 
    /**
@@ -2707,7 +2725,7 @@ public class ExpedienteModifPresPlazoOtraBean {
         this.inicializarListasModif();
         
         this.esModoConsulta();
-        
+
         //comprobamos las modificaciones que existen para mostrarlas
         if (selectExpedienteModifDTO.getItModPres().equals(Constantes.AfirmacionNegacion.S)){
             this.mostrarDetalleModifPres = Boolean.TRUE;
@@ -3774,6 +3792,43 @@ public class ExpedienteModifPresPlazoOtraBean {
      * las tres tablas de plazos) este informada. A diferencia del presupuesto no hay observacion
      * por fila/concepto aqui, es una unica observacion para todas las anualidades modificadas.
      */
+    /**
+     * VMM 20/10/26 MD-3121: fecha fin de ejecucion SOLICITADA por el beneficiario para la anualidad indicada
+     * (la que "Cargar datos" copia a los plazos aceptados), tomada de la tabla de plazos solicitados
+     * (lstBloquePlazos, ultimo dato de la fila, igual que obtenerFechaFinPlazoSolicitado). El dato se guarda como
+     * instante UTC (ver MD-3150). Devuelve null si no hay fecha solicitada para esa anualidad.
+     */
+    private Date obtenerFechaFinSolicitada(Integer nmAnualidad) {
+        if (this.lstBloquePlazos == null || this.lstBloquePlazos.isEmpty()
+                || this.lstBloquePlazos.get(0).getListaBloqueAuxDTO() == null) {
+            return null;
+        }
+        List<BloqueComponenteDTO> filas = this.lstBloquePlazos.get(0).getListaBloqueAuxDTO();
+        BloqueComponenteDTO fila = null;
+        for (BloqueComponenteDTO f : filas) {
+            if (f != null && f.getNmOrden() != null && f.getNmOrden().equals(nmAnualidad)) {
+                fila = f;
+                break;
+            }
+        }
+        if (fila == null && filas.size() == 1) {
+            fila = filas.get(0); // una sola anualidad: como hace cargarDatosPlazos
+        }
+        if (fila == null || fila.getDatos() == null || fila.getDatos().isEmpty()) {
+            return null;
+        }
+        String dsValor = fila.getDatos().get(fila.getDatos().size() - 1).getDsValor();
+        if (StringUtils.isBlank(dsValor) || dsValor.length() < 19) {
+            return null;
+        }
+        try {
+            return Date.from(LocalDateTime.parse(dsValor.substring(0, 19)).atZone(ZoneId.of("UTC")).toInstant());
+        } catch (Exception e) {
+            log.error("No se pudo interpretar la fecha fin solicitada: " + dsValor, e);
+            return null;
+        }
+    }
+
     private boolean notificarObservacionPlazosPendiente() throws ServiceException {
         if (this.lstPlazosAcept == null || this.lstPlazosAcept.isEmpty()) {
             return false;
@@ -3781,10 +3836,18 @@ public class ExpedienteModifPresPlazoOtraBean {
 
         boolean hayFechaFinModificada = false;
         for (ExpedienteModifPlazoDTO expModifPlazo : this.lstPlazosAcept) {
-            ExpedienteAnualidadDTO anualOriginal = this.obtenerAnualidadOriginal(expModifPlazo.getNmAnualidad());
-            if (anualOriginal != null && anualOriginal.getFcFinEjecucion() != null
-                    && expModifPlazo.getFcFinEjecucion() != null
-                    && anualOriginal.getFcFinEjecucion().getTime() != expModifPlazo.getFcFinEjecucion().getTime()) {
+            // VMM 20/10/26 MD-3121: la referencia para saber si el gestor ha modificado la fecha es la que
+            // "Cargar datos" le puso (la solicitada por el beneficiario), no la original de la anualidad: al
+            // cargar los datos la fecha aceptada ya difiere de la original sin que el gestor toque nada, y se
+            // pedia observacion igualmente. Igual que en presupuestos, solo se exige si la cambia el gestor.
+            // Si no hay fecha solicitada se mantiene el criterio anterior (comparar con la original).
+            Date fechaReferencia = this.obtenerFechaFinSolicitada(expModifPlazo.getNmAnualidad());
+            if (fechaReferencia == null) {
+                ExpedienteAnualidadDTO anualOriginal = this.obtenerAnualidadOriginal(expModifPlazo.getNmAnualidad());
+                fechaReferencia = anualOriginal != null ? anualOriginal.getFcFinEjecucion() : null;
+            }
+            if (fechaReferencia != null && expModifPlazo.getFcFinEjecucion() != null
+                    && fechaReferencia.getTime() / 60000 != expModifPlazo.getFcFinEjecucion().getTime() / 60000) {
                 hayFechaFinModificada = true;
                 break;
             }
@@ -4194,7 +4257,7 @@ public class ExpedienteModifPresPlazoOtraBean {
         boolean modoConsultaDuro = Boolean.TRUE.equals(this.convocatoriasBean.isModoConsulta())
                 || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno());
 
-        if (Boolean.TRUE.equals(this.modoConsultaModifPPO) && (modoConsultaDuro || !esPendienteModificaciones)) {
+        if (Boolean.TRUE.equals(this.getModoConsultaModifPPO()) && (modoConsultaDuro || !esPendienteModificaciones)) {
             habilitar = Boolean.TRUE;
         }
 
@@ -4634,7 +4697,7 @@ public class ExpedienteModifPresPlazoOtraBean {
                 && tienePlazos.equals(Boolean.TRUE)
                 && tieneOtras.equals(Boolean.TRUE)
                 && tienePresu.equals(Boolean.TRUE)
-                && !Boolean.TRUE.equals(this.modoConsultaModifPPO)) {
+                && !Boolean.TRUE.equals(this.getModoConsultaModifPPO())) {
             habilitar = Boolean.TRUE;
         }
 
@@ -5052,7 +5115,7 @@ public class ExpedienteModifPresPlazoOtraBean {
 
         // VMM 06/05/26 MD-2695: capamos este boton si es modo consulta
         // VMM 08/09/26 MD-2996 (reabierta): también si el expediente está Rechazado Definitivo
-        if (Boolean.TRUE.equals(this.modoConsultaModifPPO) || this.isExpedienteRechazadoDefinitivo()) {
+        if (Boolean.TRUE.equals(this.getModoConsultaModifPPO()) || this.isExpedienteRechazadoDefinitivo()) {
             habilitar = Boolean.FALSE;
             return habilitar;
         }
@@ -5091,7 +5154,7 @@ public class ExpedienteModifPresPlazoOtraBean {
         Boolean habilitar = Boolean.TRUE;
         
         //VMM 06/05/26 MD-2695: capamos este boton si es modo consulta
-        if (Boolean.TRUE.equals(this.modoConsultaModifPPO)) {
+        if (Boolean.TRUE.equals(this.getModoConsultaModifPPO())) {
             habilitar = Boolean.FALSE;
             return habilitar;
         }
@@ -5228,7 +5291,7 @@ public class ExpedienteModifPresPlazoOtraBean {
                 expDocDto.getIdExpedienteDoc(), Operador.EQUALS));
 
         //VMM 06/05/26 MD-2695: capamos este boton si es modo consulta
-        if (Boolean.TRUE.equals(this.modoConsultaModifPPO)) {
+        if (Boolean.TRUE.equals(this.getModoConsultaModifPPO())) {
             habilitar = Boolean.FALSE;
             return habilitar;
         }
@@ -5528,7 +5591,7 @@ public class ExpedienteModifPresPlazoOtraBean {
         Boolean habilitar = Boolean.TRUE;
 
         //VMM 06/05/26 MD-2695: capamos este boton si es modo consulta
-        if (Boolean.TRUE.equals(this.modoConsultaModifPPO)) {
+        if (Boolean.TRUE.equals(this.getModoConsultaModifPPO())) {
             habilitar = Boolean.FALSE;
             return habilitar;
         }
@@ -5649,7 +5712,7 @@ public class ExpedienteModifPresPlazoOtraBean {
         Boolean habilitar = Boolean.TRUE;
 
         //VMM 06/05/26 MD-2695: capamos este boton si es modo consulta
-        if (Boolean.TRUE.equals(this.modoConsultaModifPPO)) {
+        if (Boolean.TRUE.equals(this.getModoConsultaModifPPO())) {
             habilitar = Boolean.FALSE;
             return habilitar;
         }
@@ -5958,7 +6021,7 @@ public class ExpedienteModifPresPlazoOtraBean {
         Boolean pendienteRevisadoOk = Boolean.FALSE;
 
         //VMM 06/05/26 MD-2695: capamos este boton si es modo consulta
-        if (Boolean.TRUE.equals(this.modoConsultaModifPPO)) {
+        if (Boolean.TRUE.equals(this.getModoConsultaModifPPO())) {
             habilitar = Boolean.FALSE;
             return habilitar;
         }

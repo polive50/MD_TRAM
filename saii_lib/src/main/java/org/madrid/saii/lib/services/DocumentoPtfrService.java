@@ -203,7 +203,7 @@ public interface DocumentoPtfrService
      */
     public void cambiarEstadoModificacionPresPlazoOtraPublic(Integer idModificacion,
             Integer nmConstanteEstado) throws ServiceException;
-
+    
     /**
      * Registra en cola la resolución individual de exclusión o desistimiento y
      * actualiza el documento y el expediente en la misma transacción.
@@ -217,9 +217,23 @@ public interface DocumentoPtfrService
      * @return identificador de la petición creada o null si ya existe una activa
      * @throws ServiceException si el documento no corresponde o falla el envío
      */
-    Integer enviarResolucionIndividualDefinitiva(ConvocatoriaDTO convocatoria,
+    public Integer enviarResolucionIndividualDefinitiva(ConvocatoriaDTO convocatoria,
             Integer idExpedienteDoc, Integer tramite, byte[] documentoAdjunto,
             Integer idDocPtfrPadre, String usuario)
             throws ServiceException;
+    
+    /**
+     *
+     * @param convocatoria convocatoria de la resolución
+     * @param idExpedienteDoc documento conjunto asociado al expediente
+     * @param documentoAdjunto contenido del PDF recuperado de FICA
+     * @param idDocPtfrPadre cero para la primera petición o identificador de su padre
+     * @param usuario usuario que realiza el envío
+     * @return identificador de la petición creada o null si ya existe una activa
+     * @throws ServiceException si el documento no corresponde o falla el envío
+     */
+    Integer enviarResolucionConjuntaDefinitiva(ConvocatoriaDTO convocatoria,
+            Integer idExpedienteDoc, byte[] documentoAdjunto, Integer idDocPtfrPadre,
+            String usuario) throws ServiceException;
 
 }
