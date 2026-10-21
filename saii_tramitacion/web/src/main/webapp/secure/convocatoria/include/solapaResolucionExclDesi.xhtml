@@ -137,8 +137,15 @@
                     value="#{bundle['boton.enviar.portafirma']}"
                     alt="#{bundle['boton.enviar.portafirma']}"
                     title="#{bundle['boton.enviar.portafirma']}"
-                    icon="fas fa-paper-plane" tipoBoton="btn-warning"
-                    disabled="#{!resolucionConvBean.habilitarEnviarResolucionExclusionPortafirmas(convocatoriasBean.modoConsulta)}" />
+                    icon="fas fa-paper-plane" tipoBoton="btn-warning" disabled="false"
+                    rendered="#{resolucionConvBean.habilitarEnviarResolucionExclusionPortafirmas(convocatoriasBean.modoConsulta)}" />
+
+                <atlasp:button id="botonEnviarResolucionExclusionPortafirmasDisabled" type="button"
+                    value="#{bundle['boton.enviar.portafirma']}"
+                    alt="#{bundle['boton.enviar.portafirma']}"
+                    title="#{bundle['boton.enviar.portafirma']}"
+                    icon="fas fa-paper-plane" tipoBoton="btn-warning" disabled="true"
+                    rendered="#{!resolucionConvBean.habilitarEnviarResolucionExclusionPortafirmas(convocatoriasBean.modoConsulta)}" />
             </h:panelGroup>
         
             <div class="space" />
@@ -243,8 +250,15 @@
                     value="#{bundle['boton.enviar.portafirma']}"
                     alt="#{bundle['boton.enviar.portafirma']}"
                     title="#{bundle['boton.enviar.portafirma']}"
-                    icon="fas fa-paper-plane" tipoBoton="btn-warning"
-                    disabled="#{!resolucionConvBean.habilitarEnviarResolucionDesistimientoPortafirmas(convocatoriasBean.modoConsulta)}" />
+                    icon="fas fa-paper-plane" tipoBoton="btn-warning" disabled="false"
+                    rendered="#{resolucionConvBean.habilitarEnviarResolucionDesistimientoPortafirmas(convocatoriasBean.modoConsulta)}" />
+
+                <atlasp:button id="botonEnviarResolucionDesistimientoPortafirmasDisabled" type="button"
+                    value="#{bundle['boton.enviar.portafirma']}"
+                    alt="#{bundle['boton.enviar.portafirma']}"
+                    title="#{bundle['boton.enviar.portafirma']}"
+                    icon="fas fa-paper-plane" tipoBoton="btn-warning" disabled="true"
+                    rendered="#{!resolucionConvBean.habilitarEnviarResolucionDesistimientoPortafirmas(convocatoriasBean.modoConsulta)}" />
             </h:panelGroup>
         
             <div class="space" />
@@ -314,6 +328,10 @@
             </h:panelGroup>
         </h:panelGroup>
         
+        <p:remoteCommand name="actualizarBotoneraResolucionIndividual"
+            process="@this" ignoreAutoUpdate="true"
+            update="botoneraResolucionExclusion botoneraResolucionDesistimiento" />
+
         <p:dialog id="dialogSubirResolucionExclusion"
             widgetVar="dialogSubirResolucionExclusion"
             header="#{bundle['resolucion.exclusion.documento.titulo']}"

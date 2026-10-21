@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -42,6 +43,7 @@ import org.madrid.saii.lib.util.UtilConstantes;
 import org.madrid.saii.tramitacion.jsf.InfoUsuarioBean;
 import org.madrid.saii.tramitacion.jsf.utils.ConstantesWeb;
 import org.madrid.saii.tramitacion.jsf.utils.UtilesWeb;
+import org.primefaces.PrimeFaces;
 import org.primefaces.model.UploadedFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -1075,17 +1077,35 @@ public class ResolucionConvBean {
     /**
      * Indica si se puede subir una resolución individual.
      *
+     * @param tramite constante del trámite de exclusión o desistimiento
      * @param esModoConsulta indica si la convocatoria está en modo consulta
      * @return {@code true} cuando el botón debe estar habilitado
      */
-    public boolean habilitarBotonSubirResolucionIndividual(Boolean esModoConsulta) {
-        return this.habilitarBotonesResolucionIndividual()
-                && !Boolean.TRUE.equals(esModoConsulta);
+    public boolean habilitarBotonSubirResolucionIndividual(Integer tramite,
+            Boolean esModoConsulta) {
+        if (!this.habilitarBotonesResolucionIndividual()
+                || Boolean.TRUE.equals(esModoConsulta)) {
+            return false;
+        }
+        try {
+            Integer idTramite = this.utilConstantes.getGlobalCatalogosValores().get(tramite);
+            for (ResolucionExclusionDesistimientoDTO elemento
+                    : this.obtenerExpedientesResolucionIndividual(tramite)) {
+                if (!this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(
+                        elemento.getIdExpediente(), idTramite)) {
+                    return true;
+                }
+            }
+        } catch (ServiceException e) {
+            log.error(e.getMessage(), e);
+        }
+        return false;
     }
 
     /** Indica si se puede subir la resolución individual de exclusión. */
     public boolean habilitarBotonSubirResolucionExclusion(Boolean esModoConsulta) {
-        return this.habilitarBotonSubirResolucionIndividual(esModoConsulta);
+        return this.habilitarBotonSubirResolucionIndividual(Constantes.Tramite.EXCLUSION,
+                esModoConsulta);
     }
 
     /** Indica si se puede descargar la resolución individual de exclusión. */
@@ -1096,7 +1116,8 @@ public class ResolucionConvBean {
 
     /** Indica si se puede subir la resolución individual de desistimiento. */
     public boolean habilitarBotonSubirResolucionDesistimiento(Boolean esModoConsulta) {
-        return this.habilitarBotonSubirResolucionIndividual(esModoConsulta);
+        return this.habilitarBotonSubirResolucionIndividual(Constantes.Tramite.DESISTIMIENTO,
+                esModoConsulta);
     }
 
     /** Indica si se puede descargar la resolución individual de desistimiento. */
@@ -1113,17 +1134,18 @@ public class ResolucionConvBean {
     /** Indica si se puede enviar una resolución individual a Portafirmas. */
     public boolean habilitarEnviarResolucionIndividualPortafirmas(Integer tramite,
             Boolean esModoConsulta) {
-        ExpedienteDocDTO documento = this.getDocumentoResolucionIndividual(tramite);
         if (!this.habilitarBotonesResolucionIndividual()
                 || Boolean.TRUE.equals(esModoConsulta)
-                || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())
-                || documento == null || documento.getCdFica() == null) {
+                || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) {
             return false;
         }
         try {
             for (ResolucionExclusionDesistimientoDTO elemento
                     : this.obtenerExpedientesResolucionIndividual(tramite)) {
-                if (!this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(
+                ExpedienteDocDTO documento = this.getDocumentoResolucionIndividual(tramite,
+                        elemento.getIdExpediente());
+                if (documento != null && documento.getCdFica() != null
+                        && !this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(
                         elemento.getIdExpediente(),
                         this.utilConstantes.getGlobalCatalogosValores().get(tramite))) {
                     return true;
@@ -1155,15 +1177,9 @@ public class ResolucionConvBean {
             if (this.convocatoriaDTO == null) {
                 this.convocatoriaDTO = this.convocatoriaService.buscarId(this.idConvocatoria);
             }
-            ExpedienteDocDTO documento = this.getDocumentoResolucionIndividual(tramite);
-            if (documento == null || documento.getCdFica() == null) {
-                AtlasMessageUtils.addErrorMessageFromBundle(
-                        ConstantesWeb.Mensajes.ERROR_CODIGO_FICA_FALTANTE);
-                return;
-            }
-            FicaFichero fichero = this.ficaService.recuperar(documento.getCdFica());
             Integer idTramite = this.utilConstantes.getGlobalCatalogosValores().get(tramite);
             int insertados = 0;
+            Integer idDocPtfrPadre = 0;
             boolean error = false;
             for (ResolucionExclusionDesistimientoDTO elemento
                     : this.obtenerExpedientesResolucionIndividual(tramite)) {
@@ -1173,26 +1189,27 @@ public class ResolucionConvBean {
                             idExpediente, idTramite)) {
                         continue;
                     }
-                    ExpedienteDTO expediente = this.expedienteService.buscarIdSimple(
-                            idExpediente, Boolean.FALSE);
-                    if (Boolean.TRUE.equals(this.documentoPtfrService.guardarEnvioEnDcoumentoPTFR(
-                            this.convocatoriaDTO, expediente, idExpediente, idTramite,
-                            fichero.getDatosFichero(), null, null, null))) {
-                        insertados++;
-                    } else {
+                    ExpedienteDocDTO documento = this.getDocumentoResolucionIndividual(tramite,
+                            idExpediente);
+                    if (documento == null || documento.getCdFica() == null) {
                         error = true;
+                        continue;
+                    }
+                    FicaFichero fichero = this.ficaService.recuperar(documento.getCdFica());
+                    Integer idDocumentoPtfr = this.documentoPtfrService.enviarResolucionIndividualDefinitiva(
+                            this.convocatoriaDTO, documento.getIdExpedienteDoc(), tramite,
+                            fichero.getDatosFichero(), idDocPtfrPadre,
+                            UserUtils.getUserName().toUpperCase());
+                    if (idDocumentoPtfr != null) {
+                        if (idDocPtfrPadre == 0) {
+                            idDocPtfrPadre = idDocumentoPtfr;
+                        }
+                        insertados++;
                     }
                 } catch (ServiceException e) {
                     log.error(ConstantesWeb.Err.ERROR_ENVIAR_PORTAFIRMA, e);
                     error = true;
                 }
-            }
-            if (insertados > 0) {
-                documento.setEstadoDTO(this.catalogosValoresService.buscarId(
-                        this.utilConstantes.getGlobalCatalogosValores()
-                                .get(Constantes.EstadoDocumento.ENVIO_COLA_NOTIFICACIONES)));
-                this.expedienteDocService.guardarConHistorico(documento,
-                        UserUtils.getUserName().toUpperCase());
             }
             if (insertados > 0 && !error) {
                 AtlasMessageUtils.addInfoMessageFromBundle(
@@ -1209,7 +1226,8 @@ public class ResolucionConvBean {
     private List<ResolucionExclusionDesistimientoDTO> obtenerExpedientesResolucionIndividual(
             Integer tramite) {
         Integer estado = Constantes.Tramite.EXCLUSION.equals(tramite)
-                ? Constantes.EstadoExpediente.EXCLUIDO : Constantes.EstadoExpediente.DESISTIDO;
+                ? Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO
+                : Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO;
         return this.agruparMotivos(this.expedienteDAO.listaResolucionExclusionDesistimiento(
                 this.idConvocatoria, this.utilConstantes.getGlobalCatalogosValores().get(estado),
                 Constantes.Cata.REQUISITOS));
@@ -1324,17 +1342,64 @@ public class ResolucionConvBean {
             Integer tipoDocumento = this.utilConstantes.getGlobalCatalogosValores()
                     .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
             Integer idTramite = this.utilConstantes.getGlobalCatalogosValores().get(tramite);
-            this.prepararMetadatosFica(archivo, tipoDocumento, idTramite);
-            this.expedienteDocDTO = this.expedienteDocService
-                    .subirDocumentoFica(this.expedienteDocDTO);
-            this.guardarDocumento();
+            List<ResolucionExclusionDesistimientoDTO> expedientes =
+                    this.obtenerExpedientesResolucionIndividual(tramite);
+            int guardados = 0;
+            byte[] contenido;
+            try (InputStream entrada = archivo.getInputstream()) {
+                contenido = IOUtils.toByteArray(entrada);
+            }
+            for (ResolucionExclusionDesistimientoDTO elemento : expedientes) {
+                Integer idExpediente = elemento.getIdExpediente();
+                if (this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(
+                        idExpediente, idTramite)) {
+                    continue;
+                }
+                ExpedienteDocDTO documento = this.getDocumentoResolucionIndividual(tramite,
+                        idExpediente);
+                if (documento == null) {
+                    documento = new ExpedienteDocDTO();
+                }
+                documento.setExpedienteDTO(this.expedienteService.buscarIdSimple(
+                        idExpediente, Boolean.FALSE));
+                documento.setTipoDocumentoDTO(this.catalogosValoresService.buscarId(tipoDocumento));
+                documento.setTramiteDTO(this.catalogosValoresService.buscarId(idTramite));
+                documento.setEstadoDTO(this.catalogosValoresService.buscarId(
+                        this.utilConstantes.getGlobalCatalogosValores()
+                                .get(Constantes.EstadoDocumento.REVISION_OK)));
+                FicaMetadatos metadatos = new FicaMetadatos();
+                metadatos.setNombreFichero(archivo.getFileName());
+                metadatos.setFechaFichero(new Date());
+                metadatos.setExtension(Constantes.Extensiones.PDF);
+                metadatos.setUsuario(UserUtils.getUserName().toUpperCase());
+                metadatos.setEncriptar(false);
+                documento.setFicaMetadatos(metadatos);
+                documento.setContenidoFichero(contenido);
+                boolean esSustitucion = documento.getCdFica() != null;
+                documento = this.expedienteDocService.subirDocumentoFica(documento);
+                if (esSustitucion) {
+                    this.ficaService.actualizarMetadatos(documento.getCdFica(),
+                            documento.getFicaMetadatos());
+                }
+                this.expedienteDocService.guardarConHistorico(documento,
+                        UserUtils.getUserName().toUpperCase());
+                guardados++;
+            }
+            if (guardados == 0) {
+                AtlasMessageUtils.addErrorMessageFromBundle(
+                        ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_KO);
+                return;
+            }
+            AtlasMessageUtils.addInfoMessageFromBundle(
+                    ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_OK);
             this.mostrarMensajeElegirFichero = Boolean.FALSE;
             if (Constantes.Tramite.EXCLUSION.equals(tramite)) {
                 this.archivoResolucionExclusion = null;
             } else {
                 this.archivoResolucionDesistimiento = null;
             }
-        } catch (ServiceException e) {
+            PrimeFaces.current().executeScript("actualizarBotoneraResolucionIndividual();");
+        } catch (ServiceException | IOException e) {
             AtlasMessageUtils.addErrorMessageFromBundle(
                     ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_KO);
             log.error(e.getMessage(), e);
@@ -1365,10 +1430,50 @@ public class ResolucionConvBean {
     }
 
     private ExpedienteDocDTO getDocumentoResolucionIndividual(Integer tramite) {
+        try {
+            Integer estadoPropuesta = Constantes.Tramite.EXCLUSION.equals(tramite)
+                    ? Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO
+                    : Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO;
+            Integer estadoFinal = Constantes.Tramite.EXCLUSION.equals(tramite)
+                    ? Constantes.EstadoExpediente.EXCLUIDO : Constantes.EstadoExpediente.DESISTIDO;
+            List<AtlasFilter> filtros = this.filtrosDocumentoResolucionIndividual(tramite);
+            filtros.add(new AtlasFilter("expediente.solicitud.convocatoria.idConvocatoria",
+                    this.idConvocatoria, Operador.EQUALS));
+            filtros.add(new AtlasFilter("expediente.fcBajaFila", Operador.NULL));
+            filtros.add(new AtlasFilter("expediente.estado.idValor", Arrays.asList(
+                    this.utilConstantes.getGlobalCatalogosValores().get(estadoPropuesta),
+                    this.utilConstantes.getGlobalCatalogosValores().get(estadoFinal)), Operador.IN));
+            List<AtlasSort> orden = new ArrayList<>();
+            orden.add(new AtlasSort(Constantes.Filtro.FILTRO_FECHA_ALTA, false));
+            List<ExpedienteDocDTO> documentos = this.expedienteDocService.buscar(0, 1, filtros, orden);
+            return documentos.isEmpty() ? null : documentos.get(0);
+        } catch (ServiceException e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    private ExpedienteDocDTO getDocumentoResolucionIndividual(Integer tramite,
+            Integer idExpediente) throws ServiceException {
+        List<AtlasFilter> filtros = this.filtrosDocumentoResolucionIndividual(tramite);
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_EXPEDIENTE_IDEXPEDIENTE,
+                idExpediente, Operador.EQUALS));
+        List<AtlasSort> orden = new ArrayList<>();
+        orden.add(new AtlasSort(Constantes.Filtro.FILTRO_FECHA_ALTA, false));
+        List<ExpedienteDocDTO> documentos = this.expedienteDocService.buscar(0, 1, filtros, orden);
+        return documentos.isEmpty() ? null : documentos.get(0);
+    }
+
+    private List<AtlasFilter> filtrosDocumentoResolucionIndividual(Integer tramite) {
         Integer tipoDocumento = this.utilConstantes.getGlobalCatalogosValores()
                 .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
         Integer idTramite = this.utilConstantes.getGlobalCatalogosValores().get(tramite);
-        return this.getExpedienteDocDTO(tipoDocumento, idTramite);
+        List<AtlasFilter> filtros = new ArrayList<>();
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_COMPONENTE_TIPO_DOCUMENTO,
+                tipoDocumento, Operador.EQUALS));
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_TRAMITE, idTramite, Operador.EQUALS));
+        return filtros;
     }
     
     /**
@@ -1392,9 +1497,9 @@ public class ResolucionConvBean {
         try (ByteArrayOutputStream salida = new ByteArrayOutputStream();
                 HSSFWorkbook libro = new HSSFWorkbook()) {
             Integer estadoExcluido = this.utilConstantes.getGlobalCatalogosValores()
-                    .get(Constantes.EstadoExpediente.EXCLUIDO);
+                    .get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO);
             Integer estadoDesistido = this.utilConstantes.getGlobalCatalogosValores()
-                    .get(Constantes.EstadoExpediente.DESISTIDO);
+                    .get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO);
             List<ResolucionExclusionDesistimientoDTO> excluidos = this.agruparMotivos(
                     this.expedienteDAO.listaResolucionExclusionDesistimiento(
                             this.idConvocatoria, estadoExcluido, Constantes.Cata.REQUISITOS));
@@ -1701,33 +1806,33 @@ public class ResolucionConvBean {
     }
     
     /**
-     * Obtiene los expedientes excluidos definitivos de la convocatoria.
+     * Obtiene los expedientes en propuesta de resolución de exclusión definitiva.
      *
      * @param index primer elemento de la página
      * @param pageSize número de elementos de la página
      * @param orderBean orden del listado
      * @param filtros filtros del listado
-     * @return listado paginado de expedientes excluidos definitivos
+     * @return listado paginado de expedientes propuestos para exclusión
      */
     public AtlasListAndCount<ResolucionExclusionDesistimientoDTO> obtenerExcluidosDefinitivos(
             final int index, final int pageSize, Object orderBean, Object filtros) {
         return this.obtenerResolucionExclusionDesistimiento(index, pageSize,
-                Constantes.EstadoExpediente.EXCLUIDO);
+                Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO);
     }
 
     /**
-     * Obtiene los expedientes desistidos definitivos de la convocatoria.
+     * Obtiene los expedientes en propuesta de resolución de desistimiento definitivo.
      *
      * @param index primer elemento de la página
      * @param pageSize número de elementos de la página
      * @param orderBean orden del listado
      * @param filtros filtros del listado
-     * @return listado paginado de expedientes desistidos definitivos
+     * @return listado paginado de expedientes propuestos para desistimiento
      */
     public AtlasListAndCount<ResolucionExclusionDesistimientoDTO> obtenerDesistidosDefinitivos(
             final int index, final int pageSize, Object orderBean, Object filtros) {
         return this.obtenerResolucionExclusionDesistimiento(index, pageSize,
-                Constantes.EstadoExpediente.DESISTIDO);
+                Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO);
     }
 
     /**

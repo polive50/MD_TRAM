@@ -686,76 +686,82 @@ public class DocumentoPtfrServiceImpl extends
             ExpedienteDTO expediente, Integer idExpediente, Integer idtramite,
             byte[] documentoAdjunto, Integer idExpedienteJustec, Integer idPresupuestoModif, Integer idExpedienteJusEco)
             throws ServiceException {
-        Boolean vuelta = Boolean.FALSE;
         try {
-
-            List<AtlasFilter> filtrosEntrada = new ArrayList<>();
-
-            Integer idConvocatoria = convocatoria.getIdConvocatoria();
-
-            filtrosEntrada.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDCONVOCATORIA,
-                    idConvocatoria, Operador.EQUALS));
-
-            filtrosEntrada.add(
-                    new AtlasFilter(Constantes.Filtro.FILTRO_TRAMITE, idtramite, Operador.EQUALS));
-
-            List<ConvocatoriaPlaDTO> lstItem = this.convocatoriaPlaService.buscar(0, -1,
-                    filtrosEntrada, null);
-
-            if (lstItem.isEmpty()) {
-                throw new ServiceException("No hay documentos para el tramite en el Portafirmas.");
-            }
-
-            DocumentoPtfr documentoPtfr = new DocumentoPtfr();
-            documentoPtfr.setIdExpediente(expediente.getIdExpediente());
-            documentoPtfr.setDsReferenciaPtfr(null);
-            documentoPtfr.setCdArchivoPtfr(null);
-            documentoPtfr.setFcEnvioPtfr(null);
-            documentoPtfr.setCdEstadoPtfr(null);
-
-            if (idExpedienteJustec != null) {
-                documentoPtfr.setidExpedienteJustec(idExpedienteJustec);
-            }
-            
-            //VMM 17/10/25 MD-1586: incluimos el idExpedienteJusEco
-            if (idExpedienteJusEco != null) {
-                documentoPtfr.setIdExpedienteJusEco(idExpedienteJusEco);
-            }
-
-            if (documentoAdjunto != null) {
-                documentoPtfr.setDocumentoAdjunto(documentoAdjunto);
-            }
-
-            if (idPresupuestoModif != null) {
-                documentoPtfr.setIdPresupuestoModif(idPresupuestoModif);
-            }
-
-            // VMM 26/09/24 MD-593: ahora solo cargamos los tramites del gestor
-            // (catalogo 38), revisar esto...
-            List<CatalogosValoresDTO> lstTramites = this.catalogosValoresService.buscarPorCatalogo(
-                    utilConstantes.getGlobalCatalogos().get(Constantes.Cata.TRAMITES_GESTOR));
-
-            for (CatalogosValoresDTO tramite : lstTramites) {
-                if (tramite.getIdValor().equals(idtramite)) {
-                    documentoPtfr.setTramite(CatalogosValoresToEntity.INSTANCE.apply(tramite));
-                }
-            }
-
-            // Validamos si el usuario esta de alta en NOTE
-            this.validarAltaUsuarioNote(documentoPtfr, expediente.getIdSolicitud());
-
-            // Registramos los datos del envío a portafirmas
-            documentoPtfr = this.insert(documentoPtfr);
-
-            if (documentoPtfr.getIdDocumentoPtfr() != null) {
-                vuelta = Boolean.TRUE;
-            }
-
-            return vuelta;
+            DocumentoPtfr documentoPtfr = this.crearEnvioDocumentoPtfr(convocatoria, expediente,
+                    idtramite, documentoAdjunto, idExpedienteJustec, idPresupuestoModif,
+                    idExpedienteJusEco, null);
+            return documentoPtfr.getIdDocumentoPtfr() != null;
         } catch (Exception e) {
             log.error(e.getMessage());
-            return vuelta;
+            return Boolean.FALSE;
         }
+    }
+
+    /** Crea la petición y devuelve su identificador generado por la secuencia. */
+    private DocumentoPtfr crearEnvioDocumentoPtfr(ConvocatoriaDTO convocatoria,
+            ExpedienteDTO expediente, Integer idtramite, byte[] documentoAdjunto,
+            Integer idExpedienteJustec, Integer idPresupuestoModif, Integer idExpedienteJusEco,
+            Integer idDocPtfrPadre) throws ServiceException {
+        List<AtlasFilter> filtrosEntrada = new ArrayList<>();
+
+        Integer idConvocatoria = convocatoria.getIdConvocatoria();
+
+        filtrosEntrada.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDCONVOCATORIA,
+                idConvocatoria, Operador.EQUALS));
+
+        filtrosEntrada.add(
+                new AtlasFilter(Constantes.Filtro.FILTRO_TRAMITE, idtramite, Operador.EQUALS));
+
+        List<ConvocatoriaPlaDTO> lstItem = this.convocatoriaPlaService.buscar(0, -1,
+                filtrosEntrada, null);
+
+        if (lstItem.isEmpty()) {
+            throw new ServiceException("No hay documentos para el tramite en el Portafirmas.");
+        }
+
+        DocumentoPtfr documentoPtfr = new DocumentoPtfr();
+        documentoPtfr.setIdDocPtfrPadre(idDocPtfrPadre);
+        documentoPtfr.setIdExpediente(expediente.getIdExpediente());
+        documentoPtfr.setDsReferenciaPtfr(null);
+        documentoPtfr.setCdArchivoPtfr(null);
+        documentoPtfr.setFcEnvioPtfr(null);
+        documentoPtfr.setCdEstadoPtfr(null);
+
+        if (idExpedienteJustec != null) {
+            documentoPtfr.setidExpedienteJustec(idExpedienteJustec);
+        }
+
+        //VMM 17/10/25 MD-1586: incluimos el idExpedienteJusEco
+        if (idExpedienteJusEco != null) {
+            documentoPtfr.setIdExpedienteJusEco(idExpedienteJusEco);
+        }
+
+        if (documentoAdjunto != null) {
+            documentoPtfr.setDocumentoAdjunto(documentoAdjunto);
+        }
+
+        if (idPresupuestoModif != null) {
+            documentoPtfr.setIdPresupuestoModif(idPresupuestoModif);
+        }
+
+        // VMM 26/09/24 MD-593: ahora solo cargamos los tramites del gestor
+        // (catalogo 38), revisar esto...
+        List<CatalogosValoresDTO> lstTramites = this.catalogosValoresService.buscarPorCatalogo(
+                utilConstantes.getGlobalCatalogos().get(Constantes.Cata.TRAMITES_GESTOR));
+
+        for (CatalogosValoresDTO tramite : lstTramites) {
+            if (tramite.getIdValor().equals(idtramite)) {
+                documentoPtfr.setTramite(CatalogosValoresToEntity.INSTANCE.apply(tramite));
+            }
+        }
+
+        // Validamos si el usuario esta de alta en NOTE
+        this.validarAltaUsuarioNote(documentoPtfr, expediente.getIdSolicitud());
+
+        // Registramos los datos del envío a portafirmas
+        documentoPtfr = this.insert(documentoPtfr);
+
+        return documentoPtfr;
     }
 
     /**
@@ -3109,5 +3115,71 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
         this.actualizarEstadoInternoExpedienteBatch(expediente,
                 idEstadoInterno, esRevAdmin);
     }
-    
+
+    @Override
+    @Transactional(readOnly = false, rollbackFor = { ServiceException.class, RuntimeException.class })
+    public Integer enviarResolucionIndividualDefinitiva(ConvocatoriaDTO convocatoria,
+            Integer idExpedienteDoc, Integer tramite, byte[] documentoAdjunto,
+            Integer idDocPtfrPadre, String usuario)
+            throws ServiceException {
+        boolean exclusion = Constantes.Tramite.EXCLUSION.equals(tramite);
+        if ((!exclusion && !Constantes.Tramite.DESISTIMIENTO.equals(tramite))
+                || documentoAdjunto == null || documentoAdjunto.length == 0
+                || idDocPtfrPadre == null || idDocPtfrPadre < 0) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+        ExpedienteDoc documento = this.expedienteDocDAO.find(idExpedienteDoc);
+        Integer idTramite = this.utilConstantes.getGlobalCatalogosValores().get(tramite);
+        Integer estadoPropuesta = this.utilConstantes.getGlobalCatalogosValores().get(exclusion
+                ? Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO
+                : Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO);
+        if (documento == null || documento.getFcBajaFila() != null
+                || documento.getExpediente() == null || documento.getCdFica() == null
+                || documento.getTipoDocumento() == null || documento.getTramite() == null
+                || !this.utilConstantes.getGlobalCatalogosValores()
+                        .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA)
+                        .equals(documento.getTipoDocumento().getIdValor())
+                || !idTramite.equals(documento.getTramite().getIdValor())) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+        Expediente expediente = documento.getExpediente();
+        if (expediente.getFcBajaFila() != null
+                || !convocatoria.getIdConvocatoria().equals(
+                        expediente.getSolicitud().getConvocatoria().getIdConvocatoria())) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+        if (this.consultarDocumentoPortafirmaPorTramite(expediente.getIdExpediente(), idTramite)) {
+            return null;
+        }
+        if (!estadoPropuesta.equals(expediente.getEstado().getIdValor())) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+        ExpedienteDTO expedienteDTO = this.expedienteService.buscarIdSimple(
+                expediente.getIdExpediente(), Boolean.FALSE);
+        if (idDocPtfrPadre > 0) {
+            DocumentoPtfr padre = this.find(idDocPtfrPadre);
+            if (padre == null || padre.getFcBajaFila() != null
+                    || !Integer.valueOf(0).equals(padre.getIdDocPtfrPadre())
+                    || padre.getTramite() == null
+                    || !idTramite.equals(padre.getTramite().getIdValor())) {
+                throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+            }
+        }
+        DocumentoPtfr peticion = this.crearEnvioDocumentoPtfr(convocatoria, expedienteDTO,
+                idTramite, documentoAdjunto, null, null, null, idDocPtfrPadre);
+        if (peticion.getIdDocumentoPtfr() == null) {
+            throw new ServiceException(
+                    "No se ha podido registrar la resolución en la cola de Portafirmas.");
+        }
+        documento.setEstado(new CatalogosValores(this.utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.EstadoDocumento.ENVIO_COLA_NOTIFICACIONES)));
+        documento = this.expedienteDocDAO.merge(documento);
+        this.expedienteDocHistDAO.crearHistorico(documento, usuario);
+        this.expedienteService.cambiarEstado(expediente.getIdExpediente(),
+                this.utilConstantes.getGlobalCatalogosValores().get(exclusion
+                        ? Constantes.EstadoExpediente.EXCLUIDO
+                        : Constantes.EstadoExpediente.DESISTIDO), usuario);
+        return peticion.getIdDocumentoPtfr();
+    }
+
 }

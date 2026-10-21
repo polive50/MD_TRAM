@@ -45,6 +45,9 @@ public class DocumentoPtfr implements Serializable {
      */
     private Integer idDocumentoPtfr;
 
+    /** Identificador de la petición padre; cero para la primera del grupo. */
+    private Integer idDocPtfrPadre;
+
     /**
      * Representa el campo idExpediente del objeto de dominio
      */
@@ -304,6 +307,17 @@ public class DocumentoPtfr implements Serializable {
      */
     public void setIdDocumentoPtfr(Integer idDocumentoPtfr) {
         this.idDocumentoPtfr = idDocumentoPtfr;
+    }
+
+    /** @return identificador de la petición padre */
+    @Column(name = "ID_DOC_PTFR_PADRE", nullable = true)
+    public Integer getIdDocPtfrPadre() {
+        return this.idDocPtfrPadre;
+    }
+
+    /** @param idDocPtfrPadre identificador de la petición padre */
+    public void setIdDocPtfrPadre(Integer idDocPtfrPadre) {
+        this.idDocPtfrPadre = idDocPtfrPadre;
     }
 
     /**

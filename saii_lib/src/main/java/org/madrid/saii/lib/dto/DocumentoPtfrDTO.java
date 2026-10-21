@@ -45,6 +45,9 @@ public class DocumentoPtfrDTO extends AuditoriaDTO implements Serializable {
      */
     private Integer idDocumentoPtfr;
 
+    /** Identificador de la petición padre; cero para la primera del grupo. */
+    private Integer idDocPtfrPadre;
+
     /**
      * Campo idExpediente
      */
