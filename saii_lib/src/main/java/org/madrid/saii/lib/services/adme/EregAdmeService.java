@@ -197,7 +197,7 @@ public interface EregAdmeService {
      * Genera una nueva entrada en EREG para el trámite de Notificación del
      * ciudadano. El código devuelto se guarda en
      * {@link ExpedienteDTO#getCdEregNotifiCiud()} y debe persistirse en
-     * SAII_NOTIFI_CIUD.CD_EREG, no en el expediente.
+     * SAII_EXPEDIENTE_NOTIF.CD_EREG, no en el expediente.
      *
      * @param dto
      * @param cdAsunto

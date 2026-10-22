@@ -20,5 +20,19 @@ public interface EnvioDocumentoPTFRService extends BaseService<EnvioDocumentoPTF
     *
     */
     List<EnvioDocumentoPTFR> buscarEnviosDocumentoPortafirmas(int index, int pageSize,List<AtlasFilter> filtros, List<AtlasSort> orden, Integer idConvocatoria) throws ServiceException;
+    
+    /**
+     * 
+     * @param index
+     * @param pageSize
+     * @param filtros
+     * @param orden
+     * @param idEnvioDocPtfrPadre
+     * @return
+     * @throws ServiceException
+     */
+    List<EnvioDocumentoPTFR> buscarEnvioDocPtfrPorIdEnvioDocPtfrPadre(int index, int pageSize,
+            Object filtros, Object orden, Integer idEnvioDocPtfrPadre)
+            throws ServiceException;
 
 }

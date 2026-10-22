@@ -29,7 +29,7 @@ import lombok.ToString;
  * @version 1.0.0
  */
 @Entity
-@Table(name = "SAII_NOTIFI_CIUD_DOC")
+@Table(name = "SAII_EXPE_NOTIF_DOC")
 @AtlasAuditarFila
 @ToString
 public class NotificacionCiudadanoDoc implements Serializable {
@@ -149,8 +149,8 @@ public class NotificacionCiudadanoDoc implements Serializable {
      * @return Devuelve el valor del campo idNotificacionDoc
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SAII_S_NOTIFI_CIUD_DOC")
-    @SequenceGenerator(name = "SAII_S_NOTIFI_CIUD_DOC", sequenceName = "SAII_S_NOTIFI_CIUD_DOC", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SAII_S_EXPE_NOTIF_DOC")
+    @SequenceGenerator(name = "SAII_S_EXPE_NOTIF_DOC", sequenceName = "SAII_S_EXPE_NOTIF_DOC", allocationSize = 1)
     @Column(name = "ID_NOTIFICACION_DOC")
     public Integer getIdNotificacionDoc() {
         return this.idNotificacionDoc;

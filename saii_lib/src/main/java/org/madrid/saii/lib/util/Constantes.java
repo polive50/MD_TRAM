@@ -335,9 +335,6 @@ public final class Constantes {
 
         /** Constante Generación de la propuesta de resolución concesion ***/
         public static final Integer RESOLUCION_DEFINITIVA = 304;
-        
-        /** Propuesta de resolución conjunta definitiva de exclusión y desistimiento. */
-        public static final Integer PROPUESTA_RESOLUCION_CONJUNTA_DEFINITIVA = 311;
 
         /** Constante Alegaciones */
         public static final Integer ALEGACIONES = 172;
@@ -1229,7 +1226,7 @@ public final class Constantes {
     }
 
     /**
-     * Constantes para los estados de SAII_NOTIFI_CIUD (catálogo idCatalogo=65)
+     * Constantes para los estados de SAII_EXPEDIENTE_NOTIF (catálogo idCatalogo=65)
      */
     public static final class EstadoNotifiCiud {
 
@@ -2035,6 +2032,7 @@ public final class Constantes {
 
         public static final String FILTRO_CONVOCATORIA_CONVOCATORIA = "idConvocatoria";
         
+        public static final String FILTRO_ID_DOC_PTFR_PADRE = "idDocPtfrPadre";
         
         public static final String FILTRO_ENVIO_TRAMITE = "dsTramite";
 
@@ -2218,6 +2216,9 @@ public final class Constantes {
         public static final String FILTRO_DOCUMENTO_PTFR_IDDOCUMENTOPTFR = "documentoPtfr.idDocumentoPtfr";
 
         public static final String FILTRO_IDDOCUMENTOPTFR = "idDocumentoPtfr";
+        
+        /** Con mayúscula las letras PTFR para que sea reconocido por la vista SAII_V_ENVIO_NOTIFICACION  **/
+        public static final String FILTRO_ID_DOCUMENTO_PTFR = "idDocumentoPTFR";
 
         public static final String FILTRO_CATALOGO_ID_AREA_CIENTIFICA = "area.idValor";
         

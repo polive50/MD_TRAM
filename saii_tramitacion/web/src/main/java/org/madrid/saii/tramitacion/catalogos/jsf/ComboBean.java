@@ -214,9 +214,10 @@ public class ComboBean extends CatalogoBean<Catalogos, Integer> {
     public List<SelectItem> getComboEstadoExpediente(Boolean mostrarIniciadas) throws ServiceException {
         List<SelectItem> lstItem = this.getComboEstadoExpediente();
         if (!Boolean.TRUE.equals(mostrarIniciadas)) {
+            // VMM 21/10/26 MD-3125(metido en la MD-3136): ACEPTADA tambien solo se ofrece con "Mostrar Iniciadas" marcado
             this.quitarEstados(lstItem, Constantes.EstadoExpediente.INICIADA,
-                    Constantes.EstadoExpediente.PROPUESTA, Constantes.EstadoExpediente.NO_ACEPTADA,
-                    Constantes.EstadoExpediente.RECHAZADO_DEFINITIVO);
+                    Constantes.EstadoExpediente.PROPUESTA, Constantes.EstadoExpediente.ACEPTADA,
+                    Constantes.EstadoExpediente.NO_ACEPTADA, Constantes.EstadoExpediente.RECHAZADO_DEFINITIVO);
         }
         return lstItem;
     }

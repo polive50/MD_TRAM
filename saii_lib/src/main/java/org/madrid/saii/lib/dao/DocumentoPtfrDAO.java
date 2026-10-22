@@ -33,4 +33,10 @@ public interface DocumentoPtfrDAO extends BaseDAO<DocumentoPtfr, Integer> {
      */
     public List<DocumentoPtfrDTO> obtenerPorExpedienteModifPresupPlazosTramites(Integer idExpediente, Integer tramite, Integer idModificacion);
     
+    /**
+     * Obtiene las constantes de los trámites con peticiones activas de la convocatoria,
+     * sin depender del estado actual de sus expedientes.
+     */
+    List<Integer> obtenerTramitesResolucionEnviados(Integer idConvocatoria,
+            List<Integer> tramites);
 }

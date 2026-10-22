@@ -74,6 +74,8 @@ public final class ConstantesWeb {
         public static final String ENVIO_NOTE_INCORRECTO = "mensaje.envio.note.incorrecto";
         
         public static final String ENVIO_NOTE_ERROR = "mensaje.envio.note.error";
+        
+        public static final String ENVIO_NOTE_ERROR_DESTINATARIOS = "mensaje.envio.note.error.abonados";
 
         public static final String ENVIO_DESISTIMIENTO_INCORRECTO = "mensaje.envio.desistimiento.incorrecto";
 

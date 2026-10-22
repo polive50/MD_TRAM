@@ -13,7 +13,6 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.madrid.saii.lib.dao.DocumentoPtfrDAO;
 import org.madrid.saii.lib.dao.ExpedienteDAO;
 import org.madrid.saii.lib.dao.ExpedienteHistDAO;
 import org.madrid.saii.lib.domain.DocumentoPtfr;
@@ -22,6 +21,7 @@ import org.madrid.saii.lib.domain.EnvioNotificacionesPortaFirma;
 import org.madrid.saii.lib.domain.Expediente;
 import org.madrid.saii.lib.domain.Solicitud;
 import org.madrid.saii.lib.dto.CatalogosValoresDTO;
+import org.madrid.saii.lib.dto.ConvocatoriaComDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaGestorDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaPlaDTO;
@@ -32,6 +32,7 @@ import org.madrid.saii.lib.dto.ExpedienteJusEcoDTO;
 import org.madrid.saii.lib.dto.ExpedienteJusTecDTO;
 import org.madrid.saii.lib.dto.InteresadoDTO;
 import org.madrid.saii.lib.dto.PtfrRecuperaDocFirmadoDTO;
+import org.madrid.saii.lib.dto.SolicitudDTO;
 import org.madrid.saii.lib.dto.converters.DocumentoPtfrToEntity;
 import org.madrid.saii.lib.dto.converters.EnvioDocumentoPTFRToDTO;
 import org.madrid.saii.lib.dto.converters.ExpedienteToEntity;
@@ -45,6 +46,7 @@ import org.madrid.saii.lib.services.ExpedienteJusTecService;
 import org.madrid.saii.lib.services.ExpedienteService;
 import org.madrid.saii.lib.services.InteresadoService;
 import org.madrid.saii.lib.services.PdfService;
+import org.madrid.saii.lib.services.SolicitudService;
 import org.madrid.saii.lib.services.TramiteService;
 import org.madrid.saii.lib.services.UnidadAdminService;
 import org.madrid.saii.lib.services.adme.PtfrAdmeService;
@@ -54,6 +56,7 @@ import org.madrid.saii.lib.util.UtilConstantes;
 import org.madrid.saii.tramitacion.jsf.InfoUsuarioBean;
 import org.madrid.saii.tramitacion.jsf.utils.ConstantesWeb;
 import org.madrid.saii.tramitacion.jsf.utils.UtilesWeb;
+import org.primefaces.PrimeFaces;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
@@ -199,6 +202,9 @@ public class EnvioNotificacionesBean extends CatalogoBean<EnvioNotificacionesPor
     
     /** DTO de la convocatoria **/
     private ConvocatoriaDTO convocatoriaDTO;
+    
+    /** **/
+    private EnvioDocumentoPTFR envioDocPtfrPadre;
 
     // ////////////////////////////////////////////////////////
     // /////////////////////////////// SERVICIOS
@@ -294,6 +300,11 @@ public class EnvioNotificacionesBean extends CatalogoBean<EnvioNotificacionesPor
     @Qualifier("expedienteHistDAO")
     @Setter
     private ExpedienteHistDAO expedienteHistDAO;
+    
+    /** solicitudService */
+    @Autowired
+    @Qualifier("solicitudService")
+    private SolicitudService solicitudService;
     
     // ////////////////////////////////////////////////////////
     // /////////////////////////////// BEANS
@@ -901,142 +912,169 @@ public class EnvioNotificacionesBean extends CatalogoBean<EnvioNotificacionesPor
             }        }
 
     }
-
+    
     public void enviarANote() {
         try {
             if (this.idConvocatoria != null && !this.lstSeleccionadosNote.isEmpty()) {
-
                 for (EnvioDocumentoPTFR envio : lstSeleccionadosNote) {
-
-                    // GIM 30/08/2024 NUEVO METODO PARA LLAMAR DIRCTEAMENTE A
-                    // NOTE SIN PASAR PRO CONSULTAR EL ESTADO DE LA RESPUESTA DE
-                    // PORTAFIRMAS,
-                    // LA RESPUESTA DEL PORTAFIRMAS SE ESTA Haciendo ahora en un
-                    // proceso del btach que ya existia antes, solo que la parte
-                    // del procreso que llamaba a note
-                    // una vez consultaba el estado del portafirmas lo hemos
-                    // cortado para que sean dos metodos indepeiendientes
-                    List<String> lstCdNote = this.documentoPtfrService.procesarEnvioANote(
-                            envio.getidDocumentoPTFR(), envio.getidExpediente());
-
-                    if (lstCdNote != null && !lstCdNote.isEmpty()) {
-                        
-                        // MD-2147 actualizamos el estado interno a Excluido provisional
-                        DocumentoPtfrDTO docPtfrDTO = this.documentoPtfrService.buscarPorId(envio.getidDocumentoPTFR());
-                        Integer idValorTramite = (docPtfrDTO.getTramiteDTO() != null) ? docPtfrDTO.getTramiteDTO().getIdValor() : null;
-                        Map<Integer, Integer> catalogos = utilConstantes.getGlobalCatalogosValores();
-                                              
-                        if (docPtfrDTO.getTramiteDTO().getIdValor()
-                                .equals(utilConstantes.getGlobalCatalogosValores().get(
-                                        Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL))) {
-                            this.expedienteService.actualizarEstadoProvisionalExpediente(
-                                    docPtfrDTO.getIdExpediente(),
-                                    Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL,
-                                    null);
-                        }
-                        
-                        if(docPtfrDTO.getTramiteDTO().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_DESISTIMIENTO_PROVISIONAL))
-                                || docPtfrDTO.getTramiteDTO().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL))
-                                || docPtfrDTO.getTramiteDTO().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.DESISTIMIENTO))
-                                || docPtfrDTO.getTramiteDTO().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.EXCLUSION))
-                                ) {
-                            this.documentoBean.setExisteEnvioPtfrDesistidoEnProceso(Boolean.TRUE); 
-                        }else {
-                            this.documentoBean.setExisteEnvioPtfrSubsanacionEnProceso(Boolean.TRUE);
-                        }
-                        
-                        
-                        Integer constanteEstado = null;
-                        if (catalogos.get(Constantes.Tramite.CONCESION_DEFINITIVA).equals(idValorTramite)) {
-                            constanteEstado = Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_ANTES_ACEPTADO;
-                        } else if (catalogos.get(Constantes.Tramite.DENEGACION_DEFINITIVA).equals(idValorTramite)) {
-                            constanteEstado = Constantes.EstadoExpediente.DENEGADO_DEFINITIVO;
-                        } else if (catalogos.get(Constantes.Tramite.EXCLUSION).equals(idValorTramite)) {
-                            constanteEstado = Constantes.EstadoExpediente.EXCLUIDO;
-                        } else if (catalogos.get(Constantes.Tramite.DESISTIMIENTO).equals(idValorTramite)) {
-                            constanteEstado = Constantes.EstadoExpediente.DESISTIDO;
-                        }
-
-                        Expediente expediente = this.expedienteService.find(docPtfrDTO.getIdExpediente());
-                        
-                        if (constanteEstado != null) {
-                            
-                            expediente.setEstadoBenef(
-                                ExpedienteToEntity.INSTANCE.calcularEstadoBenef(catalogos.get(constanteEstado))
-                            );
-
-                            expediente = this.expedienteDAO.merge(expediente);
-                            this.expedienteHistDAO.crearHistorico(expediente, null);
-                        }
-   
-                        
-                        // MD-2148 actualizamos el estado interno a desistido
-                        // provisional
-                        if (docPtfrDTO.getTramiteDTO().getIdValor()
-                                .equals(utilConstantes.getGlobalCatalogosValores().get(
-                                        Constantes.Tramite.RESOLUCION_DESISTIMIENTO_PROVISIONAL))) {             
-                            this.expedienteService.actualizarEstadoProvisionalExpediente(
-                                    docPtfrDTO.getIdExpediente(),
-                                    Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL,
-                                    null);
-                        }
-                        
-                        // MD-2482 [TRAM] Cambiar estado del beneficiario al enviar al note - Tramite subsanación administrativa
-                        if (docPtfrDTO.getTramiteDTO().getIdValor()
-                                .equals(utilConstantes.getGlobalCatalogosValores()
-                                        .get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_ADMINISTRATIVA))) {
-                            
-                            this.expedienteService.actualizarEstadoBeneficiario(
-                                    docPtfrDTO.getIdExpediente(),
-                                    Constantes.EstadoExpedienteBeneficiario.PENDIENTE_SUBSANACION_REQUISITOS);
-                            
-                            DocumentoPtfr documentoPtfr = DocumentoPtfrToEntity.INSTANCE.apply(docPtfrDTO);
-                            
-                            // Actualizamos los estados de los documentos
-                            int existeDocSub = this.documentoPtfrService.actualizarEstadoDocumentoBatchPublic(
-                                    documentoPtfr.getIdDocumentoPtfr(),
-                                    utilConstantes.getGlobalCatalogosValores().get(
-                                            Constantes.EstadoDocumento.REQUIERE_SUBSANACION_NOTIFICADO));
-
-                            // Si se actualizaron registros de documentos
-                            // actualizamos el
-                            // estado interno
-                            if (existeDocSub > 0) {
-                                this.documentoPtfrService.actualizarEstadoInternoExpedienteBatchPublic(expediente,
-                                        utilConstantes.getGlobalCatalogosValores().get(
-                                                Constantes.EstadoExpediente.PENDIENTE_SUBSANACION_REQUISITOS),
-                                        Boolean.TRUE);
+                    List<String> lstDestinatarios = this.documentoPtfrService
+                            .comprobarAbonados(envio.getidDocumentoPTFR(), envio.getidExpediente());
+                    if (!lstDestinatarios.isEmpty()) {
+                        AtlasMessageUtils.addErrorMessageFromBundleParams(
+                                ConstantesWeb.Err.ENVIO_NOTE_ERROR_DESTINATARIOS,
+                                String.join(", ", lstDestinatarios));
+                    }
+                    if (lstDestinatarios.isEmpty()) {
+                        this.enviarANote(envio);
+                        DocumentoPtfr docPtfr = this.documentoPtfrService
+                                .find(envio.getidDocumentoPTFR());
+                        if (docPtfr != null && docPtfr.getIdDocPtfrPadre() != null) {
+                            List<AtlasFilter> filtrosPtfr = new ArrayList<>();
+                            filtrosPtfr
+                                    .add(new AtlasFilter(Constantes.Filtro.FILTRO_ID_DOC_PTFR_PADRE,
+                                            docPtfr.getIdDocumentoPtfr(), Operador.EQUALS));
+                            filtrosPtfr.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA,
+                                    Operador.NULL));
+                            List<DocumentoPtfr> lstDocPtfr = this.documentoPtfrService
+                                    .find(filtrosPtfr, null);
+                            for (DocumentoPtfr docuPtfr : lstDocPtfr) {
+                                EnvioDocumentoPTFR envioDocPtfr = new EnvioDocumentoPTFR();
+                                envioDocPtfr.setidDocumentoPTFR(docuPtfr.getIdDocumentoPtfr());
+                                envioDocPtfr.setidExpediente(docuPtfr.getIdExpediente());
+                                this.enviarANote(envioDocPtfr);
                             }
-                            
                         }
-                        
-                        // VMM 06/10/26 MD-3066: resolucion de modificacion presupuestaria enviada a
-                        // Note -> la modificacion pasa de "Pendiente Envio Cola Notificaciones" a
-                        // "Notificado". La pasa a Resuelta el batch de lectura de Note cuando el
-                        // beneficiario la ha leido (aplicarResolucionModificacion).
-                        if (docPtfrDTO.getIdPresupuestoModif() != null
-                                && catalogos.get(Constantes.Tramite.RESOLUCION_PRESUPUESTO_MODIFICADA_ACEPTADA)
-                                        .equals(idValorTramite)) {
-                            this.documentoPtfrService.cambiarEstadoModificacionPresPlazoOtraPublic(
-                                    docPtfrDTO.getIdPresupuestoModif(),
-                                    Constantes.EstadoExpedienteResolucion.NOTIFICADO);
-                        }
-
-                        AtlasMessageUtils.addInfoMessageFromBundle(
-                                ConstantesWeb.Mensajes.ENVIO_NOTE_CORRECTO);
-                    } else {
-                        AtlasMessageUtils
-                                .addErrorMessageFromBundle(ConstantesWeb.Err.ENVIO_NOTE_ERROR);
-                        break;
                     }
                 }
             }
-
         } catch (ServiceException exc) {
             log.error(exc.toString());
             AtlasMessageUtils.addErrorMessageFromBundle(ConstantesWeb.Err.ENVIO_NOTE_INCORRECTO);
         }
 
+    }
+    
+    private void enviarANote(EnvioDocumentoPTFR envio) throws ServiceException {
+     // GIM 30/08/2024 NUEVO METODO PARA LLAMAR DIRCTEAMENTE A
+        // NOTE SIN PASAR PRO CONSULTAR EL ESTADO DE LA RESPUESTA DE
+        // PORTAFIRMAS,
+        // LA RESPUESTA DEL PORTAFIRMAS SE ESTA Haciendo ahora en un
+        // proceso del btach que ya existia antes, solo que la parte
+        // del procreso que llamaba a note
+        // una vez consultaba el estado del portafirmas lo hemos
+        // cortado para que sean dos metodos indepeiendientes
+        List<String> lstCdNote = this.documentoPtfrService.procesarEnvioANote(
+                envio.getidDocumentoPTFR(), envio.getidExpediente());
+        
+        if (lstCdNote != null && !lstCdNote.isEmpty()) {
+            
+            // MD-2147 actualizamos el estado interno a Excluido provisional
+            DocumentoPtfrDTO docPtfrDTO = this.documentoPtfrService.buscarPorId(envio.getidDocumentoPTFR());
+            Integer idValorTramite = (docPtfrDTO.getTramiteDTO() != null) ? docPtfrDTO.getTramiteDTO().getIdValor() : null;
+            Map<Integer, Integer> catalogos = utilConstantes.getGlobalCatalogosValores();
+                                  
+            if (docPtfrDTO.getTramiteDTO().getIdValor()
+                    .equals(utilConstantes.getGlobalCatalogosValores().get(
+                            Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL))) {
+                this.expedienteService.actualizarEstadoProvisionalExpediente(
+                        docPtfrDTO.getIdExpediente(),
+                        Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL,
+                        null);
+            }
+            
+            if(docPtfrDTO.getTramiteDTO().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_DESISTIMIENTO_PROVISIONAL))
+                    || docPtfrDTO.getTramiteDTO().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL))
+                    || docPtfrDTO.getTramiteDTO().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.DESISTIMIENTO))
+                    || docPtfrDTO.getTramiteDTO().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.EXCLUSION))
+                    ) {
+                this.documentoBean.setExisteEnvioPtfrDesistidoEnProceso(Boolean.TRUE); 
+            }else {
+                this.documentoBean.setExisteEnvioPtfrSubsanacionEnProceso(Boolean.TRUE);
+            }
+            
+            
+            Integer constanteEstado = null;
+            if (catalogos.get(Constantes.Tramite.CONCESION_DEFINITIVA).equals(idValorTramite)) {
+                constanteEstado = Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_ANTES_ACEPTADO;
+            } else if (catalogos.get(Constantes.Tramite.DENEGACION_DEFINITIVA).equals(idValorTramite)) {
+                constanteEstado = Constantes.EstadoExpediente.DENEGADO_DEFINITIVO;
+            } else if (catalogos.get(Constantes.Tramite.EXCLUSION).equals(idValorTramite)) {
+                constanteEstado = Constantes.EstadoExpediente.EXCLUIDO;
+            } else if (catalogos.get(Constantes.Tramite.DESISTIMIENTO).equals(idValorTramite)) {
+                constanteEstado = Constantes.EstadoExpediente.DESISTIDO;
+            }
+
+            Expediente expediente = this.expedienteService.find(docPtfrDTO.getIdExpediente());
+            
+            if (constanteEstado != null) {
+                
+                expediente.setEstadoBenef(
+                    ExpedienteToEntity.INSTANCE.calcularEstadoBenef(catalogos.get(constanteEstado))
+                );
+
+                expediente = this.expedienteDAO.merge(expediente);
+                this.expedienteHistDAO.crearHistorico(expediente, null);
+            }
+
+            
+            // MD-2148 actualizamos el estado interno a desistido
+            // provisional
+            if (docPtfrDTO.getTramiteDTO().getIdValor()
+                    .equals(utilConstantes.getGlobalCatalogosValores().get(
+                            Constantes.Tramite.RESOLUCION_DESISTIMIENTO_PROVISIONAL))) {             
+                this.expedienteService.actualizarEstadoProvisionalExpediente(
+                        docPtfrDTO.getIdExpediente(),
+                        Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL,
+                        null);
+            }
+            
+            // MD-2482 [TRAM] Cambiar estado del beneficiario al enviar al note - Tramite subsanación administrativa
+            if (docPtfrDTO.getTramiteDTO().getIdValor()
+                    .equals(utilConstantes.getGlobalCatalogosValores()
+                            .get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_ADMINISTRATIVA))) {
+                
+                this.expedienteService.actualizarEstadoBeneficiario(
+                        docPtfrDTO.getIdExpediente(),
+                        Constantes.EstadoExpedienteBeneficiario.PENDIENTE_SUBSANACION_REQUISITOS);
+                
+                DocumentoPtfr documentoPtfr = DocumentoPtfrToEntity.INSTANCE.apply(docPtfrDTO);
+                
+                // Actualizamos los estados de los documentos
+                int existeDocSub = this.documentoPtfrService.actualizarEstadoDocumentoBatchPublic(
+                        documentoPtfr.getIdDocumentoPtfr(),
+                        utilConstantes.getGlobalCatalogosValores().get(
+                                Constantes.EstadoDocumento.REQUIERE_SUBSANACION_NOTIFICADO));
+
+                // Si se actualizaron registros de documentos
+                // actualizamos el
+                // estado interno
+                if (existeDocSub > 0) {
+                    this.documentoPtfrService.actualizarEstadoInternoExpedienteBatchPublic(expediente,
+                            utilConstantes.getGlobalCatalogosValores().get(
+                                    Constantes.EstadoExpediente.PENDIENTE_SUBSANACION_REQUISITOS),
+                            Boolean.TRUE);
+                }
+                
+            }
+            
+            // VMM 06/10/26 MD-3066: resolucion de modificacion presupuestaria enviada a
+            // Note -> la modificacion pasa de "Pendiente Envio Cola Notificaciones" a
+            // "Notificado". La pasa a Resuelta el batch de lectura de Note cuando el
+            // beneficiario la ha leido (aplicarResolucionModificacion).
+            if (docPtfrDTO.getIdPresupuestoModif() != null
+                    && catalogos.get(Constantes.Tramite.RESOLUCION_PRESUPUESTO_MODIFICADA_ACEPTADA)
+                            .equals(idValorTramite)) {
+                this.documentoPtfrService.cambiarEstadoModificacionPresPlazoOtraPublic(
+                        docPtfrDTO.getIdPresupuestoModif(),
+                        Constantes.EstadoExpedienteResolucion.NOTIFICADO);
+            }
+
+            AtlasMessageUtils.addInfoMessageFromBundle(
+                    ConstantesWeb.Mensajes.ENVIO_NOTE_CORRECTO);
+        } else {
+            AtlasMessageUtils
+                    .addErrorMessageFromBundle(ConstantesWeb.Err.ENVIO_NOTE_ERROR);
+        }
     }
 
 
@@ -1236,4 +1274,90 @@ public class EnvioNotificacionesBean extends CatalogoBean<EnvioNotificacionesPor
         
        return mostrar;
     }
+    
+    public void mostarPendientesConjunta(EnvioDocumentoPTFR envioDocumentoPTFR) {
+        try {
+            if (envioDocumentoPTFR != null && envioDocumentoPTFR.getidDocumentoPTFR() != null) {
+                this.envioDocPtfrPadre = envioDocumentoPTFR;
+                PrimeFaces.current().executeScript("PF('dialogPendientesConjunta').show();");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+    
+    public void mostarEnviadosFirmaConjunta(EnvioDocumentoPTFR envioDocumentoPTFR) {
+        try {
+            if (envioDocumentoPTFR != null && envioDocumentoPTFR.getidDocumentoPTFR() != null) {
+                this.envioDocPtfrPadre = envioDocumentoPTFR;
+                PrimeFaces.current().executeScript("PF('dialogEnviadosFirmaConjunta').show();");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+    
+    public void mostrarFirmadosPendienteConjunta(EnvioDocumentoPTFR envioDocumentoPTFR) {
+        try {
+            if (envioDocumentoPTFR != null && envioDocumentoPTFR.getidDocumentoPTFR() != null) {
+                this.envioDocPtfrPadre = envioDocumentoPTFR;
+                PrimeFaces.current().executeScript("PF('dialogFirmadosPendienteConjunta').show();");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+    
+    public void mostarNotificadosConjunta(EnvioDocumentoPTFR envioDocumentoPTFR) {
+        try {
+            if (envioDocumentoPTFR != null && envioDocumentoPTFR.getidDocumentoPTFR() != null) {
+                this.envioDocPtfrPadre = envioDocumentoPTFR;
+                PrimeFaces.current().executeScript("PF('dialogNotificadosConjunta').show();");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+    
+    public AtlasListAndCount<EnvioDocumentoPTFR> obtenerListaEnvioDocPtfr(final int index,
+            final int pageSize, Object orden, Object filtros) {
+        AtlasListAndCount<EnvioDocumentoPTFR> listaDatos = new AtlasListAndCount<>();
+        try {
+            if (this.envioDocPtfrPadre != null) {
+                List<EnvioDocumentoPTFR> lista = this.envioDocumentoPtfrService
+                        .buscarEnvioDocPtfrPorIdEnvioDocPtfrPadre(index, pageSize, filtros, orden,
+                                this.envioDocPtfrPadre.getidDocumentoPTFR());
+                listaDatos.setResultados(lista);
+                listaDatos.setTotal(lista.size());
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            AtlasMessageUtils.addErrorMessageFromBundle(ConstantesWeb.Err.ERROR_LISTADO);
+        }
+        return listaDatos;
+    }
+    
+    /**
+     * Método para cerrar la ventana popup de históricos de estados de documento
+     */
+    public void cerrarPendientesConjunta() {
+        this.envioDocPtfrPadre = null;
+        PrimeFaces.current().executeScript("PF('dialogPendientesConjunta').hide();");
+    }
+    
+    public void cerrarEnviadosFirmaConjunta() {
+        this.envioDocPtfrPadre = null;
+        PrimeFaces.current().executeScript("PF('dialogEnviadosFirmaConjunta').hide();");
+    }
+    
+    public void cerrarFirmadosPendientesConjunta() {
+        this.envioDocPtfrPadre = null;
+        PrimeFaces.current().executeScript("PF('dialogFirmadosPendienteConjunta').hide();");
+    }
+    
+    public void cerrarNotificadosConjunta() {
+        this.envioDocPtfrPadre = null;
+        PrimeFaces.current().executeScript("PF('dialogNotificadosConjunta').hide();");
+    }
+    
 }

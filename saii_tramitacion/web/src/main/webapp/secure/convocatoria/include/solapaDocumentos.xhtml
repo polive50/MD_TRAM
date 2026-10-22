@@ -506,7 +506,8 @@
                                 onclick="atlas.ui.Loading.showLoad('appLoading')" />
                                 
                             <!-- Ver observacion interna del gestor -->
-                            <atlasp:button 
+                            <!-- VMM 21/10/26 MD-3164: la burbuja se pinta en verde (icono-verde) cuando hay observaciones del gestor. -->
+                            <atlasp:button
                                 action="#{documentoBean.mostrarObservacionInternaGestor(item)}"
                                 ajax="true"
                                 alt="#{bundle['convocatorias.tab.documentos.label.obs.internas.gestor']}"
@@ -514,6 +515,18 @@
                                 icon="fas fa-comment-dots"
                                 tipoBoton="btn-link"
                                 render="panelObservaciones"
+                                rendered="#{empty item.tlObservacionesGestor}"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"/>
+                            <atlasp:button
+                                action="#{documentoBean.mostrarObservacionInternaGestor(item)}"
+                                ajax="true"
+                                alt="#{bundle['convocatorias.tab.documentos.label.obs.internas.gestor']}"
+                                title="#{bundle['convocatorias.tab.documentos.label.obs.internas.gestor']}"
+                                icon="fas fa-comment-dots"
+                                tipoBoton="btn-link"
+                                styleClass="icono-verde"
+                                render="panelObservaciones"
+                                rendered="#{not empty item.tlObservacionesGestor}"
                                 onclick="atlas.ui.Loading.showLoad('appLoading')"/>
                                 
                         </div>
@@ -1543,6 +1556,7 @@
                                                     
                                                 <!-- Ver observacion interna del gestor -->
                                                 <!-- VMM 30/09/26: ajax="true" process="@this" - accion de solo lectura, no hace falta procesar el formulario completo. -->
+                                <!-- VMM 21/10/26 MD-3164: burbuja en verde (icono-verde) cuando hay observaciones del gestor. -->
                                 <atlasp:button
                                                     action="#{documentoBean.mostrarObservacionesInternasGestor(item.tlObservaciones,item.tlObservacionesGestor)}"
                                                     ajax="true"
@@ -1552,6 +1566,19 @@
                                                     icon="fas fa-comment-dots"
                                                     tipoBoton="btn-link"
                                                     render="panelObservaciones"
+                                                    rendered="#{empty item.tlObservacionesGestor}"
+                                                    onclick="atlas.ui.Loading.showLoad('appLoading')"/>
+                                <atlasp:button
+                                                    action="#{documentoBean.mostrarObservacionesInternasGestor(item.tlObservaciones,item.tlObservacionesGestor)}"
+                                                    ajax="true"
+                                                    process="@this"
+                                                    alt="#{bundle['convocatorias.tab.documentos.label.obs.internas.gestor']}"
+                                                    title="#{bundle['convocatorias.tab.documentos.label.obs.internas.gestor']}"
+                                                    icon="fas fa-comment-dots"
+                                                    tipoBoton="btn-link"
+                                                    styleClass="icono-verde"
+                                                    render="panelObservaciones"
+                                                    rendered="#{not empty item.tlObservacionesGestor}"
                                                     onclick="atlas.ui.Loading.showLoad('appLoading')"/>
                                                     
                                             </div>

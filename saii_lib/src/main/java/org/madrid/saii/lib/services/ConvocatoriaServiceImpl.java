@@ -2452,6 +2452,7 @@ public class ConvocatoriaServiceImpl extends BaseServiceImpl<Convocatoria, Integ
         if (Objects.nonNull(expedienteDoc.getTramite())
                 && Objects.nonNull(expedienteDoc.getTramite().getIdValor())) {
             expedienteDoc.setEstado(new CatalogosValores(idEstado));
+            
             // se agregan datos de auditoria por ser ejecutado desde batch
             expedienteDoc.setFcModifFila(new Date());
             expedienteDoc.setCdUsuModif(Constantes.Utiles.COD_USU_BATCH_AUDITORIA);
@@ -2582,8 +2583,14 @@ public class ConvocatoriaServiceImpl extends BaseServiceImpl<Convocatoria, Integ
         List<AtlasFilter> filtros = new ArrayList<>();
         filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDEXPEDIENTE_OBJ, idExpediente));
         filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
-        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR,
-                utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION_NOTIFICADO), Operador.EQUALS));
+               
+        List<Integer> lstEstadosFiltro = new ArrayList<>();
+        lstEstadosFiltro.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.EN_TRAMITE_SUBSANACION));
+        lstEstadosFiltro.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION_NOTIFICADO));
+        
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ID_ESTADO_IDVALOR, lstEstadosFiltro,
+                Operador.IN));
+        
 
         List<ExpedienteDoc> listaDocumentos = this.expedienteDocDAO.find(0, -1, filtros, null);
 
@@ -2603,8 +2610,21 @@ public class ConvocatoriaServiceImpl extends BaseServiceImpl<Convocatoria, Integ
                         LocalDateTime fcHoy = LocalDateTime.now();
 
                         if (fcLimiteSubsanacion != null && fcHoy.isAfter(fcLimiteSubsanacion)) {
+                            
                             this.actualizarEstadoDocumentoBatch(expedienteDoc,
                                     utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PLAZO_SUBSANACION_VENCIDO));
+                            
+                            //cambiar estadops de revisioan, admin y requisitos depediendo del tramite del documento asociado.
+                            Expediente exp = this.expedienteDAO.find(idExpediente);
+                            
+                            if(expedienteDoc.getTramite().getIdValor().equals(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_ADMINISTRATIVA)) {
+                                exp.setEstadoRevAdmin(new CatalogosValores(Constantes.EstadoExpediente.PENDIENTE_REVISION_SUBSANACION));
+                                this.expedienteDAO.merge(exp);
+                            }else if(expedienteDoc.getTramite().getIdValor().equals(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_REQUISITO)) {
+                                exp.setEstadoRevRequi(new CatalogosValores(Constantes.EstadoExpediente.PENDIENTE_REVISION_SUBSANACION));
+                                this.expedienteDAO.merge(exp);
+                                }
+                            
                         }
 
                     }
@@ -2662,8 +2682,13 @@ public class ConvocatoriaServiceImpl extends BaseServiceImpl<Convocatoria, Integ
         List<AtlasFilter> filtros = new ArrayList<>();
         filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDEXPEDIENTEDOC, idExpedienteDoc));
         filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
-        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR,
-                utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION_NOTIFICADO), Operador.EQUALS));
+        
+        List<Integer> lstEstadosFiltro = new ArrayList<>();
+        lstEstadosFiltro.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.EN_TRAMITE_SUBSANACION));
+        lstEstadosFiltro.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION_NOTIFICADO));
+        
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ID_ESTADO_IDVALOR, lstEstadosFiltro,
+                Operador.IN));
 
         List<ExpedienteDoc> listaDocumentos = this.expedienteDocDAO.find(0, -1, filtros, null);
 
@@ -2683,8 +2708,21 @@ public class ConvocatoriaServiceImpl extends BaseServiceImpl<Convocatoria, Integ
                         LocalDateTime fcHoy = LocalDateTime.now();
 
                         if (fcLimiteSubsanacion != null && fcHoy.isAfter(fcLimiteSubsanacion)) {
+                            
                             this.actualizarEstadoDocumentoBatch(expedienteDoc,
                                     utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PLAZO_SUBSANACION_VENCIDO));
+                            
+                            
+                            //cambiar estadops de revisioan, admin y requisitos depediendo del tramite del documento asociado.
+                            Expediente exp = this.expedienteDAO.find(expedienteDoc.getExpediente().getIdExpediente());
+                            
+                            if(expedienteDoc.getTramite().getIdValor().equals(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_ADMINISTRATIVA)) {
+                                exp.setEstadoRevAdmin(new CatalogosValores(Constantes.EstadoExpediente.PENDIENTE_REVISION_SUBSANACION));
+                                this.expedienteDAO.merge(exp);
+                            }else if(expedienteDoc.getTramite().getIdValor().equals(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_REQUISITO)) {
+                                exp.setEstadoRevRequi(new CatalogosValores(Constantes.EstadoExpediente.PENDIENTE_REVISION_SUBSANACION));
+                                this.expedienteDAO.merge(exp);
+                                }
                         }
 
                     }

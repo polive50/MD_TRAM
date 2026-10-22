@@ -1534,26 +1534,36 @@ public class ExpedienteModifPresPlazoOtraBean {
                    }
                }
                
+               // VMM 21/10/26 MD-3136: los datos llegan de BD ordenados por ID_DATO (orden de insercion) y la
+               // lista se reconstruye con ese orden, perdiendo el orden por concepto que se aplico antes sobre los
+               // componentes. Se reordena por partida y, dentro de cada partida, por el nombre del concepto
+               // (orden natural: "CPER 2" antes que "CPER 10").
                lstFilas = lstFilas.stream()
-                       .filter(f -> f.getItFila()).collect(Collectors.toList());
-               
+                       .filter(f -> f.getItFila())
+                       .sorted(Comparator
+                               .comparing((BloqueComponenteDTO f) -> f.getTipoFinanciacionDTO() != null
+                                       ? f.getTipoFinanciacionDTO().getOrdenPartida() : null,
+                                       Comparator.nullsLast(Comparator.naturalOrder()))
+                               .thenComparing((f1, f2) -> compararConceptoNatural(textoConceptoFila(f1), textoConceptoFila(f2))))
+                       .collect(Collectors.toList());
+
                if(lstFilas != null && !lstFilas.isEmpty() && lstFilas.get(0).getDatos() != null
                        && !lstFilas.get(0).getDatos().isEmpty()) {
                    int[] nColArray = IntStream.range(0, lstFilas.get(0).getDatos().size()).toArray();
                    this.listaNcolPresupuesto = new ArrayList<>();
-                   
+
                    for (int arr : nColArray) {
                        this.listaNcolPresupuesto.add(arr);
                    }
                }else {
                    int[] nColArray = IntStream.range(0, this.listaAnualidades.size()).toArray();
                    this.listaNcolPresupuesto = new ArrayList<>();
-                   
+
                    for (int arr : nColArray) {
                        this.listaNcolPresupuesto.add(arr);
                    }
                }
-               
+
                bloque.setListaBloqueAuxDTO(lstFilas);
                
                // Preparamos espacio para totales por fila
@@ -1591,6 +1601,59 @@ public class ExpedienteModifPresPlazoOtraBean {
    }
    
    
+   /**
+    * VMM 21/10/26 MD-3136: nombre del concepto de una fila de la tabla de presupuestos (primer dato de la fila).
+    */
+   private String textoConceptoFila(BloqueComponenteDTO fila) {
+       if (fila == null || fila.getDatos() == null || fila.getDatos().isEmpty() || fila.getDatos().get(0) == null
+               || fila.getDatos().get(0).getDsValor() == null) {
+           return "";
+       }
+       return fila.getDatos().get(0).getDsValor();
+   }
+
+   /**
+    * VMM 21/10/26 MD-3136: comparacion "natural" de textos, sin distinguir mayusculas y comparando los tramos
+    * numericos por su valor ("CPER 2" &lt; "CPER 10").
+    */
+   private int compararConceptoNatural(String a, String b) {
+       String s1 = a != null ? a : "";
+       String s2 = b != null ? b : "";
+       int i = 0;
+       int j = 0;
+       while (i < s1.length() && j < s2.length()) {
+           char c1 = s1.charAt(i);
+           char c2 = s2.charAt(j);
+           if (Character.isDigit(c1) && Character.isDigit(c2)) {
+               int ini1 = i;
+               int ini2 = j;
+               while (i < s1.length() && Character.isDigit(s1.charAt(i))) {
+                   i++;
+               }
+               while (j < s2.length() && Character.isDigit(s2.charAt(j))) {
+                   j++;
+               }
+               String n1 = s1.substring(ini1, i).replaceFirst("^0+(?!$)", "");
+               String n2 = s2.substring(ini2, j).replaceFirst("^0+(?!$)", "");
+               if (n1.length() != n2.length()) {
+                   return n1.length() - n2.length();
+               }
+               int cmp = n1.compareTo(n2);
+               if (cmp != 0) {
+                   return cmp;
+               }
+           } else {
+               int cmp = Character.compare(Character.toLowerCase(c1), Character.toLowerCase(c2));
+               if (cmp != 0) {
+                   return cmp;
+               }
+               i++;
+               j++;
+           }
+       }
+       return (s1.length() - i) - (s2.length() - j);
+   }
+
    /**
     * Método para calcular los montos totales por columna de la tabla de presupuestos solicitados
     */
@@ -1822,8 +1885,15 @@ public class ExpedienteModifPresPlazoOtraBean {
                    }
                }
 
+               // VMM 21/10/26 MD-3136: compareByNumOrdenPresup desempata por concepto con compareToIgnoreCase, que con
+               // 10 o mas conceptos pone "CPER 10" antes de "CPER 2". Se ordena por partida (ordenPartida, ya
+               // calculado arriba) y por concepto en orden natural, igual que el resto de tablas de esta solapa.
                this.lstPresupuestoFinanciable = this.lstPresupuestoFinanciable.stream()
-                       .sorted((p1, p2) -> informeHelperPdfService.compareByNumOrdenPresup(p1, p2, listaFinancDato))
+                       .sorted(Comparator
+                               .comparing((ExpedientePresupDTO p) -> p.getTipoFinanciacionDTO() != null
+                                       ? p.getTipoFinanciacionDTO().getOrdenPartida() : null,
+                                       Comparator.nullsLast(Comparator.naturalOrder()))
+                               .thenComparing((p1, p2) -> compararConceptoNatural(p1.getTlConcepto(), p2.getTlConcepto())))
                        .collect(Collectors.toList());
                                               
 
@@ -2383,6 +2453,15 @@ public class ExpedienteModifPresPlazoOtraBean {
            nuevoConceptoMod.setLstExpedienteModifPresupMontoDTO(montosAnualidadesNuevo);
            listaEstructurada.add(nuevoConceptoMod);
        }
+
+       // VMM 21/10/26 MD-3136: los conceptos nuevos se anaden al final tras las partidas existentes, sin
+       // respetar el orden por concepto. Se ordena todo por partida y, dentro de cada una, por el nombre del
+       // concepto (orden natural), igual que la tabla de modificaciones solicitadas.
+       listaEstructurada.sort(Comparator
+               .comparing((ExpedientePresupDTO p) -> p.getTipoFinanciacionDTO() != null
+                       ? p.getTipoFinanciacionDTO().getOrdenPartida() : null,
+                       Comparator.nullsLast(Comparator.naturalOrder()))
+               .thenComparing((p1, p2) -> compararConceptoNatural(p1.getTlConcepto(), p2.getTlConcepto())));
 
        return listaEstructurada;
    }

@@ -885,7 +885,7 @@ public class ConvocatoriaComServiceImpl
      * @return Dto de ConvocatoriaComDTO
      * @throws ServiceException
      */
-    private ConvocatoriaComDTO obtener(Integer idConvocatoria, Integer idTipoTramite)
+    public ConvocatoriaComDTO obtener(Integer idConvocatoria, Integer idTipoTramite)
             throws ServiceException {
 
         ConvocatoriaComDTO convocatoriaComDTO = new ConvocatoriaComDTO();

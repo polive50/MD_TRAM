@@ -161,5 +161,10 @@ public class DocumentoPtfrDTO extends AuditoriaDTO implements Serializable {
      * Representa el campo idExpedienteJusEco del objeto de dominio
      */
     private Integer idExpedienteJusEco;
+    
+    /**
+     * Representa el campo idDocPtfrPadre del objeto de dominio
+     */
+    private Integer idDocPtfrPadre;
 
 }

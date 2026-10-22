@@ -48,7 +48,7 @@ public interface NotificacionCiudadanoService
     /**
      * Busca la notificación "en curso" de un expediente y asunto, es decir,
      * la que todavía no ha sido presentada (no tiene CD_EREG), junto con sus
-     * documentos adicionales ya enlazados (SAII_NOTIFI_CIUD_DOC). Si no
+     * documentos adicionales ya enlazados (SAII_EXPE_NOTIF_DOC). Si no
      * existe ninguna, devuelve un DTO vacío (idNotificacion null).
      *
      * @param idExpediente the id expediente

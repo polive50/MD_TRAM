@@ -89,7 +89,7 @@ public class NotificacionCiudadanoDTO extends AuditoriaDTO implements Serializab
     private String dsDestinoEreg;
 
     /**
-     * Documentos adicionales enlazados a esta notificación (SAII_NOTIFI_CIUD_DOC)
+     * Documentos adicionales enlazados a esta notificación (SAII_EXPE_NOTIF_DOC)
      */
     private List<ExpedienteDocDTO> lstExpedienteDocDTO;
 

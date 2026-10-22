@@ -990,3 +990,8 @@ background-color: #32b430 !important;
 .icono-verde .ui-button-icon-left { color: #28a745 !important; }
 .icono-rojo .ui-button-icon-left { color: #dc3545 !important; }
 
+/* VMM 21/10/26 MD-3164: los botones tipo enlace (atlasButton.css: .ui-button.btn-link>span { color: #7992bd !important })
+   ganaban por especificidad a .icono-verde; se repite la regla con mas especificidad para que el verde se aplique. */
+.ui-button.btn-link.icono-verde>span { color: #28a745 !important; }
+.ui-button.btn-link.icono-verde>span.ui-icon:hover { color: #1e7e34 !important; }
+

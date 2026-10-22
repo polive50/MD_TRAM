@@ -39,7 +39,7 @@ public class EnvioDocumentoPtfrDTO extends AuditoriaDTO implements Serializable 
             Integer idExpediente, String dsReferenciaPTFR, Integer cdArchivoPTFR, Date fcEnvioCola, Date fcEnvioPTFR, Date fcFirmaPTFR,
             String nmEnvio, String cdEstadoPTFR, Integer idTramite, String cdNote, Date fcLecturaNote,
             Date fcEnvioNote, String cdEstadoNote, String dsDestinatario, String dsFirmante,
-            String dsVerificador, String dsTramite, String dsExpediente,Integer idExpedienteJustec,Date fcRechazoNote, Integer idExpedienteJusEco) {
+            String dsVerificador, String dsTramite, String dsExpediente,Integer idExpedienteJustec,Date fcRechazoNote, Integer idExpedienteJusEco, Integer idDocPtfrPadre) {
         super();
         this.idDocumentoPTFR = idDocumentoPTFR;
         this.idConvocatoria = idConvocatoria;
@@ -65,6 +65,7 @@ public class EnvioDocumentoPtfrDTO extends AuditoriaDTO implements Serializable 
         this.fcRechazoNote = fcRechazoNote;
         //VMM 17/10/25 MD-1586: incluimos el idExpedienteJusEco
         this.idExpedienteJusEco = idExpedienteJusEco;
+        this.idDocPtfrPadre = idDocPtfrPadre;
     }
 
    
@@ -179,4 +180,7 @@ public class EnvioDocumentoPtfrDTO extends AuditoriaDTO implements Serializable 
     private Date fcRechazoNote;
 
     private Integer idExpedienteJusEco;
+    
+    private Integer idDocPtfrPadre;
+    
 }

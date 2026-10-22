@@ -4167,20 +4167,17 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
 
                 // Lista de estados internos requisito donde no se permite
                 // calificar
+                // VMM 21/10/26 MD-3158: cuando se manda a subsanar un documento y el solicitante lo subsana queda en
+                // PENDIENTE_REVISION_SUBSANACION y hay que poder aprobarlo/rechazarlo igual que el resto de documentos,
+                // aunque venga de requisitos, sin depender del estado de la revision de requisitos del expediente
+                // (antes exigia REVISION_OK / PENDIENTE_REVISION_SUBSANACION_REQUISITOS y excluia
+                // PENDIENTE_SUBSANACION_REQUISITOS). valPrincipal ya exige que el documento este en
+                // PENDIENTE_REVISION_SUBSANACION.
                 List<Integer> lstEstados = new ArrayList<>();
-                lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_SUBSANACION_REQUISITOS));
                 lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO));
                 lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.INICIADA));
-                
-                List<Integer> lstEst = new ArrayList<>();
-                lstEst.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.REVISION_OK));
-                lstEst.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_REVISION_SUBSANACION_REQUISITOS));
 
                 if (lstEstados.contains(dto.getEstadoRevRequiDTO().getIdValor())
-                        || !(lstEst.contains(dto.getEstadoRevRequiDTO().getIdValor()) && expDocDto
-                                .getEstadoDTO().getIdValor()
-                                .equals((utilConstantes.getGlobalCatalogosValores().get(
-                                        Constantes.EstadoDocumento.PENDIENTE_REVISION_SUBSANACION))))
                         || Boolean.FALSE.equals(valPrincipal)
                         || Objects.isNull(expDocDto.getCdFica())) {
                     habilitar = Boolean.FALSE;
@@ -4189,6 +4186,16 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
 
         }
         
+        // VMM 21/10/26 MD-3158: un documento de requisito pendiente de revision de subsanacion siempre se puede
+        // aprobar/rechazar (si tiene fichero), independientemente de IT_ADICIONAL, del tramite y del estado del
+        // expediente. Siguen aplicando el modo consulta y el rechazo definitivo de mas abajo.
+        if (!Boolean.FALSE.equals(expDocDto.getEsDocumentoRequisito())
+                && utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PENDIENTE_REVISION_SUBSANACION)
+                        .equals(expDocDto.getEstadoDTO().getIdValor())
+                && Objects.nonNull(expDocDto.getCdFica())) {
+            habilitar = Boolean.TRUE;
+        }
+
         //VMM 09/02/26 MD-2338: deshabilitamos el boton si es modo consulta
         // Rechazada por la entidad solicitante: solo modo consulta, no se permite aprobar
         if (Boolean.TRUE.equals(esModoConsulta)
@@ -4276,27 +4283,30 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
             } else {
 
                 // Lista de estados internos requisito donde no se permite desaprobar
+                // VMM 21/10/26 MD-3158: mismo criterio que habilitarBotonAprobarDocumento, ya no depende del estado de la
+                // revision de requisitos del expediente (el documento tiene que estar en PENDIENTE_REVISION_SUBSANACION,
+                // lo exige valPrincipal).
                 List<Integer> lstEstados = new ArrayList<>();
 //                lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.REVISION_OK));
-                lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_SUBSANACION_REQUISITOS));
                 lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO));
                 lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.INICIADA));
-                
-                List<Integer> lstEst = new ArrayList<>();
-                lstEst.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.REVISION_OK));
-                lstEst.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_REVISION_SUBSANACION_REQUISITOS));
 
                 if (lstEstados.contains(dto.getEstadoRevRequiDTO().getIdValor())
-                        || !(lstEst.contains(dto.getEstadoRevRequiDTO().getIdValor()) && expDocDto
-                                .getEstadoDTO().getIdValor()
-                                .equals((utilConstantes.getGlobalCatalogosValores().get(
-                                        Constantes.EstadoDocumento.PENDIENTE_REVISION_SUBSANACION))))
                         || Boolean.FALSE.equals(valPrincipal)
                         || Objects.isNull(expDocDto.getCdFica())) {
                     habilitar = Boolean.FALSE;
                 }
             }
 
+        }
+
+        // VMM 21/10/26 MD-3158: igual que en habilitarBotonAprobarDocumento, un documento de requisito pendiente de
+        // revision de subsanacion siempre se puede rechazar (si tiene fichero).
+        if (!Boolean.FALSE.equals(expDocDto.getEsDocumentoRequisito())
+                && utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PENDIENTE_REVISION_SUBSANACION)
+                        .equals(expDocDto.getEstadoDTO().getIdValor())
+                && Objects.nonNull(expDocDto.getCdFica())) {
+            habilitar = Boolean.TRUE;
         }
 
         // Rechazada por la entidad solicitante: solo modo consulta, no se permite desaprobar
@@ -4380,9 +4390,18 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
                 .equals(utilConstantes.getGlobalCatalogosValores()
                         .get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL));
         
+        // VMM 21/10/26 MD-3158: un documento de requisito que se ha aprobado/rechazado estando pendiente de revision
+        // de subsanacion (su estado anterior en el historico es PENDIENTE_REVISION_SUBSANACION) tambien se puede
+        // revertir, las veces que haga falta; el resto de documentos de requisito siguen sin poder revertirse aqui.
+        Boolean requisitoCalificadoDesdeSubsanacion = Boolean.TRUE.equals(expDocDto.getEsDocumentoRequisito())
+                && registrosAnteriores != null && !registrosAnteriores.isEmpty()
+                && utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PENDIENTE_REVISION_SUBSANACION)
+                        .equals(registrosAnteriores.get(0).getEstadoDTO().getIdValor());
+
         if (Boolean.FALSE.equals(this.habilitarCalificacion(esModoConsulta, idEstadoConvocatoria))
                 || !lstEstados.contains(expDocDto.getEstadoDTO().getIdValor())
-                || Boolean.TRUE.equals(expDocDto.getEsDocumentoRequisito())
+                || (Boolean.TRUE.equals(expDocDto.getEsDocumentoRequisito())
+                        && Boolean.FALSE.equals(requisitoCalificadoDesdeSubsanacion))
                 || Boolean.TRUE.equals(this.existeEnvioPtfrSubsanacionEnProceso)
                 || (Boolean.TRUE.equals(this.existeEnvioPtfrSubsanacionFirmado)
                         && Boolean.FALSE.equals(existeSubsanPendienteRev))

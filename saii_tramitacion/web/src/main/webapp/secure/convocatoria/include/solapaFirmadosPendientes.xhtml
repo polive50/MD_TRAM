@@ -175,15 +175,15 @@
                 exportTitle="Solicitudes" exportFile="Solicitudes"
                 render="btnEnviarNoteNotificaciones">
 
-                <atlasp:columnaListaPaginada
-                    label="#{bundle['convocatorias.envio.notificaciones.pendientes.label.convocatoria']}"
-                    filterMatchMode="exact">
-                    <ui:define name="value">
-                        <h:outputText
-                            value="#{convocatoriasBean.convocatoriaDTO.cdTitulo}" />
-                    </ui:define>
+<!--                 <atlasp:columnaListaPaginada -->
+<!--                     label="#{bundle['convocatorias.envio.notificaciones.pendientes.label.convocatoria']}" -->
+<!--                     filterMatchMode="exact"> -->
+<!--                     <ui:define name="value"> -->
+<!--                         <h:outputText -->
+<!--                             value="#{convocatoriasBean.convocatoriaDTO.cdTitulo}" /> -->
+<!--                     </ui:define> -->
 
-                </atlasp:columnaListaPaginada>
+<!--                 </atlasp:columnaListaPaginada> -->
 
 
                 <!-- COD_EXPEDIENT_SOL  -->
@@ -192,7 +192,13 @@
                     field="cdExpediente" filtrable="false"
                     exportable="true" filterMatchMode="exact">
                     <ui:define name="value">
-                        <h:outputText value="#{item.cdExpediente}" />
+                        <ui:fragment rendered="#{item.idDocPtfrPadre != 0}">
+                            <h:outputText value="#{item.cdExpediente}" />
+                        </ui:fragment>
+                        <ui:fragment rendered="#{item.idDocPtfrPadre == 0}">
+                            <atlasp:button action="#{envioNotificacionesBean.mostrarFirmadosPendienteConjunta(item)}" icon="fa-solid fa-list" tipoBoton="btn-link">
+                            </atlasp:button>
+                        </ui:fragment>
                     </ui:define>
                 </atlasp:columnaListaPaginada>
 
@@ -202,7 +208,9 @@
                     field="dsDestinatario" filtrable="false"
                     exportable="true" filterMatchMode="exact">
                     <ui:define name="value">
-                        <h:outputText value="#{item.dsDestinatario}" />
+                        <ui:fragment rendered="#{item.idDocPtfrPadre != 0}">
+                            <h:outputText value="#{item.dsDestinatario}" />
+                        </ui:fragment>
                     </ui:define>
                 </atlasp:columnaListaPaginada>
 
@@ -341,4 +349,100 @@
         <div class="space" />
 
     </p:panelGrid>
+    
+    <p:dialog id="dialogFirmadosPendienteConjunta"
+        widgetVar="dialogFirmadosPendienteConjunta"
+        header="#{bundle['convocatorias.detalle.solicitudes.envio.notificaciones.label.lista.firmados.pendientes']}"
+        closable="false" dynamic="true" modal="true"  cache="false" width="60%"
+        onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        <p:outputPanel id="panelFirmadosPendienteConjunta">
+            <atlasp:facesMessages id="fmFirmadosPendientesConjunta" modo="notificar" />
+            <div class="ui-g">
+                <div class="ui-g-12 borde-contenedor">
+                    <div class="ui-g">
+                        <div class="ui-g-12">
+                            <atlasp:listaPaginada
+                                id="listaFirmadosPendienteConjunta"
+                                listAndCountMethod="#{envioNotificacionesBean.obtenerListaEnvioDocPtfr}"
+                                export="true"
+                                exportTitle="FirmadosPendientesConjunta"
+                                exportFile="FirmadosPendientesConjunta"
+                                emptyMessage="No se encontraron registros"
+                                sortMode="single" reflow="true"
+                                pijama="true">
+                                <atlasp:columnaListaPaginada
+                                    label="#{bundle['convocatorias.envio.notificaciones.pendientes.label.expediente']}"
+                                    field="cdExpediente" filtrable="false"
+                                    exportable="true" filterMatchMode="exact">
+                                    <ui:define name="value">
+                                        <ui:fragment>
+                                            <h:outputText value="#{item.cdExpediente}" />
+                                        </ui:fragment>
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    label="#{bundle['convocatorias.envio.notificaciones.label.destinatario']}"
+                                    field="dsDestinatario" filtrable="false"
+                                    exportable="true" filterMatchMode="exact">
+                                    <ui:define name="value">
+                                        <h:outputText value="#{item.dsDestinatario}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    label="#{bundle['convocatorias.detalle.solicitudes.label.fechaCola']}"
+                                    field="fcEnvioCola" filtrable="false"
+                                    exportable="true" filterMatchMode="exact">
+                                    <ui:define name="value">
+                                        <h:outputText value="#{item.fcEnvioCola}">
+                                            <f:convertDateTime type="date"
+                                                pattern="dd/MM/yyyy - HH:mm:ss" />
+                                        </h:outputText>
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    label="#{bundle['convocatorias.envio.notificaciones.label.tramite']}"
+                                    field="dsTramite" filtrable="false"
+                                    exportable="true" filterMatchMode="exact">
+                                    <ui:define name="value">
+                                        <h:outputText value="#{item.dsTramite}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    label="#{bundle['convocatorias.envio.notificaciones.label.Verificador']}"
+                                    field="dsVerificador" filtrable="false"
+                                    exportable="true" filterMatchMode="exact">
+                                    <ui:define name="value">
+                                        <h:outputText value="#{item.dsVerificador}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                                <atlasp:columnaListaPaginada
+                                    label="#{bundle['convocatorias.envio.notificaciones.label.Firmante']}"
+                                    field="dsFirmante" filtrable="false"
+                                    exportable="true" filterMatchMode="exact">
+                                    <ui:define name="value">
+                                        <h:outputText value="#{item.dsFirmante}" />
+                                    </ui:define>
+                                </atlasp:columnaListaPaginada>
+                            </atlasp:listaPaginada>
+                        </div>
+                        <div class="ui-g-12">
+                            <atlasp:button
+                                action="#{envioNotificacionesBean.cerrarFirmadosPendientesConjunta}"
+                                ajax="true"
+                                process="@this"
+                                update="panelFirmadosPendienteConjunta"
+                                value="#{bundle['boton.cerrar']}"
+                                alt="#{bundle['boton.cerrar']}"
+                                title="#{bundle['boton.cerrar']}"
+                                icon="fas fa-times"
+                                tipoBoton="btn-secondary"
+                                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p:outputPanel>
+    </p:dialog>
+    
 </ui:composition>

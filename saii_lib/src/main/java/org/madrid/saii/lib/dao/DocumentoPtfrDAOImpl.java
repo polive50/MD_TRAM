@@ -131,6 +131,24 @@ public class DocumentoPtfrDAOImpl extends BaseDAOImpl<DocumentoPtfr, Integer>
         return lst;
 
     }
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Integer> obtenerTramitesResolucionEnviados(Integer idConvocatoria,
+            List<Integer> tramites) {
+        StringBuilder queryHql = new StringBuilder();
+        queryHql.append(" SELECT DISTINCT dp.tramite.nmConstante ");
+        queryHql.append(" FROM DocumentoPtfr dp, Expediente exp ");
+        queryHql.append(" WHERE dp.idExpediente = exp.idExpediente ");
+        queryHql.append(" AND exp.solicitud.convocatoria.idConvocatoria = :idConvocatoria ");
+        queryHql.append(" AND dp.tramite.nmConstante IN (:tramites) ");
+        queryHql.append(" AND dp.fcBajaFila IS NULL ");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("idConvocatoria", idConvocatoria);
+        params.put("tramites", tramites);
+        return (List<Integer>) super.executeHQLQueryList(queryHql.toString(), params);
+    }
 
     
 }

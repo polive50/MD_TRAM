@@ -152,6 +152,10 @@ public class EnvioDocumentoPTFR implements Serializable {
      */
     private Integer cdFicaAcuseReciboNote;
     
+    /**
+     * Representa el campo idDocPtfrPadre del objeto de dominio
+     */
+    private Integer idDocPtfrPadre;
  
     // ////////////////////////////////////////////////////////
     // /////////////////////////////// CONSTRUCTORES
@@ -427,6 +431,21 @@ public class EnvioDocumentoPTFR implements Serializable {
          this.cdFicaAcuseReciboNote = cdFicaAcuseReciboNote;
      }
      
+     
+     /**
+      * @return the idDocPtfrPadre
+      */
+     @Column(name = "ID_DOC_PTFR_PADRE")
+     public Integer getIdDocPtfrPadre() {
+         return idDocPtfrPadre;
+     }
+
+     /**
+      * @param idDocPtfrPadre the idDocPtfrPadre to set
+      */
+     public void setIdDocPtfrPadre(Integer idDocPtfrPadre) {
+         this.idDocPtfrPadre = idDocPtfrPadre;
+     }
    
     // ////////////////////////////////////////////////////////
     // /////////////////////////////// FIN AUDITORIA

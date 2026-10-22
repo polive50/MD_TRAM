@@ -115,6 +115,14 @@ public interface ConvocatoriaComService
 
     List<ConvocatoriaComDTO> buscarConvocatoriaComPorIdConvocatoriaIdConvocatoriaActCorreo(Integer idConvocatoria, Integer idActor) throws ServiceException;
 
-    
+    /**
+     * 
+     * @param idConvocatoria
+     * @param idTipoTramite
+     * @return
+     * @throws ServiceException
+     */
+    public ConvocatoriaComDTO obtener(Integer idConvocatoria, Integer idTipoTramite)
+            throws ServiceException;
 
 }

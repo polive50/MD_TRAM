@@ -7142,8 +7142,8 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
      * Presenta el trámite de Notificación del ciudadano: completa la
      * notificación "en curso" (dada de alta al subir documentos adicionales,
      * o creada aquí si no se subió ninguno) con el asunto/expone/solicita en
-     * SAII_NOTIFI_CIUD, recupera los documentos ya enlazados a ella en
-     * SAII_NOTIFI_CIUD_DOC y lo envía a registro EREG.
+     * SAII_EXPEDIENTE_NOTIF, recupera los documentos ya enlazados a ella en
+     * SAII_EXPE_NOTIF_DOC y lo envía a registro EREG.
      */
     @Override
     @Transactional(readOnly = false, rollbackFor = ServiceException.class, propagation = Propagation.REQUIRES_NEW)
@@ -7167,7 +7167,7 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
         // expediente y asunto (dada de alta al subir documentos adicionales,
         // pero todavía no presentada: no tiene CD_EREG). Si existe, la
         // reutilizamos (ya tiene documentos enlazados en
-        // SAII_NOTIFI_CIUD_DOC); si no, la creamos ahora
+        // SAII_EXPE_NOTIF_DOC); si no, la creamos ahora
         NotificacionCiudadano notificacionCiudadano = this.notificacionCiudadanoService
                 .buscarEnCursoEntidad(idExpediente, idAsunto);
 
@@ -7230,7 +7230,7 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
         notificacionCiudadano = this.notificacionCiudadanoDAO.merge(notificacionCiudadano);
 
         // Recuperamos únicamente los documentos adicionales ya vinculados a
-        // esta notificación concreta en SAII_NOTIFI_CIUD_DOC (enlazados en el
+        // esta notificación concreta en SAII_EXPE_NOTIF_DOC (enlazados en el
         // momento de subirlos), nunca los de otras notificaciones anteriores
         // o posteriores del mismo expediente
         List<AtlasFilter> filtrosDocEnlazados = new ArrayList<>();
@@ -7240,7 +7240,7 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
         filtrosDocEnlazados.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
         // El documento puede haber sido borrado (baja lógica en
         // SAII_EXPEDIENTE_DOC) sin que se haya dado de baja la relación en
-        // SAII_NOTIFI_CIUD_DOC, así que se excluyen también esos casos
+        // SAII_EXPE_NOTIF_DOC, así que se excluyen también esos casos
         filtrosDocEnlazados.add(new AtlasFilter(Constantes.Filtro.FILTRO_EXPEDIENTE_DOC_FCBAJA,
                 Operador.NULL));
         List<NotificacionCiudadanoDoc> lstDocEnlazados = this.notificacionCiudadanoDocDAO

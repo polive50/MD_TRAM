@@ -127,6 +127,11 @@ public class ResolucionConvBean {
     /** Indica si se ha seleccionado la resolución conjunta. */
     private Boolean resolucionExclusionDesistimientoConjunta = Boolean.TRUE;
 
+    /** Consulta de los envíos de la convocatoria, reutilizada únicamente durante esta petición. */
+    private List<Integer> tramitesResolucionEnviados;
+    private Integer idConvocatoriaEnviosConsultados;
+    private boolean errorConsultaEnviosResolucion;
+    
     /** Indicadores de activación de las botoneras de resolución. */
     private Boolean activarBotonesResolucionConjunta = Boolean.TRUE;
     private Boolean activarBotonesResolucionIndividual = Boolean.FALSE;
@@ -1059,18 +1064,80 @@ public class ResolucionConvBean {
      * conjunta e individual.
      */
     public void cambiarTipoResolucionExclusionDesistimiento(AjaxBehaviorEvent event) {
-        Object resolucionConjunta = ((UIInput) event.getComponent()).getValue();
-        this.resolucionExclusionDesistimientoConjunta = Boolean.TRUE
-                .equals(resolucionConjunta);
+        UIInput selector = (UIInput) event.getComponent();
+        if (!this.isModoResolucionExclusionDesistimientoBloqueado()) {
+            this.resolucionExclusionDesistimientoConjunta = Boolean.TRUE
+                    .equals(selector.getValue());
+        }
+        // Descarta el valor local del componente para pintar el modo efectivo del modelo.
+        selector.resetValue();
+    }
+
+    /** Recupera el modo enviado, con prioridad sobre el valor restaurado por guardarEstado. */
+    public Boolean getResolucionExclusionDesistimientoConjunta() {
+        this.consultarEnviosResolucion();
+        if (this.idConvocatoria == null || this.errorConsultaEnviosResolucion
+                || this.isEnviosResolucionIncompatibles()) {
+            return null;
+        }
+        if (this.tramitesResolucionEnviados.contains(
+                Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO)) {
+            return Boolean.TRUE;
+        }
+        if (!this.tramitesResolucionEnviados.isEmpty()) {
+            return Boolean.FALSE;
+        }
+        return this.resolucionExclusionDesistimientoConjunta;
+    }
+
+    /** No se guarda en la vista: cada nueva petición recupera los datos persistidos. */
+    private void consultarEnviosResolucion() {
+        if (this.idConvocatoria == null
+                || this.idConvocatoria.equals(this.idConvocatoriaEnviosConsultados)) {
+            return;
+        }
+        this.idConvocatoriaEnviosConsultados = this.idConvocatoria;
+        this.errorConsultaEnviosResolucion = false;
+        this.tramitesResolucionEnviados = new ArrayList<>();
+        try {
+            this.tramitesResolucionEnviados = this.documentoPtfrService
+                    .obtenerTramitesResolucionEnviados(this.idConvocatoria);
+        } catch (ServiceException e) {
+            this.errorConsultaEnviosResolucion = true;
+            log.error("Error consultando los envíos de resolución de la convocatoria "
+                    + this.idConvocatoria, e);
+        }
+    }
+
+    /** No elige un modo cuando hay peticiones activas individuales y conjuntas. */
+    public boolean isEnviosResolucionIncompatibles() {
+        this.consultarEnviosResolucion();
+        return this.tramitesResolucionEnviados != null
+                && this.tramitesResolucionEnviados.contains(
+                        Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO)
+                && (this.tramitesResolucionEnviados.contains(Constantes.Tramite.EXCLUSION)
+                        || this.tramitesResolucionEnviados.contains(Constantes.Tramite.DESISTIMIENTO));
+    }
+
+    /** Impide cambiar el modo enviado y bloquea la selección si no se puede determinar. */
+    public boolean isModoResolucionExclusionDesistimientoBloqueado() {
+        this.consultarEnviosResolucion();
+        return this.idConvocatoria == null || this.errorConsultaEnviosResolucion
+                || !this.tramitesResolucionEnviados.isEmpty();
+    }
+
+    public boolean isErrorConsultaEnviosResolucion() {
+        this.consultarEnviosResolucion();
+        return this.errorConsultaEnviosResolucion;
     }
 
     /**
      * Indica si se pueden utilizar los botones de las resoluciones individuales.
      *
-     * @return {@code true} cuando se ha seleccionado la resolución individual
+     * @return true cuando se ha seleccionado la resolución individual
      */
     public boolean habilitarBotonesResolucionIndividual() {
-        return Boolean.FALSE.equals(this.resolucionExclusionDesistimientoConjunta);
+        return Boolean.FALSE.equals(this.getResolucionExclusionDesistimientoConjunta());
     }
 
     /**
@@ -1078,14 +1145,15 @@ public class ResolucionConvBean {
      *
      * @param tramite constante del trámite individual o conjunto
      * @param esModoConsulta indica si la convocatoria está en modo consulta
-     * @return {@code true} cuando el botón debe estar habilitado
+     * @return true cuando el botón debe estar habilitado
      */
     public boolean habilitarBotonSubirResolucionDefinitiva(Integer tramite,
             Boolean esModoConsulta) {
         boolean modoCorrecto = Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)
-                ? Boolean.TRUE.equals(this.resolucionExclusionDesistimientoConjunta)
+                ? Boolean.TRUE.equals(this.getResolucionExclusionDesistimientoConjunta())
                 : this.habilitarBotonesResolucionIndividual();
-        if (!modoCorrecto || Boolean.TRUE.equals(esModoConsulta)) {
+        if (!modoCorrecto || Boolean.TRUE.equals(esModoConsulta)
+                || this.tramitesResolucionEnviados.contains(tramite)) {
             return false;
         }
         try {
@@ -1136,21 +1204,26 @@ public class ResolucionConvBean {
     public boolean habilitarEnviarResolucionDefinitivaPortafirmas(Integer tramite,
             Boolean esModoConsulta) {
         boolean modoCorrecto = Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)
-                ? Boolean.TRUE.equals(this.resolucionExclusionDesistimientoConjunta)
+                ? Boolean.TRUE.equals(this.getResolucionExclusionDesistimientoConjunta())
                 : this.habilitarBotonesResolucionIndividual();
         if (!modoCorrecto || Boolean.TRUE.equals(esModoConsulta)
                 || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) {
             return false;
         }
         try {
-            for (ResolucionExclusionDesistimientoDTO elemento
-                    : this.obtenerExpedientesResolucionDefinitiva(tramite)) {
+            List<ResolucionExclusionDesistimientoDTO> expedientes =
+                    this.obtenerExpedientesResolucionDefinitiva(tramite);
+            Integer idTramite = this.utilConstantes.getGlobalCatalogosValores().get(tramite);
+            for (ResolucionExclusionDesistimientoDTO expediente : expedientes) {
+                Integer idExpediente = expediente.getIdExpediente();
                 ExpedienteDocDTO documento = this.getDocumentoResolucionDefinitiva(tramite,
-                        elemento.getIdExpediente());
-                if (documento != null && documento.getCdFica() != null
-                        && Boolean.FALSE.equals(this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(
-                        elemento.getIdExpediente(),
-                        this.utilConstantes.getGlobalCatalogosValores().get(tramite)))) {
+                        idExpediente);
+                if (documento == null || documento.getCdFica() == null) {
+                    continue;
+                }
+                Boolean existePeticionActiva = this.documentoPtfrService
+                        .consultarDocumentoPortafirmaPorTramite(idExpediente, idTramite);
+                if (Boolean.FALSE.equals(existePeticionActiva)) {
                     return true;
                 }
             }
@@ -1177,6 +1250,7 @@ public class ResolucionConvBean {
 
     private void enviarResolucionDefinitivaPortafirmas(Integer tramite) {
         try {
+            this.validarModoResolucionSeleccionado(tramite);
             if (this.convocatoriaDTO == null) {
                 this.convocatoriaDTO = this.convocatoriaService.buscarId(this.idConvocatoria);
             }
@@ -1231,6 +1305,21 @@ public class ResolucionConvBean {
         } catch (ServiceException e) {
             log.error(ConstantesWeb.Err.ERROR_ENVIAR_PORTAFIRMA, e);
             AtlasMessageUtils.addErrorMessageFromBundle(ConstantesWeb.Err.ERROR_ENVIAR_PORTAFIRMA);
+        } finally {
+            // También tras un fallo parcial: el modo depende de lo que haya quedado registrado.
+            this.idConvocatoriaEnviosConsultados = null;
+        }
+    }
+
+    /** Reconsulta antes de actuar para no aceptar un modo incompatible desde una vista antigua. */
+    private void validarModoResolucionSeleccionado(Integer tramite) throws ServiceException {
+        this.idConvocatoriaEnviosConsultados = null;
+        Boolean conjunta = this.getResolucionExclusionDesistimientoConjunta();
+        boolean envioConjunto = Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO
+                .equals(tramite);
+        if (conjunta == null || conjunta.booleanValue() != envioConjunto) {
+            throw new ServiceException(
+                    "El modo de resolución no coincide con la selección o con los envíos registrados en la convocatoria.");
         }
     }
 
@@ -1255,7 +1344,7 @@ public class ResolucionConvBean {
      * Indica si se puede subir la resolución conjunta definitiva.
      *
      * @param esModoConsulta indica si la convocatoria está en modo consulta
-     * @return {@code true} cuando el botón debe estar habilitado
+     * @return true cuando el botón debe estar habilitado
      */
     public boolean habilitarBotonSubirResolucionConjunta(Boolean esModoConsulta) {
         return this.habilitarBotonSubirResolucionDefinitiva(
@@ -1265,10 +1354,10 @@ public class ResolucionConvBean {
     /**
      * Indica si se puede descargar la resolución conjunta definitiva.
      *
-     * @return {@code true} cuando el botón debe estar habilitado
+     * @return true cuando el botón debe estar habilitado
      */
     public boolean habilitarBotonDescargarResolucionConjunta() {
-        return Boolean.TRUE.equals(this.resolucionExclusionDesistimientoConjunta)
+        return Boolean.TRUE.equals(this.getResolucionExclusionDesistimientoConjunta())
                 && this.getCodigoFicaResolucionExclusionDesistimiento() != null;
     }
 
@@ -1276,7 +1365,7 @@ public class ResolucionConvBean {
      * Indica si se puede enviar la resolución conjunta a Portafirmas.
      *
      * @param esModoConsulta indica si la convocatoria está en modo consulta
-     * @return {@code true} cuando el botón debe estar habilitado
+     * @return true cuando el botón debe estar habilitado
      */
     public boolean habilitarBotonEnviarResolucionConjuntaPortafirmas(Boolean esModoConsulta) {
         return this.habilitarEnviarResolucionDefinitivaPortafirmas(
@@ -1331,6 +1420,7 @@ public class ResolucionConvBean {
     private void cargarFicheroResolucionDefinitiva(UploadedFile archivo, Integer tramite,
             String dialogo) {
         try {
+            this.validarSubidaResolucionDefinitiva(tramite);
             if (archivo == null || archivo.getFileName() == null
                     || archivo.getFileName().isEmpty()) {
                 this.mostrarMensajeElegirFichero = Boolean.TRUE;
@@ -1397,14 +1487,20 @@ public class ResolucionConvBean {
             } else {
                 this.archivoResolucionDefinitiva = null;
             }
-//            PrimeFaces.current().executeScript(
-//                    Constantes.Tramite.EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)
-//                            ? "actualizarBotoneraResolucionConjunta();"
-//                            : "actualizarBotoneraResolucionIndividual();");
         }  catch (ServiceException | IOException e) {
             AtlasMessageUtils.addErrorMessageFromBundle(
                     ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_KO);
             log.error(e.getMessage(), e);
+        }
+    }
+    
+    /** Impide sustituir el PDF de un trámite con alguna petición activa registrada. */
+    private void validarSubidaResolucionDefinitiva(Integer tramite) throws ServiceException {
+        // Refresca los envíos para proteger también las subidas desde una vista antigua.
+        this.validarModoResolucionSeleccionado(tramite);
+        if (this.tramitesResolucionEnviados.contains(tramite)) {
+            throw new ServiceException(
+                    "No se puede subir la resolución porque este trámite ya se ha enviado a la cola de Portafirmas.");
         }
     }
 
@@ -1486,10 +1582,8 @@ public class ResolucionConvBean {
     
     /** Obtiene el tipo documental según se trate de resolución individual o conjunta. */
     private Integer obtenerTipoDocumentoResolucionDefinitiva(Integer tramite) {
-        return this.utilConstantes.getGlobalCatalogosValores().get(
-                Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)
-                        ? Constantes.TipoDocumento.PROPUESTA_RESOLUCION_CONJUNTA_DEFINITIVA
-                        : Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
+        return this.utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
     }
 
     /**

@@ -41,6 +41,7 @@ import org.madrid.saii.lib.domain.ExpedienteReq;
 import org.madrid.saii.lib.domain.Solicitud;
 import org.madrid.saii.lib.dto.CatalogosValoresDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaActDTO;
+import org.madrid.saii.lib.dto.ConvocatoriaComDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaPlaDTO;
 import org.madrid.saii.lib.dto.DocumentoPtfrDTO;
@@ -478,9 +479,36 @@ public class DocumentoPtfrServiceImpl extends
             throw new ServiceException("No se pudo realizar el envío a Portafirmas.");
         }
 
+        if (documentoPtfrAux != null && documentoPtfrAux.getIdDocPtfrPadre() != null) {
+            DocumentoPtfrDTO docPtfrDTO =  this.registrarEnvioPortafirmas(expedienteDTO, outputPtfr, idTipoTramite,
+                    idDocumentoPTFR);
+            this.registrarEnvioPortafirmasConjunta(expedienteDTO, outputPtfr, idTipoTramite,
+                    docPtfrDTO);
+            return docPtfrDTO;
+        }
+        
         return this.registrarEnvioPortafirmas(expedienteDTO, outputPtfr, idTipoTramite,
                 idDocumentoPTFR);
 
+    }
+    
+    private void registrarEnvioPortafirmasConjunta(ExpedienteDTO expedienteDTO,
+            PtfrAltaSolicitudResultadoDTO outputPtfr, Integer idTipoTramite,
+            DocumentoPtfrDTO docPtfrDTO) throws ServiceException {
+        List<AtlasFilter> filtros = new ArrayList<>();
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ID_DOC_PTFR_PADRE,
+                docPtfrDTO.getIdDocumentoPtfr(), Operador.EQUALS));
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
+        List<DocumentoPtfr> lstDocPtfr = this.find(filtros, null);
+        for (DocumentoPtfr docPtfr : lstDocPtfr) {
+            docPtfr.setDsReferenciaPtfr(docPtfrDTO.getDsReferenciaPtfr());
+            docPtfr.setCdArchivoPtfr(docPtfrDTO.getCdArchivoPtfr());
+            docPtfr.setFcEnvioPtfr(docPtfrDTO.getFcEnvioPtfr());
+            docPtfr.setCdUsuModif(docPtfrDTO.getCdUsuModif());
+            docPtfr.setFcModifFila(docPtfrDTO.getFcModifFila());
+            docPtfr.setCdEstadoPtfr(docPtfrDTO.getCdEstadoPtfr());
+            docPtfr = this.update(docPtfr);
+        }
     }
 
     /**
@@ -2231,6 +2259,71 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
         return lstCdNote;
 
     }
+    
+    public List<String> comprobarAbonados(Integer idDocumentoPtfr, Integer idExpediente)
+            throws ServiceException {
+        List<String> abonados = new ArrayList<>();
+        Integer tipoActorComunicacion;
+        Integer tipoActorExpediente;
+        Integer tipoPersonaExpediente;
+        Integer tipoPersonaComunicacion;
+        DocumentoPtfrDTO documentoPtfrDto = this.buscarPorId(idDocumentoPtfr);
+        DocumentoPtfr documentoPtfr = DocumentoPtfrToEntity.INSTANCE.apply(documentoPtfrDto);
+        ExpedienteDTO expediente = expedienteService.buscarId(idExpediente);
+        Solicitud solicitud = this.solicitudDAO.find(expediente.getIdSolicitud());
+        ConvocatoriaComDTO convocatoriaComDTO = this.convocatoriaComService.obtener(
+                solicitud.getConvocatoria().getIdConvocatoria(),
+                documentoPtfr.getTramite().getIdValor());
+        List<AtlasFilter> filtros = new ArrayList<>();
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_SOLICITUD_IDSOLICITUD,
+                solicitud.getIdSolicitud(), Operador.EQUALS));
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
+        List<ExpedienteDTO> listaExp = this.expedienteService.buscar(0, -1, filtros, null);
+        for (ExpedienteDTO expedienteDTO : listaExp) {
+            tipoActorExpediente = expedienteDTO.getConvocatoriaActDTO().getTipoActorDTO()
+                    .getIdValor();
+            tipoPersonaExpediente = expedienteDTO.getConvocatoriaActDTO().getTipoPersonaFisJurDTO()
+                    .getIdValor();
+            if (Objects.nonNull(convocatoriaComDTO.getConvocatoriaActNoteDTO())) {
+                tipoActorComunicacion = convocatoriaComDTO.getConvocatoriaActNoteDTO()
+                        .getTipoActorDTO().getIdValor();
+                tipoPersonaComunicacion = convocatoriaComDTO.getConvocatoriaActNoteDTO()
+                        .getTipoPersonaFisJurDTO().getIdValor();
+                if (Boolean.TRUE.equals(convocatoriaComDTO.getBlNote())
+                        && tipoActorComunicacion.equals(tipoActorExpediente)
+                        && tipoPersonaComunicacion.equals(tipoPersonaExpediente)) {
+                    String cdNumIden = "";
+                    if (expedienteDTO.getRepresentanteLegal() != null && (expediente
+                            .getMedioComunicacionDTO() != null
+                            && expediente.getMedioComunicacionDTO().getIdValor() != null
+                            && expediente.getMedioComunicacionDTO().getNmConstante().equals(
+                                    Constantes.MedioNotificacion.MEDIO_NOTIFICACION_REPRESENTANTE))) {
+                        cdNumIden = expedienteDTO.getRepresentanteLegal().getCdNumIden();
+                    } else {
+                        cdNumIden =  expedienteDTO.getInteresadoDTO().getCdNumIden();
+                    }
+                    String cdAbonado = this.noteAdmeService.recuperarCdAbonado(cdNumIden);
+                    if (cdAbonado == null && StringUtils.isBlank(cdAbonado)) {
+                        abonados.add(cdNumIden);
+                    }
+                    
+                    List<AtlasFilter> filtrosPtfr = new ArrayList<>();
+                    filtrosPtfr
+                            .add(new AtlasFilter(Constantes.Filtro.FILTRO_ID_DOC_PTFR_PADRE,
+                                    documentoPtfr.getIdDocumentoPtfr(), Operador.EQUALS));
+                    filtrosPtfr.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA,
+                            Operador.NULL));
+                    List<DocumentoPtfr> lstDocPtfr = this.find(filtrosPtfr, null);
+                    for (DocumentoPtfr docuPtfr : lstDocPtfr) {
+                        List<String> destinatarios = this.comprobarAbonados(
+                                docuPtfr.getIdDocumentoPtfr(), docuPtfr.getIdExpediente());
+                        abonados.addAll(destinatarios);
+                    }
+                }
+            }
+        }
+        return abonados;
+    }
 
     /**
      *
@@ -3149,15 +3242,11 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
         }
         ExpedienteDoc documento = this.expedienteDocDAO.find(idExpedienteDoc);
         Integer idTramite = this.utilConstantes.getGlobalCatalogosValores().get(tramite);
-//        Integer estadoPropuesta = this.utilConstantes.getGlobalCatalogosValores().get(exclusion
-//                ? Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO
-//                : Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO);
         if (documento == null || documento.getFcBajaFila() != null
                 || documento.getExpediente() == null || documento.getCdFica() == null
                 || documento.getTipoDocumento() == null || documento.getTramite() == null
                 || !this.utilConstantes.getGlobalCatalogosValores()
-                        .get(conjunta ? Constantes.TipoDocumento.PROPUESTA_RESOLUCION_CONJUNTA_DEFINITIVA
-                                : Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA)
+                        .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA)
                         .equals(documento.getTipoDocumento().getIdValor())
                 || !idTramite.equals(documento.getTramite().getIdValor())) {
             throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
@@ -3168,6 +3257,7 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
                         expediente.getSolicitud().getConvocatoria().getIdConvocatoria())) {
             throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
         }
+        this.validarModoResolucionEnviado(convocatoria.getIdConvocatoria(), conjunta);
         if (this.consultarDocumentoPortafirmaPorTramite(expediente.getIdExpediente(), idTramite)) {
             return null;
         }
@@ -3210,6 +3300,24 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
         return peticion.getIdDocumentoPtfr();
     }
     
+    /** Comprueba los envíos persistidos también para vistas antiguas o peticiones manipuladas. */
+    private void validarModoResolucionEnviado(Integer idConvocatoria, boolean conjunta)
+            throws ServiceException {
+        List<Integer> tramites = this.obtenerTramitesResolucionEnviados(idConvocatoria);
+        boolean individualEnviada = tramites.contains(Constantes.Tramite.EXCLUSION)
+                || tramites.contains(Constantes.Tramite.DESISTIMIENTO);
+        boolean conjuntaEnviada = tramites.contains(
+                Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO);
+        if (individualEnviada && conjuntaEnviada) {
+            throw new ServiceException(
+                    "La convocatoria tiene envíos individuales y conjuntos de exclusión/desistimiento. Revise las peticiones registradas.");
+        }
+        if ((conjunta && individualEnviada) || (!conjunta && conjuntaEnviada)) {
+            throw new ServiceException(
+                    "El modo de resolución no coincide con los envíos de exclusión/desistimiento registrados en la convocatoria.");
+        }
+    }
+    
     @Override
     @Transactional(readOnly = false, rollbackFor = { ServiceException.class, RuntimeException.class })
     public Integer enviarResolucionConjuntaDefinitiva(ConvocatoriaDTO convocatoria,
@@ -3218,5 +3326,22 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
         return this.enviarResolucionDefinitiva(convocatoria, idExpedienteDoc,
                 Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO, documentoAdjunto,
                 idDocPtfrPadre, usuario);
+    }
+    
+    @Override
+    public List<Integer> obtenerTramitesResolucionEnviados(Integer idConvocatoria)
+            throws ServiceException {
+        if (idConvocatoria == null) {
+            throw new ServiceException(Constantes.Error.ERROR_ID_CONVOCATORIA_FALTANTE);
+        }
+        List<Integer> tramites = new ArrayList<>();
+        tramites.add(Constantes.Tramite.EXCLUSION);
+        tramites.add(Constantes.Tramite.DESISTIMIENTO);
+        tramites.add(Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO);
+        try {
+            return this.getDao().obtenerTramitesResolucionEnviados(idConvocatoria, tramites);
+        } catch (RuntimeException e) {
+            throw new ServiceException(e);
+        }
     }
 }

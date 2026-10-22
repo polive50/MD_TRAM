@@ -232,8 +232,30 @@ public interface DocumentoPtfrService
      * @return identificador de la petición creada o null si ya existe una activa
      * @throws ServiceException si el documento no corresponde o falla el envío
      */
-    Integer enviarResolucionConjuntaDefinitiva(ConvocatoriaDTO convocatoria,
+    public Integer enviarResolucionConjuntaDefinitiva(ConvocatoriaDTO convocatoria,
             Integer idExpedienteDoc, byte[] documentoAdjunto, Integer idDocPtfrPadre,
             String usuario) throws ServiceException;
-
+    
+    /**
+     * Constantes de los trámites de exclusión/desistimiento con peticiones sin baja.
+     * Incluye peticiones en cola, firmadas o rechazadas; no exige fecha de envío.
+     * Una lista con trámites individuales y conjuntos identifica datos incompatibles.
+     *
+     * @param idConvocatoria convocatoria consultada
+     * @return constantes 411, 412 y/o 450 presentes, sin duplicados
+     * @throws ServiceException si falta la convocatoria o falla la consulta
+     */
+    List<Integer> obtenerTramitesResolucionEnviados(Integer idConvocatoria)
+            throws ServiceException;
+    
+    /**
+     * Comrpueba si los destinatarios están dados de alta en NOTE
+     * @param idDocumentoPtfr
+     * @param idExpediente
+     * @return
+     * @throws ServiceException
+     */
+    public List<String> comprobarAbonados(Integer idDocumentoPtfr, Integer idExpediente)
+            throws ServiceException;
+    
 }

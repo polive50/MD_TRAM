@@ -1,5 +1,6 @@
 package org.madrid.saii.lib.services;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -7,6 +8,7 @@ import javax.annotation.Resource;
 import org.hibernate.SessionFactory;
 import org.madrid.saii.lib.dao.EnvioDocumentoPTFRDAO;
 import org.madrid.saii.lib.domain.EnvioDocumentoPTFR;
+import org.madrid.saii.lib.dto.ExpedienteDocHistDTO;
 import org.madrid.saii.lib.util.Constantes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -71,23 +73,47 @@ public class EnvioDocumentoPTFRServiceImpl extends BaseServiceImpl<EnvioDocument
     }
 
 
-   /**
-   *
-   */
-  @Override
-  public List<EnvioDocumentoPTFR> buscarEnviosDocumentoPortafirmas(final int index, final int pageSize,
-          final List<AtlasFilter> filtros, final List<AtlasSort> orden,final Integer idConvocatoria)
-          throws ServiceException {
+    /**
+    *
+    */
+    @Override
+    public List<EnvioDocumentoPTFR> buscarEnviosDocumentoPortafirmas(final int index,
+            final int pageSize, final List<AtlasFilter> filtros, final List<AtlasSort> orden,
+            final Integer idConvocatoria) throws ServiceException {
 
-      List<EnvioDocumentoPTFR> lstSolicitudes = null;
+        List<EnvioDocumentoPTFR> lstSolicitudes = null;
 
-      filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_CONVOCATORIA_CONVOCATORIA,
-              idConvocatoria, Operador.EQUALS));
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_CONVOCATORIA_CONVOCATORIA,
+                idConvocatoria, Operador.EQUALS));
+        List<AtlasFilter> filtroPadre = new ArrayList<>();
+        filtroPadre.add(new AtlasFilter(Constantes.Filtro.FILTRO_ID_DOC_PTFR_PADRE, Operador.NULL));
+        filtroPadre.add(
+                new AtlasFilter(Constantes.Filtro.FILTRO_ID_DOC_PTFR_PADRE, 0, Operador.EQUALS));
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ID_DOC_PTFR_PADRE, filtroPadre,
+                Operador.OR));
+        lstSolicitudes = this.find(index, pageSize, filtros, orden);
 
-      
-      lstSolicitudes = this.find(index, pageSize, filtros, orden);
+        return lstSolicitudes;
+    }
 
-      return lstSolicitudes;
-  }
+    @Override
+    public List<EnvioDocumentoPTFR> buscarEnvioDocPtfrPorIdEnvioDocPtfrPadre(int index,
+            int pageSize, Object filtros, Object orden, Integer idEnvioDocPtfrPadre)
+            throws ServiceException {
+        List<AtlasFilter> filtrosEntrada = (List<AtlasFilter>) filtros;
+        List<AtlasFilter> filtroPadre = new ArrayList<>();
+        filtroPadre.add(new AtlasFilter(Constantes.Filtro.FILTRO_ID_DOC_PTFR_PADRE,
+                idEnvioDocPtfrPadre, Operador.EQUALS));
+        filtroPadre.add(new AtlasFilter(Constantes.Filtro.FILTRO_ID_DOCUMENTO_PTFR,
+                idEnvioDocPtfrPadre, Operador.EQUALS));
+        filtrosEntrada.add(new AtlasFilter(Constantes.Filtro.FILTRO_ID_DOC_PTFR_PADRE, filtroPadre,
+                Operador.OR));
+        if (null == orden) {
+            orden = new ArrayList<AtlasSort>();
+        }
+        List<AtlasSort> ordenBean = (List<AtlasSort>) orden;
+        ordenBean.add(new AtlasSort(Constantes.Filtro.FILTRO_ID_DOCUMENTO_PTFR, false));
+        return this.find(index, pageSize, filtrosEntrada, ordenBean);
+    }
 
 }

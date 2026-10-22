@@ -36,7 +36,6 @@ import org.madrid.saii.lib.dto.BloqueComponenteDTO;
 import org.madrid.saii.lib.dto.BloqueDTO;
 import org.madrid.saii.lib.dto.CatalogosValoresDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaDTO;
-import org.madrid.saii.lib.dto.DatoDTO;
 import org.madrid.saii.lib.dto.DocumentoDTO;
 import org.madrid.saii.lib.dto.DocumentoPtfrDTO;
 import org.madrid.saii.lib.dto.ExpedienteDTO;
@@ -48,12 +47,10 @@ import org.madrid.saii.lib.dto.ExpedienteModifPresPlazoOtraDTO;
 import org.madrid.saii.lib.dto.ImpresoDTO;
 import org.madrid.saii.lib.dto.InteresadoDTO;
 import org.madrid.saii.lib.dto.RegistroEregDTO;
-import org.madrid.saii.lib.dto.converters.CatalogosValoresToEntity;
 import org.madrid.saii.lib.dto.converters.ConvocatoriaToDTO;
 import org.madrid.saii.lib.dto.converters.ExpedienteDocToDTO;
 import org.madrid.saii.lib.dto.converters.ExpedienteDocToEntity;
 import org.madrid.saii.lib.dto.converters.ExpedienteModfPresupPlazosOtrosDocToDTO;
-import org.madrid.saii.lib.dto.converters.ExpedienteToEntity;
 import org.madrid.saii.lib.services.adme.NoteAdmeService;
 import org.madrid.saii.lib.util.Constantes;
 import org.madrid.saii.lib.util.UtilConstantes;
@@ -794,7 +791,7 @@ public class ExpedienteDocServiceImpl extends
 
             // Trámite de notificación del ciudadano: el documento adicional
             // se vincula de inmediato a la notificación "en curso" (dada de
-            // alta pero todavía no presentada) en SAII_NOTIFI_CIUD_DOC, para
+            // alta pero todavía no presentada) en SAII_EXPE_NOTIF_DOC, para
             // que al presentar solo se anexen los documentos de esta
             // notificación y no los de otras notificaciones anteriores o
             // posteriores del mismo expediente
@@ -824,7 +821,7 @@ public class ExpedienteDocServiceImpl extends
      * coincide en expediente y asunto, y todavía no ha sido presentada (no
      * tiene CD_EREG). Si no existe ninguna todavía, se crea una nueva. Esto
      * permite que, al pulsar "Presentar", solo se anexen los documentos de
-     * esa notificación concreta (SAII_NOTIFI_CIUD_DOC), y no documentos de
+     * esa notificación concreta (SAII_EXPE_NOTIF_DOC), y no documentos de
      * otras notificaciones anteriores o posteriores del mismo expediente.
      *
      * @param expedienteDoc documento recién insertado

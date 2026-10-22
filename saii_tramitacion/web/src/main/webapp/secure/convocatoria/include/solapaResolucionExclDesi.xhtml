@@ -18,7 +18,8 @@
     
             <p:selectOneRadio id="tipoResolucionExclusionDesistimiento"
                 value="#{resolucionConvBean.resolucionExclusionDesistimientoConjunta}"
-                layout="grid" columns="2">
+                layout="grid" columns="2"
+                disabled="#{resolucionConvBean.modoResolucionExclusionDesistimientoBloqueado}">
                 <f:selectItem
                     itemLabel="#{bundle['resolucion.exclusion.desistimiento.tipo.conjunta']}"
                     itemValue="true" />
@@ -34,6 +35,13 @@
                     onstart="atlas.ui.Loading.showLoad('appLoading')"
                     oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
             </p:selectOneRadio>
+            
+            <h:outputText styleClass="ui-message-error"
+                value="#{bundle['resolucion.exclusion.desistimiento.envios.incompatibles']}"
+                rendered="#{resolucionConvBean.enviosResolucionIncompatibles}" />
+            <h:outputText styleClass="ui-message-error"
+                value="#{bundle['resolucion.exclusion.desistimiento.envios.error.consulta']}"
+                rendered="#{resolucionConvBean.errorConsultaEnviosResolucion}" />
     
             <div class="space" />
         
