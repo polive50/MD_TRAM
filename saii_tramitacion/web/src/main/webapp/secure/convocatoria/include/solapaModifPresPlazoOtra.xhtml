@@ -821,10 +821,15 @@
                                 listener="#{expedienteModifPresPlazoOtraBean.edicionCeldaPresupuesto(presupFinanciableA, anualidad, 1)}" />
                     </p:inputNumber>
 
-<!--                     <p:inputNumber value="#{expedienteModifPresPlazoOtraBean.getGranTotalVerticalModif(colIndex, expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif)}"  -->
-<!--                                    rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor == 'TOTAL'}" -->
-<!--                                    readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="." -->
-<!--                                    inputStyle="font-weight: bold; text-align: left; background: #ffffff !important; border: 1px solid #ced4da; width: 100%; color: black !important;"/> -->
+                    <!-- VMM 22/10/26 MD-3170: la fila TOTAL de esta tabla (con conceptos) no mostraba el total de cada
+                         anualidad (solo el total general en la columna TOTAL): este input estaba comentado y la tabla
+                         sin conceptos si lo pinta en su fila TOTAL. Se calcula con colIndex (0-based), que es lo que
+                         espera getGranTotalVerticalModif (indice dentro de listaAnualidades); el pie de abajo le pasa
+                         el numero de anualidad, no el indice, asi que no sirve para esto. -->
+                    <p:inputNumber value="#{expedienteModifPresPlazoOtraBean.getGranTotalVerticalModif(colIndex, expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif)}"
+                                   rendered="#{presupFinanciableA.tipoFinanciacionDTO.dsValor == 'TOTAL'}"
+                                   readonly="true" symbol=" €" symbolPosition="s" decimalSeparator="," thousandSeparator="."
+                                   inputStyle="font-weight: bold; text-align: left; background: #ffffff !important; border: 1px solid #ced4da; width: 100%; color: black !important;"/>
                     <f:facet name="footer">
                         <h:outputText value="#{expedienteModifPresPlazoOtraBean.getGranTotalVerticalModif(anualidad, expedienteModifPresPlazoOtraBean.lstPresupuestoFinanciableAcept1Modif)}" 
                                       style="font-weight:bold; color: black; display: block; text-align: left;">
@@ -1192,7 +1197,7 @@
                 
             <p:dataTable id="expAnualAntesMod" var="expedienteAnualidad"
                 styleClass="atlas-lp" editable="true" 
-                value="#{expedienteModifPresPlazoOtraBean.lstPlazosAntesMod}"
+                value="#{expedienteModifPresPlazoOtraBean.lstPlazosAntesModOrdenada}"
                 emptyMessage="No se encontraron registros"
                 rendered="#{!empty expedienteModifPresPlazoOtraBean.lstPlazosAntesMod}">
                  <!-- VMM 15/09/26: se vuelve a ocultar la fecha inicio de ejecucion - no es editable
@@ -1302,7 +1307,7 @@
                 
             <p:dataTable id="expAnualModAcept" var="expAnualModAcept"
                 styleClass="atlas-lp" 
-                value="#{expedienteModifPresPlazoOtraBean.lstPlazosAcept}"
+                value="#{expedienteModifPresPlazoOtraBean.lstPlazosAceptOrdenada}"
                 emptyMessage="No se encontraron registros">                                              
                 <p:column
                     headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.anualidades.anualidad']}">

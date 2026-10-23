@@ -92,5 +92,8 @@ public class NotificacionCiudadanoDTO extends AuditoriaDTO implements Serializab
      * Documentos adicionales enlazados a esta notificación (SAII_EXPE_NOTIF_DOC)
      */
     private List<ExpedienteDocDTO> lstExpedienteDocDTO;
+    
+    /** Valor del check de revisión, utilizado por el formulario de tramitación. */
+    private Boolean revisada;
 
 }

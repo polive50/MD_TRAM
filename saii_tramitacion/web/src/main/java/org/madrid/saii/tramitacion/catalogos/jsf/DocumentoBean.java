@@ -3126,9 +3126,16 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
     public void descargarBorradorDesistirPortafirmas(ConvocatoriaDTO convDTO) {
         try {
 
+            // VMM 22/10/26 MD-3169: el borrador usa la misma plantilla que el envio a portafirmas: la de
+            // resolucion de desistimiento provisional (418) si la convocatoria tiene el check de resolucion
+            // provisional de desistimiento y la de desistimiento (411) si no
+            Integer tramiteBorrador = Boolean.TRUE.equals(convDTO.getItResProvDesistimiento())
+                    ? utilConstantes.getGlobalCatalogosValores()
+                            .get(Constantes.Tramite.RESOLUCION_DESISTIMIENTO_PROVISIONAL)
+                    : utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.DESISTIMIENTO);
+
             byte[] archivoPdf = this.documentoPtfrService.enviarPortaFirmasBorrador(
-                    convDTO.getIdConvocatoria(), 
-                    utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.DESISTIMIENTO),
+                    convDTO.getIdConvocatoria(), tramiteBorrador,
                     this.idExpediente,null);
 
             StringBuilder nombreArchivoPdf = new StringBuilder();

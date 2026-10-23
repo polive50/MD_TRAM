@@ -482,6 +482,19 @@ public interface ExpedienteService extends BaseService<Expediente, Integer, Expe
             Integer idAsunto) throws ServiceException;
 
     /**
+     * Método para buscar las notificaciones del ciudadano ya presentadas de
+     * un expediente, junto con sus documentos adicionales ya enlazados, para
+     * su consulta en el apartado "Aportación de documentos y
+     * comunicaciones".
+     *
+     * @param idExpediente Identificador del expediente
+     * @return List<NotificacionCiudadanoDTO>
+     * @throws ServiceException Excepción ocurrido en el servicio
+     */
+    List<NotificacionCiudadanoDTO> buscarNotificacionesCiudadanoPresentadas(Integer idExpediente)
+            throws ServiceException;
+
+    /**
      * Método para comprobar que exista el tipo de documento "Resolución
      * concesión" y habilitar los botones de resolucion definitiva
      *

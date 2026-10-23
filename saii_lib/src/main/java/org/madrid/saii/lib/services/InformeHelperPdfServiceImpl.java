@@ -7674,6 +7674,16 @@ public class InformeHelperPdfServiceImpl implements InformeHelperPdfService {
     public void agregarBloqueSubArea(Document document, ExpedienteDTO expedienteDTO)
             throws DocumentException, ServiceException {
         String titulo="Área científica";
+        String descAreaSubarea= expedienteDTO.getConvocatoriaAreaDTO() != null
+                && expedienteDTO.getConvocatoriaAreaDTO().getIdConvocatoriaArea() != null? expedienteDTO.getConvocatoriaAreaDTO().getAreaDTO().getDsValor():" ";
+                
+        if(expedienteDTO.getConvocatoriaAreaSubareaDTO() != null 
+                && expedienteDTO.getConvocatoriaAreaSubareaDTO().getSubareaDTO() != null 
+                && expedienteDTO.getConvocatoriaAreaSubareaDTO().getSubareaDTO().getIdValor() != null ) {
+            descAreaSubarea = descAreaSubarea+" - "+expedienteDTO.getConvocatoriaAreaSubareaDTO().getSubareaDTO().getDsValor();
+            titulo = "Área y subárea científica";
+        }
+        
         this.agregarTituloBloque(document,titulo);
         PdfPCell cell = null;
         PdfPTable table = new PdfPTable(1);
@@ -7684,14 +7694,6 @@ public class InformeHelperPdfServiceImpl implements InformeHelperPdfService {
         table.getDefaultCell().setBorder(Rectangle.BOX);
         table.getDefaultCell().setBorderColor(BaseColor.BLACK);
         
-        String descAreaSubarea= expedienteDTO.getConvocatoriaAreaDTO() != null
-                && expedienteDTO.getConvocatoriaAreaDTO().getIdConvocatoriaArea() != null? expedienteDTO.getConvocatoriaAreaDTO().getAreaDTO().getDsValor():" ";
-
-        if(expedienteDTO.getConvocatoriaAreaSubareaDTO() != null 
-                && expedienteDTO.getConvocatoriaAreaSubareaDTO().getSubareaDTO() != null 
-                && expedienteDTO.getConvocatoriaAreaSubareaDTO().getSubareaDTO().getIdValor() != null ) {
-            descAreaSubarea = descAreaSubarea+" - "+expedienteDTO.getConvocatoriaAreaSubareaDTO().getSubareaDTO().getDsValor();
-        }
         cell = celdaEtiqueta(descAreaSubarea, Boolean.TRUE);
         table.addCell(cell);
         document.add(table);

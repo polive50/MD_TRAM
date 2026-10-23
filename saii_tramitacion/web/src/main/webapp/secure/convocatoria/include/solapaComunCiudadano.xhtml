@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
+
+    <!-- Estado local: solo se conserva mientras esta subpestaña está activa. -->
+    <atlasp:guardarEstado value="#{comunCiudadanoBean.idComunicacionDesplegada}" />
+    <atlasp:guardarEstado value="#{comunCiudadanoBean.documentosComunicacionDesplegada}" />
+    <atlasp:guardarEstado value="#{comunCiudadanoBean.nuevaComunicacion}" />
+    <atlasp:guardarEstado value="#{comunCiudadanoBean.nuevoDocumento}" />
+    <atlasp:guardarEstado value="#{comunCiudadanoBean.tiposComunicacion}" />
+    <atlasp:guardarEstado value="#{comunCiudadanoBean.tiposDocumento}" />
+    <atlasp:guardarEstado value="#{comunCiudadanoBean.comunicacionAbierta}" />
+    <atlasp:guardarEstado value="#{comunCiudadanoBean.documentoAbierto}" />
+
+    <p:outputPanel id="panelComunCiudadano">
+        <atlasp:facesMessages id="mensajesComunCiudadano" modo="notificar" />
+        <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.titulo']}" styleClass="tituloFormulario" />
+        <atlasp:listaPaginada id="tablaComunCiudadano"
+            listAndCountMethod="#{comunCiudadanoBean.obtenerListaComunicaciones}"
+            sortMode="single" reflow="true" pijama="true" export="false">
+            <atlasp:columnaListaPaginada label="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.revision']}" filtrable="false" order="false" exportable="false" width="5%">
+                <ui:define name="value">
+                    <p:selectBooleanCheckbox value="#{item.revisada}"
+                        disabled="#{convocatoriasBean.modoConsulta or expedienteBean.expedienteDTO.modoConsulta}">
+                        <p:ajax process="@this" update=":convocatoriaForm:contenedorSolapas:contenedorRevisionSolapas:panelComunCiudadano"
+                            listener="#{comunCiudadanoBean.cambiarRevision(item, item.revisada)}" />
+                    </p:selectBooleanCheckbox>
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            <atlasp:columnaListaPaginada label="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.tipoNotificacion']}" filtrable="false" order="false" exportable="false">
+                <ui:define name="value">
+                    <h:outputText value="#{item.asuntoDTO.dsValor}" />
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            <atlasp:columnaListaPaginada label="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.expone']}" filtrable="false" order="false" exportable="false">
+                <ui:define name="value">
+                    <h:outputText value="#{item.tlExpone}" />
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            <atlasp:columnaListaPaginada label="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.solicita']}" filtrable="false" order="false" exportable="false">
+                <ui:define name="value">
+                    <h:outputText value="#{item.tlSolicita}" />
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            <atlasp:columnaListaPaginada label="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.estado']}" filtrable="false" order="false" exportable="false">
+                <ui:define name="value">
+                    <h:outputText value="#{item.estadoDTO.dsValor}" />
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            <atlasp:columnaListaPaginada label="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.fechaFirma']}" filtrable="false" order="false" exportable="false">
+                <ui:define name="value">
+                    <h:outputText value="#{item.fcFirmaEreg}"><f:convertDateTime pattern="dd/MM/yyyy" /></h:outputText>
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            <atlasp:columnaListaPaginada label="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.codigoEreg']}" filtrable="false" order="false" exportable="false">
+                <ui:define name="value">
+                    <h:outputText value="#{comunCiudadanoBean.formatearCodigoEreg(item.cdEreg)}" />
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            <atlasp:columnaListaPaginada label="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.unidadAdministrativa']}" filtrable="false" order="false" exportable="false">
+                <ui:define name="value">
+                    <h:outputText value="#{item.dsDestinoEreg}" />
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            <atlasp:columnaListaPaginada label="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.label.descarga']}" filtrable="false" order="false" exportable="false" >
+                <ui:define name="value">
+                    <atlasp:button value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.ver']}" alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.ver']}" title="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.ver']}"
+                        icon="fas #{comunCiudadanoBean.idComunicacionDesplegada == item.idNotificacion ? 'fa-chevron-down' : 'fa-chevron-right'}"
+                        tipoBoton="btn-link" ajax="true" process="@this"
+                        action="#{comunCiudadanoBean.alternarDocumentos(item)}"
+                        update=":convocatoriaForm:contenedorSolapas:contenedorRevisionSolapas:panelComunCiudadano" />
+                    <p:outputPanel rendered="#{comunCiudadanoBean.idComunicacionDesplegada == item.idNotificacion}">
+                        <p:dataTable var="documentoComunicacion" value="#{comunCiudadanoBean.documentosComunicacionDesplegada}"
+                            styleClass="atlas-lp" emptyMessage="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.lista.vacia']}">
+                            <p:column headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.label.tipo']}">
+                                <h:outputText value="#{comunCiudadanoBean.descripcionTipoDocumento(documentoComunicacion)}" />
+                            </p:column>
+                            <p:column headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.label.nombre']}">
+                                <h:outputText value="#{documentoComunicacion.nombreFicheroFica}" />
+                            </p:column>
+                            <p:column headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.label.descarga']}">
+                                <atlasp:button value="#{bundle['boton.descargar']}" alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.descargar']}" title="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.descargar']}"
+                                    icon="fas fa-download" tipoBoton="btn-secondary" ajax="false"
+                                    rendered="#{documentoComunicacion.cdFica != null}"
+                                    action="#{documentoBean.descargarDocumentoFica(documentoComunicacion.cdFica)}" />
+                                <atlasp:button value="#{bundle['boton.descargar']}" alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.descargarEreg']}" title="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.descargarEreg']}"
+                                    icon="fas fa-download" tipoBoton="btn-secondary" ajax="false"
+                                    rendered="#{documentoComunicacion.cdFica == null and not empty documentoComunicacion.cdAnexoEreg}"
+                                    action="#{documentoBean.descargarDocumentoEreg(documentoComunicacion)}" />
+                            </p:column>
+                        </p:dataTable>
+                    </p:outputPanel>
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+        </atlasp:listaPaginada>
+        <atlasp:button value="#{bundle['boton.agregar']}" alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.agregar']}" title="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.agregar']}"
+            icon="fas fa-plus" tipoBoton="btn-success" ajax="true" process="@this"
+            rendered="#{!convocatoriasBean.modoConsulta and !expedienteBean.expedienteDTO.modoConsulta}"
+            action="#{comunCiudadanoBean.agregarComunicacion}"
+            update="panelNuevaComunicacionCiudadano mensajesComunCiudadano"
+            onclick="atlas.ui.Loading.showLoad('appLoading')"
+            oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+    </p:outputPanel>
+
+    <p:dialog id="dialogComunicacionCiudadano" widgetVar="dialogComunicacionCiudadano"
+        header="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.alta.titulo']}" closable="false" modal="true" width="75%"
+        visible="#{comunCiudadanoBean.comunicacionAbierta}"
+        onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        <p:outputPanel id="panelNuevaComunicacionCiudadano">
+            <atlasp:facesMessages id="mensajesNuevaComunicacionCiudadano" modo="notificar" />
+            <p:panelGrid columns="2" layout="grid" styleClass="ui-panelgrid-blank"
+                columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-10">
+                <h:outputLabel for="tipoComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.tipoNotificacion']} *" />
+                <atlasp:comboValores id="tipoComunicacionCiudadano" enableManualInput="false" ajaxUpdate="true"
+                    externalProvider="#{comunCiudadanoBean.tiposComunicacion}"
+                    value="#{comunCiudadanoBean.nuevaComunicacion.asuntoDTO.idValor}"
+                    styleClass="comboObligatorio" recargaAutomatica="true" />
+                <h:outputLabel for="exponeComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.expone']} *" />
+                <p:inputTextarea id="exponeComunicacionCiudadano" rows="3" maxlength="500" style="width:95%"
+                    value="#{comunCiudadanoBean.nuevaComunicacion.tlExpone}">
+                    <f:validateLength maximum="500" />
+                </p:inputTextarea>
+                <h:outputLabel for="solicitaComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.solicita']} *" />
+                <p:inputTextarea id="solicitaComunicacionCiudadano" rows="3" maxlength="500" style="width:95%"
+                    value="#{comunCiudadanoBean.nuevaComunicacion.tlSolicita}">
+                    <f:validateLength maximum="500" />
+                </p:inputTextarea>
+                <h:outputLabel for="fechaFirmaComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.fechaFirma']}" />
+                <p:calendar id="fechaFirmaComunicacionCiudadano"
+                    value="#{comunCiudadanoBean.nuevaComunicacion.fcFirmaEreg}"
+                    pattern="dd/MM/yyyy" mask="99/99/9999" navigator="true" locale="es_ES"
+                    styleClass="atlas-cal" showOn="both" panelStyle="z-index:100000 !important;">
+                    <f:convertDateTime pattern="dd/MM/yyyy" />
+                </p:calendar>
+                <h:outputLabel for="codigoEregComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.codigoEreg']}" />
+                <p:inputMask id="codigoEregComunicacionCiudadano" mask="99/999999.9/99"
+                    value="#{comunCiudadanoBean.nuevaComunicacion.cdEreg}" />
+                <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.unidadAdministrativa']}" />
+                <!-- La selección de unidad administrativa está pendiente de definición. -->
+                <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.unidadAdministrativa.pendiente']}" />
+            </p:panelGrid>
+            <p:dataTable id="tablaAdjuntosNuevaComunicacion" var="adjuntoPendiente"
+                value="#{comunCiudadanoBean.nuevaComunicacion.lstExpedienteDocDTO}"
+                emptyMessage="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.lista.vacia']}" styleClass="atlas-lp">
+                <p:column headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.label.tipo']}"><h:outputText value="#{comunCiudadanoBean.descripcionTipoDocumento(adjuntoPendiente)}" /></p:column>
+                <p:column headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.label.nombre']}"><h:outputText value="#{adjuntoPendiente.nombreFicheroFica}" /></p:column>
+            </p:dataTable>
+            <atlasp:button value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.agregar']}" alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.agregar']}" title="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.agregar']}"
+                icon="fas fa-plus" tipoBoton="btn-secondary" ajax="true" process="panelNuevaComunicacionCiudadano"
+                action="#{comunCiudadanoBean.agregarDocumento}"
+                update="panelDocumentoComunicacion mensajesNuevaComunicacionCiudadano" />
+            <atlasp:button value="#{bundle['popup.guardar']}" alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.guardar']}" title="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.guardar']}"
+                icon="fas fa-save" tipoBoton="btn-success" ajax="true" process="panelNuevaComunicacionCiudadano"
+                action="#{comunCiudadanoBean.guardarComunicacion}"
+                update="panelNuevaComunicacionCiudadano panelComunCiudadano"
+                onclick="atlas.ui.Loading.showLoad('appLoading')"
+                oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+            <atlasp:button value="#{bundle['popup.cerrar']}" alt="#{bundle['popup.cerrar']}" title="#{bundle['popup.cerrar']}"
+                icon="fas fa-times" tipoBoton="btn-secondary" ajax="true" process="@this"
+                action="#{comunCiudadanoBean.cerrarComunicacion}"
+                update="panelNuevaComunicacionCiudadano" />
+        </p:outputPanel>
+    </p:dialog>
+    
+    <p:dialog id="dialogDocumentoComunicacion" widgetVar="dialogDocumentoComunicacion"
+        header="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.agregar.documento']}" closable="false" modal="true" width="70%"
+        visible="#{comunCiudadanoBean.documentoAbierto}">
+        <p:outputPanel id="panelDocumentoComunicacion">
+            <atlasp:facesMessages id="mensajesDocumentoComunicacion" modo="notificar" />
+            <h:outputText value="#{bundle['convocatorias.tab.documentos.label.archivo']}" styleClass="tituloFormulario" />
+            <p:panelGrid columns="2" layout="grid" styleClass="ui-panelgrid-blank"
+                columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-10">
+                <h:outputText value="#{bundle['convocatorias.tab.documentos.label.tramite']}" />
+                <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.tramite']}" />
+                <h:outputLabel for="tipoDocumentoComunicacion" value="#{bundle['convocatorias.tab.documentos.label.tipoDocumento']} *" />
+                <atlasp:comboValores id="tipoDocumentoComunicacion" enableManualInput="false" ajaxUpdate="true"
+                    externalProvider="#{comunCiudadanoBean.tiposDocumento}"
+                    value="#{comunCiudadanoBean.nuevoDocumento.tipoDocumentoDTO.idValor}"
+                    styleClass="comboObligatorio" recargaAutomatica="true" />
+                <h:outputLabel for="fechaDocumentoComunicacion" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.fecha.entrada']}" />
+                <p:calendar id="fechaDocumentoComunicacion" value="#{comunCiudadanoBean.nuevoDocumento.fcRegistro}"
+                    pattern="dd/MM/yyyy HH:mm" mask="99/99/9999 99:99" navigator="true" locale="es_ES"
+                    styleClass="atlas-cal" showOn="both" panelStyle="z-index:100000 !important;">
+                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                </p:calendar>
+                <h:outputLabel for="eregDocumentoComunicacion" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.codigoEreg']}" />
+                <p:inputMask id="eregDocumentoComunicacion" mask="99/999999.9/99"
+                    value="#{comunCiudadanoBean.nuevoDocumento.codigoEreg}" />
+                <h:outputLabel for="observacionesDocumentoComunicacion" value="#{bundle['convocatorias.tab.documentos.label.descripcion.doc.aportado.obs']}" />
+                <p:inputTextarea id="observacionesDocumentoComunicacion" rows="2" maxlength="2000" style="width:95%"
+                    value="#{comunCiudadanoBean.nuevoDocumento.tlObservaciones}">
+                    <f:validateLength maximum="2000" />
+                </p:inputTextarea>
+                <h:outputLabel for="observacionesGestorDocumentoComunicacion" value="#{bundle['convocatorias.tab.documentos.label.obs.internas.gestor']}" />
+                <p:inputTextarea id="observacionesGestorDocumentoComunicacion" rows="2" maxlength="2000" style="width:95%"
+                    value="#{comunCiudadanoBean.nuevoDocumento.tlObservacionesGestor}">
+                    <f:validateLength maximum="2000" />
+                </p:inputTextarea>
+                <h:outputLabel for="archivoDocumentoComunicacion" value="#{bundle['convocatorias.tab.documentos.label.archivo']} *" />
+                <p:fileUpload id="archivoDocumentoComunicacion" value="#{comunCiudadanoBean.archivoSubir}"
+                    mode="simple" skinSimple="true" label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}" />
+            </p:panelGrid>
+            <atlasp:button value="#{bundle['popup.guardar']}" alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.adjuntar']}" title="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.adjuntar']}"
+                icon="fas fa-save" tipoBoton="btn-success" ajax="false"
+                action="#{comunCiudadanoBean.adjuntarDocumento}"
+                onclick="atlas.ui.Loading.showLoad('appLoading')" />
+            <atlasp:button value="#{bundle['popup.cerrar']}" alt="#{bundle['popup.cerrar']}" title="#{bundle['popup.cerrar']}"
+                icon="fas fa-times" tipoBoton="btn-secondary" ajax="true" process="@this"
+                action="#{comunCiudadanoBean.cerrarDocumento}" update="panelDocumentoComunicacion" />
+        </p:outputPanel>
+    </p:dialog>
+</ui:composition>

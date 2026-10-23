@@ -228,6 +228,31 @@ public class ResolucionModificacionServiceImpl implements ResolucionModificacion
         nuevoConcepto.setTlConcepto(cabecera.getTlConcepto());
         nuevoConcepto.setItNuevoConceptoFinan(Constantes.AfirmacionNegacion.S);
 
+        // VMM 22/10/26 MD-3168: el concepto nuevo se creaba sin TL_OBSERVACION, NM_PORCENTAJE_INTENSIDAD,
+        // ID_ESTADO ni NM_AYUDA, a diferencia de los que da de alta el gestor desde la pantalla de
+        // financiacion (FinanciacionBean.addNuevoConcepto). Porcentaje de intensidad, ayuda y estado son
+        // comunes a todos los conceptos del expediente: se copian de uno de referencia (la partida
+        // hermana si la hay, y si no cualquier otro concepto del expediente con esos datos informados).
+        ExpedientePresupDTO referencia = (partidaExistente != null
+                && partidaExistente.getNmPorcentajeIntensidad() != null)
+                        ? partidaExistente
+                        : this.buscarPresupReferenciaEnExpediente(idExpediente);
+        if (referencia != null) {
+            nuevoConcepto.setNmPorcentajeIntensidad(referencia.getNmPorcentajeIntensidad());
+            nuevoConcepto.setNmAyuda(referencia.getNmAyuda());
+            nuevoConcepto.setEstadoDTO(referencia.getEstadoDTO());
+        }
+
+        // La observacion es la que el gestor escribio para el concepto en la modificacion; si no hay,
+        // el mismo texto que usa la pantalla al dar de alta un concepto nuevo.
+        String observacion = grupoConcepto.stream()
+                .map(ExpedienteModifPresupMontoDTO::getCdObservaciones)
+                .filter(StringUtils::isNotBlank)
+                .findFirst()
+                .orElse(null);
+        nuevoConcepto.setTlObservacion(StringUtils.isNotBlank(observacion) ? observacion
+                : "Se añade concepto " + StringUtils.defaultString(cabecera.getTlConcepto()));
+
         nuevoConcepto = this.expedientePresupService.crearNuevoConceptoPadre(nuevoConcepto);
         Integer idExpedientePresupNuevo = nuevoConcepto.getIdExpedientePresup();
 
@@ -251,6 +276,31 @@ public class ResolucionModificacionServiceImpl implements ResolucionModificacion
 
         monto.setIdExpedientePresupMonto(nuevoMonto.getIdExpedientePresupMonto());
         this.expedienteModifPresupMontoService.actualizar(monto);
+    }
+
+    /**
+     * VMM 22/10/26 MD-3168: primer concepto del expediente (nmPresup 1 y luego 2) que tenga informado el
+     * porcentaje de intensidad, para copiar de el los datos comunes (porcentaje, ayuda y estado) a un
+     * concepto nuevo creado por el batch.
+     */
+    private ExpedientePresupDTO buscarPresupReferenciaEnExpediente(Integer idExpediente)
+            throws ServiceException {
+
+        if (idExpediente == null) {
+            return null;
+        }
+
+        for (Integer nmPresup : new Integer[] { 1, 2 }) {
+            Optional<ExpedientePresupDTO> match = this.expedientePresupService
+                    .bucarPresupByIdExpAndNmPresup(idExpediente, nmPresup).stream()
+                    .filter(p -> p.getNmPorcentajeIntensidad() != null)
+                    .findFirst();
+            if (match.isPresent()) {
+                return match.get();
+            }
+        }
+
+        return null;
     }
 
     /**

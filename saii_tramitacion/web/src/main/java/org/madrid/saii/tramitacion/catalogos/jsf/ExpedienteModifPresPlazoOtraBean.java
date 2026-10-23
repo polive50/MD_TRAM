@@ -7139,6 +7139,31 @@ public class ExpedienteModifPresPlazoOtraBean {
     }
     
     
+    /**
+     * VMM 22/10/26 MD-3171: lstPlazosAntesMod y lstPlazosAcept se rellenan desde varios sitios (BD,
+     * conversion de ExpedienteAnualidad, recargas...) sin garantizar el orden y las tablas "plazos antes
+     * de la modificacion" y "plazos aceptados" se pintaban 2a anualidad antes que 1a. Las dos tablas leen
+     * estas vistas, que devuelven los mismos objetos ordenados por anualidad (sin tocar las listas
+     * originales, que son las que se guardan y recorren en el resto de la clase).
+     */
+    public List<ExpedienteModifPlazoDTO> getLstPlazosAntesModOrdenada() {
+        return this.ordenarPlazosPorAnualidad(this.lstPlazosAntesMod);
+    }
+
+    public List<ExpedienteModifPlazoDTO> getLstPlazosAceptOrdenada() {
+        return this.ordenarPlazosPorAnualidad(this.lstPlazosAcept);
+    }
+
+    private List<ExpedienteModifPlazoDTO> ordenarPlazosPorAnualidad(List<ExpedienteModifPlazoDTO> plazos) {
+        if (plazos == null) {
+            return null;
+        }
+        return plazos.stream()
+                .sorted(Comparator.comparing(ExpedienteModifPlazoDTO::getNmAnualidad,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
+                .collect(Collectors.toList());
+    }
+
     public Double getGranTotalFinalModif(List<ExpedientePresupDTO> lstPresup) {
         if (lstPresup == null || this.listaAnualidades == null || lstPresup.isEmpty()) {
             return 0.0;

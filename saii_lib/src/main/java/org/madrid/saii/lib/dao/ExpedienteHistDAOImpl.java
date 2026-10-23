@@ -73,6 +73,8 @@ public class ExpedienteHistDAOImpl extends BaseDAOImpl<ExpedienteHist, Integer>
         expedienteHist.setFcFirmaAlegaciones(expediente.getFcFirmaAlegaciones());
         expedienteHist.setItAceptaAyuda(expediente.getItAceptaAyuda());
         expedienteHist.setAutorizado(expediente.getAutorizado());
+        expedienteHist.setCdUsuModif(expediente.getCdUsuModif());
+        expedienteHist.setFcModifFila(expediente.getFcModifFila());
         
         // Auditoria
         expedienteHist.setFcAltaFila(new Date());

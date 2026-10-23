@@ -3765,6 +3765,7 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
         }
         
         
+        
         if (Constantes.EstadoExpediente.PROPUESTA.equals(estado.getNmConstante()) && expediente.getConvocatoriaAct() != null) {
             
             ConvocatoriaDTO convDTO = this.convocatoriaService.buscarId(expediente.getConvocatoriaAct().getIdConvocatoria());
@@ -3789,8 +3790,16 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
                 
             }
 
+           //MD-3165  Gaurdamos la fecha de propuesta en fecha_firma 
             
+            expediente.setFcFirma(new Date());
             
+        }
+        
+        ExpedienteDTO expedienteDTO = this.buscarIdSimple(idExpediente, Boolean.FALSE);
+        
+        if(Boolean.FALSE.equals(expedienteDTO.getEsExpedienteSolicitante()) && Constantes.EstadoExpediente.NO_ACEPTADA.equals(estado.getNmConstante()) ) {
+            expediente.setFcFirma(null);  
         }
 
         expediente.setEstadoBenef(ExpedienteToEntity.INSTANCE.calcularEstadoBenef(idEstado));
@@ -3799,8 +3808,8 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
 
         this.expedienteHistDAO.crearHistorico(expediente, dni);
 
-        ExpedienteDTO expedienteDTO = this.buscarIdSimple(idExpediente, Boolean.FALSE);
-
+        
+        expedienteDTO = this.buscarIdSimple(idExpediente, Boolean.FALSE);
         expedienteDTO.setEstadoDTO(CatalogosValoresToDTO.INSTANCE.apply(estado));
 
         // Comprobamos si es un expediente de Solicitud
@@ -7280,6 +7289,15 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
     public NotificacionCiudadanoDTO buscarNotificacionCiudadanoEnCurso(Integer idExpediente,
             Integer idAsunto) throws ServiceException {
         return this.notificacionCiudadanoService.buscarEnCurso(idExpediente, idAsunto);
+    }
+
+    /**
+     *
+     */
+    @Override
+    public List<NotificacionCiudadanoDTO> buscarNotificacionesCiudadanoPresentadas(
+            Integer idExpediente) throws ServiceException {
+        return this.notificacionCiudadanoService.buscarPresentadasPorExpediente(idExpediente);
     }
 
     /**

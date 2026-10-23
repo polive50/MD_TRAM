@@ -41,7 +41,10 @@ public class TramiteDesistimiento extends Tramite {
         byte[] byteSalida = null;
         try {
 
-            Document document = new Document(PageSize.A4, 36, 36, 102, 36);
+            // VMM 22/10/26 MD-3169: mismo modelo de PDF que exclusion (MD-3142) y subsanacion administrativa
+            // (MD-2950), tanto para desistimiento definitivo (411) como provisional (418): margen derecho de 85f
+            // para la marca de agua lateral y margen inferior de 110f para la firma/pie
+            Document document = new Document(PageSize.A4, 36f, 85f, 102f, 110f);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PdfWriter writer = PdfWriter.getInstance(document, baos);
 
@@ -56,41 +59,51 @@ public class TramiteDesistimiento extends Tramite {
 
             document.open();
 
-            String desImpreso=  Objects.nonNull(expedienteDTO) && Objects.nonNull(expedienteDTO.getImpresoDTO())
-                    ? expedienteDTO.getImpresoDTO().getDsDescripcion()
-                    : "";
             String cdExpediente=  Objects.nonNull(expedienteDTO)
                      ? expedienteDTO.getCdExpediente()
                      : "";
             InformeHelperPdfService informeHelperPdfService = ApplicationContextProvider.getBean(InformeHelperPdfService.class);
-            informeHelperPdfService.agregarTitulo(document, Constantes.Plantilla.TEXTO_TITULO,
-                    convocatoriaPlaDTO.getDsPlantilla(),desImpreso,cdExpediente, null, null);
+
+            // VMM 22/10/26 MD-3169: cabecera igual que exclusion/subsanacion administrativa: el titulo de la
+            // plantilla (barra roja) es el nombre de la convocatoria (acronimo + titulo) y se separa del logo
+            // con agregarEspacioLogos=true; sin "Informe de tramite" ni impreso
+            StringBuilder dsConvocatoria = new StringBuilder();
+            dsConvocatoria.append(convocatoriaDTO.getCdAcronimo()).append(". ");
+            dsConvocatoria.append(convocatoriaDTO.getCdTitulo()).append(". ");
+
+            informeHelperPdfService.agregarTitulo(document, null, dsConvocatoria.toString(), null,
+                    cdExpediente, Boolean.TRUE, null);
 
             informeHelperPdfService.agregarFilaVacio(document, 1);
             String dsCatalogo = Objects.nonNull(catalogoValor) ? catalogoValor.getDsValor() : "";
 
-            StringBuilder dsConvocatoria = new StringBuilder();
-            dsConvocatoria.append(convocatoriaDTO.getCdAcronimo()).append(". ");
-            dsConvocatoria.append(convocatoriaDTO.getCdTitulo()).append(". ");
-            if (StringUtils.isNotBlank(convocatoriaDTO.getIdModalidadConvocatoria().getDsValor())) {
-                dsConvocatoria.append(convocatoriaDTO.getIdModalidadConvocatoria().getDsValor());
-            }
-
-            String dsExpediente = Objects.nonNull(expedienteDTO)
-                    ? expedienteDTO.getCdExpediente() + ". "
-                            + expedienteDTO.getInteresadoDTO().getCdNumIden() + "  "
-                            + expedienteDTO.getInteresadoDTO().getDsNombre() + " "
-                            + expedienteDTO.getInteresadoDTO().getDsApellido1() + " "
-                            + expedienteDTO.getInteresadoDTO().getDsApellido2() + ". " + dsCatalogo
+            String nifSolicitante = Objects.nonNull(expedienteDTO)
+                    ? expedienteDTO.getInteresadoDTO().getCdNumIden()
+                    : "";
+            // dsInteresado ya trae nombre+apellidos o razon social segun sea persona fisica o juridica
+            String nombreORazonSocial = Objects.nonNull(expedienteDTO)
+                    ? expedienteDTO.getInteresadoDTO().getDsInteresado()
                     : "";
 
             informeHelperPdfService.agregarSubTituloPlantilla(document,
-                    Constantes.Plantilla.TEXTO_CONVOCATORIA, dsConvocatoria.toString(), 11, null);
+                    Constantes.Plantilla.TEXTO_ASUNTO,
+                    convocatoriaPlaDTO.getTramiteDTO().getDsValor(), 14, null);
+            informeHelperPdfService.agregarEspacioPequeno(document);
             informeHelperPdfService.agregarSubTituloPlantilla(document,
-                    Constantes.Plantilla.TEXTO_PROCEDIMIENTO,
-                    convocatoriaPlaDTO.getTramiteDTO().getDsValor(), 12, null);
+                    Constantes.Plantilla.TEXTO_EXPEDIENTE, cdExpediente, 14, null);
+            informeHelperPdfService.agregarEspacioPequeno(document);
             informeHelperPdfService.agregarSubTituloPlantilla(document,
-                    Constantes.Plantilla.TEXTO_EXPEDIENTE, dsExpediente, 9, null);
+                    Constantes.Plantilla.TEXTO_NIF_SOLICITANTE, nifSolicitante, 14, null);
+            informeHelperPdfService.agregarEspacioPequeno(document);
+
+            if ("Persona jurídica".equals(dsCatalogo)) {
+                informeHelperPdfService.agregarSubTituloPlantilla(document,
+                        Constantes.Plantilla.TEXTO_RAZON_SOCIAL + ": ", nombreORazonSocial, 14, null);
+            } else {
+                informeHelperPdfService.agregarSubTituloPlantilla(document,
+                        Constantes.Plantilla.TEXTO_NOMBRE + ": ", nombreORazonSocial, 14, null);
+            }
+            informeHelperPdfService.agregarEspacioPequeno(document);
 
             if (Objects.nonNull(expedienteDTO)
                     && Boolean.TRUE.equals(expedienteDTO.getEsExpedienteSolicitante())) {
@@ -114,51 +127,72 @@ public class TramiteDesistimiento extends Tramite {
                 }
 
             }
-
-            informeHelperPdfService.agregarTituloCabeceraFecha(document, Constantes.Evaluacion.TEXTO_FECHA,
-                    new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
-            
-            if (Objects.nonNull(expedienteDTO)
-                    && Boolean.TRUE.equals(expedienteDTO.getEsExpedienteContrato())) {
-                String observaciones = "";
-                if(expedienteDTO.getExpedienteContrato() != null && 
-                        StringUtils.isNotBlank(expedienteDTO.getExpedienteContrato().getTlObservaciParaCiudadano())) {
-                    observaciones = expedienteDTO.getExpedienteContrato().getTlObservaciParaCiudadano(); 
-                    
-                }else if(expedienteDTO.getExpedienteContratoSustitucion() != null && 
-                        StringUtils.isNotBlank(expedienteDTO.getExpedienteContratoSustitucion().getTlObservaciParaCiudadano())) {
-                    observaciones = expedienteDTO.getExpedienteContratoSustitucion().getTlObservaciParaCiudadano(); 
-                }
-                if(StringUtils.isNotBlank(observaciones)) {
-                    informeHelperPdfService.agregarFilaVacio(document, 1);
-                    informeHelperPdfService.agregarSubTituloPlantilla(document,
-                            Constantes.Plantilla.TEXTO_CAUSA_DESISTIMIENTO, observaciones, 12, null);
-                }
-            }
-
+            // VMM 22/10/26 MD-3169: la fecha ya no va en la cabecera, sale junto a "Firmado
+            // electronicamente" al pie (agregarLugarFechaFirmaElectronicaADM), como en exclusion
             informeHelperPdfService.agregarFilaVacio(document, 1);
-            
-            String observacSubsana ="";
-            if(convocatoriaPlaDTO.getLstConvocatoriaPlaDocDTO() != null && 
-                    convocatoriaPlaDTO.getLstConvocatoriaPlaDocDTO().get(0) != null && 
-                    convocatoriaPlaDTO.getLstConvocatoriaPlaDocDTO().get(0).getDsObservaciones() != null) {
-                observacSubsana = convocatoriaPlaDTO.getLstConvocatoriaPlaDocDTO().get(0).getDsObservaciones();                
-                if(StringUtils.isNotBlank(observacSubsana)) {
-                    informeHelperPdfService.agregarSubTituloPlantilla(document, "", observacSubsana, 0, true);                    
-                    informeHelperPdfService.agregarFilaVacio(document, 1);
-                }  
-            }
-            
-            // VMM 14/10/26 MD-3142: texto superior + inferior (el inferior es opcional)
-            String descripcion = this.textoDescripcionUnificado(convocatoriaPlaDTO);
-            
-            if(StringUtils.isNotBlank(descripcion)) {
-                informeHelperPdfService.agregarTextoEnriquecido(document, "", descripcion, 0, true);
+
+            // VMM 22/10/26 MD-3169: cuerpo del PDF: texto superior + (causa del desistimiento del contrato y
+            // observaciones de la plantilla, si las hay) + texto inferior
+            String descripcionSup = Objects.nonNull(convocatoriaPlaDTO.getDsDescripcion())
+                    ? convocatoriaPlaDTO.getDsDescripcion()
+                    : "";
+            String descripcionInf = Objects.nonNull(convocatoriaPlaDTO.getDsDescripcionInf())
+                    ? convocatoriaPlaDTO.getDsDescripcionInf()
+                    : "";
+
+            if (StringUtils.isNotBlank(descripcionSup)) {
+                informeHelperPdfService.agregarTextoEnriquecidoADM(document, "", descripcionSup, 0, true);
                 informeHelperPdfService.agregarFilaVacio(document, 1);
             }
 
-            informeHelperPdfService.agregarContenidoFinal(document, writer, convocatoriaPlaDTO,
-                    convocatoriaDTO);
+            if (Objects.nonNull(expedienteDTO)
+                    && Boolean.TRUE.equals(expedienteDTO.getEsExpedienteContrato())) {
+                String observaciones = "";
+                if(expedienteDTO.getExpedienteContrato() != null &&
+                        StringUtils.isNotBlank(expedienteDTO.getExpedienteContrato().getTlObservaciParaCiudadano())) {
+                    observaciones = expedienteDTO.getExpedienteContrato().getTlObservaciParaCiudadano();
+
+                }else if(expedienteDTO.getExpedienteContratoSustitucion() != null &&
+                        StringUtils.isNotBlank(expedienteDTO.getExpedienteContratoSustitucion().getTlObservaciParaCiudadano())) {
+                    observaciones = expedienteDTO.getExpedienteContratoSustitucion().getTlObservaciParaCiudadano();
+                }
+                if(StringUtils.isNotBlank(observaciones)) {
+                    informeHelperPdfService.agregarSubTituloPlantilla(document,
+                            Constantes.Plantilla.TEXTO_CAUSA_DESISTIMIENTO, observaciones, 12, null);
+                    informeHelperPdfService.agregarFilaVacio(document, 1);
+                }
+            }
+
+            if(convocatoriaPlaDTO.getLstConvocatoriaPlaDocDTO() != null
+                    && !convocatoriaPlaDTO.getLstConvocatoriaPlaDocDTO().isEmpty()
+                    && convocatoriaPlaDTO.getLstConvocatoriaPlaDocDTO().get(0) != null
+                    && StringUtils.isNotBlank(convocatoriaPlaDTO.getLstConvocatoriaPlaDocDTO().get(0).getDsObservaciones())) {
+                informeHelperPdfService.agregarSubTituloPlantilla(document, "",
+                        convocatoriaPlaDTO.getLstConvocatoriaPlaDocDTO().get(0).getDsObservaciones(), 0, true);
+                informeHelperPdfService.agregarFilaVacio(document, 1);
+            }
+
+            if (StringUtils.isNotBlank(descripcionInf)) {
+                informeHelperPdfService.agregarTextoEnriquecidoADM(document, "", descripcionInf, 0, true);
+            }
+
+            // VMM 22/10/26 MD-3169: firma y pie como exclusion/subsanacion administrativa. Si no cabe la firma
+            // (quedan menos de 140pt) se salta de pagina antes de pintarla
+            String dsFirmante = "";
+            if (Objects.nonNull(convocatoriaPlaDTO.getLstConvocatoriaPlaFirDTO())
+                    && StringUtils.isNotBlank(convocatoriaPlaDTO.getDsFirmante())) {
+                dsFirmante = convocatoriaPlaDTO.getDsFirmante();
+            }
+
+            if (writer.getVerticalPosition(false) < 140f) {
+                document.newPage();
+            }
+
+            informeHelperPdfService.agregarFilaVacio(document, 1);
+            informeHelperPdfService.agregarFilaVacio(document, 1);
+            informeHelperPdfService.agregarLugarFechaFirmaElectronicaADM(document, writer, dsFirmante);
+            informeHelperPdfService.agregarContenidoFinalAdministrativo(document, writer,
+                    convocatoriaPlaDTO, convocatoriaDTO);
 
             document.close();
 

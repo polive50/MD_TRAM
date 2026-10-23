@@ -1033,10 +1033,6 @@ public class EnvioNotificacionesBean extends CatalogoBean<EnvioNotificacionesPor
                     .equals(utilConstantes.getGlobalCatalogosValores()
                             .get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_ADMINISTRATIVA))) {
                 
-                this.expedienteService.actualizarEstadoBeneficiario(
-                        docPtfrDTO.getIdExpediente(),
-                        Constantes.EstadoExpedienteBeneficiario.PENDIENTE_SUBSANACION_REQUISITOS);
-                
                 DocumentoPtfr documentoPtfr = DocumentoPtfrToEntity.INSTANCE.apply(docPtfrDTO);
                 
                 // Actualizamos los estados de los documentos
@@ -1053,6 +1049,9 @@ public class EnvioNotificacionesBean extends CatalogoBean<EnvioNotificacionesPor
                             utilConstantes.getGlobalCatalogosValores().get(
                                     Constantes.EstadoExpediente.PENDIENTE_SUBSANACION_REQUISITOS),
                             Boolean.TRUE);
+					this.expedienteService.actualizarEstadoBeneficiario(
+                    docPtfrDTO.getIdExpediente(),
+                    Constantes.EstadoExpedienteBeneficiario.PENDIENTE_SUBSANACION_REQUISITOS);							
                 }
                 
             }

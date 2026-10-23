@@ -4,8 +4,12 @@ import java.util.List;
 
 import org.madrid.saii.lib.dao.NotificacionCiudadanoDAO;
 import org.madrid.saii.lib.domain.NotificacionCiudadano;
+import org.madrid.saii.lib.dto.CatalogosValoresDTO;
+import org.madrid.saii.lib.dto.ExpedienteDocDTO;
 import org.madrid.saii.lib.dto.NotificacionCiudadanoDTO;
 
+import atlas.busquedas.domain.AtlasFilter;
+import atlas.busquedas.domain.AtlasSort;
 import atlas.core.exceptions.ServiceException;
 
 /**
@@ -70,6 +74,39 @@ public interface NotificacionCiudadanoService
      * @throws ServiceException the service exception
      */
     NotificacionCiudadano buscarEnCursoEntidad(Integer idExpediente, Integer idAsunto)
+            throws ServiceException;
+    
+    /** Recupera una página de comunicaciones sin cargar sus documentos adjuntos. */
+    public List<NotificacionCiudadanoDTO> buscarComunicaciones(int index, int pageSize,
+            List<AtlasFilter> filtros, List<AtlasSort> orden) throws ServiceException;
+
+    /** Obtiene los valores del catálogo Tipos de notificaciones del ciudadano. */
+    public List<CatalogosValoresDTO> obtenerTiposComunicacion()
+            throws ServiceException;
+
+    /** Registra una comunicación resuelta y sus documentos en una transacción. */
+    public NotificacionCiudadanoDTO registrarComunicacion(NotificacionCiudadanoDTO comunicacion)
+            throws ServiceException;
+
+    /** Actualiza únicamente el estado de revisión de una comunicación del expediente. */
+    public CatalogosValoresDTO actualizarRevision(Integer idNotificacion, Integer idExpediente, boolean revisada)
+            throws ServiceException;
+
+    /** Recupera los adjuntos activos de una comunicación del expediente seleccionado. */
+    public List<ExpedienteDocDTO> buscarDocumentosComunicacion(
+            Integer idNotificacion, Integer idExpediente) throws ServiceException;
+
+    /**
+     * Busca las notificaciones del ciudadano ya presentadas (con CD_EREG
+     * informado) de un expediente, junto con sus documentos adicionales
+     * enlazados (SAII_EXPE_NOTIF_DOC), para su consulta en el apartado
+     * "Aportación de documentos y comunicaciones".
+     *
+     * @param idExpediente the id expediente
+     * @return List<NotificacionCiudadanoDTO>
+     * @throws ServiceException the service exception
+     */
+    List<NotificacionCiudadanoDTO> buscarPresentadasPorExpediente(Integer idExpediente)
             throws ServiceException;
 
 }

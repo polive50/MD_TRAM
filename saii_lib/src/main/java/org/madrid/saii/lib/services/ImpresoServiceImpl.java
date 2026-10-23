@@ -371,7 +371,6 @@ public class ImpresoServiceImpl extends BaseServiceImpl<Impreso, Integer, Impres
 
                 //  this.agregarNumeroExpediente(expedienteDTO, document);
 
-                String tlDescripcion = (expedienteDTO.getConvocatoriaActDTO().getTipoPersonaFisJurDTO().getDsValor() == null ? "[Descripción del actor]" : expedienteDTO.getConvocatoriaActDTO().getTipoPersonaFisJurDTO().getDsValor());
                 /*
                 List<BloqueDTO> bloquePesonaSol= lstBloquesResp.stream().filter(x-> x.getEsTipoPersonaSolicitante().equals(Boolean.TRUE)).collect(Collectors.toList());
                 if ( !bloquePesonaSol.isEmpty() ){
@@ -454,12 +453,16 @@ public class ImpresoServiceImpl extends BaseServiceImpl<Impreso, Integer, Impres
                     
                     
                     //ConvocatoriaAct actor = this.convocatoriaActDAO.find(impresoDTO.getConvocatoriaActDTO().getIdActor());
+                    String tlDescripcion = ((expedienteDTO.getConvocatoriaActDTO().getTipoPersonaFisJurDTO() == null 
+                            ||expedienteDTO.getConvocatoriaActDTO().getTipoPersonaFisJurDTO().getDsValor() == null) ? "[Descripción del actor]" : expedienteDTO.getConvocatoriaActDTO().getTipoPersonaFisJurDTO().getDsValor());
                     
                     String titulo1="Datos de la persona solicitante";
                     if(impresoDTO.getTipoDTO() != null && impresoDTO.getTipoDTO().getIdValor() != null
                             && ( impresoDTO.getTipoDTO().getIdValor().equals(
                                             utilConstantes.getGlobalCatalogosValores().get(Constantes.TipoImpreso.FORMULARIO_COMPLEMENTARIO)) )) {
-                        titulo1="Datos de la persona participante";
+                        titulo1="Datos "+tlDescripcion;
+                        
+                        
                     
                     }
                     this.agregarBloqueDatosInteresado(document, expedienteDTO, titulo1);
