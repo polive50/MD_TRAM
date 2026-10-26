@@ -42,6 +42,17 @@
             <h:outputText styleClass="ui-message-error"
                 value="#{bundle['resolucion.exclusion.desistimiento.envios.error.consulta']}"
                 rendered="#{resolucionConvBean.errorConsultaEnviosResolucion}" />
+                
+                
+            <atlasp:message tipo="info"
+                texto="#{bundle['resolucion.exclusion.desistimiento.exclusion.provisional.bloqueo']}"
+                rendered="#{resolucionConvBean.hayExcluidosProvisionales}" />
+            <atlasp:message tipo="info"
+                texto="#{bundle['resolucion.exclusion.desistimiento.desistimiento.provisional.bloqueo']}"
+                rendered="#{resolucionConvBean.hayDesistidosProvisionales}" />
+            <atlasp:message tipo="info"
+                texto="#{bundle['resolucion.exclusion.desistimiento.provisionales.error.consulta']}"
+                rendered="#{resolucionConvBean.errorConsultaProvisionalesResolucion}" />
     
             <div class="space" />
         

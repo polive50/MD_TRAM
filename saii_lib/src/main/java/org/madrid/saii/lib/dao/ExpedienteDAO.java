@@ -235,16 +235,16 @@ public interface ExpedienteDAO extends BaseDAO<Expediente, Integer> {
     List<Expediente> listExpedientesHijoPorExpedientePadre(Integer idExpedientePadre);
     
     /**
-     * Obtiene los expedientes de una convocatoria que se encuentran en el
-     * estado indicado, junto con los requisitos que no cumplen.
+     * Obtiene los expedientes de una convocatoria que se encuentran en los
+     * estados indicados, junto con los requisitos que no cumplen.
      *
      * @param idConvocatoria identificador de la convocatoria
-     * @param idEstado identificador del estado del expediente
+     * @param idsEstado identificadores de los estados del expediente
      * @param idCatalogoRequisitos identificador del catálogo de requisitos
      * @return expedientes de la resolución de exclusión o desistimiento
      */
     List<ResolucionExclusionDesistimientoDTO> listaResolucionExclusionDesistimiento(
-            Integer idConvocatoria, Integer idEstado, Integer idCatalogoRequisitos);
+            Integer idConvocatoria, List<Integer> idsEstado, Integer idCatalogoRequisitos);
     
     /**
      * Obtiene la fecha de presentacion del expediente en base a la solicitud indicada
@@ -282,5 +282,15 @@ public interface ExpedienteDAO extends BaseDAO<Expediente, Integer> {
      */
     List<ResolucionConcesionDTO> listaResolucionConcesion(
             Integer idConvocatoria, Integer idEstado);
+    
+    /**
+     * Obtiene los estados provisionales presentes en los expedientes activos de la convocatoria.
+     *
+     * @param idConvocatoria identificador de la convocatoria
+     * @param idsEstado identificadores de los estados provisionales
+     * @return estados presentes, sin duplicados
+     */
+    List<Integer> obtenerEstadosProvisionalesResolucion(Integer idConvocatoria,
+            List<Integer> idsEstado);
 
 }

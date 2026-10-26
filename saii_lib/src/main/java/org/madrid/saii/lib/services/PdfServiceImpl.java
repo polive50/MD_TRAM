@@ -1021,7 +1021,10 @@ public class PdfServiceImpl implements PdfService {
                 }
 
             } else if (utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.NOTIFICACION_CIUDADANO).equals(idTramite)) {
-
+                Date fechaFirma= new Date();
+                pdfReciboPresentacion.setCodigoEreg(dto.getCdEregNotifiCiud());
+                pdfReciboPresentacion.setFcRegistro(fechaFirma);
+                this.expedienteDocDAO.insertOrUpdate(pdfReciboPresentacion);
                 if (lstExpDocDTO != null) {
                     for (ExpedienteDocDTO docDTO : lstExpDocDTO) {
                         ExpedienteDoc docAnexo = this.expedienteDocDAO
@@ -1030,13 +1033,17 @@ public class PdfServiceImpl implements PdfService {
                                 new CatalogosValores(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REVISION_OK)));
                         docAnexo.getEstado().setNmConstante(Constantes.EstadoDocumento.REVISION_OK);
                         docAnexo.setCodigoEreg(dto.getCdEregNotifiCiud());
-                        docAnexo.setFcRegistro(new Date());
+                        docAnexo.setFcRegistro(fechaFirma);
                         listaDocumentos.add(docAnexo);
                     }
                 }
                 
             }  else if (utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.ALEGACIONES).equals(idTramite)) {
-
+                fcFirma= dto.getFcFirmaAlegaciones();
+                cdEreg= dto.getCdEregAlegaciones(); 
+                pdfReciboPresentacion.setCodigoEreg(dto.getCdEregAlegaciones());
+                pdfReciboPresentacion.setFcRegistro(fcFirma);
+                this.expedienteDocDAO.insertOrUpdate(pdfReciboPresentacion);
                 List<AtlasFilter> filtros = new ArrayList<>();
                 
                 filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_EXPEDIENTE_IDEXPEDIENTE,
@@ -1050,10 +1057,15 @@ public class PdfServiceImpl implements PdfService {
                 filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
 
                 listaDocumentos = this.expedienteDocDAO.find(filtros, null);
-                fcFirma= dto.getFcFirmaAlegaciones();
-                cdEreg= dto.getCdEregAlegaciones(); 
+                
                 
             } else {
+                // tramite solicitud
+                fcFirma= dto.getFcFirma();
+                cdEreg= dto.getCdEreg();
+                pdfReciboPresentacion.setCodigoEreg(cdEreg);
+                pdfReciboPresentacion.setFcRegistro(fcFirma);
+                this.expedienteDocDAO.insertOrUpdate(pdfReciboPresentacion);
                 // Marcamos los documentos con padre
                 List<AtlasFilter> filtros = new ArrayList<>();
                 filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_EXPEDIENTE_IDEXPEDIENTE,
@@ -1065,9 +1077,7 @@ public class PdfServiceImpl implements PdfService {
                 filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
 
                 listaDocumentos = this.expedienteDocDAO.find(filtros, null);
-                // tramite solicitud
-                fcFirma= dto.getFcFirma();
-                cdEreg= dto.getCdEreg(); 
+                
             }
             
            

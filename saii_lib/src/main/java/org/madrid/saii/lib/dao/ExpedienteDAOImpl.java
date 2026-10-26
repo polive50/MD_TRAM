@@ -2724,7 +2724,7 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
      */
     @Override
     public List<ResolucionExclusionDesistimientoDTO> listaResolucionExclusionDesistimiento(
-            Integer idConvocatoria, Integer idEstado, Integer idCatalogoRequisitos) {
+            Integer idConvocatoria, List<Integer> idsEstado, Integer idCatalogoRequisitos) {
 
         StringBuilder queryHql = new StringBuilder();
         queryHql.append(" select new org.madrid.saii.lib.dto.ResolucionExclusionDesistimientoDTO(");
@@ -2735,7 +2735,7 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
         queryHql.append(" join ex.solicitud so");
         queryHql.append(" join so.convocatoria co");
         queryHql.append(" where co.idConvocatoria = :idConvocatoria");
-        queryHql.append(" and ex.estado.idValor = :idEstado");
+        queryHql.append(" and ex.estado.idValor in (:idsEstado)");
         queryHql.append(" and req.requisito.catalogo.idCatalogo = :idCatalogoRequisitos");
         queryHql.append(" and req.itCumple = :itCumple");
         queryHql.append(" and co.fcBajaFila is null");
@@ -2747,7 +2747,7 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
 
         Map<String, Object> params = new HashMap<>();
         params.put("idConvocatoria", idConvocatoria);
-        params.put("idEstado", idEstado);
+        params.put("idsEstado", idsEstado);
         params.put("idCatalogoRequisitos", idCatalogoRequisitos);
         params.put("itCumple", Constantes.AfirmacionNegacion.N);
 
@@ -3046,6 +3046,28 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
                 utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpedienteResolucion.PENDIENTE_PORTAFIRMAS)
             ), IntegerType.INSTANCE);
         }  
+    }
+    
+    @Override
+    public List<Integer> obtenerEstadosProvisionalesResolucion(Integer idConvocatoria,
+            List<Integer> idsEstado) {
+        StringBuilder queryHql = new StringBuilder();
+        queryHql.append(" select distinct ex.estado.idValor from Expediente ex");
+        queryHql.append(" join ex.solicitud so join so.convocatoria co");
+        queryHql.append(" where co.idConvocatoria = :idConvocatoria");
+        queryHql.append(" and ex.estado.idValor in (:idsEstado)");
+        queryHql.append(" and co.fcBajaFila is null");
+        queryHql.append(" and so.fcBajaFila is null");
+        queryHql.append(" and ex.fcBajaFila is null");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("idConvocatoria", idConvocatoria);
+        params.put("idsEstado", idsEstado);
+
+        @SuppressWarnings("unchecked")
+        List<Integer> estados = (List<Integer>) super.executeHQLQueryList(
+                queryHql.toString(), params);
+        return estados;
     }
   
 }

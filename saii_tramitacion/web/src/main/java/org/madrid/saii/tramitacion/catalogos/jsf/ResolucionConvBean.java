@@ -132,6 +132,11 @@ public class ResolucionConvBean {
     private Integer idConvocatoriaEnviosConsultados;
     private boolean errorConsultaEnviosResolucion;
     
+    /** Estados provisionales consultados una sola vez durante esta petición. */
+    private List<Integer> estadosProvisionalesResolucion;
+    private Integer idConvocatoriaProvisionalesConsultados;
+    private boolean errorConsultaProvisionalesResolucion;
+    
     /** Indicadores de activación de las botoneras de resolución. */
     private Boolean activarBotonesResolucionConjunta = Boolean.TRUE;
     private Boolean activarBotonesResolucionIndividual = Boolean.FALSE;
@@ -1156,12 +1161,18 @@ public class ResolucionConvBean {
                 || this.tramitesResolucionEnviados.contains(tramite)) {
             return false;
         }
+        boolean hayProvisionales = this.hayProvisionalesResolucion(tramite);
+        if (hayProvisionales) {
+            return false;
+        }
         try {
             Integer idTramite = this.utilConstantes.getGlobalCatalogosValores().get(tramite);
-            for (ResolucionExclusionDesistimientoDTO elemento
-                    : this.obtenerExpedientesResolucionDefinitiva(tramite)) {
-                if (!this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(
-                        elemento.getIdExpediente(), idTramite)) {
+            List<ResolucionExclusionDesistimientoDTO> expedientes =
+                    this.obtenerExpedientesResolucionDefinitiva(tramite);
+            for (ResolucionExclusionDesistimientoDTO elemento : expedientes) {
+                Boolean existePeticionActiva = this.documentoPtfrService
+                        .consultarDocumentoPortafirmaPorTramite(elemento.getIdExpediente(), idTramite);
+                if (Boolean.FALSE.equals(existePeticionActiva)) {
                     return true;
                 }
             }
@@ -1169,6 +1180,19 @@ public class ResolucionConvBean {
             log.error(e.getMessage(), e);
         }
         return false;
+    }
+    
+    /** Bloquea el trámite correspondiente y ambos estados en la resolución conjunta. */
+    private boolean hayProvisionalesResolucion(Integer tramite) {
+        boolean hayExcluidos = this.isHayExcluidosProvisionales();
+        boolean hayDesistidos = this.isHayDesistidosProvisionales();
+        if (this.errorConsultaProvisionalesResolucion) {
+            return true;
+        }
+        if (Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)) {
+            return hayExcluidos || hayDesistidos;
+        }
+        return Constantes.Tramite.EXCLUSION.equals(tramite) ? hayExcluidos : hayDesistidos;
     }
 
     /** Indica si se puede subir la resolución individual de exclusión. */
@@ -1335,9 +1359,11 @@ public class ResolucionConvBean {
         Integer estado = Constantes.Tramite.EXCLUSION.equals(tramite)
                 ? Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO
                         : Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO;
-        return this.agruparMotivos(this.expedienteDAO.listaResolucionExclusionDesistimiento(
-                this.idConvocatoria, this.utilConstantes.getGlobalCatalogosValores().get(estado),
-                Constantes.Cata.REQUISITOS));
+        Integer idEstado = this.utilConstantes.getGlobalCatalogosValores().get(estado);
+        List<ResolucionExclusionDesistimientoDTO> expedientes = this.expedienteDAO
+                .listaResolucionExclusionDesistimiento(this.idConvocatoria,
+                        Collections.singletonList(idEstado), Constantes.Cata.REQUISITOS);
+        return this.agruparMotivos(expedientes);
     }
 
     /**
@@ -1498,6 +1524,13 @@ public class ResolucionConvBean {
     private void validarSubidaResolucionDefinitiva(Integer tramite) throws ServiceException {
         // Refresca los envíos para proteger también las subidas desde una vista antigua.
         this.validarModoResolucionSeleccionado(tramite);
+        // Reconsulta antes de ejecutar la acción.
+        this.idConvocatoriaProvisionalesConsultados = null;
+        boolean hayProvisionales = this.hayProvisionalesResolucion(tramite);
+        if (hayProvisionales) {
+            throw new ServiceException(
+                    "No se puede subir la resolución hasta gestionar los expedientes provisionales o comprobar sus estados.");
+        }
         if (this.tramitesResolucionEnviados.contains(tramite)) {
             throw new ServiceException(
                     "No se puede subir la resolución porque este trámite ya se ha enviado a la cola de Portafirmas.");
@@ -1604,16 +1637,14 @@ public class ResolucionConvBean {
     public void descargarExcelResolucionExclusionDesistimiento() {
         try (ByteArrayOutputStream salida = new ByteArrayOutputStream();
                 HSSFWorkbook libro = new HSSFWorkbook()) {
-            Integer estadoExcluido = this.utilConstantes.getGlobalCatalogosValores()
-                    .get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO);
-            Integer estadoDesistido = this.utilConstantes.getGlobalCatalogosValores()
-                    .get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO);
-            List<ResolucionExclusionDesistimientoDTO> excluidos = this.agruparMotivos(
-                    this.expedienteDAO.listaResolucionExclusionDesistimiento(
-                            this.idConvocatoria, estadoExcluido, Constantes.Cata.REQUISITOS));
-            List<ResolucionExclusionDesistimientoDTO> desistidos = this.agruparMotivos(
-                    this.expedienteDAO.listaResolucionExclusionDesistimiento(
-                            this.idConvocatoria, estadoDesistido, Constantes.Cata.REQUISITOS));
+
+            // Recupera todos los estados visibles
+            AtlasListAndCount<ResolucionExclusionDesistimientoDTO> resultadoExcluidos =
+                    this.obtenerExcluidosDefinitivos(0, -1, null, null);
+            AtlasListAndCount<ResolucionExclusionDesistimientoDTO> resultadoDesistidos =
+                    this.obtenerDesistidosDefinitivos(0, -1, null, null);
+            List<ResolucionExclusionDesistimientoDTO> excluidos = resultadoExcluidos.getResultados();
+            List<ResolucionExclusionDesistimientoDTO> desistidos = resultadoDesistidos.getResultados();
 
             this.crearHojaResolucion(libro, "Expedientes excluidos", excluidos);
             this.crearHojaResolucion(libro, "Expedientes desistidos", desistidos);
@@ -1914,53 +1945,63 @@ public class ResolucionConvBean {
     }
     
     /**
-     * Obtiene los expedientes en propuesta de resolución de exclusión definitiva.
+     * Obtiene las propuestas definitivas, provisionales y los expedientes excluidos definitivos.
      *
      * @param index primer elemento de la página
      * @param pageSize número de elementos de la página
      * @param orderBean orden del listado
      * @param filtros filtros del listado
-     * @return listado paginado de expedientes propuestos para exclusión
+     * @return listado paginado de expedientes de exclusión
      */
     public AtlasListAndCount<ResolucionExclusionDesistimientoDTO> obtenerExcluidosDefinitivos(
             final int index, final int pageSize, Object orderBean, Object filtros) {
         return this.obtenerResolucionExclusionDesistimiento(index, pageSize,
-                Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO);
+                Arrays.asList(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO,
+                        Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL,
+                        Constantes.EstadoExpediente.EXCLUIDO));
     }
 
     /**
-     * Obtiene los expedientes en propuesta de resolución de desistimiento definitivo.
+     * Obtiene las propuestas definitivas, provisionales y los expedientes desistidos definitivos.
      *
      * @param index primer elemento de la página
      * @param pageSize número de elementos de la página
      * @param orderBean orden del listado
      * @param filtros filtros del listado
-     * @return listado paginado de expedientes propuestos para desistimiento
+     * @return listado paginado de expedientes de desistimiento
      */
     public AtlasListAndCount<ResolucionExclusionDesistimientoDTO> obtenerDesistidosDefinitivos(
             final int index, final int pageSize, Object orderBean, Object filtros) {
         return this.obtenerResolucionExclusionDesistimiento(index, pageSize,
-                Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO);
+                Arrays.asList(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO,
+                        Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL,
+                        Constantes.EstadoExpediente.DESISTIDO));
     }
 
     /**
-     * Obtiene y pagina los expedientes de la convocatoria para el estado
-     * indicado.
+     * Obtiene y pagina los expedientes de los estados visibles de la convocatoria.
+     * Esta selección no se utiliza para subir documentos ni enviar a Portafirmas.
      *
      * @param index primer elemento de la página
      * @param pageSize número de elementos de la página
-     * @param estado constante del estado del expediente
+     * @param estados constantes de los estados visibles del expediente
      * @return listado paginado de expedientes
      */
     private AtlasListAndCount<ResolucionExclusionDesistimientoDTO> obtenerResolucionExclusionDesistimiento(
-            int index, int pageSize, Integer estado) {
+            int index, int pageSize, List<Integer> estados) {
         AtlasListAndCount<ResolucionExclusionDesistimientoDTO> resultado = new AtlasListAndCount<>();
         List<ResolucionExclusionDesistimientoDTO> listado = new ArrayList<>();
 
         if (this.idConvocatoria != null) {
-            Integer idEstado = this.utilConstantes.getGlobalCatalogosValores().get(estado);
-            listado = this.agruparMotivos(this.expedienteDAO.listaResolucionExclusionDesistimiento(
-                    this.idConvocatoria, idEstado, Constantes.Cata.REQUISITOS));
+            List<Integer> idsEstado = new ArrayList<>();
+            for (Integer estado : estados) {
+                Integer idEstado = this.utilConstantes.getGlobalCatalogosValores().get(estado);
+                idsEstado.add(idEstado);
+            }
+            List<ResolucionExclusionDesistimientoDTO> expedientes = this.expedienteDAO
+                    .listaResolucionExclusionDesistimiento(this.idConvocatoria,
+                            idsEstado, Constantes.Cata.REQUISITOS);
+            listado = this.agruparMotivos(expedientes);
         }
 
         resultado.setTotal(listado.size());
@@ -2000,6 +2041,55 @@ public class ResolucionConvBean {
             }
         }
         return new ArrayList<>(expedientes.values());
+    }
+    
+    /** Indica si hay expedientes en propuesta de exclusión provisional en la convocatoria. */
+    public boolean isHayExcluidosProvisionales() {
+        this.consultarEstadosProvisionalesResolucion();
+        Integer idEstado = this.utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL);
+        return this.estadosProvisionalesResolucion.contains(idEstado);
+    }
+
+    /** Reutiliza la consulta en el alcance request; no se restaura mediante guardarEstado. */
+    private void consultarEstadosProvisionalesResolucion() {
+        if (this.idConvocatoria == null
+                || this.idConvocatoria.equals(this.idConvocatoriaProvisionalesConsultados)) {
+            if (this.estadosProvisionalesResolucion == null) {
+                this.estadosProvisionalesResolucion = new ArrayList<>();
+            }
+            return;
+        }
+        this.idConvocatoriaProvisionalesConsultados = this.idConvocatoria;
+        this.estadosProvisionalesResolucion = new ArrayList<>();
+        this.errorConsultaProvisionalesResolucion = false;
+        try {
+            Integer idExcluidoProvisional = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL);
+            Integer idDesistidoProvisional = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL);
+            List<Integer> idsEstado = Arrays.asList(idExcluidoProvisional, idDesistidoProvisional);
+            List<Integer> estados = this.expedienteDAO.obtenerEstadosProvisionalesResolucion(
+                    this.idConvocatoria, idsEstado);
+            this.estadosProvisionalesResolucion = estados;
+        } catch (RuntimeException e) {
+            this.errorConsultaProvisionalesResolucion = true;
+            log.error("Error consultando los estados provisionales de la convocatoria "
+                    + this.idConvocatoria, e);
+        }
+    }
+    
+    /** Indica si hay expedientes en propuesta de desistimiento provisional en la convocatoria. */
+    public boolean isHayDesistidosProvisionales() {
+        this.consultarEstadosProvisionalesResolucion();
+        Integer idEstado = this.utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL);
+        return this.estadosProvisionalesResolucion.contains(idEstado);
+    }
+
+    public boolean isErrorConsultaProvisionalesResolucion() {
+        this.consultarEstadosProvisionalesResolucion();
+        return this.errorConsultaProvisionalesResolucion;
     }
   
 }
