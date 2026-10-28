@@ -871,6 +871,26 @@ public interface ExpedienteService extends BaseService<Expediente, Integer, Expe
     List<ExpedienteDTO> buscarExpedienteConvocatoriaInteresado(Integer idConvocatoria,
             Integer idInteresado) throws ServiceException;
 
+    /**
+     * Método para buscar los expedientes de un interesado (participante) en
+     * una convocatoria que pertenezcan a una solicitud de un organismo
+     * distinto al indicado (idInteresadoOrganismo). Permite así validar que
+     * un participante puede inscribirse varias veces en la misma
+     * convocatoria si siempre lo hace con el mismo organismo, y solo
+     * bloquear la inscripción cuando ya existe con un organismo diferente.
+     *
+     * @param idConvocatoria Identificador de la convocatoria
+     * @param idInteresado Identificador del interesado participante
+     * @param idInteresadoOrganismo Identificador del interesado del
+     *        organismo (solicitud.interesado) con el que se quiere
+     *        inscribir
+     * @return List<ExpedienteDTO>
+     * @throws ServiceException Excepción ocurrido en el servicio
+     */
+    List<ExpedienteDTO> buscarExpedienteConvocatoriaInteresadoOtroOrganismo(
+            Integer idConvocatoria, Integer idInteresado, Integer idInteresadoOrganismo)
+            throws ServiceException;
+
     List<ExpedienteDTO> buscarExpedientesHijoSubsanar(Integer idSolicitud, Integer idActor,
             String itTipo, Integer idExpedientePadre) throws ServiceException;
 

@@ -862,6 +862,7 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
                         || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION).equals(expDocDTO.getEstadoDTO().getIdValor())
                         || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PENDIENTE_REVISION_SUBSANACION).equals(expDocDTO.getEstadoDTO().getIdValor())
                         || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.ENVIO_COLA_NOTIFICACIONES).equals(expDocDTO.getEstadoDTO().getIdValor())
+                        || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PLAZO_SUBSANACION_VENCIDO).equals(expDocDTO.getEstadoDTO().getIdValor())
                         || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION_NOTIFICADO).equals(expDocDTO.getEstadoDTO().getIdValor())
                         ) {
                     expDocDTO.setEstilo("colorRojo");
@@ -896,6 +897,7 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
                         || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION).equals(expDocDTO.getEstadoDTO().getIdValor())
                         || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PENDIENTE_REVISION_SUBSANACION).equals(expDocDTO.getEstadoDTO().getIdValor())
                         || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.ENVIO_COLA_NOTIFICACIONES).equals(expDocDTO.getEstadoDTO().getIdValor())
+                        || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PLAZO_SUBSANACION_VENCIDO).equals(expDocDTO.getEstadoDTO().getIdValor())
                         || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION_NOTIFICADO).equals(expDocDTO.getEstadoDTO().getIdValor())
                         ) {
                     expDocDTO.setEstilo("colorRojo");

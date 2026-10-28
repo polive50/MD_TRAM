@@ -108,5 +108,19 @@ public interface NotificacionCiudadanoService
      */
     List<NotificacionCiudadanoDTO> buscarPresentadasPorExpediente(Integer idExpediente)
             throws ServiceException;
+    
+    /** Obtiene los tipos activos permitidos para el alta según el estado vigente del expediente. */
+    public List<CatalogosValoresDTO> obtenerTiposComunicacionPermitidos(Integer idExpediente)
+            throws ServiceException;
+    
+
+    /**
+     * Buscar por expediente y asunto presentadas
+     * @param idExpediente
+     * @param idAsunto
+     * @return
+     */
+    NotificacionCiudadanoDTO buscarPresentadaPorExpedienteyAsunto(Integer idExpediente,
+            Integer idAsunto, Integer idEstadoNotifiCiud) throws ServiceException;
 
 }

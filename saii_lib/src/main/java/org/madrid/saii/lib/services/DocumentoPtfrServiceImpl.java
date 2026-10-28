@@ -269,6 +269,14 @@ public class DocumentoPtfrServiceImpl extends
     @Autowired
     @Qualifier("resolucionModificacionService")
     private ResolucionModificacionService resolucionModificacionService;
+
+    // VMM 26/10/26 MD-3168: referencia a este mismo bean a traves del proxy de Spring, necesaria para
+    // que la llamada a procesarLecturaNotificacionNoteEnvio (REQUIRES_NEW) desde el batch aplique la
+    // anotacion transaccional (una llamada this.xxx() la ignoraria).
+    @Lazy
+    @Autowired
+    @Qualifier("documentoPtfrService")
+    private DocumentoPtfrService documentoPtfrServiceProxy;
     
     @Autowired
     @Qualifier("expedienteModifPresupMontoService")
@@ -1255,7 +1263,13 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
      */
     @SuppressWarnings("static-access")
     @Override
-    @Transactional(readOnly = false)
+    // VMM 26/10/26 MD-3168: el batch pasa a ser de solo lectura (solo lista los envios pendientes);
+    // cada envio se procesa en su propia transaccion (procesarLecturaNotificacionNoteEnvio,
+    // REQUIRES_NEW). Antes todo iba en una unica transaccion y, si NOTE devolvia "No existe la
+    // notificacion" para un envio, NoteAdmeServiceImpl.obtenerNotificacion (@Transactional REQUIRED)
+    // marcaba la transaccion compartida como rollback-only aunque el catch de aqui capturase la
+    // excepcion, y al terminar se revertia la actualizacion de TODOS los demas envios.
+    @Transactional(readOnly = true)
     public void consultarLecturaNotificacionNoteBatch() throws ServiceException {
 
         List<AtlasFilter> filtros = new ArrayList<>();
@@ -1277,39 +1291,13 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
 
                 // VMM 09/09/26 MD-2725: se envuelve en try/catch por envío para que un
                 // documento con problemas (p.ej. NOTE devuelve vacío) no bloquee la
-                // lectura del resto de la cola, y se comprueba null antes de usar
-                // noteOutput (antes causaba NPE al llamar noteOutput.getNumeroAbonado()).
+                // lectura del resto de la cola.
+                // VMM 26/10/26 MD-3168: se llama a traves del proxy de Spring para que se aplique
+                // el REQUIRES_NEW; si falla solo se revierte este envio y se sigue con el siguiente.
                 try {
-                    NoteObtenerNotificacionesDTO noteOutput = this.noteAdmeService
-                            .obtenerNotificacion(envioPtfr.getCdNote());
-
-                    if (Objects.nonNull(noteOutput)) {
-
-                        FicaFichero ficaAcuseRecibo = this.noteAdmeService.generarFicaAcuseReciboPDF(
-                                envioPtfr.getCdNote(), noteOutput.getNumeroAbonado(),
-                                Constantes.AccionFICA.CONSULTA);
-
-                        if (Constantes.Note.CD_L.equals(noteOutput.getCodigoEstado())) {
-
-                            this.consultarLecturaNotificacionNoteAceptado(envioPtfr,
-                                    noteOutput.getFechaLectura(), ficaAcuseRecibo);
-
-                        } else if (Constantes.Note.CD_R.equals(noteOutput.getCodigoEstado())
-                                || Constantes.Note.CD_RA.equals(noteOutput.getCodigoEstado())) {
-
-                            this.consultarLecturaNotificacionNoteRechazado(envioPtfr,
-                                    noteOutput.getFechaRechazo(), noteOutput.getCodigoEstado(),
-                                    ficaAcuseRecibo);
-                        }
-                    }
-
-                    // validamos si han pasado más de 10 días sin leer la
-                    // notificación
-                    this.validarInicioPlazoSubsanacionPeriodo(envioPtfr);
-
+                    this.documentoPtfrServiceProxy
+                            .procesarLecturaNotificacionNoteEnvio(envioPtfr.getIdDocumentoPtfr());
                 } catch (Exception e) {
-                    // Aislamos el error a este envío para que un documento con
-                    // problemas no bloquee la lectura del resto de la cola
                     log.error("Error al consultar la lectura de notificación NOTE para idDocumentoPtfr={}",
                             envioPtfr.getIdDocumentoPtfr(), e);
                 }
@@ -1317,6 +1305,53 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
             }
         }
 
+    }
+
+    /**
+     * VMM 26/10/26 MD-3168: procesa un unico envio de la cola de lectura de NOTE en su propia
+     * transaccion (REQUIRES_NEW), de modo que un fallo solo revierte este envio.
+     */
+    @SuppressWarnings("static-access")
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = {
+            ServiceException.class, RuntimeException.class })
+    public void procesarLecturaNotificacionNoteEnvio(Integer idDocumentoPtfr)
+            throws ServiceException {
+
+        DocumentoPtfr envioPtfr = this.find(idDocumentoPtfr);
+
+        if (Objects.isNull(envioPtfr) || Objects.isNull(envioPtfr.getCdNote())) {
+            return;
+        }
+
+        // VMM 09/09/26 MD-2725: se comprueba null antes de usar noteOutput (antes causaba NPE
+        // al llamar noteOutput.getNumeroAbonado()).
+        NoteObtenerNotificacionesDTO noteOutput = this.noteAdmeService
+                .obtenerNotificacion(envioPtfr.getCdNote());
+
+        if (Objects.nonNull(noteOutput)) {
+
+            FicaFichero ficaAcuseRecibo = this.noteAdmeService.generarFicaAcuseReciboPDF(
+                    envioPtfr.getCdNote(), noteOutput.getNumeroAbonado(),
+                    Constantes.AccionFICA.CONSULTA);
+
+            if (Constantes.Note.CD_L.equals(noteOutput.getCodigoEstado())) {
+
+                this.consultarLecturaNotificacionNoteAceptado(envioPtfr,
+                        noteOutput.getFechaLectura(), ficaAcuseRecibo);
+
+            } else if (Constantes.Note.CD_R.equals(noteOutput.getCodigoEstado())
+                    || Constantes.Note.CD_RA.equals(noteOutput.getCodigoEstado())) {
+
+                this.consultarLecturaNotificacionNoteRechazado(envioPtfr,
+                        noteOutput.getFechaRechazo(), noteOutput.getCodigoEstado(),
+                        ficaAcuseRecibo);
+            }
+        }
+
+        // validamos si han pasado más de 10 días sin leer la
+        // notificación
+        this.validarInicioPlazoSubsanacionPeriodo(envioPtfr);
     }
 
     // VMM 24/09/26 MD-2725: toda la logica de resolucion de una modificacion (marcarla Resuelta y
@@ -2013,7 +2048,11 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
      *
      */
     @Override
-    @Transactional(readOnly = false)
+    // VMM 26/10/26 MD-3168: el batch pasa a ser de solo lectura (solo lista los envios pendientes);
+    // cada envio se procesa en su propia transaccion (procesarRespuestaPortafirmasEnvio,
+    // REQUIRES_NEW). Antes todo iba en una unica transaccion y sin try/catch por envio: un fallo en
+    // un documento abortaba el bucle y revertia todos los envios procesados antes en la ejecucion.
+    @Transactional(readOnly = true)
     public void consultarRespuestaPortafirmasBatch() throws ServiceException {
 
         List<AtlasFilter> filtros = new ArrayList<>();
@@ -2029,42 +2068,64 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
 
                 if (Objects.nonNull(documentoPtfr.getDsReferenciaPtfr())
                         && Objects.nonNull(documentoPtfr.getCdArchivoPtfr())) {
-                    
-                    
-                    PtfrConsultaEtapasOut output = this.ptfrAdmeService.consultaEtapasDoc(documentoPtfr.getDsReferenciaPtfr(),  documentoPtfr.getCdArchivoPtfr().toString());
-                            
-//                    PtfrEstadoDocOut output = this.ptfrAdmeService.consultaEstadoDoc(
-//                            documentoPtfr.getDsReferenciaPtfr(),
-//                            documentoPtfr.getCdArchivoPtfr().toString());
 
-                    // Validamos si tenemos una respuesta correcta
-                    if (Objects.nonNull(output)
-                            && Constantes.Portafirmas.RESPUESTA_OK
-                                    .equals(output.getCodigoRespuesta())
-                            && Objects.nonNull(output.getDocumento())) {
-
-                        String estadoRespuestaEnvioPtfr = output.getDocumento().getEstado();
-
-                        // Validamos si tenemos una respuesta de rechazo
-                        if (StringUtils.isNotBlank(output.getDocumento().getMotivorechazo())
-                                && !Constantes.EstadoDocumentoPtfr.CODIGO_PENDIENTE
-                                        .equals(output.getDocumento().getEstado())
-                                && !Constantes.EstadoDocumentoPtfr.CODIGO_FIRMADO
-                                        .equals(output.getDocumento().getEstado())) {
-                            // actualizamos la respuesta a R de Rechazado
-                            estadoRespuestaEnvioPtfr = Constantes.EstadoDocumentoPtfr.CODIGO_RECHAZADO;
-                            // solo si es rechazo recuperamos el motivo de
-                            // rechazo
-                            documentoPtfr
-                                    .setMotivoRechazo(output.getDocumento().getMotivorechazo());
-                        }
-
-                        this.procesarRespuestaPortafirmas(estadoRespuestaEnvioPtfr, documentoPtfr, output);
+                    // VMM 26/10/26 MD-3168: se llama a traves del proxy de Spring para que se
+                    // aplique el REQUIRES_NEW; si falla solo se revierte este envio y se sigue
+                    // con el siguiente.
+                    try {
+                        this.documentoPtfrServiceProxy.procesarRespuestaPortafirmasEnvio(
+                                documentoPtfr.getIdDocumentoPtfr());
+                    } catch (Exception e) {
+                        log.error("Error al consultar la respuesta de Portafirmas para idDocumentoPtfr={}",
+                                documentoPtfr.getIdDocumentoPtfr(), e);
                     }
                 }
             }
         }
 
+    }
+
+    /**
+     * VMM 26/10/26 MD-3168: procesa la respuesta de Portafirmas de un unico envio en su propia
+     * transaccion (REQUIRES_NEW), de modo que un fallo solo revierte este envio.
+     */
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = {
+            ServiceException.class, RuntimeException.class })
+    public void procesarRespuestaPortafirmasEnvio(Integer idDocumentoPtfr)
+            throws ServiceException {
+
+        DocumentoPtfr documentoPtfr = this.find(idDocumentoPtfr);
+
+        if (Objects.isNull(documentoPtfr) || Objects.isNull(documentoPtfr.getDsReferenciaPtfr())
+                || Objects.isNull(documentoPtfr.getCdArchivoPtfr())) {
+            return;
+        }
+
+        PtfrConsultaEtapasOut output = this.ptfrAdmeService.consultaEtapasDoc(
+                documentoPtfr.getDsReferenciaPtfr(), documentoPtfr.getCdArchivoPtfr().toString());
+
+        // Validamos si tenemos una respuesta correcta
+        if (Objects.nonNull(output)
+                && Constantes.Portafirmas.RESPUESTA_OK.equals(output.getCodigoRespuesta())
+                && Objects.nonNull(output.getDocumento())) {
+
+            String estadoRespuestaEnvioPtfr = output.getDocumento().getEstado();
+
+            // Validamos si tenemos una respuesta de rechazo
+            if (StringUtils.isNotBlank(output.getDocumento().getMotivorechazo())
+                    && !Constantes.EstadoDocumentoPtfr.CODIGO_PENDIENTE
+                            .equals(output.getDocumento().getEstado())
+                    && !Constantes.EstadoDocumentoPtfr.CODIGO_FIRMADO
+                            .equals(output.getDocumento().getEstado())) {
+                // actualizamos la respuesta a R de Rechazado
+                estadoRespuestaEnvioPtfr = Constantes.EstadoDocumentoPtfr.CODIGO_RECHAZADO;
+                // solo si es rechazo recuperamos el motivo de rechazo
+                documentoPtfr.setMotivoRechazo(output.getDocumento().getMotivorechazo());
+            }
+
+            this.procesarRespuestaPortafirmas(estadoRespuestaEnvioPtfr, documentoPtfr, output);
+        }
     }
 
     /**

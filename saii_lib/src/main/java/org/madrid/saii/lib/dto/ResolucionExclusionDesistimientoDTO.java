@@ -77,4 +77,14 @@ public class ResolucionExclusionDesistimientoDTO implements Serializable {
         this.nif = nif;
         this.codigoMotivo = codigoMotivo;
     }
+    
+    public ResolucionExclusionDesistimientoDTO(Integer idExpediente, String linea,
+            String nombreEmpresa, String numeroExpediente, String estadoExpediente, String nif) {
+        this.idExpediente = idExpediente;
+        this.linea = linea;
+        this.nombreEmpresa = nombreEmpresa;
+        this.numeroExpediente = numeroExpediente;
+        this.estadoExpediente = estadoExpediente;
+        this.nif = nif;
+    }
 }

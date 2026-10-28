@@ -288,9 +288,9 @@
                     filterMatchMode="exact">
                     <ui:define name="value">                       
                         <h:outputText value="#{documentoBean.codigoEregFormateado(item.codigoEreg)}" 
-                                      rendered="#{empty item.cdAnexoEreg}" />                                     
+                                      rendered="#{empty item.codigoEreg}" />                                     
                         <h:outputText value="#{expedienteBean.expedienteDTO.cdEreg}" 
-                                      rendered="#{!empty item.cdAnexoEreg}" />                                    
+                                      rendered="#{!empty item.codigoEreg}" />                                    
                     </ui:define>
                 </atlasp:columnaListaPaginada>
 
@@ -300,9 +300,9 @@
                     exportable="true" filterMatchMode="exact">
                     <ui:define name="value">                      
                         <h:outputText value="#{item.fechaRegistroString}" 
-                                      rendered="#{empty item.cdAnexoEreg}" />        
+                                      rendered="#{empty item.codigoEreg}" />        
                         <h:outputText value="#{expedienteBean.expedienteDTO.fcFirma}" 
-                                      rendered="#{!empty item.cdAnexoEreg}">
+                                      rendered="#{!empty item.codigoEreg}">
                             <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
                         </h:outputText>                                 
                     </ui:define>

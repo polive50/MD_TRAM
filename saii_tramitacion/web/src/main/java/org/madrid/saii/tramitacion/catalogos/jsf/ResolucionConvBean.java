@@ -1360,9 +1360,16 @@ public class ResolucionConvBean {
                 ? Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO
                         : Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO;
         Integer idEstado = this.utilConstantes.getGlobalCatalogosValores().get(estado);
+        
+        Integer idEstadoPendRevisionAleg = this.utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.EstadoExpediente.PENDIENTE_REVISION_ALEGACIONES);
+
+        Integer idEstadoExclProvis = this.utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL);
+        
         List<ResolucionExclusionDesistimientoDTO> expedientes = this.expedienteDAO
                 .listaResolucionExclusionDesistimiento(this.idConvocatoria,
-                        Collections.singletonList(idEstado), Constantes.Cata.REQUISITOS);
+                        Collections.singletonList(idEstado), Constantes.Cata.REQUISITOS, idEstadoPendRevisionAleg,idEstadoExclProvis);
         return this.agruparMotivos(expedientes);
     }
 
@@ -1972,7 +1979,7 @@ public class ResolucionConvBean {
      */
     public AtlasListAndCount<ResolucionExclusionDesistimientoDTO> obtenerDesistidosDefinitivos(
             final int index, final int pageSize, Object orderBean, Object filtros) {
-        return this.obtenerResolucionExclusionDesistimiento(index, pageSize,
+        return this.obtenerResolucionDesistimiento(index, pageSize,
                 Arrays.asList(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO,
                         Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL,
                         Constantes.EstadoExpediente.DESISTIDO));
@@ -1998,9 +2005,55 @@ public class ResolucionConvBean {
                 Integer idEstado = this.utilConstantes.getGlobalCatalogosValores().get(estado);
                 idsEstado.add(idEstado);
             }
+            
+            Integer idEstadoPendRevisionAleg = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.EstadoExpediente.PENDIENTE_REVISION_ALEGACIONES);
+
+            Integer idEstadoExclProvis = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL);
+            
+            
+            
             List<ResolucionExclusionDesistimientoDTO> expedientes = this.expedienteDAO
                     .listaResolucionExclusionDesistimiento(this.idConvocatoria,
-                            idsEstado, Constantes.Cata.REQUISITOS);
+                            idsEstado, Constantes.Cata.REQUISITOS, idEstadoPendRevisionAleg, idEstadoExclProvis);
+            listado = this.agruparMotivos(expedientes);
+        }
+
+        resultado.setTotal(listado.size());
+        if (pageSize < 0) {
+            resultado.setResultados(listado);
+        } else if (index < listado.size()) {
+            resultado.setResultados(new ArrayList<>(
+                    listado.subList(index, Math.min(index + pageSize, listado.size()))));
+        } else {
+            resultado.setResultados(new ArrayList<>());
+        }
+        return resultado;
+    }
+    
+    
+    private AtlasListAndCount<ResolucionExclusionDesistimientoDTO> obtenerResolucionDesistimiento(
+            int index, int pageSize, List<Integer> estados) {
+        AtlasListAndCount<ResolucionExclusionDesistimientoDTO> resultado = new AtlasListAndCount<>();
+        List<ResolucionExclusionDesistimientoDTO> listado = new ArrayList<>();
+
+        if (this.idConvocatoria != null) {
+            List<Integer> idsEstado = new ArrayList<>();
+            for (Integer estado : estados) {
+                Integer idEstado = this.utilConstantes.getGlobalCatalogosValores().get(estado);
+                idsEstado.add(idEstado);
+            }
+            
+            Integer idEstadoPendRevisionAleg = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.EstadoExpediente.PENDIENTE_REVISION_ALEGACIONES);
+
+            Integer idEstadoExclProvis = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL);
+            
+            
+            List<ResolucionExclusionDesistimientoDTO> expedientes = this.expedienteDAO
+                    .listaResolucionDesistimiento(this.idConvocatoria, idsEstado, idEstadoPendRevisionAleg, idEstadoExclProvis);
             listado = this.agruparMotivos(expedientes);
         }
 

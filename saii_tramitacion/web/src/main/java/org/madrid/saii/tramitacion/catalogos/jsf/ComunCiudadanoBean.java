@@ -54,20 +54,15 @@ public class ComunCiudadanoBean {
     private int indicePaginaComunicaciones = -1;
     private int tamanoPaginaComunicaciones = -1;
     private NotificacionCiudadanoDTO nuevaComunicacion = new NotificacionCiudadanoDTO();
-    private ExpedienteDocDTO nuevoDocumento = new ExpedienteDocDTO();
     private List<SelectItem> tiposComunicacion = new ArrayList<>();
-    private List<SelectItem> tiposDocumento = new ArrayList<>();
     private UploadedFile archivoSubir;
     private boolean comunicacionAbierta;
-    private boolean documentoAbierto;
+
     @Autowired
     private ExpedienteBean expedienteBean;
 
     @Autowired
     private NotificacionCiudadanoService notificacionCiudadanoService;
-
-    @Autowired
-    private ComboBean comboBean;
 
     /** Recupera los tipos de notificación al abrir el formulario de alta. */
     public void agregarComunicacion() {
@@ -76,7 +71,7 @@ public class ComunCiudadanoBean {
         }
         try {
             List<CatalogosValoresDTO> tiposNotificacion =
-                    this.notificacionCiudadanoService.obtenerTiposComunicacion();
+                    this.notificacionCiudadanoService.obtenerTiposComunicacionPermitidos(this.getIdExpediente());
             this.tiposComunicacion = new ArrayList<>();
             for (CatalogosValoresDTO tipoNotificacion : tiposNotificacion) {
                 this.tiposComunicacion.add(new SelectItem(tipoNotificacion.getIdValor(), tipoNotificacion.getDsValor()));
@@ -87,7 +82,18 @@ public class ComunCiudadanoBean {
             PrimefacesUtils.mostrarPopupPF("dialogComunicacionCiudadano");
         } catch (ServiceException e) {
             log.error("Error al preparar la comunicación del ciudadano", e);
-            AtlasMessageUtils.addErrorMessage(e.getMessage());
+            this.mostrarErrorComunicacion(e);
+        }
+    }
+
+    private void mostrarErrorComunicacion(ServiceException excepcion) {
+        String mensaje = excepcion.getMessage();
+        if ("comunicacionCiudadano.error.tipoNoPermitido".equals(mensaje)
+                || "comunicacionCiudadano.error.estadoNoDisponible".equals(mensaje)
+                || "comunicacionCiudadano.error.unidadAdministrativaLongitud".equals(mensaje)) {
+            AtlasMessageUtils.addErrorMessageFromBundle(mensaje);
+        } else {
+            AtlasMessageUtils.addErrorMessage(mensaje);
         }
     }
 
@@ -105,87 +111,47 @@ public class ComunCiudadanoBean {
 
     public void cerrarComunicacion() {
         this.comunicacionAbierta = false;
-        this.documentoAbierto = false;
         this.nuevaComunicacion = new NotificacionCiudadanoDTO();
-        this.nuevoDocumento = new ExpedienteDocDTO();
         this.archivoSubir = null;
-        PrimefacesUtils.ocultarPopupPF("dialogDocumentoComunicacion");
         PrimefacesUtils.ocultarPopupPF("dialogComunicacionCiudadano");
     }
 
-    public void agregarDocumento() {
-        if (!this.puedeModificar()) {
-            return;
-        }
-        if (this.tiposDocumento.isEmpty()) {
-            this.tiposDocumento = this.comboBean.getComboTipoDocumentoConvocatoria(
-                    this.expedienteBean.getConvocatoriasBean().getConvocatoriaDTO().getIdConvocatoria());
-        }
-        this.nuevoDocumento = new ExpedienteDocDTO();
-        this.archivoSubir = null;
-        this.documentoAbierto = true;
-        PrimefacesUtils.mostrarPopupPF("dialogDocumentoComunicacion");
-    }
-
-    /** Conserva el contenido sin persistir; el alta se realiza al guardar la comunicación. */
+    /** Conserva el archivo sin persistir; se registra al guardar la comunicación. */
     public void adjuntarDocumento() {
         if (!this.puedeModificar()) {
             return;
         }
-        Integer idTipoDocumento = this.nuevoDocumento.getTipoDocumentoDTO().getIdValor();
-        boolean tipoValido = false;
-        for (SelectItem tipoDocumento : this.tiposDocumento) {
-            if (Objects.equals(tipoDocumento.getValue(), idTipoDocumento)) {
-                tipoValido = true;
-                this.nuevoDocumento.getTipoDocumentoDTO().setDsValor(tipoDocumento.getLabel());
-            }
-        }
-        if (!tipoValido) {
-            AtlasMessageUtils.addErrorMessage("Seleccione un tipo de documento.");
-            return;
-        }
-        if (Integer.valueOf(-1).equals(idTipoDocumento) && StringUtils.isBlank(this.nuevoDocumento.getTlObservaciones())) {
-            AtlasMessageUtils.addErrorMessage("Indique las observaciones del documento de tipo OTROS.");
-            return;
-        }
-        if (StringUtils.length(this.nuevoDocumento.getTlObservaciones()) > 2000
-                || StringUtils.length(this.nuevoDocumento.getTlObservacionesGestor()) > 2000) {
-            AtlasMessageUtils.addErrorMessage("Las observaciones admiten un máximo de 2000 caracteres.");
-            return;
-        }
-        String codigoEreg = this.nuevoDocumento.getCodigoEreg();
-        if (StringUtils.isNotBlank(codigoEreg) && !codigoEreg.matches("^[0-9]{2}/[0-9]{6}\\.[0-9]/[0-9]{2}$")) {
-            AtlasMessageUtils.addErrorMessage("El código EREG debe tener el formato XX/XXXXXX.X/XX.");
-            return;
-        }
-        if (this.archivoSubir == null || this.archivoSubir.getSize() == 0
-                || StringUtils.isBlank(FilenameUtils.getExtension(this.archivoSubir.getFileName()))) {
-            AtlasMessageUtils.addErrorMessage("Seleccione un archivo con extensión.");
-            return;
-        }
-        try (InputStream contenidoArchivo = this.archivoSubir.getInputstream()) {
-            this.nuevoDocumento.setContenidoFichero(IOUtils.toByteArray(contenidoArchivo));
-            this.nuevoDocumento.setNombreFicheroFica(FilenameUtils.getName(this.archivoSubir.getFileName()));
-            if (Integer.valueOf(-1).equals(idTipoDocumento)) {
-                this.nuevoDocumento.setTipoDocumentoDTO(null);
-            }
-            this.nuevaComunicacion.getLstExpedienteDocDTO().add(this.nuevoDocumento);
-            this.cerrarDocumento();
-        } catch (IOException e) {
-            log.error("Error al adjuntar el documento a la comunicación", e);
-            AtlasMessageUtils.addErrorMessage("No se ha podido leer el archivo adjunto.");
-        }
+        this.incorporarArchivo();
     }
 
-    public void cerrarDocumento() {
-        this.documentoAbierto = false;
-        this.nuevoDocumento = new ExpedienteDocDTO();
-        this.archivoSubir = null;
-        PrimefacesUtils.ocultarPopupPF("dialogDocumentoComunicacion");
+    public boolean incorporarArchivo() {
+        if (this.archivoSubir == null || this.archivoSubir.getSize() == 0
+                || StringUtils.isBlank(FilenameUtils.getExtension(this.archivoSubir.getFileName()))) {
+            AtlasMessageUtils.addErrorMessageFromBundle("comunicacionCiudadano.error.archivoInvalido");
+            return false;
+        }
+        try (InputStream contenidoArchivo = this.archivoSubir.getInputstream()) {
+            ExpedienteDocDTO documento = new ExpedienteDocDTO();
+            documento.setTipoDocumentoDTO(null);
+            documento.setContenidoFichero(IOUtils.toByteArray(contenidoArchivo));
+            documento.setNombreFicheroFica(FilenameUtils.getName(this.archivoSubir.getFileName()));
+            this.nuevaComunicacion.getLstExpedienteDocDTO().add(documento);
+            this.archivoSubir = null;
+            return true;
+        } catch (IOException e) {
+            log.error("Error al adjuntar el documento a la comunicación", e);
+            AtlasMessageUtils.addErrorMessageFromBundle("comunicacionCiudadano.error.lecturaArchivo");
+            return false;
+        }
     }
 
     public void guardarComunicacion() {
         if (!this.puedeModificar()) {
+            return;
+        }
+        // El archivo seleccionado también se incorpora al guardar, sin un paso adicional.
+        if (this.archivoSubir != null && StringUtils.isNotBlank(this.archivoSubir.getFileName())
+                && !this.incorporarArchivo()) {
             return;
         }
         try {
@@ -204,7 +170,7 @@ public class ComunCiudadanoBean {
             this.notificacionCiudadanoService.registrarComunicacion(this.nuevaComunicacion);
         } catch (ServiceException e) {
             log.error("Error al registrar la comunicación del ciudadano", e);
-            AtlasMessageUtils.addErrorMessage(e.getMessage());
+            this.mostrarErrorComunicacion(e);
             return;
         }
         this.cerrarComunicacion();

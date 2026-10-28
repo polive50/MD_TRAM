@@ -17,30 +17,32 @@
         activeIndex="#{resolucionConvBean.pestanaResolucionConvActiva}"
         dynamic="true" cache="false" scrollable="true" switchType="ajax">
 
-        <p:tab id="solapaResolucionConvocatoria"
-            title="#{bundle['resolucion.convocatoria.subpestana.titulo']}">
+<!--         <p:tab id="solapaResolucionConvocatoria" -->
+<!--             title="#{bundle['resolucion.convocatoria.subpestana.titulo']}"> -->
 
-    <p:panelGrid id="outpanelResolucionConvSolapa" columns="4"
-        columnClasses="ui-g-12" layout="grid" styleClass="ui-panelgrid-blank">
+<!--     <p:panelGrid id="outpanelResolucionConvSolapa" columns="4" -->
+<!--         columnClasses="ui-g-12" layout="grid" styleClass="ui-panelgrid-blank"> -->
         
-         <h:outputText styleClass="tituloFormulario"  value="#{bundle['convocatorias.convocatoria.resolucion']}" />
+<!--          <h:outputText styleClass="tituloFormulario"  value="#{bundle['convocatorias.convocatoria.resolucion']}" /> -->
          
-         <atlasp:button ajax="true"
-            value="#{bundle['solapa.eval.boton.def.resolver']}"
-            alt="#{bundle['solapa.eval.boton.def.resolver']}"
-            title="#{bundle['solapa.eval.boton.def.resolver']}"
-            disabled="#{!resolucionConvBean.habilitarBotonResolverConvocatoria()}"
-            rendered="#{convocatoriasBean.convocatoriaDTO.idEstado.nmConstante != 152}"
-            render=":tituloConvocatoria,convocatoriaForm"
-            action="#{resolucionConvBean.resolverConvocatoria()}"
-            tipoBoton="btn-primary">
-            <f:facet name="events">
-                <p:confirm
-                    header="#{bundle['solapa.resol.conv.confirm.def.titulo']}"
-                    message="#{bundle['solapa.resol.conv.confirm.def.mensaje']}"
-                    icon="ui-icon-alert" />
-            </f:facet>
-        </atlasp:button>
+<!--          <atlasp:button ajax="true" -->
+<!--             value="#{bundle['solapa.eval.boton.def.resolver']}" -->
+<!--             alt="#{bundle['solapa.eval.boton.def.resolver']}" -->
+<!--             title="#{bundle['solapa.eval.boton.def.resolver']}" -->
+<!--             disabled="#{!resolucionConvBean.habilitarBotonResolverConvocatoria()}" -->
+<!--             rendered="#{convocatoriasBean.convocatoriaDTO.idEstado.nmConstante != 152}" -->
+<!--             render=":tituloConvocatoria,convocatoriaForm" -->
+<!--             action="#{resolucionConvBean.resolverConvocatoria()}" -->
+<!--             tipoBoton="btn-primary"> -->
+<!--             <f:facet name="events"> -->
+<!--                 <p:confirm -->
+<!--                     header="#{bundle['solapa.resol.conv.confirm.def.titulo']}" -->
+<!--                     message="#{bundle['solapa.resol.conv.confirm.def.mensaje']}" -->
+<!--                     icon="ui-icon-alert" /> -->
+<!--             </f:facet> -->
+<!--         </atlasp:button> -->
+<!--          Escondemos la primerapèstaña -->
+         
          
          
         
@@ -106,14 +108,14 @@
 <!--             </p:commandButton> -->
         
         
-            <atlasp:message tipo="info"
-                texto="#{bundle['solapa.resol.msg.info.fechas.minimo.maxima.inicio.contratos']}"
-                rendered="#{convocatoriasBean.mostrarMensajeInfoResolverConv() and !convocatoriasBean.mostrarMensajeInfoTrasFechas()}"/> 
+<!--             <atlasp:message tipo="info" -->
+<!--                 texto="#{bundle['solapa.resol.msg.info.fechas.minimo.maxima.inicio.contratos']}" -->
+<!--                 rendered="#{convocatoriasBean.mostrarMensajeInfoResolverConv() and !convocatoriasBean.mostrarMensajeInfoTrasFechas()}"/>  --> <!--          Escondemos la primerapèstaña -->
                                 
                            
 <!--          </p:column>      -->
          
-         </p:panelGrid>
+<!--          </p:panelGrid> --> <!--          Escondemos la primerapèstaña -->
          
 <!--            <p:panelGrid id="outpanelResolucionConvSolapaDef" columns="4" columnClasses="ui-g-12" layout="grid" styleClass="ui-panelgrid-blank"> -->
         
@@ -190,143 +192,145 @@
                                 
                                 
 <!--     </p:panelGrid> -->
+
+
     
-     
-    <p:dialog id="dialogSubirResolucionProvisionalConv"
-        widgetVar="dialogSubirResolucionProvisionalConv"
-        header="#{bundle['solapa.resol.agregar.resolucion.provisional']}"
-        closable="false" dynamic="true" modal="true" width="25%"
-        onShow="atlas.ui.Loading.hideLoad('appLoading')">
+     <!--          Escondemos la primerapèstaña -->
+<!--     <p:dialog id="dialogSubirResolucionProvisionalConv" -->
+<!--         widgetVar="dialogSubirResolucionProvisionalConv" -->
+<!--         header="#{bundle['solapa.resol.agregar.resolucion.provisional']}" -->
+<!--         closable="false" dynamic="true" modal="true" width="25%" -->
+<!--         onShow="atlas.ui.Loading.hideLoad('appLoading')"> -->
         
-        <atlasp:facesMessages id="fmSubirResolucionProvisionalConv"
-            modo="notificar" />
-        <p:outputPanel id="outPanelSubirResolucionProvisionalConv">
-            <!-- Titulo -->
-            <p:panelGrid columns="1" layout="grid"
-                styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
-                <h:outputText styleClass="tituloFormulario"
-                    value="#{bundle['solapa.resol.resolucion.provisional.titulo']}" />
-            </p:panelGrid>
+<!--         <atlasp:facesMessages id="fmSubirResolucionProvisionalConv" -->
+<!--             modo="notificar" /> -->
+<!--         <p:outputPanel id="outPanelSubirResolucionProvisionalConv"> -->
+<!--             Titulo -->
+<!--             <p:panelGrid columns="1" layout="grid" -->
+<!--                 styleClass="ui-panelgrid-blank" columnClasses="ui-g-12"> -->
+<!--                 <h:outputText styleClass="tituloFormulario" -->
+<!--                     value="#{bundle['solapa.resol.resolucion.provisional.titulo']}" /> -->
+<!--             </p:panelGrid> -->
 
-            <atlasp:message tipo="info"
-                texto="#{bundle['solapa.resol.error.debe.seleccionar.fichero']}"
-                rendered="#{resolucionConvBean.mostrarMensajeElegirFichero}" />
+<!--             <atlasp:message tipo="info" -->
+<!--                 texto="#{bundle['solapa.resol.error.debe.seleccionar.fichero']}" -->
+<!--                 rendered="#{resolucionConvBean.mostrarMensajeElegirFichero}" /> -->
 
-            <p:panelGrid columns="1" layout="grid"
-                styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+<!--             <p:panelGrid columns="1" layout="grid" -->
+<!--                 styleClass="ui-panelgrid-blank" columnClasses="ui-g-12"> -->
                 
-                <!-- Archivo adjunto -->
-                <!-- VMM 31/10/25 MD-1388: solo permitir subir ficheros con formato .pdf -->
-                <h:outputText
-                    value="#{bundle['convocatorias.tab.documentos.label.archivo']}" />
-                <p:fileUpload value="#{resolucionConvBean.archivoResolucion}"
-                    mode="simple" skinSimple="true"
-                    label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}"
-                    accept=".pdf"
-                    allowTypes="/(\.|\/)(pdf)$/"
-                    invalidFileMessage="Solo se permiten archivos PDF">
-                </p:fileUpload>
+<!--                 Archivo adjunto -->
+<!--                 VMM 31/10/25 MD-1388: solo permitir subir ficheros con formato .pdf -->
+<!--                 <h:outputText -->
+<!--                     value="#{bundle['convocatorias.tab.documentos.label.archivo']}" /> -->
+<!--                 <p:fileUpload value="#{resolucionConvBean.archivoResolucion}" -->
+<!--                     mode="simple" skinSimple="true" -->
+<!--                     label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}" -->
+<!--                     accept=".pdf" -->
+<!--                     allowTypes="/(\.|\/)(pdf)$/" -->
+<!--                     invalidFileMessage="Solo se permiten archivos PDF"> -->
+<!--                 </p:fileUpload> -->
 
-            </p:panelGrid>
+<!--             </p:panelGrid> -->
             
-            <p:panelGrid columns="1" layout="grid"
-                styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
-                <p:column>
-                    <atlasp:button
-                        actionListener="#{resolucionConvBean.cargarFicheroProvisional}"
-                        ajax="false" value="#{bundle['popup.guardar']}"
-                        alt="#{bundle['popup.guardar']}"
-                        title="#{bundle['popup.guardar']}"
-                        icon="fas fa-save" tipoBoton="btn-success"
-                        onclick="atlas.ui.Loading.showLoad('appLoading')"
-                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
-                    </atlasp:button>
-                    <!-- VMM 30/09/26: ajax="true" process="@this" - sin atributo ajax este boton
-                         procesaba el formulario entero solo para cerrar el dialogo, igual que en
-                         solapaModifPresPlazoOtra.xhtml/solapaFinanciacion.xhtml. -->
-                    <atlasp:button value="#{bundle['popup.cerrar']}"
-                        alt="#{bundle['popup.cerrar']}"
-                        title="#{bundle['popup.cerrar']}"
-                        icon="fas fa-times" tipoBoton="btn-secondary"
-                        action="#{resolucionConvBean.cerrarSubirResolucionProvisionalDialog}"
-                        ajax="true" process="@this" update="outPanelSubirResolucionProvisionalConv"
-                        onclick="atlas.ui.Loading.showLoad('appLoading')"
-                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
-                    </atlasp:button>
-                </p:column>
-            </p:panelGrid>
+<!--             <p:panelGrid columns="1" layout="grid" -->
+<!--                 styleClass="ui-panelgrid-blank" columnClasses="ui-g-12"> -->
+<!--                 <p:column> -->
+<!--                     <atlasp:button -->
+<!--                         actionListener="#{resolucionConvBean.cargarFicheroProvisional}" -->
+<!--                         ajax="false" value="#{bundle['popup.guardar']}" -->
+<!--                         alt="#{bundle['popup.guardar']}" -->
+<!--                         title="#{bundle['popup.guardar']}" -->
+<!--                         icon="fas fa-save" tipoBoton="btn-success" -->
+<!--                         onclick="atlas.ui.Loading.showLoad('appLoading')" -->
+<!--                         oncomplete="atlas.ui.Loading.hideLoad('appLoading')"> -->
+<!--                     </atlasp:button> -->
+<!--                     VMM 30/09/26: ajax="true" process="@this" - sin atributo ajax este boton
+<!-                        procesaba el formulario entero solo para cerrar el dialogo, igual que en -->
+<!--                          solapaModifPresPlazoOtra.xhtml/solapaFinanciacion.xhtml. --> 
+<!--                     <atlasp:button value="#{bundle['popup.cerrar']}" -->
+<!--                         alt="#{bundle['popup.cerrar']}" -->
+<!--                         title="#{bundle['popup.cerrar']}" -->
+<!--                         icon="fas fa-times" tipoBoton="btn-secondary" -->
+<!--                         action="#{resolucionConvBean.cerrarSubirResolucionProvisionalDialog}" -->
+<!--                         ajax="true" process="@this" update="outPanelSubirResolucionProvisionalConv" -->
+<!--                         onclick="atlas.ui.Loading.showLoad('appLoading')" -->
+<!--                         oncomplete="atlas.ui.Loading.hideLoad('appLoading')"> -->
+<!--                     </atlasp:button> -->
+<!--                 </p:column> -->
+<!--             </p:panelGrid> -->
             
-        </p:outputPanel>
-    </p:dialog>
+<!--         </p:outputPanel> -->
+<!--     </p:dialog> -->
     
     
-    <p:dialog id="dialogSubirResolucionDefinitivaConv"
-        widgetVar="dialogSubirResolucionDefinitivaConv"
-        header="#{bundle['solapa.resol.agregar.resolucion.definitiva']}"
-        closable="false" dynamic="true" modal="true" width="25%"
-        onShow="atlas.ui.Loading.hideLoad('appLoading')">
+<!--     <p:dialog id="dialogSubirResolucionDefinitivaConv" -->
+<!--         widgetVar="dialogSubirResolucionDefinitivaConv" -->
+<!--         header="#{bundle['solapa.resol.agregar.resolucion.definitiva']}" -->
+<!--         closable="false" dynamic="true" modal="true" width="25%" -->
+<!--         onShow="atlas.ui.Loading.hideLoad('appLoading')"> -->
 
-        <atlasp:facesMessages id="fmSubirResolucionDefinitivaConv"
-            modo="notificar" />
-        <p:outputPanel id="outPanelSubirResolucionDefinitivaConv">
-            <!-- Titulo -->
-            <p:panelGrid columns="1" layout="grid"
-                styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
-                <h:outputText styleClass="tituloFormulario"
-                    value="#{bundle['solapa.resol.concesion.definitiva.titulo']}" />
-            </p:panelGrid>
+<!--         <atlasp:facesMessages id="fmSubirResolucionDefinitivaConv" -->
+<!--             modo="notificar" /> -->
+<!--         <p:outputPanel id="outPanelSubirResolucionDefinitivaConv"> -->
+<!--             Titulo -->
+<!--             <p:panelGrid columns="1" layout="grid" -->
+<!--                 styleClass="ui-panelgrid-blank" columnClasses="ui-g-12"> -->
+<!--                 <h:outputText styleClass="tituloFormulario" -->
+<!--                     value="#{bundle['solapa.resol.concesion.definitiva.titulo']}" /> -->
+<!--             </p:panelGrid> -->
 
-            <atlasp:message tipo="info"
-                texto="#{bundle['solapa.resol.error.debe.seleccionar.fichero']}"
-                rendered="#{resolucionConvBean.mostrarMensajeElegirFichero}" />
+<!--             <atlasp:message tipo="info" -->
+<!--                 texto="#{bundle['solapa.resol.error.debe.seleccionar.fichero']}" -->
+<!--                 rendered="#{resolucionConvBean.mostrarMensajeElegirFichero}" /> -->
 
-            <p:panelGrid columns="1" layout="grid"
-                styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+<!--             <p:panelGrid columns="1" layout="grid" -->
+<!--                 styleClass="ui-panelgrid-blank" columnClasses="ui-g-12"> -->
                 
-                <!-- Archivo adjunto -->
-                <!-- VMM 31/10/25 MD-1388: solo permitir subir ficheros con formato .pdf -->
-                <h:outputText
-                    value="#{bundle['convocatorias.tab.documentos.label.archivo']}" />
-                <p:fileUpload value="#{resolucionConvBean.archivoResolucionDefinitiva}"
-                    mode="simple" skinSimple="true"
-                    label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}"
-                    accept=".pdf"
-                    allowTypes="/(\.|\/)(pdf)$/"
-                    invalidFileMessage="Solo se permiten archivos PDF">
-                </p:fileUpload>
+<!--                 Archivo adjunto -->
+<!--                 VMM 31/10/25 MD-1388: solo permitir subir ficheros con formato .pdf -->
+<!--                 <h:outputText -->
+<!--                     value="#{bundle['convocatorias.tab.documentos.label.archivo']}" /> -->
+<!--                 <p:fileUpload value="#{resolucionConvBean.archivoResolucionDefinitiva}" -->
+<!--                     mode="simple" skinSimple="true" -->
+<!--                     label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}" -->
+<!--                     accept=".pdf" -->
+<!--                     allowTypes="/(\.|\/)(pdf)$/" -->
+<!--                     invalidFileMessage="Solo se permiten archivos PDF"> -->
+<!--                 </p:fileUpload> -->
 
-            </p:panelGrid>
+<!--             </p:panelGrid> -->
             
-            <p:panelGrid columns="1" layout="grid"
-                styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
-                <p:column>
-                    <atlasp:button
-                        actionListener="#{resolucionConvBean.cargarFicheroDefinitivo}"
-                        ajax="false" value="#{bundle['popup.guardar']}"
-                        alt="#{bundle['popup.guardar']}"
-                        title="#{bundle['popup.guardar']}"
-                        icon="fas fa-save" tipoBoton="btn-success"
-                        onclick="atlas.ui.Loading.showLoad('appLoading')"
-                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
-                    </atlasp:button>
-                    <!-- VMM 30/09/26: ajax="true" process="@this" - mismo motivo que el dialogo anterior. -->
-                    <atlasp:button value="#{bundle['popup.cerrar']}"
-                        alt="#{bundle['popup.cerrar']}"
-                        title="#{bundle['popup.cerrar']}"
-                        icon="fas fa-times" tipoBoton="btn-secondary"
-                        action="#{resolucionConvBean.cerrarSubirResolucionDefinitivaDialog}"
-                        ajax="true" process="@this" update="outPanelSubirResolucionDefinitivaConv"
-                        onclick="atlas.ui.Loading.showLoad('appLoading')"
-                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
-                    </atlasp:button>
-                </p:column>
-            </p:panelGrid>
+<!--             <p:panelGrid columns="1" layout="grid" -->
+<!--                 styleClass="ui-panelgrid-blank" columnClasses="ui-g-12"> -->
+<!--                 <p:column> -->
+<!--                     <atlasp:button -->
+<!--                         actionListener="#{resolucionConvBean.cargarFicheroDefinitivo}" -->
+<!--                         ajax="false" value="#{bundle['popup.guardar']}" -->
+<!--                         alt="#{bundle['popup.guardar']}" -->
+<!--                         title="#{bundle['popup.guardar']}" -->
+<!--                         icon="fas fa-save" tipoBoton="btn-success" -->
+<!--                         onclick="atlas.ui.Loading.showLoad('appLoading')" -->
+<!--                         oncomplete="atlas.ui.Loading.hideLoad('appLoading')"> -->
+<!--                     </atlasp:button> -->
+<!--                     VMM 30/09/26: ajax="true" process="@this" - mismo motivo que el dialogo anterior. -->
+<!--                     <atlasp:button value="#{bundle['popup.cerrar']}" -->
+<!--                         alt="#{bundle['popup.cerrar']}" -->
+<!--                         title="#{bundle['popup.cerrar']}" -->
+<!--                         icon="fas fa-times" tipoBoton="btn-secondary" -->
+<!--                         action="#{resolucionConvBean.cerrarSubirResolucionDefinitivaDialog}" -->
+<!--                         ajax="true" process="@this" update="outPanelSubirResolucionDefinitivaConv" -->
+<!--                         onclick="atlas.ui.Loading.showLoad('appLoading')" -->
+<!--                         oncomplete="atlas.ui.Loading.hideLoad('appLoading')"> -->
+<!--                     </atlasp:button> -->
+<!--                 </p:column> -->
+<!--             </p:panelGrid> -->
             
-        </p:outputPanel>
-    </p:dialog>
+<!--         </p:outputPanel> -->
+<!--     </p:dialog> -->
     
     
-    </p:tab>
+<!--     </p:tab> --> <!--          Escondemos la primerapèstaña -->
 
         <p:tab id="solapaResolucionExclDesi"
             title="#{bundle['resolucion.exclusion.desistimiento.subpestana.titulo']}">

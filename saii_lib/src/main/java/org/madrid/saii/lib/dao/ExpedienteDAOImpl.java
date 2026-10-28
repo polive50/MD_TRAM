@@ -2724,25 +2724,33 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
      */
     @Override
     public List<ResolucionExclusionDesistimientoDTO> listaResolucionExclusionDesistimiento(
-            Integer idConvocatoria, List<Integer> idsEstado, Integer idCatalogoRequisitos) {
+            Integer idConvocatoria, List<Integer> idsEstado, Integer idCatalogoRequisitos, Integer idEstadoPendRevisionAleg, Integer idEstadoExclProvis) {
 
         StringBuilder queryHql = new StringBuilder();
         queryHql.append(" select new org.madrid.saii.lib.dto.ResolucionExclusionDesistimientoDTO(");
-        queryHql.append(" ex.idExpediente, co.idLineaAyuda.dsValor, ex.interesado.dsNombre, ex.cdExpediente,");
-        queryHql.append(" ex.estado.dsValor, ex.interesado.cdNumIden, req.requisito.cdCodigo)");
+        queryHql.append(" ex.idExpediente,  ex.convocatoriaSubmod.tlSubmodalidad, ex.interesado.dsNombre, ex.cdExpediente,");
+        queryHql.append(" ex.estado.dsValor, ex.interesado.cdNumIden, req.requisito.dsValor)");
         queryHql.append(" from ExpedienteReq req");
         queryHql.append(" join req.expediente ex");
         queryHql.append(" join ex.solicitud so");
         queryHql.append(" join so.convocatoria co");
+        queryHql.append(" join ex.convocatoriaSubmod coSub");
         queryHql.append(" where co.idConvocatoria = :idConvocatoria");
-        queryHql.append(" and ex.estado.idValor in (:idsEstado)");
-        queryHql.append(" and req.requisito.catalogo.idCatalogo = :idCatalogoRequisitos");
+        
+        queryHql.append(" and (");
+        queryHql.append("      (ex.estado.idValor in (:idsEstado) and ex.estado.idValor != :idEstadoPendRevisionAleg)");
+        queryHql.append("      or (ex.estado.idValor = :idEstadoPendRevisionAleg and ex.estadoProvisional.idValor = :idEstadoExclProvis)");
+        queryHql.append(" )");        
+//        queryHql.append(" and ex.estado.idValor in (:idsEstado)");
+        
+        queryHql.append(" and req.requisito.catalogo.idCatalogo = :idCatalogoRequisitos ");
         queryHql.append(" and req.itCumple = :itCumple");
+        queryHql.append(" and ex.convocatoriaSubmod.idConvocatoriaSubmod = coSub.idConvocatoriaSubmod ");
         queryHql.append(" and co.fcBajaFila is null");
         queryHql.append(" and so.fcBajaFila is null");
         queryHql.append(" and ex.fcBajaFila is null");
         queryHql.append(" and req.fcBajaFila is null");
-        queryHql.append(" order by co.idLineaAyuda.dsValor, ex.interesado.dsNombre,");
+        queryHql.append(" order by ex.convocatoriaSubmod.tlSubmodalidad, ex.interesado.dsNombre,");
         queryHql.append(" ex.cdExpediente, req.requisito.cdCodigo");
 
         Map<String, Object> params = new HashMap<>();
@@ -2750,6 +2758,8 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
         params.put("idsEstado", idsEstado);
         params.put("idCatalogoRequisitos", idCatalogoRequisitos);
         params.put("itCumple", Constantes.AfirmacionNegacion.N);
+        params.put("idEstadoPendRevisionAleg", idEstadoPendRevisionAleg);
+        params.put("idEstadoExclProvis", idEstadoExclProvis);
 
         @SuppressWarnings("unchecked")
         List<ResolucionExclusionDesistimientoDTO> listado =
@@ -2757,6 +2767,48 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
                         queryHql.toString(), params);
         return listado;
     }
+    
+    
+    @Override
+    public List<ResolucionExclusionDesistimientoDTO> listaResolucionDesistimiento(
+            Integer idConvocatoria, List<Integer> idsEstado, Integer idEstadoPendRevisionAleg, Integer idEstadoExclProvis) {
+
+        StringBuilder queryHql = new StringBuilder();
+        queryHql.append(" select new org.madrid.saii.lib.dto.ResolucionExclusionDesistimientoDTO(");
+        queryHql.append(" ex.idExpediente,  ex.convocatoriaSubmod.tlSubmodalidad, ex.interesado.dsNombre, ex.cdExpediente,");
+        queryHql.append(" ex.estado.dsValor, ex.interesado.cdNumIden)");
+        queryHql.append(" from Expediente ex");
+        queryHql.append(" join ex.solicitud so");
+        queryHql.append(" join so.convocatoria co");
+        queryHql.append(" join ex.convocatoriaSubmod coSub");
+        queryHql.append(" where co.idConvocatoria = :idConvocatoria");
+        
+//        queryHql.append(" and ex.estado.idValor in (:idsEstado)");
+        queryHql.append(" and (");
+        queryHql.append("      (ex.estado.idValor in (:idsEstado) and ex.estado.idValor != :idEstadoPendRevisionAleg)");
+        queryHql.append("      or (ex.estado.idValor = :idEstadoPendRevisionAleg and ex.estadoProvisional.idValor = :idEstadoExclProvis)");
+        queryHql.append(" )");   
+        
+        queryHql.append(" and ex.convocatoriaSubmod.idConvocatoriaSubmod = coSub.idConvocatoriaSubmod ");
+        queryHql.append(" and co.fcBajaFila is null");
+        queryHql.append(" and so.fcBajaFila is null");
+        queryHql.append(" and ex.fcBajaFila is null");
+        queryHql.append(" order by ex.convocatoriaSubmod.tlSubmodalidad, ex.interesado.dsNombre,");
+        queryHql.append(" ex.cdExpediente");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("idConvocatoria", idConvocatoria);
+        params.put("idsEstado", idsEstado);
+        params.put("idEstadoPendRevisionAleg", idEstadoPendRevisionAleg);
+        params.put("idEstadoExclProvis", idEstadoExclProvis);
+
+        @SuppressWarnings("unchecked")
+        List<ResolucionExclusionDesistimientoDTO> listado =
+                (List<ResolucionExclusionDesistimientoDTO>) super.executeHQLQueryList(
+                        queryHql.toString(), params);
+        return listado;
+    }
+    
     
     @Override
     public List<ResolucionConcesionDTO> listaResolucionConcesion(

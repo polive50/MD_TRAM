@@ -867,6 +867,14 @@ public final class Constantes {
         
         public static final Integer CONCEDIDO_DEFINITIVO_DESISTIDO = 247;  
         
+        public static final Integer PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL = 255;
+
+        public static final Integer PENDIENTE_PROPUESTA_RESOLUCION_CONCEDIDO_PROVISIONAL = 256;
+
+        public static final Integer PENDIENTE_PROPUESTA_RESOLUCION_DESESTIMADO_PROVISIONAL = 257;
+
+        public static final Integer PENDIENTE_PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL = 258;
+        
     }
 
     /**
@@ -1226,7 +1234,7 @@ public final class Constantes {
     }
 
     /**
-     * Constantes para los estados de SAII_EXPEDIENTE_NOTIF (catálogo idCatalogo=65)
+     * Constantes para los estados de SAII_NOTIFI_CIUD (catálogo idCatalogo=65)
      */
     public static final class EstadoNotifiCiud {
 
@@ -4659,6 +4667,16 @@ public final class Constantes {
       
       public static final String FIRMA = "firma";
       public static final String CONSULTA = "consulta";
+      
+  }
+  
+  public static final class TiposNotifCiudadano {
+      protected TiposNotifCiudadano() {
+          
+      }
+      
+      public static final Integer DESISTIMIENTO_EXPRESO = 702;
+      public static final Integer RENUNCIA_EXPRESA = 703;
       
   }
    

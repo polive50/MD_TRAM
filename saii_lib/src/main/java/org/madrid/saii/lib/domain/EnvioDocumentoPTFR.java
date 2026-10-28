@@ -24,10 +24,6 @@ import lombok.ToString;
 @ToString
 public class EnvioDocumentoPTFR implements Serializable {
 
-   
-    /**
-     * 
-     */
     private static final long serialVersionUID = 770035714450599856L;
 
     /**
@@ -70,24 +66,20 @@ public class EnvioDocumentoPTFR implements Serializable {
      */
     private Date fcEnvioPTFR;
     
-    
     /**
      * Representa el campo fcFirmaPTFR del objeto de dominio
      */
     private Date fcFirmaPTFR;
-    
     
     /**
      * Representa el campo cdEstadoPTFR del objeto de dominio
      */
     private String cdEstadoPTFR;
 
-    
     /**
      * Representa el campo idTramite del objeto de dominio
      */
     private Integer idTramite;
-    
     
     /**
      * Representa el campo cdEstadoPTFR del objeto de dominio
@@ -99,7 +91,6 @@ public class EnvioDocumentoPTFR implements Serializable {
      */
     private Date fcLecturaNote;
     
-  
     /**
      * Representa el campo dcEnvioPTFR del objeto de dominio
      */
@@ -109,6 +100,7 @@ public class EnvioDocumentoPTFR implements Serializable {
      * Representa el campo cdEstadoPTFR del objeto de dominio
      */
     private String cdEstadoNote;
+
     /**
      * Representa el campo dsDestinatario del objeto de dominio
      */
@@ -124,18 +116,14 @@ public class EnvioDocumentoPTFR implements Serializable {
      */
     private String dsVerificador;
    
-    
     private String dsTramite;
-    
     
     private String itCorreo;
 
-    
     /**
      * Representa el campo idExpedienteJustec del objeto de dominio
      */
     private Integer idExpedienteJustec;
-    
     
     /**
      * Representa el campo fcRechazoNote del objeto de dominio
@@ -156,6 +144,13 @@ public class EnvioDocumentoPTFR implements Serializable {
      * Representa el campo idDocPtfrPadre del objeto de dominio
      */
     private Integer idDocPtfrPadre;
+    
+    /**
+     * Representa el campo motivoRechazo del objeto de dominio
+     */
+    private String motivoRechazo;
+    
+    private Integer cdArchivoRespPtfr;
  
     // ////////////////////////////////////////////////////////
     // /////////////////////////////// CONSTRUCTORES
@@ -196,7 +191,6 @@ public class EnvioDocumentoPTFR implements Serializable {
         this.idDocumentoPTFR = idDocumentoPTFR;
     }
 
-
     @Column(name = "ID_CONVOCATORIA")
     public Integer getIdConvocatoria() {
         return idConvocatoria;
@@ -206,119 +200,113 @@ public class EnvioDocumentoPTFR implements Serializable {
         this.idConvocatoria = idConvocatoria;
     }
 
-   @Column(name = "ID_EXPEDIENTE")
+    @Column(name = "ID_EXPEDIENTE")
     public Integer getidExpediente() {
         return idExpediente;
     }
 
-   public void setidExpediente(Integer idExpediente) {
-       this.idExpediente = idExpediente;
-   }
+    public void setidExpediente(Integer idExpediente) {
+        this.idExpediente = idExpediente;
+    }
+    
+    @Column(name = "CD_EXPEDIENTE")
+    public String getCdExpediente() {
+        return cdExpediente;
+    }
+
+    public void setCdExpediente(String cdExpediente) {
+       this.cdExpediente = cdExpediente;
+    }
+    
+    @Column(name = "DS_REFERENCIA_PTFR")
+    public String getDsReferenciaPTFR() {
+        return dsReferenciaPTFR;
+    }
+
+    public void setDsReferenciaPTFR(String dsReferenciaPTFR) {
+        this.dsReferenciaPTFR = dsReferenciaPTFR;
+    }
+    
+    @Column(name = "CD_ARCHIVO_PTFR")
+    public Integer getCdArchivoPTFR() {
+        return cdArchivoPTFR;
+    }
+
+    public void setCdArchivoPTFR(Integer cdArchivoPTFR) {
+       this.cdArchivoPTFR = cdArchivoPTFR;
+    }
    
-   @Column(name = "CD_EXPEDIENTE")
-   public String getCdExpediente() {
-       return cdExpediente;
-   }
-
-   public void setCdExpediente(String cdExpediente) {
-      this.cdExpediente = cdExpediente;
-   }
+    @Column(name = "FC_ENVIO_COLA")
+    public Date getFcEnvioCola() {
+        return fcEnvioCola;
+    }
    
-   @Column(name = "DS_REFERENCIA_PTFR")
-   public String getDsReferenciaPTFR() {
-       return dsReferenciaPTFR;
-   }
+    public void setFcEnvioCola(Date fcEnvioCola) {
+        this.fcEnvioCola = fcEnvioCola;
+    } 
 
-   public void setDsReferenciaPTFR(String dsReferenciaPTFR) {
-       this.dsReferenciaPTFR = dsReferenciaPTFR;
-   }
+    @Column(name = "FC_ENVIO_PTFR")
+    public Date getFcEnvioPTFR() {
+        return fcEnvioPTFR;
+    }
+
+    public void setFcEnvioPTFR(Date fcEnvioPTFR) {
+        this.fcEnvioPTFR = fcEnvioPTFR;
+    }
    
+    @Column(name = "FC_FIRMA_PTFR")
+    public Date getFcFirmaPTFR() {
+        return fcFirmaPTFR;
+    }
+
+    public void setFcFirmaPTFR(Date fcFirmaPTFR) {
+        this.fcFirmaPTFR = fcFirmaPTFR;
+    }
    
+    @Column(name = "CD_ESTADO_PTFR")
+    public String getCdEstadoPTFR() {
+        return cdEstadoPTFR;
+    }
+
+    public void setCdEstadoPTFR(String cdEstadoPTFR) {
+        this.cdEstadoPTFR = cdEstadoPTFR;
+    }
    
-   @Column(name = "CD_ARCHIVO_PTFR")
-   public Integer getCdArchivoPTFR() {
-       return cdArchivoPTFR;
-   }
+    @Column(name = "CD_NOTE")
+    public String getCdNote() {
+        return cdNote;
+    }
 
-  public void setCdArchivoPTFR(Integer cdArchivoPTFR) {
-      this.cdArchivoPTFR = cdArchivoPTFR;
-  }
-  
-  @Column(name = "FC_ENVIO_COLA")
-  public Date getFcEnvioCola() {
-      return fcEnvioCola;
-  }
-  
-  public void setFcEnvioCola(Date fcEnvioCola) {
-      this.fcEnvioCola = fcEnvioCola;
-  } 
+    public void setCdNote(String cdNote) {
+        this.cdNote = cdNote;
+    }
 
-  @Column(name = "FC_ENVIO_PTFR")
-  public Date getFcEnvioPTFR() {
-      return fcEnvioPTFR;
-  }
+    @Column(name = "FC_LECTURA_NOTE")
+    public Date getFcLecturaNote() {
+        return fcLecturaNote;
+    }
 
-  public void setFcEnvioPTFR(Date fcEnvioPTFR) {
-      this.fcEnvioPTFR = fcEnvioPTFR;
-  }
-  
-  
-  @Column(name = "FC_FIRMA_PTFR")
-  public Date getFcFirmaPTFR() {
-      return fcFirmaPTFR;
-  }
-
-  public void setFcFirmaPTFR(Date fcFirmaPTFR) {
-      this.fcFirmaPTFR = fcFirmaPTFR;
-  }
-  
-  
-  @Column(name = "CD_ESTADO_PTFR")
-  public String getCdEstadoPTFR() {
-      return cdEstadoPTFR;
-  }
-
-  public void setCdEstadoPTFR(String cdEstadoPTFR) {
-      this.cdEstadoPTFR = cdEstadoPTFR;
-  }
-  
-  @Column(name = "CD_NOTE")
-  public String getCdNote() {
-      return cdNote;
-  }
-
-  public void setCdNote(String cdNote) {
-      this.cdNote = cdNote;
-  }
-
-  @Column(name = "FC_LECTURA_NOTE")
-  public Date getFcLecturaNote() {
-      return fcLecturaNote;
-  }
-
-  public void setFcLecturaNote(Date fcLecturaNote) {
-      this.fcLecturaNote = fcLecturaNote;
-  }
-  
-  @Column(name = "FC_ENVIO_NOTE")
-  public Date getFcEnvioNote() {
-      return fcEnvioNote;
-  }
-
-  public void setFcEnvioNote(Date fcEnvioNote) {
-      this.fcEnvioNote = fcEnvioNote;
-  }
-  
-
-  @Column(name = "CD_ESTADO_NOTE")
-  public String getCdEstadoNote() {
-      return cdEstadoNote;
-  }
-
-  public void setCdEstadoNote(String cdEstadoNote) {
-      this.cdEstadoNote = cdEstadoNote;
-  }
+    public void setFcLecturaNote(Date fcLecturaNote) {
+        this.fcLecturaNote = fcLecturaNote;
+    }
    
+    @Column(name = "FC_ENVIO_NOTE")
+    public Date getFcEnvioNote() {
+        return fcEnvioNote;
+    }
+
+    public void setFcEnvioNote(Date fcEnvioNote) {
+        this.fcEnvioNote = fcEnvioNote;
+    }
+
+    @Column(name = "CD_ESTADO_NOTE")
+    public String getCdEstadoNote() {
+        return cdEstadoNote;
+    }
+
+    public void setCdEstadoNote(String cdEstadoNote) {
+        this.cdEstadoNote = cdEstadoNote;
+    }
 
     @Column(name = "DS_DESTINATARIO")
     public String getDsDestinatario() {
@@ -329,17 +317,15 @@ public class EnvioDocumentoPTFR implements Serializable {
         this.dsDestinatario = dsDestinatario;
     }
 
-   @Column(name = "CD_FIRMANTE")
+    @Column(name = "CD_FIRMANTE")
     public String getDsFirmante() {
         return dsFirmante;
     }
 
-
     public void setDsFirmante(String dsFirmante) {
         this.dsFirmante = dsFirmante;
     }
-    
-    
+
     @Column(name = "ID_TRAMITE")
     public Integer getidTramite() {
         return idTramite;
@@ -349,7 +335,6 @@ public class EnvioDocumentoPTFR implements Serializable {
         this.idTramite = idTramite;
     }
 
-  
     /**
      * @return the dsVerificador
      */
@@ -364,89 +349,112 @@ public class EnvioDocumentoPTFR implements Serializable {
     public void setDsVerificador(String dsVerificador) {
         this.dsVerificador = dsVerificador;
     }
-    
        
     @Column(name = "DS_TRAMITE")
     public String getdsTramite() {
         return dsTramite;
     }
 
-
     public void setdsTramite(String dsTramite) {
         this.dsTramite = dsTramite;
     }
 
-    
     @Column(name = "IT_CORREO")
     public String getItCorreo() {
         return itCorreo;
     }
 
-
     public void setItCorreo(String itCorreo) {
         this.itCorreo = itCorreo;
     }
-  
-    
+
     @Column(name = "ID_EXPEDIENTE_JUSTEC")
     public Integer getidExpedienteJustec() {
         return idExpedienteJustec;
     }
 
-   public void setidExpedienteJustec(Integer idExpedienteJustec) {
-       this.idExpedienteJustec = idExpedienteJustec;
-   }
+    public void setidExpedienteJustec(Integer idExpedienteJustec) {
+        this.idExpedienteJustec = idExpedienteJustec;
+    }
     
-   @Column(name = "FC_RECHAZO_NOTE")
-   public Date getfcRechazoNote() {
-       return fcRechazoNote;
-   }
+    @Column(name = "FC_RECHAZO_NOTE")
+    public Date getfcRechazoNote() {
+        return fcRechazoNote;
+    }
 
-  public void setfcRechazoNote(Date fcRechazoNote) {
-      this.fcRechazoNote = fcRechazoNote;
-  }
+    public void setfcRechazoNote(Date fcRechazoNote) {
+        this.fcRechazoNote = fcRechazoNote;
+    }
 
-      
-      @Column(name = "ID_EXPEDIENTE_JUSECO")
-      public Integer getidExpedienteJusEco() {
-          return idExpedienteJusEco;
-      }
-    
-     public void setidExpedienteJusEco(Integer idExpedienteJusEco) {
-         this.idExpedienteJusEco = idExpedienteJusEco;
-     }
+    @Column(name = "ID_EXPEDIENTE_JUSECO")
+    public Integer getidExpedienteJusEco() {
+        return idExpedienteJusEco;
+    }
+
+    public void setidExpedienteJusEco(Integer idExpedienteJusEco) {
+        this.idExpedienteJusEco = idExpedienteJusEco;
+    }
      
-     /**
-      * @return the cdFicaAcuseReciboNote
-      */
-     @Column(name = "CD_FICA_ACUSE_RECIBO_NOTE")
-     public Integer getCdFicaAcuseReciboNote() {
-         return cdFicaAcuseReciboNote;
-     }
+    /**
+     * @return the cdFicaAcuseReciboNote
+     */
+    @Column(name = "CD_FICA_ACUSE_RECIBO_NOTE")
+    public Integer getCdFicaAcuseReciboNote() {
+        return cdFicaAcuseReciboNote;
+    }
 
-     /**
-      * @param cdFicaAcuseReciboNote the cdFicaAcuseReciboNote to set
-      */
-     public void setCdFicaAcuseReciboNote(Integer cdFicaAcuseReciboNote) {
-         this.cdFicaAcuseReciboNote = cdFicaAcuseReciboNote;
-     }
+    /**
+     * @param cdFicaAcuseReciboNote the cdFicaAcuseReciboNote to set
+     */
+    public void setCdFicaAcuseReciboNote(Integer cdFicaAcuseReciboNote) {
+        this.cdFicaAcuseReciboNote = cdFicaAcuseReciboNote;
+    }
      
-     
-     /**
-      * @return the idDocPtfrPadre
-      */
-     @Column(name = "ID_DOC_PTFR_PADRE")
-     public Integer getIdDocPtfrPadre() {
-         return idDocPtfrPadre;
-     }
+    /**
+     * @return the idDocPtfrPadre
+     */
+    @Column(name = "ID_DOC_PTFR_PADRE")
+    public Integer getIdDocPtfrPadre() {
+        return idDocPtfrPadre;
+    }
 
-     /**
-      * @param idDocPtfrPadre the idDocPtfrPadre to set
-      */
-     public void setIdDocPtfrPadre(Integer idDocPtfrPadre) {
-         this.idDocPtfrPadre = idDocPtfrPadre;
-     }
-   
+    /**
+     * @param idDocPtfrPadre the idDocPtfrPadre to set
+     */
+    public void setIdDocPtfrPadre(Integer idDocPtfrPadre) {
+        this.idDocPtfrPadre = idDocPtfrPadre;
+    }
+
+    /**
+     * @return the cdArchivoRespPtfr
+     */
+    @Column(name = "CD_ARCHIVO_RESP_PTFR")
+    public Integer getCdArchivoRespPtfr() {
+        return cdArchivoRespPtfr;
+    }
+
+    /**
+     * @param cdArchivoRespPtfr the cdArchivoRespPtfr to set
+     */
+    public void setCdArchivoRespPtfr(Integer cdArchivoRespPtfr) {
+        this.cdArchivoRespPtfr = cdArchivoRespPtfr;
+    }
+
+    /**
+     * @return the motivoRechazo
+     */
+    @Column(name = "DS_MOTIVO_RECHAZO")
+    public String getMotivoRechazo() {
+        return motivoRechazo;
+    }
+
+    /**
+     * @param motivoRechazo the motivoRechazo to set
+     */
+    public void setMotivoRechazo(String motivoRechazo) {
+        this.motivoRechazo = motivoRechazo;
+    }
+
     // ////////////////////////////////////////////////////////
     // /////////////////////////////// FIN AUDITORIA
     // ////////////////////////////////////////////////////////
@@ -455,8 +463,8 @@ public class EnvioDocumentoPTFR implements Serializable {
     public int hashCode() {
         return Objects.hash(cdArchivoPTFR, cdEstadoNote, cdEstadoPTFR, cdNote, dsDestinatario,
                 dsFirmante, dsReferenciaPTFR, dsTramite, dsVerificador, fcEnvioCola, fcEnvioNote,
-                fcEnvioPTFR,fcFirmaPTFR, fcLecturaNote, idConvocatoria, idDocumentoPTFR, idExpediente,
-                idTramite,itCorreo,idExpedienteJustec, idExpedienteJusEco);
+                fcEnvioPTFR, fcFirmaPTFR, fcLecturaNote, idConvocatoria, idDocumentoPTFR, idExpediente,
+                idTramite, itCorreo, idExpedienteJustec, idExpedienteJusEco, cdArchivoRespPtfr, motivoRechazo);
     }
 
     @Override
@@ -488,8 +496,8 @@ public class EnvioDocumentoPTFR implements Serializable {
                 && Objects.equals(itCorreo, other.itCorreo)
                 && Objects.equals(idExpedienteJustec, other.idExpedienteJustec)
                 && Objects.equals(idTramite, other.idTramite)
-                && Objects.equals(idExpedienteJusEco, other.idExpedienteJusEco);
+                && Objects.equals(idExpedienteJusEco, other.idExpedienteJusEco)
+                && Objects.equals(cdArchivoRespPtfr, other.cdArchivoRespPtfr)
+                && Objects.equals(motivoRechazo, other.motivoRechazo);
     }
-
-
 }

@@ -10,11 +10,8 @@
     <atlasp:guardarEstado value="#{comunCiudadanoBean.idComunicacionDesplegada}" />
     <atlasp:guardarEstado value="#{comunCiudadanoBean.documentosComunicacionDesplegada}" />
     <atlasp:guardarEstado value="#{comunCiudadanoBean.nuevaComunicacion}" />
-    <atlasp:guardarEstado value="#{comunCiudadanoBean.nuevoDocumento}" />
     <atlasp:guardarEstado value="#{comunCiudadanoBean.tiposComunicacion}" />
-    <atlasp:guardarEstado value="#{comunCiudadanoBean.tiposDocumento}" />
     <atlasp:guardarEstado value="#{comunCiudadanoBean.comunicacionAbierta}" />
-    <atlasp:guardarEstado value="#{comunCiudadanoBean.documentoAbierto}" />
 
     <p:outputPanel id="panelComunCiudadano">
         <atlasp:facesMessages id="mensajesComunCiudadano" modo="notificar" />
@@ -139,9 +136,12 @@
                 <h:outputLabel for="codigoEregComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.codigoEreg']}" />
                 <p:inputMask id="codigoEregComunicacionCiudadano" mask="99/999999.9/99"
                     value="#{comunCiudadanoBean.nuevaComunicacion.cdEreg}" />
-                <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.unidadAdministrativa']}" />
-                <!-- La selección de unidad administrativa está pendiente de definición. -->
-                <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.unidadAdministrativa.pendiente']}" />
+                <h:outputLabel for="unidadAdministrativaComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.unidadAdministrativa']}" />
+                <p:inputText id="unidadAdministrativaComunicacionCiudadano" maxlength="200" style="width:95%"
+                    value="#{comunCiudadanoBean.nuevaComunicacion.dsDestinoEreg}"
+                    validatorMessage="#{bundle['comunicacionCiudadano.error.unidadAdministrativaLongitud']}">
+                    <f:validateLength maximum="200" />
+                </p:inputText>
             </p:panelGrid>
             <p:dataTable id="tablaAdjuntosNuevaComunicacion" var="adjuntoPendiente"
                 value="#{comunCiudadanoBean.nuevaComunicacion.lstExpedienteDocDTO}"
@@ -149,12 +149,13 @@
                 <p:column headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.label.tipo']}"><h:outputText value="#{comunCiudadanoBean.descripcionTipoDocumento(adjuntoPendiente)}" /></p:column>
                 <p:column headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.label.nombre']}"><h:outputText value="#{adjuntoPendiente.nombreFicheroFica}" /></p:column>
             </p:dataTable>
+            <p:fileUpload id="archivoDocumentoComunicacion" value="#{comunCiudadanoBean.archivoSubir}"
+                mode="simple" skinSimple="true" label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}" />
             <atlasp:button value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.agregar']}" alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.agregar']}" title="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.agregar']}"
-                icon="fas fa-plus" tipoBoton="btn-secondary" ajax="true" process="panelNuevaComunicacionCiudadano"
-                action="#{comunCiudadanoBean.agregarDocumento}"
-                update="panelDocumentoComunicacion mensajesNuevaComunicacionCiudadano" />
+                icon="fas fa-plus" tipoBoton="btn-secondary" ajax="false"
+                action="#{comunCiudadanoBean.adjuntarDocumento}" />
             <atlasp:button value="#{bundle['popup.guardar']}" alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.guardar']}" title="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.guardar']}"
-                icon="fas fa-save" tipoBoton="btn-success" ajax="true" process="panelNuevaComunicacionCiudadano"
+                icon="fas fa-save" tipoBoton="btn-success" ajax="false"
                 action="#{comunCiudadanoBean.guardarComunicacion}"
                 update="panelNuevaComunicacionCiudadano panelComunCiudadano"
                 onclick="atlas.ui.Loading.showLoad('appLoading')"
@@ -165,52 +166,5 @@
                 update="panelNuevaComunicacionCiudadano" />
         </p:outputPanel>
     </p:dialog>
-    
-    <p:dialog id="dialogDocumentoComunicacion" widgetVar="dialogDocumentoComunicacion"
-        header="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.agregar.documento']}" closable="false" modal="true" width="70%"
-        visible="#{comunCiudadanoBean.documentoAbierto}">
-        <p:outputPanel id="panelDocumentoComunicacion">
-            <atlasp:facesMessages id="mensajesDocumentoComunicacion" modo="notificar" />
-            <h:outputText value="#{bundle['convocatorias.tab.documentos.label.archivo']}" styleClass="tituloFormulario" />
-            <p:panelGrid columns="2" layout="grid" styleClass="ui-panelgrid-blank"
-                columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-10">
-                <h:outputText value="#{bundle['convocatorias.tab.documentos.label.tramite']}" />
-                <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.tramite']}" />
-                <h:outputLabel for="tipoDocumentoComunicacion" value="#{bundle['convocatorias.tab.documentos.label.tipoDocumento']} *" />
-                <atlasp:comboValores id="tipoDocumentoComunicacion" enableManualInput="false" ajaxUpdate="true"
-                    externalProvider="#{comunCiudadanoBean.tiposDocumento}"
-                    value="#{comunCiudadanoBean.nuevoDocumento.tipoDocumentoDTO.idValor}"
-                    styleClass="comboObligatorio" recargaAutomatica="true" />
-                <h:outputLabel for="fechaDocumentoComunicacion" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.fecha.entrada']}" />
-                <p:calendar id="fechaDocumentoComunicacion" value="#{comunCiudadanoBean.nuevoDocumento.fcRegistro}"
-                    pattern="dd/MM/yyyy HH:mm" mask="99/99/9999 99:99" navigator="true" locale="es_ES"
-                    styleClass="atlas-cal" showOn="both" panelStyle="z-index:100000 !important;">
-                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
-                </p:calendar>
-                <h:outputLabel for="eregDocumentoComunicacion" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.codigoEreg']}" />
-                <p:inputMask id="eregDocumentoComunicacion" mask="99/999999.9/99"
-                    value="#{comunCiudadanoBean.nuevoDocumento.codigoEreg}" />
-                <h:outputLabel for="observacionesDocumentoComunicacion" value="#{bundle['convocatorias.tab.documentos.label.descripcion.doc.aportado.obs']}" />
-                <p:inputTextarea id="observacionesDocumentoComunicacion" rows="2" maxlength="2000" style="width:95%"
-                    value="#{comunCiudadanoBean.nuevoDocumento.tlObservaciones}">
-                    <f:validateLength maximum="2000" />
-                </p:inputTextarea>
-                <h:outputLabel for="observacionesGestorDocumentoComunicacion" value="#{bundle['convocatorias.tab.documentos.label.obs.internas.gestor']}" />
-                <p:inputTextarea id="observacionesGestorDocumentoComunicacion" rows="2" maxlength="2000" style="width:95%"
-                    value="#{comunCiudadanoBean.nuevoDocumento.tlObservacionesGestor}">
-                    <f:validateLength maximum="2000" />
-                </p:inputTextarea>
-                <h:outputLabel for="archivoDocumentoComunicacion" value="#{bundle['convocatorias.tab.documentos.label.archivo']} *" />
-                <p:fileUpload id="archivoDocumentoComunicacion" value="#{comunCiudadanoBean.archivoSubir}"
-                    mode="simple" skinSimple="true" label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}" />
-            </p:panelGrid>
-            <atlasp:button value="#{bundle['popup.guardar']}" alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.adjuntar']}" title="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.adjuntar']}"
-                icon="fas fa-save" tipoBoton="btn-success" ajax="false"
-                action="#{comunCiudadanoBean.adjuntarDocumento}"
-                onclick="atlas.ui.Loading.showLoad('appLoading')" />
-            <atlasp:button value="#{bundle['popup.cerrar']}" alt="#{bundle['popup.cerrar']}" title="#{bundle['popup.cerrar']}"
-                icon="fas fa-times" tipoBoton="btn-secondary" ajax="true" process="@this"
-                action="#{comunCiudadanoBean.cerrarDocumento}" update="panelDocumentoComunicacion" />
-        </p:outputPanel>
-    </p:dialog>
+
 </ui:composition>

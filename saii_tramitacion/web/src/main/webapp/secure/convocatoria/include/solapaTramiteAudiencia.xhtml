@@ -19,12 +19,15 @@
     
     <atlasp:guardarEstado value="#{resolucionBean.tramiteDocProvisional}" />
     <atlasp:guardarEstado value="#{resolucionBean.tramiteDocDefinitivo}" />
+    <atlasp:guardarEstado value="#{resolucionBean.tramiteDocSeleccionado}" />
      
     <atlasp:guardarEstado value="#{resolucionBean.valorConcedidoProv}" />
     <atlasp:guardarEstado value="#{resolucionBean.valorDenegadoProv}" />
     <atlasp:guardarEstado value="#{resolucionBean.valorConcedidoDef}" />
     <atlasp:guardarEstado value="#{resolucionBean.valorDenegadoDef}" />
     <atlasp:guardarEstado value="#{resolucionBean.activarConcederDenegar}" />
+    <atlasp:guardarEstado value="#{resolucionBean.existeNotifCiuDesistimiento}" />
+     <atlasp:guardarEstado value="#{resolucionBean.tituloTipoResolucionModal}" />
 
     <!-- ID del panel principal cambiado a 'outpanelResolucionProvAlegSolapa' -->
     <p:panelGrid id="outpanelResolucionProvAlegSolapa" 
@@ -68,18 +71,18 @@
                     value="#{expedienteBean.expedienteDTO.estadoProvisionalDTO.dsValor}" />
             </p:panelGrid>
           
-                <p:commandButton id="btnSubirResolucionProvisionalProv"
-                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-primary"
-                    action="#{resolucionBean.subirResolucionProvisionalDialog}"
-                    ajax="true"
-                    value="#{bundle['solapa.resol.boton.subir.resol.provisional']}"
-                    alt="#{bundle['solapa.resol.boton.subir.resol.provisional']}"
-                    title="#{bundle['solapa.resol.boton.subir.resol.provisional']}"
-                    icon="fa fa-upload" update="outpanelDocumentosSolapa"
-                    onclick="atlas.ui.Loading.showLoad('appLoading') "
-                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
-                    disabled="#{!resolucionBean.habilitarSubirResolucionProvisional(convocatoriasBean.modoConsulta)}">
-                </p:commandButton>
+<!--                 <p:commandButton id="btnSubirResolucionProvisionalProv" -->
+<!--                     class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-primary" -->
+<!--                     action="#{resolucionBean.subirResolucionProvisionalDialogProv}" -->
+<!--                     ajax="true" -->
+<!--                     value="#{bundle['solapa.resol.boton.subir.resol.provisional']}" -->
+<!--                     alt="#{bundle['solapa.resol.boton.subir.resol.provisional']}" -->
+<!--                     title="#{bundle['solapa.resol.boton.subir.resol.provisional']}" -->
+<!--                     icon="fa fa-upload" update="outpanelDocumentosSolapa" -->
+<!--                     onclick="atlas.ui.Loading.showLoad('appLoading') " -->
+<!--                     oncomplete="atlas.ui.Loading.hideLoad('appLoading')" -->
+<!--                     disabled="#{!resolucionBean.habilitarSubirResolucionProvisional(convocatoriasBean.modoConsulta)}"> -->
+<!--                 </p:commandButton> -->
 
                 <p:commandButton id="btnDescargarResolucionProvisionalProv"
                     class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-primary"
@@ -92,104 +95,132 @@
                     disabled="#{!resolucionBean.habilitarBotonDescargarProvisional()}">
                 </p:commandButton>
                 
-                <p:commandButton ajax="true"
-                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
-                    value="#{bundle['solapa.resol.boton.aprobar.provisional']}"
-                    alt="#{bundle['solapa.resol.boton.aprobar.provisional']}"
-                    title="#{bundle['solapa.resol.boton.aprobar.provisional']}"
-                    icon="fa fa-check" render="outpanelResolucionProvAlegSolapa"
-                    disabled="#{!resolucionBean.habilitarConcederProvisional(convocatoriasBean.modoConsulta)}"
-                    action="#{resolucionBean.concederProvisional}"
-                     rendered="#{resolucionBean.mostrarBotonConcederDenegarProvisional}"> 
-                    <f:facet name="events">
-                        <p:confirm
-                            header="#{bundle['solapa.resol.boton.aprobar.provisional']}"
-                            icon="ui-icon-alert"
-                            message="#{bundle['solapa.resol.boton.aprobar.provisional.resolucion']}" />
-                    </f:facet>
-                </p:commandButton>
+<!--                 <p:commandButton ajax="true" -->
+<!--                     class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success" -->
+<!--                     value="#{bundle['solapa.resol.boton.aprobar.provisional']}" -->
+<!--                     alt="#{bundle['solapa.resol.boton.aprobar.provisional']}" -->
+<!--                     title="#{bundle['solapa.resol.boton.aprobar.provisional']}" -->
+<!--                     icon="fa fa-check" render="outpanelResolucionProvAlegSolapa" -->
+<!--                     disabled="#{!resolucionBean.habilitarConcederProvisional(convocatoriasBean.modoConsulta)}" -->
+<!--                     action="#{resolucionBean.concederProvisional}" -->
+<!--                      rendered="#{resolucionBean.mostrarBotonConcederDenegarProvisional}">  -->
+<!--                     <f:facet name="events"> -->
+<!--                         <p:confirm -->
+<!--                             header="#{bundle['solapa.resol.boton.aprobar.provisional']}" -->
+<!--                             icon="ui-icon-alert" -->
+<!--                             message="#{bundle['solapa.resol.boton.aprobar.provisional.resolucion']}" /> -->
+<!--                     </f:facet> -->
+<!--                 </p:commandButton> -->
          
-                <p:commandButton ajax="true"
-                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger"
-                    action="#{resolucionBean.denegarProvisionalIndividual}"
-                    value="#{bundle['solapa.resol.boton.denegar.provisional']}"
-                    alt="#{bundle['solapa.resol.boton.denegar.provisional']}"
-                    title="#{bundle['solapa.resol.boton.denegar.provisional']}"
-                    icon="fa fa-ban" render="outpanelResolucionProvAlegSolapa"
-                    disabled="#{!resolucionBean.habilitarConcederProvisional(convocatoriasBean.modoConsulta)}"
-                     rendered="#{resolucionBean.mostrarBotonConcederDenegarProvisional}"> 
-                    <f:facet name="events">
-                        <p:confirm
-                            header="#{bundle['solapa.resol.boton.denegar.provisional']}"
-                            icon="ui-icon-alert"
-                            message="#{bundle['solapa.resol.boton.denegar.provisional.resolucion']}" />
-                    </f:facet>
-                </p:commandButton>
+<!--                 <p:commandButton ajax="true" -->
+<!--                     class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger" -->
+<!--                     action="#{resolucionBean.denegarProvisionalIndividual}" -->
+<!--                     value="#{bundle['solapa.resol.boton.denegar.provisional']}" -->
+<!--                     alt="#{bundle['solapa.resol.boton.denegar.provisional']}" -->
+<!--                     title="#{bundle['solapa.resol.boton.denegar.provisional']}" -->
+<!--                     icon="fa fa-ban" render="outpanelResolucionProvAlegSolapa" -->
+<!--                     disabled="#{!resolucionBean.habilitarConcederProvisional(convocatoriasBean.modoConsulta)}" -->
+<!--                      rendered="#{resolucionBean.mostrarBotonConcederDenegarProvisional}">  -->
+<!--                     <f:facet name="events"> -->
+<!--                         <p:confirm -->
+<!--                             header="#{bundle['solapa.resol.boton.denegar.provisional']}" -->
+<!--                             icon="ui-icon-alert" -->
+<!--                             message="#{bundle['solapa.resol.boton.denegar.provisional.resolucion']}" /> -->
+<!--                     </f:facet> -->
+<!--                 </p:commandButton> -->
 
-                <p:commandButton ajax="true"
-                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-secondary"
-                    action="#{resolucionBean.revertirAprobadoProvisional}"
-                    value="#{bundle['solapa.resol.boton.revertir.provisional']}"
-                    alt="#{bundle['solapa.resol.boton.revertir.provisional']}"
-                    title="#{bundle['solapa.resol.boton.revertir.provisional']}"
-                    icon="fa fa-history" render="outpanelResolucionProvAlegSolapa"
-                    disabled="#{!resolucionBean.habilitaRevertirResolucionProvisional(convocatoriasBean.modoConsulta)}">
-                    <f:facet name="events">
-                        <p:confirm
-                            header="#{bundle['solapa.resol.boton.revertir.provisional']}"
-                            icon="ui-icon-alert"
-                            message="#{bundle['solapa.resol.boton.revertir.provisional.resolucion']}" />
-                    </f:facet>
-                </p:commandButton>
+<!--                 <p:commandButton ajax="true" -->
+<!--                     class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-secondary" -->
+<!--                     action="#{resolucionBean.revertirAprobadoProvisional}" -->
+<!--                     value="#{bundle['solapa.resol.boton.revertir.provisional']}" -->
+<!--                     alt="#{bundle['solapa.resol.boton.revertir.provisional']}" -->
+<!--                     title="#{bundle['solapa.resol.boton.revertir.provisional']}" -->
+<!--                     icon="fa fa-history" render="outpanelResolucionProvAlegSolapa" -->
+<!--                     disabled="#{!resolucionBean.habilitaRevertirResolucionProvisional(convocatoriasBean.modoConsulta)}"> -->
+<!--                     <f:facet name="events"> -->
+<!--                         <p:confirm -->
+<!--                             header="#{bundle['solapa.resol.boton.revertir.provisional']}" -->
+<!--                             icon="ui-icon-alert" -->
+<!--                             message="#{bundle['solapa.resol.boton.revertir.provisional.resolucion']}" /> -->
+<!--                     </f:facet> -->
+<!--                 </p:commandButton> -->
 
-                <p:commandButton ajax="true"
-                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-warning"
-                    value="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
-                    alt="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
-                    title="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
-                    icon="fa fa-paper-plane"
-                    render="outpanelResolucionProvAlegSolapa"
-                    disabled="#{!resolucionBean.habilitarEnviarColaPortafirmasProvisional(convocatoriasBean.modoConsulta)}"
-                    action="#{resolucionBean.enviarColaPortafirmasProvisional}">
-                    <f:facet name="events">
-                        <p:confirm
-                            header="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
-                            icon="ui-icon-alert"
-                            message="#{bundle['solapa.resol.boton.enviar.cola.portafirmas.enviar']}" />
-                    </f:facet>
-                </p:commandButton>
+<!--                 <p:commandButton ajax="true" -->
+<!--                     class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-warning" -->
+<!--                     value="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}" -->
+<!--                     alt="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}" -->
+<!--                     title="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}" -->
+<!--                     icon="fa fa-paper-plane" -->
+<!--                     render="outpanelResolucionProvAlegSolapa" -->
+<!--                     disabled="#{!resolucionBean.habilitarEnviarColaPortafirmasProvisional(convocatoriasBean.modoConsulta)}" -->
+<!--                     action="#{resolucionBean.enviarColaPortafirmasProvisional}"> -->
+<!--                     <f:facet name="events"> -->
+<!--                         <p:confirm -->
+<!--                             header="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}" -->
+<!--                             icon="ui-icon-alert" -->
+<!--                             message="#{bundle['solapa.resol.boton.enviar.cola.portafirmas.enviar']}" /> -->
+<!--                     </f:facet> -->
+<!--                 </p:commandButton> -->
            
             
-            <p:panelGrid columns="6" style="width:100%;" styleClass="ui-panelgrid-compact">
-                <!-- Fecha envío a Note -->
-                <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.fechaColaNote']}" style="font-weight:bold;" />
-                <p:inputText value="#{resolucionBean.tramiteDocProvisional.fcEnvioNote}" readonly="true"
-                             style="width:auto; min-width:200px;">
-                    <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
-                </p:inputText>
+<!--             <p:panelGrid columns="6" style="width:100%;" styleClass="ui-panelgrid-compact"> -->
+<!--                 Fecha envío a Note -->
+<!--                 <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.fechaColaNote']}" style="font-weight:bold;" /> -->
+<!--                 <p:inputText value="#{resolucionBean.tramiteDocProvisional.fcEnvioNote}" readonly="true" -->
+<!--                              style="width:auto; min-width:200px;"> -->
+<!--                     <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" /> -->
+<!--                 </p:inputText> -->
             
-                <!-- Estado Note -->
-                <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.estadoNote']}" style="font-weight:bold;" />
-                <p:inputText value="Puesta a disposición" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '1'}"
-                             style="width:auto; min-width:200px;" readonly="true"/>
-                <p:inputText value="Leído" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '2'}"
-                             style="width:auto; min-width:200px;" readonly="true"/>
-                <p:inputText value="Rechazado" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3'}"
-                             style="width:auto; min-width:200px;" readonly="true"/>
-                <p:inputText value="Rechazado automáticamente" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}"
-                             style="width:auto; min-width:200px;" readonly="true"/>
-                <p:inputText value="Sin Notificación" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote == null}"
-                             style="width:auto; min-width:200px;" readonly="true" />
+<!--                 Estado Note -->
+<!--                 <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.estadoNote']}" style="font-weight:bold;" /> -->
+<!--                 <p:inputText value="Puesta a disposición" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '1'}" -->
+<!--                              style="width:auto; min-width:200px;" readonly="true"/> -->
+<!--                 <p:inputText value="Leído" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '2'}" -->
+<!--                              style="width:auto; min-width:200px;" readonly="true"/> -->
+<!--                 <p:inputText value="Rechazado" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3'}" -->
+<!--                              style="width:auto; min-width:200px;" readonly="true"/> -->
+<!--                 <p:inputText value="Rechazado automáticamente" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}" -->
+<!--                              style="width:auto; min-width:200px;" readonly="true"/> -->
+<!--                 <p:inputText value="Sin Notificación" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote == null}" -->
+<!--                              style="width:auto; min-width:200px;" readonly="true" /> -->
             
-                <!-- Fecha rechazo -->
-                <h:outputText rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3' or resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}"
-                              value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.fecha.rechazo']}" style="font-weight:bold;" />
-                <p:inputText value="#{resolucionBean.tramiteDocProvisional.fcRechazoNote}" readonly="true" 
-                             rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3' or resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}"
-                             style="width:auto; min-width:200px;" >
-                    <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
-                </p:inputText>
-            </p:panelGrid>
+<!--                 Fecha rechazo -->
+<!--                 <h:outputText rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3' or resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}" -->
+<!--                               value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.fecha.rechazo']}" style="font-weight:bold;" /> -->
+<!--                 <p:inputText value="#{resolucionBean.tramiteDocProvisional.fcRechazoNote}" readonly="true"  -->
+<!--                              rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3' or resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}" -->
+<!--                              style="width:auto; min-width:200px;" > -->
+<!--                     <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" /> -->
+<!--                 </p:inputText> -->
+<!--             </p:panelGrid> -->
+
+<!--             <atlasp:button value="Datos Portafirma y Note" -->
+<!--                 icon="fas fa-info-circle" tipoBoton="btn-info" -->
+<!--                 actionListener="#{resolucionBean.prepararModalDetalle(resolucionBean.tramiteDocProvisional)}" -->
+<!--                 update=":formModalPTFR:outPanelInfoPTFR" -->
+<!--                 oncomplete="PF('dialogInfoPTFR').show();" /> -->
+
+<!--             <atlasp:button value="Datos Portafirma y Note" -->
+<!--                 icon="fas fa-info-circle" tipoBoton="btn-info" -->
+<!--                 actionListener="#{resolucionBean.prepararModalDetalle(resolucionBean.tramiteDocProvisional)}" -->
+<!--                 update=":formModalPTFR:outPanelInfoPTFR" -->
+<!--                 oncomplete="if(args &amp;&amp; !args.validationFailed) { PrimeFaces.widgets['dialogInfoPTFR'].show(); }" /> -->
+                
+               <!-- Para Resolución Provisional -->
+                <p:commandButton id="btnInfoPtfrProvisConj"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-info"
+                    action="#{resolucionBean.abrirModalInfoPTFRConj(resolucionBean.tramiteDocProvisional)}"
+                    ajax="true"
+                    update="outPanelInfoPTFRConj"
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+                    alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+                    title="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+                    icon="fa fa-info-circle"
+                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                </p:commandButton>
+                
+
 
             <!-- Sección ALEGACIONES -->
             <p:panelGrid columns="1" columnClasses="ui-g-12"
@@ -219,73 +250,79 @@
                     texto="#{bundle['solapa.resolucion.alegaciones.no.presentadas.plazo.expirado']}"
                     rendered="#{!expedienteBean.expedienteDTO.modoConsulta and resolucionBean.mostrarMensajeSinAlegacionesExpirada()}" />
 
-                <p:fieldset
-                    legend="#{bundle['solapa.resol.titulo.alegaciones']}"
-                    toggleable="true" toggleSpeed="300" collapsed="true">
-                    <p:panelGrid columns="1" columnClasses="ui-g-12"
-                        layout="grid" styleClass="ui-panelgrid-blank"
-                        rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.estadoProvisionalDTO.idValor !=null}">
+                    <p:fieldset
+                        legend="#{bundle['solapa.resol.titulo.alegaciones']}"
+                        toggleable="true" toggleSpeed="300" collapsed="true">
+                        
+                        <ui:fragment rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.estadoProvisionalDTO.idValor != null}">
+                            <div class="ui-g" style="padding: 10px 0;">
+                                <!-- BOTONES APROBAR Y RECHAZAR ALEGACIÓN (DENTRO DEL FIELDSET Y ALINEADOS A LA IZQUIERDA) -->
+                                <ui:fragment rendered="#{!expedienteBean.expedienteDTO.modoConsulta 
+                                    and expedienteBean.expedienteDTO.itAlegaciones != null 
+                                    and expedienteBean.expedienteDTO.itAlegaciones eq 'S'}">
+                                    
+                                    <div class="ui-g-12" style="display: block; text-align: left;">
+                                        <p:commandButton ajax="true"
+                                            title="#{bundle['solapa.resolucion.alegaciones.aprobar']}"
+                                            value="#{bundle['solapa.resolucion.alegaciones.aprobar']}"
+                                            alt="#{bundle['solapa.resolucion.alegaciones.aprobar']}"
+                                            class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"                            
+                                            action="#{resolucionBean.aprobarAlegacion()}"                   
+                                            disabled="#{resolucionBean.existeExpedienteDocDefinitiva() or expedienteBean.expedienteDTO.itAlegacionRevisada == 'S' or expedienteBean.expedienteDTO.itAlegacionRevisada == 'N' or resolucionBean.isExpedienteRechazadoDefinitivo()}"
+                                            icon="fa fa-check" update="outpanelResolucionProvAlegSolapa">
+                                             <f:facet name="events">
+                                                <p:confirm
+                                                    header="#{bundle['solapa.resolucion.alegaciones.aprobar']}"
+                                                    icon="ui-icon-alert"
+                                                    message="#{bundle['solapa.resol.boton.aprobar.alegacion']}" />
+                                            </f:facet>
+                                        </p:commandButton>
+                                        
+                                        <p:commandButton ajax="true"
+                                            title="#{bundle['solapa.resolucion.alegaciones.rechazar']}"
+                                            value="#{bundle['solapa.resolucion.alegaciones.rechazar']}"
+                                            alt="#{bundle['solapa.resolucion.alegaciones.rechazar']}"
+                                            class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger"                              
+                                            action="#{resolucionBean.rechazarAlegacion()}"  
+                                            icon="fa fa-ban" update="outpanelResolucionProvAlegSolapa"
+                                            style="margin-left: 10px;"
+                                            disabled="#{resolucionBean.existeExpedienteDocDefinitiva() or expedienteBean.expedienteDTO.itAlegacionRevisada == 'S' or expedienteBean.expedienteDTO.itAlegacionRevisada == 'N' or resolucionBean.isExpedienteRechazadoDefinitivo()}">                                
+                                             <f:facet name="events">
+                                                <p:confirm
+                                                    header="#{bundle['solapa.resolucion.alegaciones.rechazar']}"
+                                                    icon="ui-icon-alert"
+                                                    message="#{bundle['solapa.resol.boton.rechazar.alegacion']}" />
+                                            </f:facet>         
+                                        </p:commandButton>
+                                    </div>
+                                </ui:fragment>
 
-                        <p:column
-                            rendered="#{!expedienteBean.expedienteDTO.modoConsulta 
-                                and expedienteBean.expedienteDTO.itAlegaciones != null 
-                                and expedienteBean.expedienteDTO.itAlegaciones eq 'S'}">
+                            <!-- MENSAJE Y BOTÓN INFORME DE VALORACIÓN (ORIGINALES COMENTADOS) -->
+                            <!--             <atlasp:message tipo="info" -->
+                            <!--                 texto="#{bundle['solapa.resolucion.pendiente.realizar.informe']}" -->
+                            <!--                 rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.cdFicaValoracionAleg == null and  -->
+                            <!--                                             expedienteBean.expedienteDTO.itAlegaciones != null and  -->
+                            <!--                                             expedienteBean.expedienteDTO.itAlegaciones eq 'S' -->
+                            <!--                                             and convocatoriasBean.convocatoriaDTO.tipoResolModalidadDTO.cdTipoResolucion == 'C'}" /> -->
+                                        
+                            <!--             <atlasp:button -->
+                            <!--                 action="#{resolucionBean.descargarDocumentoAlegacion}" -->
+                            <!--                 icon="fas fa-file-download" -->
+                            <!--                 rendered="#{expedienteBean.expedienteDTO.cdFicaValoracionAleg!=null}" -->
+                            <!--                 value="#{bundle['solapa.resolucion.btn.descargar.informe.valoracion']}" -->
+                            <!--                 tipoBoton="btn-primary" /> -->
                             
-                            <p:commandButton ajax="true"
-                                title="#{bundle['solapa.resolucion.alegaciones.aprobar']}"
-                                value="#{bundle['solapa.resolucion.alegaciones.aprobar']}"
-                                alt="#{bundle['solapa.resolucion.alegaciones.aprobar']}"
-                                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"                            
-                                action="#{resolucionBean.aprobarAlegacion()}"                   
-                                disabled="#{resolucionBean.existeExpedienteDocDefinitiva() or expedienteBean.expedienteDTO.itAlegacionRevisada == 'S' or expedienteBean.expedienteDTO.itAlegacionRevisada == 'N' or resolucionBean.isExpedienteRechazadoDefinitivo()}"
-                                icon="fa fa-check" render="outpanelResolucionProvAlegSolapa">
-                                     <f:facet name="events">
-                                        <p:confirm
-                                            header="#{bundle['solapa.resolucion.alegaciones.aprobar']}"
-                                            icon="ui-icon-alert"
-                                            message="#{bundle['solapa.resol.boton.aprobar.alegacion']}" />
-                                    </f:facet>
-                            </p:commandButton>
-                            
-                            <p:commandButton ajax="true"
-                                    title="#{bundle['solapa.resolucion.alegaciones.rechazar']}"
-                                    value="#{bundle['solapa.resolucion.alegaciones.rechazar']}"
-                                    alt="#{bundle['solapa.resolucion.alegaciones.rechazar']}"
-                                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger"                              
-                                    action="#{resolucionBean.rechazarAlegacion()}"  
-                                    icon="fa fa-ban" render="outpanelResolucionProvAlegSolapa"
-                                    disabled="#{resolucionBean.existeExpedienteDocDefinitiva() or expedienteBean.expedienteDTO.itAlegacionRevisada == 'S' or expedienteBean.expedienteDTO.itAlegacionRevisada == 'N' or resolucionBean.isExpedienteRechazadoDefinitivo()}">                                
-                                     <f:facet name="events">
-                                        <p:confirm
-                                            header="#{bundle['solapa.resolucion.alegaciones.rechazar']}"
-                                            icon="ui-icon-alert"
-                                            message="#{bundle['solapa.resol.boton.rechazar.alegacion']}" />
-                                    </f:facet>         
-                            </p:commandButton>
-                        </p:column>
-
-                        <atlasp:message tipo="info"
-                            texto="#{bundle['solapa.resolucion.pendiente.realizar.informe']}"
-                            rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.cdFicaValoracionAleg == null and 
-                                                        expedienteBean.expedienteDTO.itAlegaciones != null and 
-                                                        expedienteBean.expedienteDTO.itAlegaciones eq 'S'
-                                                        and convocatoriasBean.convocatoriaDTO.tipoResolModalidadDTO.cdTipoResolucion == 'C'}" />
-                        <atlasp:button
-                            action="#{resolucionBean.descargarDocumentoAlegacion}"
-                            icon="fas fa-file-download"
-                            rendered="#{expedienteBean.expedienteDTO.cdFicaValoracionAleg!=null}"
-                            value="#{bundle['solapa.resolucion.btn.descargar.informe.valoracion']}"
-                            tipoBoton="btn-primary" />
-                        <atlasp:button icon="fas fa-file-download"
-                            rendered="#{expedienteBean.expedienteDTO.cdFicaValoracionAleg==null and
-                                                        expedienteBean.expedienteDTO.itAlegaciones != null and 
-                                                        expedienteBean.expedienteDTO.itAlegaciones eq 'S' 
-                                                        and convocatoriasBean.convocatoriaDTO.tipoResolModalidadDTO.cdTipoResolucion == 'C'}"
-                            disabled="true"
-                            value="#{bundle['solapa.resolucion.btn.descargar.informe.valoracion']}"
-                            tipoBoton="btn-primary" />
-                    </p:panelGrid>
-                </p:fieldset>
+                            <!--             <atlasp:button icon="fas fa-file-download" -->
+                            <!--                 rendered="#{expedienteBean.expedienteDTO.cdFicaValoracionAleg==null and -->
+                            <!--                                             expedienteBean.expedienteDTO.itAlegaciones != null and  -->
+                            <!--                                             expedienteBean.expedienteDTO.itAlegaciones eq 'S'  -->
+                            <!--                                             and convocatoriasBean.convocatoriaDTO.tipoResolModalidadDTO.cdTipoResolucion == 'C'}" -->
+                            <!--                 disabled="true" -->
+                            <!--                 value="#{bundle['solapa.resolucion.btn.descargar.informe.valoracion']}" -->
+                            <!--                 tipoBoton="btn-primary" /> -->
+                                    </div>
+                                </ui:fragment>
+                            </p:fieldset>
                 
                 <atlasp:message tipo="info"
                     texto="Alegación Aprobada"
@@ -303,7 +340,9 @@
             value="#{bundle['solapa.resol.titulo.definitivo']}" />
             
             <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-4 ui-lg-4 ui-xl-3 mtb-auto" layout="grid"
-                    styleClass="ui-panelgrid-blank" rendered="#{expedienteBean.expedienteDTO.blEstadoDefinitivo != null and expedienteBean.expedienteDTO.blEstadoDefinitivo}">
+                    styleClass="ui-panelgrid-blank" rendered="#{expedienteBean.expedienteDTO.blEstadoDefinitivo != null 
+                        and expedienteBean.expedienteDTO.blEstadoDefinitivo
+                        and !resolucionBean.existeNotifCiuDesistimiento}">
             <p:inputText id="panelDsNombreEstadoResolDefConjunto"
                 styleClass="#{expedienteBean.expedienteDTO.colorFondoTextResolucionDef}"
                 readonly="true"
@@ -340,39 +379,39 @@
                 </f:facet>
             </p:commandButton>
 
-            <p:commandButton ajax="true"
-                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger"
-                value="#{bundle['solapa.resol.boton.excluir.definitivo']}"
-                alt="#{bundle['solapa.resol.boton.excluir.definitivo']}"
-                title="#{bundle['solapa.resol.boton.excluir.definitivo']}"
-                icon="fa fa-ban" render="outpanelResolucionSolapa"
-                action="#{resolucionBean.excluirDefinitivo}"
-                disabled="#{!resolucionBean.habilitarBotonConcederDefinitivo(convocatoriasBean.modoConsulta)}"
-                rendered="#{resolucionBean.habilitarExcluirDef()}">
-                <f:facet name="events">
-                    <p:confirm
-                        header="#{bundle['solapa.resol.boton.excluir.definitivo']}"
-                        icon="ui-icon-alert"
-                        message="#{bundle['solapa.resol.boton.excluir.definitivo.resolucion']}" />
-                </f:facet>
-            </p:commandButton>
+<!--             <p:commandButton ajax="true" -->
+<!--                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger" -->
+<!--                 value="#{bundle['solapa.resol.boton.excluir.definitivo']}" -->
+<!--                 alt="#{bundle['solapa.resol.boton.excluir.definitivo']}" -->
+<!--                 title="#{bundle['solapa.resol.boton.excluir.definitivo']}" -->
+<!--                 icon="fa fa-ban" render="outpanelResolucionSolapa" -->
+<!--                 action="#{resolucionBean.excluirDefinitivo}" -->
+<!--                 disabled="#{!resolucionBean.habilitarBotonConcederDefinitivo(convocatoriasBean.modoConsulta)}" -->
+<!--                 rendered="#{resolucionBean.habilitarExcluirDef()}"> -->
+<!--                 <f:facet name="events"> -->
+<!--                     <p:confirm -->
+<!--                         header="#{bundle['solapa.resol.boton.excluir.definitivo']}" -->
+<!--                         icon="ui-icon-alert" -->
+<!--                         message="#{bundle['solapa.resol.boton.excluir.definitivo.resolucion']}" /> -->
+<!--                 </f:facet> -->
+<!--             </p:commandButton> -->
             
-            <p:commandButton ajax="true"
-                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger"
-                value="#{bundle['solapa.resol.boton.desistir.definitivo']}"
-                alt="#{bundle['solapa.resol.boton.desistir.definitivo']}"
-                title="#{bundle['solapa.resol.boton.desistir.definitivo']}"
-                icon="fa fa-ban" render="outpanelResolucionSolapa"
-                action="#{resolucionBean.desistirDefinitivo}"
-                disabled="#{!resolucionBean.habilitarBotonConcederDefinitivo(convocatoriasBean.modoConsulta)}"
-                rendered="#{resolucionBean.habilitarDesistirDef()}">
-                <f:facet name="events">
-                    <p:confirm
-                        header="#{bundle['solapa.resol.boton.desistir.definitivo']}"
-                        icon="ui-icon-alert"
-                        message="#{bundle['solapa.resol.boton.desistir.definitivo.resolucion']}" />
-                </f:facet>
-            </p:commandButton>
+<!--             <p:commandButton ajax="true" -->
+<!--                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger" -->
+<!--                 value="#{bundle['solapa.resol.boton.desistir.definitivo']}" -->
+<!--                 alt="#{bundle['solapa.resol.boton.desistir.definitivo']}" -->
+<!--                 title="#{bundle['solapa.resol.boton.desistir.definitivo']}" -->
+<!--                 icon="fa fa-ban" render="outpanelResolucionSolapa" -->
+<!--                 action="#{resolucionBean.desistirDefinitivo}" -->
+<!--                 disabled="#{!resolucionBean.habilitarBotonConcederDefinitivo(convocatoriasBean.modoConsulta)}" -->
+<!--                 rendered="#{resolucionBean.habilitarDesistirDef()}"> -->
+<!--                 <f:facet name="events"> -->
+<!--                     <p:confirm -->
+<!--                         header="#{bundle['solapa.resol.boton.desistir.definitivo']}" -->
+<!--                         icon="ui-icon-alert" -->
+<!--                         message="#{bundle['solapa.resol.boton.desistir.definitivo.resolucion']}" /> -->
+<!--                 </f:facet> -->
+<!--             </p:commandButton> -->
 
 
             <p:commandButton ajax="true"
@@ -392,7 +431,29 @@
                 </f:facet>
             </p:commandButton>
             
+                            <!-- Para Resolución Definitiva -->
+                <p:commandButton id="btnInfoPtfrDefinConj"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-info"
+                    action="#{resolucionBean.abrirModalInfoPTFRConj(resolucionBean.tramiteDocDefinitivo)}"
+                    ajax="true"
+                    update="outPanelInfoPTFRConj"
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+                    alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+                    title="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+                    icon="fa fa-info-circle"
+                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                </p:commandButton>
+            
         </p:column>
+        
+        
+
+       <p:panelGrid   
+            rendered="#{not (expedienteBean.expedienteDTO.estadoProvisionalDTO.nmConstante eq '248' 
+            or expedienteBean.expedienteDTO.estadoProvisionalDTO.nmConstante eq '249' 
+            or expedienteBean.expedienteDTO.estadoProvisionalDTO.nmConstante eq '213' 
+            or expedienteBean.expedienteDTO.estadoProvisionalDTO.nmConstante eq '214')}">
 
         <h:outputText styleClass="tituloFormulario"
                 value="#{bundle['solapa.resol.titulo.definitivo.pendiente']}" />
@@ -425,10 +486,153 @@
             </p:commandButton>            
             
             </p:column>
+            
+             <p:panelGrid columns="6" style="width:100%;" styleClass="ui-panelgrid-compact">
+    
+                    <!-- Aceptación de ayuda -->
+                    <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.aceptacion.ayuda']}" style="font-weight:bold;" />
+                    <p:inputText value="Aceptado" readonly="true" rendered="#{expedienteBean.expedienteDTO.itAceptaAyuda eq 'S'}"
+                                 style="width:auto; min-width:200px;" styleClass="input-visible-readonly" />
+                    <p:inputText value="Rechazado" readonly="true" rendered="#{expedienteBean.expedienteDTO.itAceptaAyuda eq 'N'}"
+                                 style="width:auto; min-width:200px;" styleClass="input-visible-readonly" />
+                    <p:inputText value="" readonly="true" rendered="#{expedienteBean.expedienteDTO.itAceptaAyuda == null}"
+                                 style="width:auto; min-width:200px;" styleClass="input-visible-readonly" />
+                
+                    <!-- Estado Note -->
+                    <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.codigoEreg']}" style="font-weight:bold;" />
+                    <p:inputText value="#{documentoBean.codigoEregFormateado(resolucionBean.expedienteDocDTO700.codigoEreg)}" readonly="true"
+                                 style="width:auto; min-width:200px;" styleClass="input-visible-readonly" />
+                
+                    <!-- Fecha registro -->
+                    <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.fecha.entrada']}" style="font-weight:bold;" />
+                    <p:inputText value="#{resolucionBean.expedienteDocDTO700.fcRegistro}" readonly="true"
+                                 style="width:auto; min-width:200px;" styleClass="input-visible-readonly">
+                        <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
+                    </p:inputText>
+    
+                
+                </p:panelGrid>
 
+        
+        </p:panelGrid>
+        
+        
+        <!-- Sección Desistimiento expreso -->
+        <h:outputText styleClass="tituloFormulario"
+                value="#{bundle['solapa.resol.titulo.desistimiento.expreso']}" />
+            <p:panelGrid columns="1" columnClasses="ui-g-12">
 
-
-
+                <atlasp:message tipo="info"
+                    texto="#{bundle['solapa.resol.msg.info.informes.tramite.expediente.comunica.desistimiento.expreso']}" />
+            </p:panelGrid>
+            <p:column>    
+            <p:commandButton id="btnSubirDesistimientoExpreso"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-primary"
+                action="#{resolucionBean.subirDesistimientoExpresoDialog}"
+                ajax="true"
+                process="@this"
+                value="#{bundle['solapa.resol.boton.subir.desistimiento.expreso']}"
+                alt="#{bundle['solapa.resol.boton.subir.desistimiento.expreso']}"
+                title="#{bundle['solapa.resol.boton.subir.desistimiento.expreso']}"
+                icon="fa fa-upload" update="outpanelDocumentosSolapa"
+                onclick="atlas.ui.Loading.showLoad('appLoading') "
+                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
+                disabled="#{!resolucionBean.habilitarSubirDesistimientoExpreso(convocatoriasBean.modoConsulta)}">
+            </p:commandButton>
+            
+            <p:commandButton id="btnDescargarDesistimientoExpreso"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-primary"
+                action="#{resolucionBean.descargaFicheroDesistimientoExpreso}"
+                ajax="false"
+                value="#{bundle['solapa.resol.boton.bajar.desistimiento.expreso']}"
+                alt="#{bundle['solapa.resol.boton.bajar.desistimiento.expreso']}"
+                title="#{bundle['solapa.resol.boton.bajar.desistimiento.expreso']}"
+                icon="fa fa-download" update="outpanelDocumentosSolapa"
+                disabled="#{!resolucionBean.habilitarBotonDescargarDesistimientoExpreso()}">
+            </p:commandButton>
+            
+            <p:commandButton ajax="true"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-success"
+                value="#{bundle['solapa.resol.titulo.desistimiento.expreso']}"
+                alt="#{bundle['solapa.resol.titulo.desistimiento.expreso']}"
+                title="#{bundle['solapa.resol.titulo.desistimiento.expreso']}"
+                icon="fa fa-check" render="outpanelResolucionProvAlegSolapa"
+                disabled="#{!resolucionBean.habilitarDesistirExpreso(convocatoriasBean.modoConsulta)}"
+                action="#{resolucionBean.desistimientoExpreso()}">
+<!--                 rendered="#{resolucionBean.mostrarBotonDesistirExpreso}">  -->
+                <f:facet name="events">
+                    <p:confirm
+                        header="#{bundle['solapa.resol.boton.desistir.expreso']}"
+                        icon="ui-icon-alert"
+                        message="#{bundle['solapa.resol.boton.aprobar.desistir.expreso']}" />
+                </f:facet>
+            </p:commandButton>
+     
+<!--             <p:commandButton ajax="true" -->
+<!--                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-danger" -->
+<!--                 action="#{resolucionBean.denegarProvisionalIndividual}" -->
+<!--                 value="#{bundle['solapa.resol.boton.denegar.provisional']}" -->
+<!--                 alt="#{bundle['solapa.resol.boton.denegar.provisional']}" -->
+<!--                 title="#{bundle['solapa.resol.boton.denegar.provisional']}" -->
+<!--                 icon="fa fa-ban" render="outpanelResolucionProvAlegSolapa" -->
+<!--                 disabled="#{!resolucionBean.habilitarConcederProvisional(convocatoriasBean.modoConsulta)}" -->
+<!--                 rendered="#{resolucionBean.mostrarBotonDesistidoExpreso()}">  -->
+<!--                 <f:facet name="events"> -->
+<!--                     <p:confirm -->
+<!--                         header="#{bundle['solapa.resol.boton.denegar.provisional']}" -->
+<!--                         icon="ui-icon-alert" -->
+<!--                         message="#{bundle['solapa.resol.boton.denegar.provisional.resolucion']}" /> -->
+<!--                 </f:facet> -->
+<!--             </p:commandButton> -->
+    
+            <p:commandButton ajax="true"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-secondary"
+                action="#{resolucionBean.revertirDesistimientoExpreso}"
+                value="#{bundle['solapa.resol.boton.revertir.desistimiento.expreso']}"
+                alt="#{bundle['solapa.resol.boton.revertir.desistimiento.expreso']}"
+                title="#{bundle['solapa.resol.boton.revertir.desistimiento.expreso']}"
+                icon="fa fa-history" render="outpanelResolucionProvAlegSolapa"
+                disabled="#{!resolucionBean.habilitaRevertirDesistimientoExpreso(convocatoriasBean.modoConsulta)}">
+                <f:facet name="events">
+                    <p:confirm
+                        header="#{bundle['solapa.resol.boton.aprobar.desistir.expreso']}"
+                        icon="ui-icon-alert"
+                        message="#{bundle['solapa.resol.boton.aprobar.desistir.expreso']}" />
+                </f:facet>
+            </p:commandButton>
+    
+            <p:commandButton ajax="true"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-warning"
+                value="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
+                alt="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
+                title="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
+                icon="fa fa-paper-plane"
+                render="outpanelResolucionProvAlegSolapa"
+                disabled="#{!resolucionBean.habilitarEnviarColaPortafirmasDesistidoExpreso(convocatoriasBean.modoConsulta)}"
+                action="#{resolucionBean.enviarColaPortafirmasDesistimientoExpreso}">
+                <f:facet name="events">
+                    <p:confirm
+                        header="#{bundle['solapa.resol.boton.enviar.cola.portafirmas']}"
+                        icon="ui-icon-alert"
+                        message="#{bundle['solapa.resol.boton.enviar.cola.portafirmas.enviar']}" />
+                </f:facet>
+            </p:commandButton>  
+            
+            <p:commandButton id="btnInfoPtfrDefinDesisExpreso" disabled="#{!resolucionBean.existeNotifCiuDesistimiento}"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-info"
+                    action="#{resolucionBean.abrirModalInfoPTFRConj(resolucionBean.tramiteDocDefinitivo)}"
+                    ajax="true"
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+                    alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+                    title="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+                    icon="fa fa-info-circle"
+                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+            </p:commandButton>
+            
+        </p:column>
+        
+        
     </p:panelGrid>
     
     <!-- Diálogo para subir Resolución Provisional (IDs adaptados) -->
@@ -474,7 +678,7 @@
                         alt="#{bundle['popup.cerrar']}"
                         title="#{bundle['popup.cerrar']}"
                         icon="fas fa-times" tipoBoton="btn-secondary"
-                        action="#{resolucionBean.cerrarSubirResolucionProvisionalDialog}"
+                        action="#{resolucionBean.cerrarSubirResolucionProvisionalDialogProv}"
                         onclick="atlas.ui.Loading.showLoad('appLoading')"
                         oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
                     </atlasp:button>
@@ -517,4 +721,311 @@
         </p:panelGrid>
     </p:dialog>
 
+  
+    <p:dialog id="dialogInfoPTFRConj"
+    widgetVar="dialogInfoPTFRConj"
+    header="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+    closable="false" dynamic="true" modal="true" width="60%"
+    onShow="atlas.ui.Loading.hideLoad('appLoading')">
+    
+
+    <atlasp:facesMessages id="fmInfoPTFRConj" modo="notificar" />
+
+    <p:outputPanel id="outPanelInfoPTFRConj">
+        
+        <!-- ==================== BLOQUE PORTAFIRMAS ==================== -->
+        <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+            <h:outputText styleClass="tituloFormulario" 
+                          value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas']} - #{resolucionBean.tituloTipoResolucionModal}" />
+        </p:panelGrid>
+
+        <p:panelGrid columns="1" columnClasses="ui-g-12" styleClass="ui-panelgrid-blank" layout="grid">
+            <p:column>
+                <div class="ui-g">
+                    <!-- FILA 1 PORTAFIRMAS -->
+                    <!-- Referencia -->
+                    <div class="ui-g-3 ui-md-2 ui-lg-1 ui-xl-1">
+                        <h:outputText styleClass="label" for="conj_dsReferenciaPtfr"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.referencia']}" />
+                    </div>
+                    <div class="ui-g-9 ui-md-4 ui-lg-3 ui-xl-3">
+                        <p:inputText id="conj_dsReferenciaPtfr" readonly="true" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.dsReferenciaPTFR}" />
+                    </div>
+
+                    <!-- Código Archivo -->
+                    <div class="ui-g-3 ui-md-2 ui-lg-1 ui-xl-1">
+                        <h:outputText styleClass="label" for="conj_cdArchivoPtfr"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.codigo.archivo']}" />
+                    </div>
+                    <div class="ui-g-9 ui-md-4 ui-lg-3 ui-xl-3">
+                        <p:inputText id="conj_cdArchivoPtfr" readonly="true" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.cdArchivoPTFR}" />
+                    </div>
+
+                    <!-- Código Archivo Respuesta -->
+                    <div class="ui-g-3 ui-md-2 ui-lg-1 ui-xl-1">
+                        <h:outputText styleClass="label" for="conj_cdArchivoRespPtfr"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.codigo.respuesta']}" />
+                    </div>
+                    <div class="ui-g-9 ui-md-4 ui-lg-3 ui-xl-3">
+                        <p:inputText id="conj_cdArchivoRespPtfr" readonly="true" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.cdArchivoRespPtfr}" />
+                    </div>
+
+                    <!-- FILA 2 PORTAFIRMAS -->
+                    <!-- Fecha Envío -->
+                    <div class="ui-g-3 ui-md-2 ui-lg-1 ui-xl-1">
+                        <h:outputText styleClass="label" for="conj_fcEnvioPtfr"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.fecha.envio']}" />
+                    </div>
+                    <div class="ui-g-9 ui-md-4 ui-lg-3 ui-xl-3">
+                        <p:calendar id="conj_fcEnvioPtfr" pattern="dd/MM/yyyy HH:mm:ss" readonly="true" showOn="none" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.fcEnvioPTFR}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
+                        </p:calendar>
+                    </div>
+
+                    <!-- Fecha Firma -->
+                    <div class="ui-g-3 ui-md-2 ui-lg-1 ui-xl-1">
+                        <h:outputText styleClass="label" for="conj_fcFirmaPtfr"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.fecha.firma']}" />
+                    </div>
+                    <div class="ui-g-9 ui-md-4 ui-lg-3 ui-xl-3">
+                        <p:calendar id="conj_fcFirmaPtfr" pattern="dd/MM/yyyy HH:mm:ss" readonly="true" showOn="none" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.fcFirmaPTFR}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
+                        </p:calendar>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="ui-g-3 ui-md-2 ui-lg-1 ui-xl-1">
+                        <h:outputText styleClass="label" for="conj_cdEstadoPtfr"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.estado']}" />
+                    </div>
+                    <div class="ui-g-9 ui-md-4 ui-lg-3 ui-xl-3">
+                        <p:inputText id="conj_cdEstadoPtfr" readonly="true" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.cdEstadoPTFR}" />
+                    </div>
+
+                    <!-- FILA 3 PORTAFIRMAS -->
+                    <!-- Motivo Rechazo -->
+                    <div class="ui-g-3 ui-md-2 ui-lg-1 ui-xl-1">
+                        <h:outputText styleClass="label" for="conj_motivoRechazo"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.motivo.rechazo']}" />
+                    </div>
+                    <div class="ui-g-9 ui-md-6 ui-lg-7 ui-xl-7">
+                        <p:inputTextarea id="conj_motivoRechazo" readonly="true" rows="2" autoResize="false"
+                            style="width: 100%; resize: none;"
+                            value="#{resolucionBean.tramiteDocSeleccionado.motivoRechazo}" />
+                    </div>
+
+                    <!-- Botón Descargar Documento Firmado -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-4 ui-xl-4 text-right">
+                        <p:link href="#{request.contextPath}/DescargaFicaServlet" 
+                                target="_blank" 
+                                title="#{bundle['boton.descargar']}"
+                                rendered="#{resolucionBean.tramiteDocSeleccionado.cdArchivoRespPtfr != null}">
+                            <f:param name="cdFica" value="#{resolucionBean.tramiteDocSeleccionado.cdArchivoRespPtfr}" />
+                            <i class="fas fa-download" 
+                               style="font-size: 18px !important; line-height: 1 !important; vertical-align: middle !important;"></i>
+                        </p:link>
+                    </div>
+                </div>
+            </p:column>
+        </p:panelGrid>
+
+        <!-- ==================== BLOQUE NOTE ==================== -->
+        <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+            <h:outputText styleClass="tituloFormulario" 
+                          value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note']} - #{resolucionBean.tituloTipoResolucionModal}" />
+        </p:panelGrid>
+
+        <p:panelGrid columns="1" columnClasses="ui-g-12" styleClass="ui-panelgrid-blank" layout="grid">
+            <p:column>
+                <div class="ui-g">
+                    <!-- FILA 1 NOTE -->
+                    <!-- Código -->
+                    <div class="ui-g-3 ui-md-2 ui-lg-1 ui-xl-1">
+                        <h:outputText styleClass="label" for="conj_cdNote"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.codigo']}" />
+                    </div>
+                    <div class="ui-g-9 ui-md-4 ui-lg-3 ui-xl-3">
+                        <p:inputText id="conj_cdNote" readonly="true" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.cdNote}" />
+                    </div>
+
+                    <!-- Fecha Envío -->
+                    <div class="ui-g-3 ui-md-2 ui-lg-1 ui-xl-1">
+                        <h:outputText styleClass="label" for="conj_fcEnvioNote"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.fecha.envio']}" />
+                    </div>
+                    <div class="ui-g-9 ui-md-4 ui-lg-3 ui-xl-3">
+                        <p:calendar id="conj_fcEnvioNote" pattern="dd/MM/yyyy HH:mm:ss" readonly="true" showOn="none" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.fcEnvioNote}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
+                        </p:calendar>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="ui-g-3 ui-md-2 ui-lg-1 ui-xl-1">
+                        <h:outputText styleClass="label" for="conj_cdEstadoNote"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.estado']}" />
+                    </div>
+                    <div class="ui-g-9 ui-md-4 ui-lg-3 ui-xl-3">
+                        <p:inputText id="conj_cdEstadoNote" readonly="true" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.cdEstadoNote}" />
+                    </div>
+
+                    <!-- FILA 2 NOTE -->
+                    <!-- Fecha Lectura -->
+                    <div class="ui-g-3 ui-md-2 ui-lg-1 ui-xl-1">
+                        <h:outputText styleClass="label" for="conj_fcLecturaNote"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.fecha.lectura']}" />
+                    </div>
+                    <div class="ui-g-9 ui-md-4 ui-lg-3 ui-xl-3">
+                        <p:calendar id="conj_fcLecturaNote" pattern="dd/MM/yyyy HH:mm:ss" readonly="true" showOn="none" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.fcLecturaNote}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
+                        </p:calendar>
+                    </div>
+
+                    <!-- Fecha Rechazo -->
+                    <div class="ui-g-3 ui-md-2 ui-lg-1 ui-xl-1">
+                        <h:outputText styleClass="label" for="conj_fcRechazoNote"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.fecha.rechazo']}" />
+                    </div>
+                    <div class="ui-g-9 ui-md-4 ui-lg-3 ui-xl-3">
+                        <p:calendar id="conj_fcRechazoNote" pattern="dd/MM/yyyy HH:mm:ss" readonly="true" showOn="none" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.fcRechazoNote}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
+                        </p:calendar>
+                    </div>
+
+                    <!-- Botón Descarga Acuse Recibo NOTE -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-4 ui-xl-4 text-right">
+                        <p:link href="#{request.contextPath}/DescargaFicaServlet" 
+                                target="_blank" 
+                                title="#{bundle['boton.descargar.acuse.recibo.note']}"
+                                rendered="#{resolucionBean.tramiteDocSeleccionado.cdFicaAcuseReciboNote != null}">
+                            <f:param name="cdFica" value="#{resolucionBean.tramiteDocSeleccionado.cdFicaAcuseReciboNote}" />
+                            <i class="fas fa-download" 
+                               style="font-size: 18px !important; line-height: 1 !important; vertical-align: middle !important;"></i>
+                        </p:link>
+                    </div>
+                </div>
+            </p:column>
+        </p:panelGrid>
+
+        <!-- BOTÓN CERRAR -->
+        <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+            <p:column>
+                <atlasp:button value="#{bundle['popup.cerrar']}"
+                    alt="#{bundle['popup.cerrar']}"
+                    title="#{bundle['popup.cerrar']}"
+                    icon="fas fa-times" tipoBoton="btn-secondary"
+                    onclick="PF('dialogInfoPTFRConj').hide();" />
+            </p:column>
+        </p:panelGrid>
+
+    </p:outputPanel>
+</p:dialog>
+
+    <!-- Diálogo para subir Desistimiento Expreso -->
+    <p:dialog id="dialogSubirDesistimientoExpreso"
+        widgetVar="dialogSubirDesistimientoExpreso"
+        header="#{bundle['solapa.resol.agregar.desistimiento.expreso']}"
+        closable="false" dynamic="true" modal="true" width="25%"
+        onShow="atlas.ui.Loading.hideLoad('appLoading')">
+        <atlasp:facesMessages id="fmSubirDesistimientoExpreso" modo="notificar" />
+        <p:outputPanel id="outPanelSubirDesistimientoExpreso">
+            <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                <h:outputText styleClass="tituloFormulario" 
+                    value="#{bundle['solapa.resol.desistimiento.expreso.titulo']}" />
+            </p:panelGrid>
+            <h:outputText styleClass="label"
+                value="#{bundle['solapa.resol.desistimiento.expreso.plantilla.documento']}" />
+            <p:panelGrid columns="2" layout="grid"
+                styleClass="ui-panelgrid-blank"
+                columnClasses="ui-g-12 ui-md-1 mtb-auto, ui-g-12 ui-md-11 mtb-auto">
+                <h:outputText
+                    value="#{bundle['convocatorias.tab.documentos.label.archivo']}" />
+                <p:fileUpload value="#{resolucionBean.archivoDesistimientoExpreso}"
+                    mode="simple" skinSimple="true"
+                    label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}">
+                </p:fileUpload>
+            </p:panelGrid>
+            <p:panelGrid columns="1" layout="grid"
+                styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+                <p:column>
+                    <atlasp:button
+                        actionListener="#{resolucionBean.cargarFicheroDesistimientoExpreso()}"
+                        ajax="false" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.adjuntar.documento']}"
+                        alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.adjuntar.documento']}"
+                        title="#{bundle['convocatorias.detalle.solicitudes.expedientes.documentos.label.adjuntar.documento']}"
+                        icon="fas fa-save" tipoBoton="btn-success"
+                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                    </atlasp:button>
+<!--                     <atlasp:button -->
+<!--                         actionListener="#{resolucionBean.cargarPlantillaDesistimientoExpreso}" -->
+<!--                         ajax="false" value="#{bundle['convocatorias.tab.documentos.label.desistimiento.plantilla']}" -->
+<!--                         alt="#{bundle['convocatorias.tab.documentos.label.desistimiento.plantilla']}" -->
+<!--                         title="#{bundle['convocatorias.tab.documentos.label.desistimiento.plantilla']}" -->
+<!--                         icon="fas fa-save" tipoBoton="btn-success" -->
+<!--                         onclick="atlas.ui.Loading.showLoad('appLoading')" -->
+<!--                         oncomplete="atlas.ui.Loading.hideLoad('appLoading')"> -->
+<!--                     </atlasp:button> -->
+                    <atlasp:button value="#{bundle['popup.cerrar']}"
+                        alt="#{bundle['popup.cerrar']}"
+                        title="#{bundle['popup.cerrar']}"
+                        icon="fas fa-times" tipoBoton="btn-secondary"
+                        action="#{resolucionBean.cerrarDesistimientoExpresoDialog}"
+                        ajax="true" process="@this" update="outPanelSubsanacionReqDoc"
+                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                    </atlasp:button>
+                </p:column>
+            </p:panelGrid>
+
+<!--             <atlasp:message tipo="info" -->
+<!--                 texto="#{bundle['solapa.resol.error.debe.seleccionar.fichero']}" -->
+<!--                 rendered="#{resolucionBean.mostrarMensajeElegirFichero}" /> -->
+
+<!--             <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-g-12"> -->
+<!--                 <h:outputText value="#{bundle['convocatorias.tab.documentos.label.archivo']}" /> -->
+<!--                 <p:fileUpload value="#{resolucionBean.archivoDesistimientoExpreso}" -->
+<!--                     mode="simple" skinSimple="true" -->
+<!--                     label="#{bundle['convocatorias.tab.documentos.label.archivo.elegir']}" -->
+<!--                     accept=".pdf" -->
+<!--                     allowTypes="/(\.|\/)(pdf)$/" -->
+<!--                     invalidFileMessage="Solo se permiten archivos PDF"> -->
+<!--                 </p:fileUpload> -->
+<!--             </p:panelGrid> -->
+            
+<!--             <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-g-12"> -->
+<!--                 <p:column> -->
+<!--                     <atlasp:button -->
+<!--                         actionListener="#{resolucionBean.cargarFicheroDesistimientoExpreso}" -->
+<!--                         ajax="false" value="#{bundle['popup.guardar']}" -->
+<!--                         alt="#{bundle['popup.guardar']}" -->
+<!--                         title="#{bundle['popup.guardar']}" -->
+<!--                         icon="fas fa-save" tipoBoton="btn-success" -->
+<!--                         onclick="atlas.ui.Loading.showLoad('appLoading')" -->
+<!--                         oncomplete="atlas.ui.Loading.hideLoad('appLoading')"> -->
+<!--                     </atlasp:button> -->
+<!--                     <atlasp:button value="#{bundle['popup.cerrar']}" -->
+<!--                         alt="#{bundle['popup.cerrar']}" -->
+<!--                         title="#{bundle['popup.cerrar']}" -->
+<!--                         icon="fas fa-times" tipoBoton="btn-secondary" -->
+<!--                         action="#{resolucionBean.cerrarSubirDesistimientoExpresoDialog}" -->
+<!--                         onclick="atlas.ui.Loading.showLoad('appLoading')" -->
+<!--                         oncomplete="atlas.ui.Loading.hideLoad('appLoading')"> -->
+<!--                     </atlasp:button> -->
+<!--                 </p:column> -->
+<!--             </p:panelGrid> -->
+        </p:outputPanel>
+    </p:dialog>
+    
+    
 </ui:composition>

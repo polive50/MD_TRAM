@@ -147,6 +147,8 @@ public final class ConstantesWeb {
         public static final String DOCUMENTO_MENSAJE_ERROR_TRAMITE = "convocatoria.documentacion.detalle.label.tramite.tooltipForm";
         
         public static final String DOCUMENTO_MENSAJE_VACIO = "convocatoria.documentacion.detalle.label.vacio.tooltipForm";
+        
+        public static final String DOCUMENTO_DESISTIMIENTO_EXPRESO_VACIO = "solapa.resol.mensaje.documento.desisitmiento.expreso.vacio";
 
         /** Constante mensaje error seleccionar un tipo de documento */
         public static final String DOCUMENTO_MENSAJE_ERROR_TIPO_DOCUMENTO = "convocatoria.documentacion.detalle.label.tipoDocumento.tooltipForm";
@@ -343,6 +345,8 @@ public final class ConstantesWeb {
         public static final String REVERTIR_DENEGADO_DEFINITIVO_OK = "mensaje.expediente.denegado.definitio.revertir.ok";
         
         public static final String REVERTIR_DESISTIDO_DEFINITIVO_OK = "mensaje.expediente.desistido.definitio.revertir.ok";
+        
+        public static final String REVERTIR_DESISTIDO_EXPRESO_OK = "mensaje.expediente.desistido.expreso.revertir.ok";
         
         public static final String REVERTIR_EXCLUIDO_DEFINITIVO_OK = "mensaje.expediente.excluido.definitio.revertir.ok";
 

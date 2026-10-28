@@ -19,12 +19,14 @@
     
      <atlasp:guardarEstado value="#{resolucionBean.tramiteDocProvisional}" />
      <atlasp:guardarEstado value="#{resolucionBean.tramiteDocDefinitivo}" />
+     <atlasp:guardarEstado value="#{resolucionBean.tramiteDocSeleccionado}" />
      
      <atlasp:guardarEstado value="#{resolucionBean.valorConcedidoProv}" />
      <atlasp:guardarEstado value="#{resolucionBean.valorDenegadoProv}" />
      <atlasp:guardarEstado value="#{resolucionBean.valorConcedidoDef}" />
      <atlasp:guardarEstado value="#{resolucionBean.valorDenegadoDef}" />
      <atlasp:guardarEstado value="#{resolucionBean.activarConcederDenegar}" />
+     <atlasp:guardarEstado value="#{resolucionBean.tituloTipoResolucionModal}" />
      
         
 
@@ -225,38 +227,55 @@
 
         </p:column>
         
-           <p:panelGrid columns="6" style="width:100%;" styleClass="ui-panelgrid-compact">
+<!--            <p:panelGrid columns="6" style="width:100%;" styleClass="ui-panelgrid-compact"> -->
 
-            <!-- Fecha envío a Note -->
-            <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.fechaColaNote']}" style="font-weight:bold;" />
-            <p:inputText value="#{resolucionBean.tramiteDocProvisional.fcEnvioNote}" readonly="true"
-                         style="width:auto; min-width:200px;">
-                <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
-            </p:inputText>
+<!--             Fecha envío a Note -->
+<!--             <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.fechaColaNote']}" style="font-weight:bold;" /> -->
+<!--             <p:inputText value="#{resolucionBean.tramiteDocProvisional.fcEnvioNote}" readonly="true" -->
+<!--                          style="width:auto; min-width:200px;"> -->
+<!--                 <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" /> -->
+<!--             </p:inputText> -->
         
-            <!-- Estado Note -->
-            <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.estadoNote']}" style="font-weight:bold;" />
-            <p:inputText value="Puesta a disposición" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '1'}"
-                         style="width:auto; min-width:200px;"  readonly="true"/>
-            <p:inputText value="Leído" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '2'}"
-                         style="width:auto; min-width:200px;"  readonly="true"/>
-            <p:inputText value="Rechazado"  rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3'}"
-                         style="width:auto; min-width:200px;" readonly="true"/>
-            <p:inputText value="Rechazado automáticamente" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}"
-                         style="width:auto; min-width:200px;"  readonly="true"/>
-            <p:inputText value="Sin Notificación" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote == null}"
-                         style="width:auto; min-width:200px;" readonly="true" />
+<!--             Estado Note -->
+<!--             <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.estadoNote']}" style="font-weight:bold;" /> -->
+<!--             <p:inputText value="Puesta a disposición" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '1'}" -->
+<!--                          style="width:auto; min-width:200px;"  readonly="true"/> -->
+<!--             <p:inputText value="Leído" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '2'}" -->
+<!--                          style="width:auto; min-width:200px;"  readonly="true"/> -->
+<!--             <p:inputText value="Rechazado"  rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3'}" -->
+<!--                          style="width:auto; min-width:200px;" readonly="true"/> -->
+<!--             <p:inputText value="Rechazado automáticamente" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}" -->
+<!--                          style="width:auto; min-width:200px;"  readonly="true"/> -->
+<!--             <p:inputText value="Sin Notificación" rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote == null}" -->
+<!--                          style="width:auto; min-width:200px;" readonly="true" /> -->
         
-            <!-- Fecha rechazo -->
-            <h:outputText rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3' or resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}"
-                          value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.fecha.rechazo']}" style="font-weight:bold;" />
-            <p:inputText value="#{resolucionBean.tramiteDocProvisional.fcRechazoNote}" readonly="true" 
-                         rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3' or resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}"
-                         style="width:auto; min-width:200px;" >
-                <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
-            </p:inputText>
+<!--             Fecha rechazo -->
+<!--             <h:outputText rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3' or resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}" -->
+<!--                           value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.fecha.rechazo']}" style="font-weight:bold;" /> -->
+<!--             <p:inputText value="#{resolucionBean.tramiteDocProvisional.fcRechazoNote}" readonly="true"  -->
+<!--                          rendered="#{resolucionBean.tramiteDocProvisional.cdEstadoNote eq '3' or resolucionBean.tramiteDocProvisional.cdEstadoNote eq '4'}" -->
+<!--                          style="width:auto; min-width:200px;" > -->
+<!--                 <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" /> -->
+<!--             </p:inputText> -->
         
-        </p:panelGrid>
+<!--         </p:panelGrid> -->
+        
+        <!-- Para Resolución Provisional -->
+        <p:commandButton id="btnInfoPtfrProvisIndiv"
+            class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-info"
+            action="#{resolucionBean.abrirModalInfoPTFRIndiv(resolucionBean.tramiteDocProvisional)}"
+            ajax="true"
+            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+            alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+            title="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+            icon="fa fa-info-circle"
+            onclick="atlas.ui.Loading.showLoad('appLoading')"
+            oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+        </p:commandButton>
+
+
+        
+       
 
 
         <!-- sección ALEGACIONES-->
@@ -645,39 +664,53 @@
 
         </p:column>
         
-              <p:panelGrid columns="6" style="width:100%;" styleClass="ui-panelgrid-compact">
+<!--               <p:panelGrid columns="6" style="width:100%;" styleClass="ui-panelgrid-compact"> -->
 
            
-                <!-- Fecha envío a Note -->
-                <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.fechaColaNote']}" style="font-weight:bold;" />
-                <p:inputText value="#{resolucionBean.tramiteDocDefinitivo.fcEnvioNote}" readonly="true"
-                             style="width:auto; min-width:200px;">
-                    <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
-                </p:inputText>
+<!--                 Fecha envío a Note -->
+<!--                 <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.fechaColaNote']}" style="font-weight:bold;" /> -->
+<!--                 <p:inputText value="#{resolucionBean.tramiteDocDefinitivo.fcEnvioNote}" readonly="true" -->
+<!--                              style="width:auto; min-width:200px;"> -->
+<!--                     <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" /> -->
+<!--                 </p:inputText> -->
             
-                <!-- Estado Note -->
-                <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.estadoNote']}" style="font-weight:bold;" />
-                <p:inputText value="Puesta a disposición" rendered="#{resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '1'}"
-                             style="width:auto; min-width:200px;" readonly="true"/>
-                <p:inputText value="Leído"  rendered="#{resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '2'}"
-                             style="width:auto; min-width:200px;" readonly="true"/>
-                <p:inputText value="Rechazado"  rendered="#{resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '3'}"
-                             style="width:auto; min-width:200px;" readonly="true"/>
-                <p:inputText value="Rechazado automáticamente"  rendered="#{resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '4'}"
-                             style="width:auto; min-width:200px;" readonly="true"/>
-                <p:inputText value="Sin Notificación" rendered="#{resolucionBean.tramiteDocDefinitivo.cdEstadoNote == null}"
-                         style="width:auto; min-width:200px;" readonly="true" />
+<!--                 Estado Note -->
+<!--                 <h:outputText value="#{bundle['convocatorias.detalle.solicitudes.label.estadoNote']}" style="font-weight:bold;" /> -->
+<!--                 <p:inputText value="Puesta a disposición" rendered="#{resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '1'}" -->
+<!--                              style="width:auto; min-width:200px;" readonly="true"/> -->
+<!--                 <p:inputText value="Leído"  rendered="#{resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '2'}" -->
+<!--                              style="width:auto; min-width:200px;" readonly="true"/> -->
+<!--                 <p:inputText value="Rechazado"  rendered="#{resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '3'}" -->
+<!--                              style="width:auto; min-width:200px;" readonly="true"/> -->
+<!--                 <p:inputText value="Rechazado automáticamente"  rendered="#{resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '4'}" -->
+<!--                              style="width:auto; min-width:200px;" readonly="true"/> -->
+<!--                 <p:inputText value="Sin Notificación" rendered="#{resolucionBean.tramiteDocDefinitivo.cdEstadoNote == null}" -->
+<!--                          style="width:auto; min-width:200px;" readonly="true" /> -->
                 
-                <!-- Fecha rechazo -->
-                <h:outputText rendered="#{resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '3' or resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '4'}"
-                              value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.fecha.rechazo']}" style="font-weight:bold;" />
-                <p:inputText value="#{resolucionBean.tramiteDocDefinitivo.fcRechazoNote}" readonly="true" 
-                             rendered="#{resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '3' or resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '4'}"
-                             style="width:auto; min-width:200px;" >
-                    <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" />
-                </p:inputText>
+<!--                 Fecha rechazo -->
+<!--                 <h:outputText rendered="#{resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '3' or resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '4'}" -->
+<!--                               value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.fecha.rechazo']}" style="font-weight:bold;" /> -->
+<!--                 <p:inputText value="#{resolucionBean.tramiteDocDefinitivo.fcRechazoNote}" readonly="true"  -->
+<!--                              rendered="#{resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '3' or resolucionBean.tramiteDocDefinitivo.cdEstadoNote eq '4'}" -->
+<!--                              style="width:auto; min-width:200px;" > -->
+<!--                     <f:convertDateTime type="date" pattern="dd/MM/yyyy - HH:mm:ss" /> -->
+<!--                 </p:inputText> -->
         
-        </p:panelGrid>
+<!--         </p:panelGrid> -->
+
+
+                <!-- Para Resolución Definitiva -->
+                <p:commandButton id="btnInfoPtfrDefinIndiv"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left atlas-btn btn-info"
+                    action="#{resolucionBean.abrirModalInfoPTFRIndiv(resolucionBean.tramiteDocDefinitivo)}"
+                    ajax="true"
+                    value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+                    alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+                    title="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}"
+                    icon="fa fa-info-circle"
+                    onclick="atlas.ui.Loading.showLoad('appLoading')"
+                    oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
+                </p:commandButton>
         
          <h:outputText styleClass="tituloFormulario"
                 value="#{bundle['solapa.resol.titulo.definitivo.pendiente']}" />
@@ -922,6 +955,226 @@
             </p:panelGrid>
         </p:panelGrid>
     </p:dialog>
+
+
+    <p:dialog id="dialogInfoPTFRIndiv"
+    widgetVar="dialogInfoPTFRIndiv"
+    header="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.info.tramite']}#{resolucionBean.tituloTipoResolucionModal}"
+    closable="false" dynamic="true" modal="true" width="60%"
+    onShow="atlas.ui.Loading.hideLoad('appLoading')">
+
+    <atlasp:facesMessages id="fmInfoPTFRIndiv" modo="notificar" />
+
+    <p:outputPanel id="outPanelInfoPTFRIndiv">
+        
+        <!-- ==================== BLOQUE PORTAFIRMAS ==================== -->
+        <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+            <h:outputText styleClass="tituloFormulario" 
+                          value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas']}  - #{resolucionBean.tituloTipoResolucionModal}" />
+        </p:panelGrid>
+
+        <p:panelGrid columns="1" columnClasses="ui-g-12" styleClass="ui-panelgrid-blank" layout="grid">
+            <p:column>
+                <div class="ui-g">
+                    <!-- FILA 1 PORTAFIRMAS -->
+                    <!-- Referencia -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-2">
+                        <h:outputText styleClass="label" for="indiv_dsReferenciaPtfr"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.referencia']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-8 ui-lg-2">
+                        <p:inputText id="indiv_dsReferenciaPtfr" readonly="true" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.dsReferenciaPTFR}" />
+                    </div>
+
+                    <!-- Código Archivo -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-2">
+                        <h:outputText styleClass="label" for="indiv_cdArchivoPtfr"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.codigo.archivo']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-8 ui-lg-2">
+                        <p:inputText id="indiv_cdArchivoPtfr" readonly="true" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.cdArchivoPTFR}" />
+                    </div>
+
+                    <!-- Código Archivo Respuesta -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-2">
+                        <h:outputText styleClass="label" for="indiv_cdArchivoRespPtfr"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.codigo.archivo.respuesta']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-8 ui-lg-2">
+                        <p:inputText id="indiv_cdArchivoRespPtfr" readonly="true" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.cdArchivoRespPtfr}" />
+                    </div>
+
+                    <!-- FILA 2 PORTAFIRMAS -->
+                    <!-- Fecha Envío -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-2">
+                        <h:outputText styleClass="label" for="indiv_fcEnvioPtfr"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.fecha.envio']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-8 ui-lg-2">
+                        <p:calendar id="indiv_fcEnvioPtfr" pattern="dd/MM/yyyy HH:mm:ss" readonly="true" showOn="none" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.fcEnvioPTFR}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
+                        </p:calendar>
+                    </div>
+
+                    <!-- Fecha Firma -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-2">
+                        <h:outputText styleClass="label" for="indiv_fcFirmaPtfr"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.fecha.firma']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-8 ui-lg-2">
+                        <p:calendar id="indiv_fcFirmaPtfr" pattern="dd/MM/yyyy HH:mm:ss" readonly="true" showOn="none" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.fcFirmaPTFR}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
+                        </p:calendar>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-2">
+                        <h:outputText styleClass="label" for="indiv_cdEstadoPtfr"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.estado']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-8 ui-lg-2">
+                        <p:inputText id="indiv_cdEstadoPtfr" readonly="true" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.cdEstadoPTFR}" />
+                    </div>
+
+                    <!-- FILA 3 PORTAFIRMAS -->
+                    <!-- Motivo Rechazo -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-2">
+                        <h:outputText styleClass="label" for="indiv_motivoRechazo"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.motivo.rechazo']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-8 ui-lg-6">
+                        <p:inputTextarea id="indiv_motivoRechazo" readonly="true" rows="2" autoResize="false"
+                            style="width: 100%; resize: none;"
+                            value="#{resolucionBean.tramiteDocSeleccionado.motivoRechazo}" />
+                    </div>
+
+                    <!-- Descarga Documento Firmado (Portafirmas) -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-2">
+                        <h:outputText styleClass="label"
+                            rendered="#{resolucionBean.tramiteDocSeleccionado.cdArchivoRespPtfr != null}"
+                            value="#{bundle['boton.descargar']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-8 ui-lg-2">
+                        <p:link href="#{request.contextPath}/DescargaFicaServlet" 
+                                target="_blank" 
+                                title="#{bundle['boton.descargar']}"
+                                rendered="#{resolucionBean.tramiteDocSeleccionado.cdArchivoRespPtfr != null}">
+                            <f:param name="cdFica" value="#{resolucionBean.tramiteDocSeleccionado.cdArchivoRespPtfr}" />
+                            <i class="fas fa-download" 
+                               style="font-size: 18px !important; line-height: 1 !important; vertical-align: middle !important;"></i>
+                        </p:link>
+                    </div>
+                </div>
+            </p:column>
+        </p:panelGrid>
+
+        <!-- ==================== BLOQUE NOTE ==================== -->
+        <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+            <h:outputText styleClass="tituloFormulario" 
+                          value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note']}  - #{resolucionBean.tituloTipoResolucionModal}" />
+        </p:panelGrid>
+
+        <p:panelGrid columns="1" columnClasses="ui-g-12" styleClass="ui-panelgrid-blank" layout="grid">
+            <p:column>
+                <div class="ui-g">
+                    <!-- FILA 1 NOTE -->
+                    <!-- Código -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-2">
+                        <h:outputText styleClass="label" for="indiv_cdNote"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.codigo']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-8 ui-lg-2">
+                        <p:inputText id="indiv_cdNote" readonly="true" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.cdNote}" />
+                    </div>
+
+                    <!-- Fecha Envío -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-2">
+                        <h:outputText styleClass="label" for="indiv_fcEnvioNote"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.fecha.envio']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-8 ui-lg-2">
+                        <p:calendar id="indiv_fcEnvioNote" pattern="dd/MM/yyyy HH:mm:ss" readonly="true" showOn="none" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.fcEnvioNote}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
+                        </p:calendar>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-2">
+                        <h:outputText styleClass="label" for="indiv_cdEstadoNote"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.estado']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-8 ui-lg-2">
+                        <p:inputText id="indiv_cdEstadoNote" readonly="true" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.cdEstadoNote}" />
+                    </div>
+
+                    <!-- FILA 2 NOTE -->
+                    <!-- Fecha Lectura -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-2">
+                        <h:outputText styleClass="label" for="indiv_fcLecturaNote"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.fecha.lectura']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-8 ui-lg-2">
+                        <p:calendar id="indiv_fcLecturaNote" pattern="dd/MM/yyyy HH:mm:ss" readonly="true" showOn="none" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.fcLecturaNote}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
+                        </p:calendar>
+                    </div>
+
+                    <!-- Fecha Rechazo -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-2">
+                        <h:outputText styleClass="label" for="indiv_fcRechazoNote"
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.note.fecha.rechazo']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-8 ui-lg-2">
+                        <p:calendar id="indiv_fcRechazoNote" pattern="dd/MM/yyyy HH:mm:ss" readonly="true" showOn="none" style="width:100%"
+                            value="#{resolucionBean.tramiteDocSeleccionado.fcRechazoNote}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
+                        </p:calendar>
+                    </div>
+
+                    <!-- Descarga Acuse Recibo NOTE -->
+                    <div class="ui-g-12 ui-md-4 ui-lg-2">
+                        <h:outputText styleClass="label"
+                            rendered="#{resolucionBean.tramiteDocSeleccionado.cdFicaAcuseReciboNote != null}"
+                            value="#{bundle['boton.descargar.acuse.recibo.note']}" />
+                    </div>
+                    <div class="ui-g-12 ui-md-8 ui-lg-2">
+                        <p:link href="#{request.contextPath}/DescargaFicaServlet" 
+                                target="_blank" 
+                                title="#{bundle['boton.descargar.acuse.recibo.note']}"
+                                rendered="#{resolucionBean.tramiteDocSeleccionado.cdFicaAcuseReciboNote != null}">
+                            <f:param name="cdFica" value="#{resolucionBean.tramiteDocSeleccionado.cdFicaAcuseReciboNote}" />
+                            <i class="fas fa-download" 
+                               style="font-size: 18px !important; line-height: 1 !important; vertical-align: middle !important;"></i>
+                        </p:link>
+                    </div>
+                </div>
+            </p:column>
+        </p:panelGrid>
+
+        <!-- BOTÓN CERRAR -->
+        <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-g-12">
+            <p:column>
+                <atlasp:button value="#{bundle['popup.cerrar']}"
+                    alt="#{bundle['popup.cerrar']}"
+                    title="#{bundle['popup.cerrar']}"
+                    icon="fas fa-times" tipoBoton="btn-secondary"
+                    onclick="PF('dialogInfoPTFRIndiv').hide();" />
+            </p:column>
+        </p:panelGrid>
+
+    </p:outputPanel>
+</p:dialog>
+
 
 
 </ui:composition>

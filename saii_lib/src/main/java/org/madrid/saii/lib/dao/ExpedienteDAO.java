@@ -241,10 +241,12 @@ public interface ExpedienteDAO extends BaseDAO<Expediente, Integer> {
      * @param idConvocatoria identificador de la convocatoria
      * @param idsEstado identificadores de los estados del expediente
      * @param idCatalogoRequisitos identificador del catálogo de requisitos
+     * @param idEstadoExclProvis 
+     * @param idEstadoPendRevisionAleg 
      * @return expedientes de la resolución de exclusión o desistimiento
      */
     List<ResolucionExclusionDesistimientoDTO> listaResolucionExclusionDesistimiento(
-            Integer idConvocatoria, List<Integer> idsEstado, Integer idCatalogoRequisitos);
+            Integer idConvocatoria, List<Integer> idsEstado, Integer idCatalogoRequisitos, Integer idEstadoPendRevisionAleg, Integer idEstadoExclProvis);
     
     /**
      * Obtiene la fecha de presentacion del expediente en base a la solicitud indicada
@@ -292,5 +294,9 @@ public interface ExpedienteDAO extends BaseDAO<Expediente, Integer> {
      */
     List<Integer> obtenerEstadosProvisionalesResolucion(Integer idConvocatoria,
             List<Integer> idsEstado);
+
+
+    List<ResolucionExclusionDesistimientoDTO> listaResolucionDesistimiento(Integer idConvocatoria,
+            List<Integer> idsEstado, Integer idEstadoPendRevisionAleg, Integer idEstadoExclProvis);
 
 }

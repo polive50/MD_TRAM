@@ -22,18 +22,21 @@ import org.madrid.saii.lib.domain.CatalogosValores;
 import org.madrid.saii.lib.domain.Convocatoria;
 import org.madrid.saii.lib.domain.EnvioDocumentoPTFR;
 import org.madrid.saii.lib.domain.Expediente;
+import org.madrid.saii.lib.domain.NotificacionCiudadano;
 import org.madrid.saii.lib.domain.Solicitud;
 import org.madrid.saii.lib.dto.CatalogosValoresDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaActDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaDocDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaGestorDTO;
+import org.madrid.saii.lib.dto.ConvocatoriaPlaDTO;
 import org.madrid.saii.lib.dto.DocumentoDTO;
 import org.madrid.saii.lib.dto.DocumentoPtfrDTO;
 import org.madrid.saii.lib.dto.ExpedienteDTO;
 import org.madrid.saii.lib.dto.ExpedienteDocDTO;
 import org.madrid.saii.lib.dto.ExpedienteHistDTO;
 import org.madrid.saii.lib.dto.ImpresoDTO;
+import org.madrid.saii.lib.dto.NotificacionCiudadanoDTO;
 import org.madrid.saii.lib.dto.SolicitudDTO;
 import org.madrid.saii.lib.dto.converters.ConvocatoriaToEntity;
 import org.madrid.saii.lib.dto.converters.ExpedienteToEntity;
@@ -41,6 +44,7 @@ import org.madrid.saii.lib.services.CataService;
 import org.madrid.saii.lib.services.CatalogosValoresService;
 import org.madrid.saii.lib.services.ConvocatoriaActService;
 import org.madrid.saii.lib.services.ConvocatoriaDocService;
+import org.madrid.saii.lib.services.ConvocatoriaPlaService;
 import org.madrid.saii.lib.services.ConvocatoriaService;
 import org.madrid.saii.lib.services.DocumentoPtfrService;
 import org.madrid.saii.lib.services.EnvioDocumentoPTFRService;
@@ -49,6 +53,7 @@ import org.madrid.saii.lib.services.ExpedienteEvalService;
 import org.madrid.saii.lib.services.ExpedienteHistService;
 import org.madrid.saii.lib.services.ExpedienteService;
 import org.madrid.saii.lib.services.ImpresoService;
+import org.madrid.saii.lib.services.NotificacionCiudadanoService;
 import org.madrid.saii.lib.services.PdfService;
 import org.madrid.saii.lib.services.SolicitudService;
 import org.madrid.saii.lib.util.Constantes;
@@ -128,8 +133,10 @@ public class ResolucionBean {
     private EnvioDocumentoPTFR tramiteDocDefinitivo;
     
     private EnvioDocumentoPTFR tramiteDocDefinitivoEnCola;
-   
     
+ // Variable para almacenar el trámite seleccionado (Provisional o Definitivo) para la modal
+    private EnvioDocumentoPTFR tramiteDocSeleccionado;
+   
     private Integer valorConcedidoProv;
     private Integer valorDenegadoProv;
     private Integer valorConcedidoDef;
@@ -141,8 +148,10 @@ public class ResolucionBean {
     private Integer valorDesistidoDef;
     private Integer valorExcluidoDef;
     
-    
     private Boolean activarConcederDenegar = Boolean.TRUE;
+    
+    private Boolean existeNotifCiuDesistimiento;
+    
     
     // ////////////////////////////////////////////////////////
     // /////////////////////////////// SERVICIOS
@@ -254,7 +263,18 @@ public class ResolucionBean {
     @Autowired
     @Qualifier("solicitudDAO")
     private SolicitudDAO solicitudDAO;
-
+    
+    @Autowired
+    @Qualifier("notificacionCiudadanoService")
+    private NotificacionCiudadanoService notificacionCiudadanoService;
+    
+    /** Servicio Convocatoria Pla */
+    @Autowired
+    @Qualifier("convocatoriaPlaService")
+    @Setter
+    @Getter
+    private ConvocatoriaPlaService convocatoriaPlaService;
+    
     // ////////////////////////////////////////////////////////
     // /////////////////////////////// BEANS
     // ////////////////////////////////////////////////////////
@@ -290,6 +310,11 @@ public class ResolucionBean {
      * archivoProvisionalDefinitiva
      */
     private UploadedFile archivoResolucionDefinitiva;
+    
+    /**
+     * archivoDesistimientoExpreso
+     */
+    private UploadedFile archivoDesistimientoExpreso;
 
     /*
      * expedienteDocDTO
@@ -300,6 +325,8 @@ public class ResolucionBean {
      * expedienteDocDTO
      */
     private ExpedienteDocDTO expedienteDocDTO700;
+    
+    private String tituloTipoResolucionModal;
     
 
     // ////////////////////////////////////////////////////////
@@ -344,6 +371,7 @@ public class ResolucionBean {
 
         this.archivoResolucion = null;
         this.archivoResolucionDefinitiva = null;
+        this.archivoDesistimientoExpreso = null;
         
         this.valorConcedidoProv = utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.CONCESION_PROVISIONAL);
         this.valorDenegadoProv = utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.DENEGACION_PROVISIONAL);       
@@ -357,7 +385,7 @@ public class ResolucionBean {
         this.valorExcluidoDef  =  utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.EXCLUSION);
 
     }
-
+    
     /**
      * Metodo para aprobar provisional al expediente
      */
@@ -1096,7 +1124,21 @@ public class ResolucionBean {
     public void cerrarSubirResolucionProvisionalDialog() {
         PrimefacesUtils.ocultarPopupPF("dialogSubirResolucionProvisional");
     }
+    
+    public void subirResolucionProvisionalDialogProv() {
+        PrimefacesUtils.mostrarPopupPF("dialogSubirResolucionProvisionalProv");
+    }
 
+    /** 
+     * 
+     */
+    public void cerrarSubirResolucionProvisionalDialogProv() {
+        PrimefacesUtils.ocultarPopupPF("dialogSubirResolucionProvisionalProv");
+    }
+
+    
+    
+    
     /**
      * 
      */
@@ -1655,6 +1697,7 @@ public class ResolucionBean {
     /**
      * 
      * @return
+     * @throws ServiceException 
      */
     public Boolean habilitarBotonDescargarDefinitivo() {
 
@@ -1666,8 +1709,13 @@ public class ResolucionBean {
         if (expeDocDTO != null && expeDocDTO.getCdFica() != null) {
             habilitar = Boolean.TRUE;
         }
-        if (Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) { //MD-2563 incluimos que no puedan acceder a estas acciones los gestores ext)
+        
+        if (Boolean.TRUE.equals(this.existeNotifCiuDesistimiento)) {
             habilitar = Boolean.FALSE;
+        }
+        
+        if (Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) { //MD-2563 incluimos que no puedan acceder a estas acciones los gestores ext)
+            habilitar = Boolean.TRUE;
         }
 
         return habilitar;
@@ -1678,6 +1726,7 @@ public class ResolucionBean {
      * 
      * @param esModoConsulta
      * @return
+     * @throws ServiceException 
      */
     public Boolean habilitarBotonConcederDefinitivo(Boolean esModoConsulta) {
 
@@ -1719,13 +1768,14 @@ public class ResolucionBean {
                 && (this.expedienteBean.getExpedienteDTO().getItAlegacionRevisada() == null)) {
             existeAlegacion = Boolean.TRUE;
         }
-
+        
         Boolean habilitar = Boolean.FALSE;
         if (Boolean.FALSE.equals(this.expedienteBean.getExpedienteDTO().getModoConsulta())
                 && Boolean.FALSE.equals(esModoConsulta)
                 && Boolean.FALSE.equals(existeEstadoDefinitivo)
                 && Boolean.TRUE.equals(existeExpedienteDocPropuestaResolucionDefinitiva)
                 && Boolean.FALSE.equals(existeAlegacion)
+                && Boolean.FALSE.equals(this.existeNotifCiuDesistimiento)
                 && Boolean.FALSE.equals(this.infoUsuarioBean.getRolGestorExterno())) { //MD-2563 incluimos que no puedan acceder a estas acciones los gestores ext
             habilitar = Boolean.TRUE;
         }
@@ -2785,8 +2835,8 @@ public class ResolucionBean {
                 List<AtlasFilter> filtrosDefinitivo = new ArrayList<>();
                 filtrosDefinitivo.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDCONVOCATORIA, this.idConvocatoria, Operador.EQUALS));
                 filtrosDefinitivo.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDEXPEDIENTE, idexpedienteV, Operador.EQUALS));
-                filtrosDefinitivo.add(new AtlasFilter(Constantes.Filtro.FILTRO_FC_ENVIO_NOTE, Operador.NOT_NULL));
-                filtrosDefinitivo.add(new AtlasFilter(Constantes.Filtro.FILTRO_CD_ESTADO_NOTE, Operador.NOT_NULL));
+//                filtrosDefinitivo.add(new AtlasFilter(Constantes.Filtro.FILTRO_FC_ENVIO_NOTE, Operador.NOT_NULL));
+//                filtrosDefinitivo.add(new AtlasFilter(Constantes.Filtro.FILTRO_CD_ESTADO_NOTE, Operador.NOT_NULL));
                 filtrosDefinitivo.add(new AtlasFilter(Constantes.Multipart.ID_TRAMITE, estadosDef, Operador.EQUALS));
 
                 List<EnvioDocumentoPTFR> listaTramiteDocDefinitivo = this.envioDocumentoPtfrService.find(filtrosDefinitivo, orden);
@@ -2812,6 +2862,22 @@ public class ResolucionBean {
                         idexpedienteV, 
                         utilConstantes.getGlobalCatalogosValores().get(Constantes.TipoDocumento.PDF_FORM_ACEPTACION_DESIS_FIRMADO), 
                         utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.ACEPTACION_DESISTIMIENTO_AYUDA)); 
+            }
+            
+            // Nueva lógica añadida para asegurar el dato en el Front:
+            if (idexpedienteV != null) {
+                NotificacionCiudadanoDTO notifCiu = this.notificacionCiudadanoService.buscarPresentadaPorExpedienteyAsunto(
+                        idexpedienteV,
+                        utilConstantes.getGlobalCatalogosValores().get(Constantes.TiposNotifCiudadano.DESISTIMIENTO_EXPRESO),
+                        utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoNotifiCiud.RESUELTA));
+                
+                if (notifCiu != null && notifCiu.getIdNotificacion() != null) {
+                    this.existeNotifCiuDesistimiento = Boolean.TRUE;
+                } else {
+                    this.existeNotifCiuDesistimiento = Boolean.FALSE;
+                }
+            } else {
+                this.existeNotifCiuDesistimiento = Boolean.FALSE;
             }
 
         } catch (ServiceException e) {
@@ -2914,6 +2980,544 @@ public class ResolucionBean {
         } catch (ServiceException e) {
             AtlasMessageUtils
                     .addWarnMessageFromBundle(ConstantesWeb.Mensajes.CONCEDIDO_DEFINITVO_AYUDA_KO);
+        }
+
+    }
+    
+ 
+    public void abrirModalInfoPTFRIndiv(EnvioDocumentoPTFR tramite) {
+        this.tramiteDocSeleccionado = tramite;
+        if (tramite != null) {
+            if (this.tramiteDocProvisional != null && tramite.equals(this.tramiteDocProvisional)) {
+                this.tituloTipoResolucionModal = " Resolución Provisional";
+            } else if (this.tramiteDocDefinitivo != null && tramite.equals(this.tramiteDocDefinitivo)) {
+                this.tituloTipoResolucionModal = " Resolución Definitiva";
+            } else {
+                this.tituloTipoResolucionModal = "";
+            }
+        }
+        PrimefacesUtils.mostrarPopupPF("dialogInfoPTFRIndiv");
+    }
+
+
+    public void abrirModalInfoPTFRConj(EnvioDocumentoPTFR tramite) {
+        this.tramiteDocSeleccionado = tramite;
+        
+        // Determinamos si es Provisional o Definitiva comparando con los trámites del expediente
+        if (tramite != null) {
+            if (this.tramiteDocProvisional != null && tramite.equals(this.tramiteDocProvisional)) {
+                this.tituloTipoResolucionModal = " Resolución Provisional";
+            } else if (this.tramiteDocDefinitivo != null && tramite.equals(this.tramiteDocDefinitivo)) {
+                this.tituloTipoResolucionModal = " Resolución Definitiva";
+            } else {
+                this.tituloTipoResolucionModal = "";
+            }
+        }
+        
+        PrimefacesUtils.mostrarPopupPF("dialogInfoPTFRConj");
+    }
+    
+    /**
+     * Devuelve la descripción textual del estado de NOTE a partir de su código numérico.
+     * @param cdEstadoNote Código del estado
+     * @return Texto descriptivo del estado
+     */
+    public String obtenerDescripcionEstadoNote(String cdEstadoNote) {
+        if (cdEstadoNote == null) {
+            return "Sin Notificación";
+        }
+        
+        switch (cdEstadoNote) {
+            case "1":
+                return "Puesta a disposición";
+            case "2":
+                return "Leído";
+            case "3":
+                return "Rechazado";
+            case "4":
+                return "Rechazado automáticamente";
+            default:
+                return "";
+        }
+    }
+    
+    public Boolean habilitarSubirDesistimientoExpreso(Boolean esModoConsulta) throws ServiceException {
+
+        if (this.isExpedienteRechazadoDefinitivo()) {
+            return Boolean.FALSE;
+        }
+        
+        this.cargarDocumentosPTFR();
+        
+        Boolean habilitar = Boolean.TRUE;
+        
+        if (Boolean.TRUE.equals(esModoConsulta)
+                || this.tramiteDocDefinitivoEnCola.getidTramite() != null
+                || Boolean.TRUE.equals(this.expedienteBean.getExpedienteDTO().getModoConsulta())
+                || Boolean.FALSE.equals(this.existeNotifCiuDesistimiento)
+                || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())
+                ) {
+            habilitar = Boolean.FALSE;
+        }
+ 
+        return habilitar;
+    }
+    
+    /**
+     * 
+     */
+    public void subirDesistimientoExpresoDialog() {
+        this.archivoDesistimientoExpreso = null;
+        PrimefacesUtils.mostrarPopupPF("dialogSubirDesistimientoExpreso");
+    }
+
+    /** 
+     * 
+     */
+    public void cerrarSubirDesistimientoExpresoDialog() {
+        PrimefacesUtils.ocultarPopupPF("dialogSubirDesistimientoExpreso");
+    }
+    
+    /**
+     * 
+     */
+    public void cargarFicheroDesistimientoExpreso() {
+        try {
+            if (this.archivoDesistimientoExpreso == null || this.archivoDesistimientoExpreso.getSize() == 0) {
+                AtlasMessageUtils
+                        .addErrorMessageFromBundle(ConstantesWeb.Mensajes.DOCUMENTO_DESISTIMIENTO_EXPRESO_VACIO);
+            } else {
+                if (this.archivoDesistimientoExpreso.getFileName() != null) {
+                    this.prepararMetadatosFica(this.archivoDesistimientoExpreso,
+                            utilConstantes.getGlobalCatalogosValores()
+                                    .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA),
+                            utilConstantes.getGlobalCatalogosValores()
+                                    .get(Constantes.Tramite.DESISTIMIENTO));
+                    this.expedienteDocDTO = this.expedienteDocService
+                            .subirDocumentoFica(this.expedienteDocDTO);
+                    this.guardarDocumento();
+                    this.recuperarValoresVariablesExpediente(
+                            this.expedienteBean.getExpedienteDTO());
+                    this.mostrarMensajeElegirFichero = Boolean.FALSE;
+                } else {
+                    this.mostrarMensajeElegirFichero = Boolean.TRUE;
+                    PrimefacesUtils.mostrarPopupPF("dialogSubirDesistimientoExpreso");
+                }
+            }
+        } catch (ServiceException e) {
+            AtlasMessageUtils
+                    .addErrorMessageFromBundle(ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_KO);
+            log.error(e.getMessage());
+        }
+    }
+    
+    public void descargaFicheroDesistimientoExpreso() {
+        try {
+            ExpedienteDocDTO expeDocDTO;
+            expeDocDTO = this.expedienteService.getExpedienteDocDTO(
+                    utilConstantes.getGlobalCatalogosValores()
+                            .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA),
+                    this.expedienteBean.getExpedienteDTO().getIdExpediente());
+            if (expeDocDTO != null && expeDocDTO.getCdFica() != null) {
+                FicaFichero ficaFichero = this.ficaService.recuperar(expeDocDTO.getCdFica());
+                UtilesWeb.openFile(ficaFichero.getDatosFichero(), ficaFichero.getExtension(),
+                        FilenameUtils.removeExtension(ficaFichero.getNombreFichero()));
+            } else {
+                AtlasMessageUtils.addErrorMessageFromBundle(
+                        ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_DESCARGAR_KO);
+            }
+        } catch (ServiceException e) {
+
+            AtlasMessageUtils.addErrorMessageFromBundle(
+                    ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_DESCARGAR_KO);
+            log.error(e.getMessage());
+        }
+    }
+    
+    public Boolean habilitarDesistirExpreso(Boolean esModoConsulta) throws ServiceException {
+        if (this.isExpedienteRechazadoDefinitivo()) {
+            return Boolean.FALSE;
+        }
+        Boolean existeEstadoDefinitivo = false;
+        List<Integer> lstEstados = new ArrayList<>();
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_ANTES_ACEPTADO));
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DENEGADO_DEFINITIVO));
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO));
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_PENDIENTE_ACEPTACION_DESIST));
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_PENDIENTE_REVISION_ACEPTACION_DESIST));
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_DESISTIDO));
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO));
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO));
+        if (lstEstados
+                .contains(this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor())) {
+            existeEstadoDefinitivo = true;
+        }
+        Boolean existeExpedienteDocPropuestaResolucionDefinitiva = Boolean.FALSE;
+        ExpedienteDocDTO expeDocDTO = this.expedienteService.getExpedienteDocDTO(
+                utilConstantes.getGlobalCatalogosValores().get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA),
+                this.expedienteBean.getExpedienteDTO().getIdExpediente());
+        if (expeDocDTO != null && expeDocDTO.getCdFica() != null) {
+            existeExpedienteDocPropuestaResolucionDefinitiva = Boolean.TRUE;
+        }
+        
+        Boolean habilitar = Boolean.FALSE;
+        if (Boolean.FALSE.equals(this.expedienteBean.getExpedienteDTO().getModoConsulta())
+                && Boolean.FALSE.equals(esModoConsulta)
+                && Boolean.FALSE.equals(existeEstadoDefinitivo)
+                && Boolean.TRUE.equals(existeExpedienteDocPropuestaResolucionDefinitiva)
+                && Boolean.FALSE.equals(this.infoUsuarioBean.getRolGestorExterno())) {
+            habilitar = Boolean.TRUE;
+        }
+
+        return habilitar;
+    }
+    
+    public Boolean mostrarBotonDesistidoExpreso() {
+        Boolean habilitar = Boolean.TRUE;
+        
+        List<Integer> lstExclusiones = new ArrayList<>();
+        lstExclusiones.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO));
+
+        if (!lstExclusiones.contains(this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor())) {
+            return  Boolean.FALSE;
+        }
+        
+        return habilitar;
+    }
+    
+    /**
+     * 
+     */
+//    public void cargarPlantillaDesistimientoExpreso() {
+//        Integer idTramite;
+//        Integer idTipoDocumento;
+//        
+//        if(Boolean.TRUE.equals(convDTO.getItResProvExclusion())) {
+//            idTipoDocumento = utilConstantes.getGlobalCatalogosValores()
+//                    .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_PROVISIONAL);
+//            idTramite = utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL);
+//        }else {
+//            idTipoDocumento = utilConstantes.getGlobalCatalogosValores()
+//                    .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_PROVISIONAL_EXCLUIDA);
+//            idTramite = utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.EXCLUSION);
+//        }
+//        List<AtlasFilter> filtrosEntrada = new ArrayList<>();
+//        filtrosEntrada.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDCONVOCATORIA, idConvocatoria,
+//                Operador.EQUALS));
+//        filtrosEntrada
+//                .add(new AtlasFilter(Constantes.Filtro.FILTRO_TRAMITE, idTramite, Operador.EQUALS));
+//        List<ConvocatoriaPlaDTO> lstItem = this.convocatoriaPlaService.buscar(0, -1, filtrosEntrada,
+//                null);
+//    }
+    
+    /**
+     * 
+     * @return
+     * @throws ServiceException 
+     */
+    public Boolean habilitarBotonDescargarDesistimientoExpreso() {
+        Boolean habilitar = Boolean.FALSE;
+        ExpedienteDocDTO expeDocDTO = this.expedienteService.getExpedienteDocDTO(
+                utilConstantes.getGlobalCatalogosValores()
+                        .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA),
+                this.expedienteBean.getExpedienteDTO().getIdExpediente());
+        if (expeDocDTO != null && expeDocDTO.getCdFica() != null) {
+            habilitar = Boolean.TRUE;
+        }
+        if (Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) { 
+            habilitar = Boolean.FALSE;
+        }
+        return habilitar;
+    }
+    
+    /**
+     * Método desitimiento expreso, cambia el estado del expediente a denegado
+     * definitivo
+     */
+    public void desistimientoExpreso() {
+
+        try {
+
+            ExpedienteDTO expedienteDTO = this.expedienteService.cambiarEstado(
+                    this.expedienteBean.getIdExpediente(),
+                    utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO), null);
+
+            this.recuperarValoresVariablesExpediente(expedienteDTO);
+
+            PrimeFaces.current().ajax().update(this.formularioResolucion);
+            PrimeFaces.current().ajax().update(this.campoEstadoExpediente);
+            PrimeFaces.current().ajax().update(this.solapaResolucion);
+
+            AtlasMessageUtils
+                    .addInfoMessageFromBundle(ConstantesWeb.Mensajes.DENEGADO_DEFINITIVO_OK);
+
+        } catch (ServiceException e) {
+            AtlasMessageUtils
+                    .addInfoMessageFromBundle(ConstantesWeb.Mensajes.DENEGADO_DEFINITIVO_KO);
+        }
+
+    }
+    
+    public void cerrarDesistimientoExpresoDialog() {
+        this.archivoDesistimientoExpreso = null;
+        PrimefacesUtils.ocultarPopupPF("dialogSubirDesistimientoExpreso");
+    }
+    
+    /**
+     * 
+     * @param esModoConsulta
+     * @return
+     */
+    public Boolean habilitarBotonDesistimientoExpreso(Boolean esModoConsulta) {
+
+        if (this.isExpedienteRechazadoDefinitivo()) {
+            return Boolean.FALSE;
+        }
+
+        Boolean existeEstadoDefinitivo = false;
+        List<Integer> lstEstados = new ArrayList<>();
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_ANTES_ACEPTADO));
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DENEGADO_DEFINITIVO));
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO));
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_PENDIENTE_ACEPTACION_DESIST));
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_PENDIENTE_REVISION_ACEPTACION_DESIST));
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_DESISTIDO));
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO));
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO));
+        if (lstEstados
+                .contains(this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor())) {
+            existeEstadoDefinitivo = true;
+        }
+
+        Boolean habilitar = Boolean.FALSE;
+        if (Boolean.FALSE.equals(this.expedienteBean.getExpedienteDTO().getModoConsulta())
+                && Boolean.FALSE.equals(esModoConsulta)
+                && Boolean.FALSE.equals(existeEstadoDefinitivo)
+                && Boolean.FALSE.equals(this.infoUsuarioBean.getRolGestorExterno())) {
+            habilitar = Boolean.TRUE;
+        }
+
+        return habilitar;
+    }
+    
+    public Boolean habilitaRevertirDesistimientoExpreso(Boolean esModoConsulta) {
+        if (this.isExpedienteRechazadoDefinitivo()) {
+            return Boolean.FALSE;
+        }
+        Boolean existeDefinitivo = false;
+        List<Integer> lstEstados = new ArrayList<>();
+        lstEstados.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO));
+        if (lstEstados
+                .contains(this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor())) {
+            existeDefinitivo = true;
+        }
+        Boolean habilitar = Boolean.TRUE;
+        List<Integer> lstEstadosDoc = new ArrayList<>();
+        lstEstadosDoc.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.ENVIADO_A_PTFR));
+        lstEstadosDoc.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.ENVIO_COLA_NOTIFICACIONES));
+        lstEstadosDoc.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.RESOLUCION_NOTIFICADO));
+        Boolean existeResolucion = false;
+        ExpedienteDocDTO expeDocDTO = this.expedienteService.getExpedienteDocDTO(
+                utilConstantes.getGlobalCatalogosValores().get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA),
+                this.expedienteBean.getExpedienteDTO().getIdExpediente());
+        if (expeDocDTO != null && expeDocDTO.getEstadoDTO() != null
+                && expeDocDTO.getEstadoDTO().getIdValor() != null
+                && (lstEstadosDoc.contains(expeDocDTO.getEstadoDTO().getIdValor()))) {
+            existeResolucion = true;
+        }
+        if (Boolean.TRUE.equals(esModoConsulta) || Boolean.FALSE.equals(existeDefinitivo)
+                || Boolean.TRUE.equals(existeResolucion)
+                || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) {
+            habilitar = Boolean.FALSE;
+        }
+        return habilitar;
+    }
+    
+    public void revertirDesistimientoExpreso() {
+        try {
+
+            // Obtenemos el ultimo registro historico
+            List<AtlasFilter> filtroHist = new ArrayList<>();
+            filtroHist.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDEXPEDIENTE,
+                    this.expedienteBean.getExpedienteDTO().getIdExpediente(), Operador.EQUALS));
+            filtroHist.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR,
+                    this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor(),
+                    Operador.NOT_EQUALS));
+            List<AtlasSort> ordenamientoHist = new ArrayList<>();
+            ordenamientoHist.add(new AtlasSort(Constantes.Filtro.FILTRO_ID_EXPEDIENTE_HIST, false));
+            
+            List<ExpedienteHistDTO> lstHistorico = this.expedienteHistService.buscar(0, -1,
+                    filtroHist, ordenamientoHist);
+
+            if (lstHistorico != null && !lstHistorico.isEmpty()) {
+                ExpedienteHistDTO registroHistoricoEstadoAnterior = lstHistorico.get(0);
+                
+                if(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO).equals(
+                        this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor())){
+                    AtlasMessageUtils.addInfoMessageFromBundle(
+                            ConstantesWeb.Mensajes.REVERTIR_DESISTIDO_EXPRESO_OK);
+                }
+                
+                Map<String, Object> resultado = this.expedienteService.revertirExpedienteCompleto(
+                    this.expedienteBean.getIdExpediente(),
+                    this.expedienteBean.getIdSolicitud(),
+                    registroHistoricoEstadoAnterior
+                );
+
+                // Actualizas el estado de la vista (JSF Beans)
+                ExpedienteDTO expedienteDTO = (ExpedienteDTO) resultado.get("expedienteDTO");
+                SolicitudDTO solDTO = (SolicitudDTO) resultado.get("solicitudDTO");
+                this.expedienteBean.setExpedienteDTO(expedienteDTO);
+                this.expedienteBean.getSolicitudBean().setSolicitudDTO(solDTO);
+                
+                this.recuperarValoresVariablesExpediente(expedienteDTO);
+                
+            }
+            
+            PrimeFaces.current().ajax().update(this.formularioResolucion);
+            PrimeFaces.current().ajax().update(this.panelEstadoResolucion);
+            PrimeFaces.current().ajax().update(this.campoEstadoExpediente);
+            PrimeFaces.current().ajax().update(this.solapaResolucion);
+
+        } catch (ServiceException e) {
+            AtlasMessageUtils
+                    .addInfoMessageFromBundle(ConstantesWeb.Mensajes.APROBADO_DEFINITIVO_KO);
+        }
+    }
+    
+    public Boolean habilitarEnviarColaPortafirmasDesistidoExpreso(Boolean esModoConsulta) {
+
+        // VMM 08/09/26 MD-2996 (reabierta): rechazado definitivo, no se permite enviar a cola portafirmas definitivo
+        if (this.isExpedienteRechazadoDefinitivo()) {
+            return Boolean.FALSE;
+        }
+
+        Boolean habilitar = Boolean.TRUE;
+        Boolean tieneFica = Boolean.FALSE;
+        Boolean tieneEstadosDoc = Boolean.FALSE;
+        List<Integer> lstEstadosDoc = new ArrayList<>();
+        lstEstadosDoc.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.ENVIADO_A_PTFR));
+        lstEstadosDoc.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.ENVIO_COLA_NOTIFICACIONES));
+        lstEstadosDoc.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.RESOLUCION_NOTIFICADO));
+
+        ExpedienteDocDTO expeDocDTO = this.expedienteService.getExpedienteDocDTO(
+                utilConstantes.getGlobalCatalogosValores().get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA),
+                this.expedienteBean.getExpedienteDTO().getIdExpediente());
+
+        if (expeDocDTO != null && expeDocDTO.getCdFica() != null) {
+            tieneFica = Boolean.TRUE;
+        }
+
+        if (expeDocDTO != null && expeDocDTO.getEstadoDTO() != null
+                && expeDocDTO.getEstadoDTO().getIdValor() != null) {
+            tieneEstadosDoc = lstEstadosDoc.contains(expeDocDTO.getEstadoDTO().getIdValor());
+        }
+        
+        Boolean tieneEstadoExpediente = Boolean.FALSE;
+        List<Integer> lstEstadosExpediente = new ArrayList<>();
+        lstEstadosExpediente.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_ANTES_ACEPTADO));
+        lstEstadosExpediente.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DENEGADO_DEFINITIVO));
+        lstEstadosExpediente.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO));
+        lstEstadosExpediente.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO));
+        if (lstEstadosExpediente
+                .contains(this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor())) {
+            tieneEstadoExpediente = Boolean.TRUE;
+        }
+
+        if (Boolean.TRUE.equals(esModoConsulta) || Boolean.FALSE.equals(tieneFica)
+                || Boolean.TRUE.equals(tieneEstadosDoc)
+        || tramiteDocDefinitivoEnCola.getidDocumentoPTFR() != null
+                || Boolean.FALSE.equals(tieneEstadoExpediente)
+                || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) {
+            habilitar = Boolean.FALSE;
+        }
+
+        return habilitar;
+
+    }
+    
+    public void enviarColaPortafirmasDesistimientoExpreso() {
+
+        try {
+
+            Integer tramite = 0;
+            if (utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_ANTES_ACEPTADO)
+                    .equals(this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor())) {
+                tramite = utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.CONCESION_DEFINITIVA);
+            } else if (utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DENEGADO_DEFINITIVO)
+                    .equals(this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor())) {
+                tramite = utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.DENEGACION_DEFINITIVA);
+            } else if (utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO)
+                    .equals(this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor())) {
+                tramite = utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.EXCLUSION);
+            } else if (utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO)
+                    .equals(this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor())) {
+                tramite = utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.DESISTIMIENTO);
+            } else {
+                AtlasMessageUtils
+                        .addErrorMessageFromBundle(ConstantesWeb.Err.ERROR_ENVIAR_PORTAFIRMA);
+                log.error("Error de estado de expediente : "
+                        + this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor());
+            }
+            
+            if (this.convocatoriaDTO == null) {
+                this.convocatoriaDTO = convocatoriaService
+                        .buscarId(this.expedienteBean.getIdConvocatoria());
+            }
+
+            if (Objects.nonNull(this.expedienteBean.getExpedienteDTO().getIdExpediente())) {
+                ExpedienteDocDTO expeDocDTO = this.expedienteService.getExpedienteDocDTO(
+                        utilConstantes.getGlobalCatalogosValores().get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA),
+                        this.expedienteBean.getExpedienteDTO().getIdExpediente());
+                if (expeDocDTO != null && expeDocDTO.getCdFica() != null) {
+                    FicaFichero ficaFichero = this.ficaService.recuperar(expeDocDTO.getCdFica());
+                    Boolean insertado = documentoPtfrService.guardarEnvioEnDcoumentoPTFR(
+                            this.convocatoriaDTO, this.expedienteBean.getExpedienteDTO(),
+                            this.expedienteBean.getExpedienteDTO().getIdExpediente(), tramite,
+                            ficaFichero.getDatosFichero(), null, null, null);
+                    
+                    if (insertado.equals(Boolean.TRUE)) {
+                        
+                        List<DocumentoPtfrDTO> lstDocPtfrDTO = this.documentoPtfrService
+                                .buscarPorExpedienteTramite(
+                                        this.expedienteBean.getExpedienteDTO().getIdExpediente(),
+                                        Constantes.Tramite.DESISTIMIENTO);
+                        expeDocDTO.setIdDocumentoPtfr(lstDocPtfrDTO.get(0).getIdDocumentoPtfr());
+                        
+                        expeDocDTO.setEstadoDTO(this.catalogosValoresService
+                                .buscarId(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.ENVIO_COLA_NOTIFICACIONES)));
+                        this.expedienteDocService.guardarConHistorico(expeDocDTO,
+                                UserUtils.getUserName().toUpperCase());
+                        
+                        AtlasMessageUtils.addInfoMessageFromBundle(
+                                ConstantesWeb.Mensajes.ENVIO_COLA_PORTAFIRMAS_CORRECTO);
+                    } else {
+                        log.error(ConstantesWeb.Err.ERROR_ENVIAR_PORTAFIRMA);
+                        AtlasMessageUtils.addErrorMessageFromBundle(
+                                ConstantesWeb.Err.ERROR_ENVIAR_PORTAFIRMA);
+                    }
+                } else {
+                    log.error(ConstantesWeb.Mensajes.ERROR_CODIGO_FICA_FALTANTE);
+                    AtlasMessageUtils.addErrorMessageFromBundle(
+                            ConstantesWeb.Mensajes.ERROR_CODIGO_FICA_FALTANTE);
+                }
+            }
+
+            this.expedienteBean.getExpedienteDTO().setBAvisoResolucion(Boolean.FALSE);
+            
+            PrimeFaces.current().ajax().update(this.formularioResolucion);
+            PrimeFaces.current().ajax().update(this.panelEstadoResolucion);
+            PrimeFaces.current().ajax().update(this.campoEstadoExpediente);
+            PrimeFaces.current().ajax().update(this.solapaResolucion);
+
+        } catch (ServiceException e) {
+            log.error(ConstantesWeb.Err.ERROR_ENVIAR_PORTAFIRMA, e.getMessage());
+            if (e.getKeyExcepcion() == null) {
+                AtlasMessageUtils.addErrorMessage(e.getMessage());
+            } else {
+                AtlasMessageUtils
+                        .addErrorMessageFromBundle(ConstantesWeb.Err.ERROR_ENVIAR_PORTAFIRMA);
+            }
         }
 
     }

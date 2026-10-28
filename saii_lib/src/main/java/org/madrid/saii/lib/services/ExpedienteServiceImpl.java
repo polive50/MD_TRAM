@@ -10525,6 +10525,24 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
 
     }
 
+    @Override
+    public List<ExpedienteDTO> buscarExpedienteConvocatoriaInteresadoOtroOrganismo(
+            Integer idConvocatoria, Integer idInteresado, Integer idInteresadoOrganismo)
+            throws ServiceException {
+
+        List<AtlasFilter> filtros = new ArrayList<>();
+
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_SOLICITUD_IDCONVOCATORIA,
+                idConvocatoria, Operador.EQUALS));
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_INTERESADO_IDINTERESADO, idInteresado,
+                Operador.EQUALS));
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_SOLICITUD_INTERESADO_IDINTERESADO,
+                idInteresadoOrganismo, Operador.NOT_EQUALS));
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
+
+        return new ArrayList<>(Lists.transform(this.find(filtros, null), ExpedienteToDTO.INSTANCE));
+    }
+
     /**
      * Busca expedientes hijos con requisitos pendiente de subsanar
      */

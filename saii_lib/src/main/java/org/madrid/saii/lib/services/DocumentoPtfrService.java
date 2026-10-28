@@ -54,11 +54,31 @@ public interface DocumentoPtfrService
     void consultarLecturaNotificacionNoteBatch() throws ServiceException;
 
     /**
+     * VMM 26/10/26 MD-3168: procesa la lectura de NOTE de un unico envio en su propia transaccion
+     * (REQUIRES_NEW). Lo usa consultarLecturaNotificacionNoteBatch para que el fallo de un envio no
+     * revierta el resto.
+     *
+     * @param idDocumentoPtfr identificador del envio a Portafirmas/NOTE
+     * @throws ServiceException Excepción ocurrida en el servicio
+     */
+    void procesarLecturaNotificacionNoteEnvio(Integer idDocumentoPtfr) throws ServiceException;
+
+    /**
      * Método para validar la respuesta de Portafirmas
      *
      * @throws ServiceException
      */
     void consultarRespuestaPortafirmasBatch() throws ServiceException;
+
+    /**
+     * VMM 26/10/26 MD-3168: procesa la respuesta de Portafirmas de un unico envio en su propia
+     * transaccion (REQUIRES_NEW). Lo usa consultarRespuestaPortafirmasBatch para que el fallo de un
+     * envio no revierta el resto.
+     *
+     * @param idDocumentoPtfr identificador del envio a Portafirmas
+     * @throws ServiceException Excepción ocurrida en el servicio
+     */
+    void procesarRespuestaPortafirmasEnvio(Integer idDocumentoPtfr) throws ServiceException;
 
     /**
      * Busca los documento en portafirma de un expediente.
