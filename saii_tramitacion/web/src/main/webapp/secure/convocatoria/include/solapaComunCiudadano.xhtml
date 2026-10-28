@@ -80,14 +80,13 @@
                                 <h:outputText value="#{documentoComunicacion.nombreFicheroFica}" />
                             </p:column>
                             <p:column headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.label.descarga']}">
-                                <atlasp:button value="#{bundle['boton.descargar']}" alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.descargar']}" title="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.descargar']}"
-                                    icon="fas fa-download" tipoBoton="btn-secondary" ajax="false"
-                                    rendered="#{documentoComunicacion.cdFica != null}"
-                                    action="#{documentoBean.descargarDocumentoFica(documentoComunicacion.cdFica)}" />
-                                <atlasp:button value="#{bundle['boton.descargar']}" alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.descargarEreg']}" title="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.descargarEreg']}"
-                                    icon="fas fa-download" tipoBoton="btn-secondary" ajax="false"
-                                    rendered="#{documentoComunicacion.cdFica == null and not empty documentoComunicacion.cdAnexoEreg}"
-                                    action="#{documentoBean.descargarDocumentoEreg(documentoComunicacion)}" />
+                                <p:link href="#{request.contextPath}/DescargaFicaServlet" target="_blank"
+                                    title="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.descargar']}"
+                                    styleClass="btn btn-secondary"
+                                    rendered="#{documentoComunicacion.cdFica != null}">
+                                    <f:param name="cdFica" value="#{documentoComunicacion.cdFica}" />
+                                    <i class="fas fa-download"></i>
+                                </p:link>
                             </p:column>
                         </p:dataTable>
                     </p:outputPanel>
@@ -95,7 +94,7 @@
             </atlasp:columnaListaPaginada>
         </atlasp:listaPaginada>
         <atlasp:button value="#{bundle['boton.agregar']}" alt="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.agregar']}" title="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.agregar']}"
-            icon="fas fa-plus" tipoBoton="btn-success" ajax="true" process="@this"
+            icon="fas fa-plus" tipoBoton="btn-success" ajax="true" execute="@this"
             rendered="#{!convocatoriasBean.modoConsulta and !expedienteBean.expedienteDTO.modoConsulta}"
             action="#{comunCiudadanoBean.agregarComunicacion}"
             update="panelNuevaComunicacionCiudadano mensajesComunCiudadano"
@@ -117,24 +116,41 @@
                     value="#{comunCiudadanoBean.nuevaComunicacion.asuntoDTO.idValor}"
                     styleClass="comboObligatorio" recargaAutomatica="true" />
                 <h:outputLabel for="exponeComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.expone']} *" />
-                <p:inputTextarea id="exponeComunicacionCiudadano" rows="3" maxlength="500" style="width:95%"
-                    value="#{comunCiudadanoBean.nuevaComunicacion.tlExpone}">
-                    <f:validateLength maximum="500" />
-                </p:inputTextarea>
+                <h:panelGroup layout="block">
+                    <p:inputTextarea id="exponeComunicacionCiudadano" rows="3" maxlength="500" style="width:95%"
+                        value="#{comunCiudadanoBean.nuevaComunicacion.tlExpone}"
+                        validatorMessage="#{bundle['comunicacionCiudadano.error.exponeLongitud']}"
+                        counter="contadorExponeComunicacionCiudadano"
+                        counterTemplate="#{bundle['comunicacionCiudadano.caracteresRestantes']}">
+                        <f:validateLength maximum="500" />
+                    </p:inputTextarea>
+                    <h:outputText id="contadorExponeComunicacionCiudadano" style="display:block" />
+                    <p:message for="exponeComunicacionCiudadano" />
+                </h:panelGroup>
                 <h:outputLabel for="solicitaComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.solicita']} *" />
-                <p:inputTextarea id="solicitaComunicacionCiudadano" rows="3" maxlength="500" style="width:95%"
-                    value="#{comunCiudadanoBean.nuevaComunicacion.tlSolicita}">
-                    <f:validateLength maximum="500" />
-                </p:inputTextarea>
+                <h:panelGroup layout="block">
+                    <p:inputTextarea id="solicitaComunicacionCiudadano" rows="3" maxlength="500" style="width:95%"
+                        value="#{comunCiudadanoBean.nuevaComunicacion.tlSolicita}"
+                        validatorMessage="#{bundle['comunicacionCiudadano.error.solicitaLongitud']}"
+                        counter="contadorSolicitaComunicacionCiudadano"
+                        counterTemplate="#{bundle['comunicacionCiudadano.caracteresRestantes']}">
+                        <f:validateLength maximum="500" />
+                    </p:inputTextarea>
+                    <h:outputText id="contadorSolicitaComunicacionCiudadano" style="display:block" />
+                    <p:message for="solicitaComunicacionCiudadano" />
+                </h:panelGroup>
                 <h:outputLabel for="fechaFirmaComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.fechaFirma']}" />
-                <p:calendar id="fechaFirmaComunicacionCiudadano"
-                    value="#{comunCiudadanoBean.nuevaComunicacion.fcFirmaEreg}"
-                    pattern="dd/MM/yyyy" mask="99/99/9999" navigator="true" locale="es_ES"
-                    styleClass="atlas-cal" showOn="both" panelStyle="z-index:100000 !important;">
-                    <f:convertDateTime pattern="dd/MM/yyyy" />
-                </p:calendar>
+                <h:panelGroup layout="block" style="width:95%">
+                    <p:calendar id="fechaFirmaComunicacionCiudadano" style="display:inline-flex;width:100%"
+                        inputStyle="width:calc(100% - 2.4em);box-sizing:border-box"
+                        value="#{comunCiudadanoBean.nuevaComunicacion.fcFirmaEreg}"
+                        pattern="dd/MM/yyyy" mask="99/99/9999" navigator="true" locale="es_ES"
+                        styleClass="atlas-cal" showOn="both" panelStyle="z-index:100000 !important;">
+                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                    </p:calendar>
+                </h:panelGroup>
                 <h:outputLabel for="codigoEregComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.codigoEreg']}" />
-                <p:inputMask id="codigoEregComunicacionCiudadano" mask="99/999999.9/99"
+                <p:inputMask id="codigoEregComunicacionCiudadano" mask="99/999999.9/99" style="width:95%"
                     value="#{comunCiudadanoBean.nuevaComunicacion.cdEreg}" />
                 <h:outputLabel for="unidadAdministrativaComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.unidadAdministrativa']}" />
                 <p:inputText id="unidadAdministrativaComunicacionCiudadano" maxlength="200" style="width:95%"
@@ -143,7 +159,7 @@
                     <f:validateLength maximum="200" />
                 </p:inputText>
             </p:panelGrid>
-            <p:dataTable id="tablaAdjuntosNuevaComunicacion" var="adjuntoPendiente"
+            <p:dataTable id="tablaAdjuntosNuevaComunicacion" var="adjuntoPendiente" style="width:97%"
                 value="#{comunCiudadanoBean.nuevaComunicacion.lstExpedienteDocDTO}"
                 emptyMessage="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.lista.vacia']}" styleClass="atlas-lp">
                 <p:column headerText="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.documentos.label.tipo']}"><h:outputText value="#{comunCiudadanoBean.descripcionTipoDocumento(adjuntoPendiente)}" /></p:column>

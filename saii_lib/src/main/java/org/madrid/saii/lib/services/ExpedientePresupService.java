@@ -59,8 +59,8 @@ public interface ExpedientePresupService
      * @return expedienteFinDTO
      * @throws ServiceException the service exception
      */
-    void guardar(List<ExpedientePresupDTO> presupuestos, Double montoAyuda, ExpedienteDTO expedienteBean)
-            throws ServiceException;
+    void guardar(List<ExpedientePresupDTO> presupuestos, Double montoAyuda, Double montoAyudaSol,
+            ExpedienteDTO expedienteBean) throws ServiceException;
 
     /**
      * Borrado logico ExpedienteFin
@@ -81,10 +81,12 @@ public interface ExpedientePresupService
     void altaLogica(final ExpedientePresupDTO expedientefinDTO) throws ServiceException;
 
     void guardarFinanciacion(List<BloqueComponenteDTO> bloquesSinTotal, Double montoAyuda,
-            Integer nmPresup, Integer idExpediente, Integer idTematica, Double intensidadSol) throws ServiceException;
-    
+            Double montoAyudaSol, Integer nmPresup, Integer idExpediente, Integer idTematica,
+            Double intensidadSol) throws ServiceException;
+
     void guardarFinanciacionConcepto(List<BloqueComponenteDTO> bloquesSinTotal, Double montoAyuda,
-            Integer nmPresup, Integer idExpediente, Integer idTematica, Double intensidadSol) throws ServiceException;
+            Double montoAyudaSol, Integer nmPresup, Integer idExpediente, Integer idTematica,
+            Double intensidadSol) throws ServiceException;
 
     List<ExpedientePresupDTO> buscarPresupIncialExpediente(Integer idExpediente)throws ServiceException;
 
@@ -102,7 +104,7 @@ public interface ExpedientePresupService
             throws ServiceException;
 
     void actualizarIntensidadAyuda(Integer idExpediente, Integer nmPresup, Double nmPorcentajeIntensidad,
-            Double montoAyuda) throws ServiceException;
+            Double montoAyuda, Double montoAyudaSol) throws ServiceException;
 
     /**
      * Método poara validar que existen cambios por guardar

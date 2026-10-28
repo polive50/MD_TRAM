@@ -35,6 +35,8 @@ import org.madrid.saii.lib.dto.ExpedienteContratoDTO;
 import org.madrid.saii.lib.dto.ExpedienteDTO;
 import org.madrid.saii.lib.dto.ExpedienteFiltrosDTO;
 import org.madrid.saii.lib.dto.ExpedienteReqDTO;
+import org.madrid.saii.lib.dto.ComisionImportesDTO;
+import org.madrid.saii.lib.dto.ComisionSeleccionDTO;
 import org.madrid.saii.lib.dto.ResolucionConcesionDTO;
 import org.madrid.saii.lib.dto.ResolucionExclusionDesistimientoDTO;
 import org.madrid.saii.lib.dto.SolicitudDTO;
@@ -2839,6 +2841,276 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
         return listado;
     }
     
+    /**
+     * VMM 27/10/26 MD-3094: expedientes de la convocatoria que NO estan en los estados indicados,
+     * para el listado y la exportacion de la Comision de seleccion (se excluyen los que ya aparecen
+     * en la pestana de Resolucion Exclusion/Desistimiento). La linea es la submodalidad del
+     * expediente (SAII_EXPEDIENTE.ID_CONVOCATORIA_SUBMOD); puede venir vacia.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<ComisionSeleccionDTO> listaComisionSeleccion(Integer idConvocatoria,
+            List<Integer> idsEstadoExcluidos) {
+        List<ComisionSeleccionDTO> resultado = new ArrayList<>();
+        if (idConvocatoria == null) {
+            return resultado;
+        }
+
+        // left join en todo lo opcional (submodalidad del expediente, interesado, estado
+        // provisional) para no perder expedientes que no lo tengan informado. La linea es la
+        // submodalidad elegida al crear el expediente (ID_CONVOCATORIA_SUBMOD), que puede ser nula.
+        StringBuilder queryHql = new StringBuilder();
+        queryHql.append(" select ex.idExpediente, so.idSolicitud, ex.cdExpediente, ex.nmNota,");
+        queryHql.append(" sm.dsSubmodalidad, it.dsNombre, it.cdNumIden, ep.idValor, ep.dsValor,");
+        queryHql.append(" sm.tlSubmodalidad, es.dsValor");
+        queryHql.append(" from Expediente ex");
+        queryHql.append(" join ex.solicitud so");
+        queryHql.append(" join so.convocatoria co");
+        queryHql.append(" left join ex.convocatoriaSubmod sm");
+        queryHql.append(" left join ex.estado es");
+        queryHql.append(" left join ex.interesado it");
+        queryHql.append(" left join ex.estadoProvisional ep");
+        queryHql.append(" where co.idConvocatoria = :idConvocatoria");
+        if (idsEstadoExcluidos != null && !idsEstadoExcluidos.isEmpty()) {
+            queryHql.append(" and ex.estado.idValor not in (:idsEstadoExcluidos)");
+        }
+        queryHql.append(" and co.fcBajaFila is null");
+        queryHql.append(" and so.fcBajaFila is null");
+        queryHql.append(" and ex.fcBajaFila is null");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("idConvocatoria", idConvocatoria);
+        if (idsEstadoExcluidos != null && !idsEstadoExcluidos.isEmpty()) {
+            params.put("idsEstadoExcluidos", idsEstadoExcluidos);
+        }
+
+        List<Object[]> filas = (List<Object[]>) super.executeHQLQueryList(queryHql.toString(),
+                params);
+
+        List<Integer> idsExpediente = new ArrayList<>();
+        Map<Integer, Integer> idSolicitudPorExpediente = new HashMap<>();
+        for (Object[] fila : filas) {
+            ComisionSeleccionDTO dto = new ComisionSeleccionDTO();
+            dto.setIdExpediente((Integer) fila[0]);
+            idSolicitudPorExpediente.put(dto.getIdExpediente(), (Integer) fila[1]);
+            dto.setNumeroExpediente((String) fila[2]);
+            dto.setPuntuacion((Integer) fila[3]);
+            // "Linea 3 - Pymes innovadoras de mas de 5 anos de antiguedad": nombre + descripcion
+            String dsSubmod = (String) fila[4];
+            String tlSubmod = (String) fila[9];
+            if (dsSubmod != null && tlSubmod != null) {
+                dto.setLinea(dsSubmod + " - " + tlSubmod);
+            } else {
+                dto.setLinea(dsSubmod != null ? dsSubmod : tlSubmod);
+            }
+            dto.setDsEstado((String) fila[10]);
+            dto.setNombreEmpresa((String) fila[5]);
+            dto.setNif((String) fila[6]);
+            dto.setIdEstadoProvisional((Integer) fila[7]);
+            dto.setDsEstadoProvisional((String) fila[8]);
+            resultado.add(dto);
+            idsExpediente.add(dto.getIdExpediente());
+        }
+
+        // Cuantia propuesta = ayuda concedida. nmAyuda se repite en todas las filas de una misma
+        // tabla de presupuesto (nmPresup) del expediente, por eso se toma una vez por tabla (max) y
+        // se suma entre las tablas del expediente.
+        // Fecha de presentacion (para el desempate): la del expediente solicitante de la solicitud.
+        Map<Integer, Double> ayudaPorExpediente = new HashMap<>();
+        Map<Integer, Double> ayudaSolPorExpediente = new HashMap<>();
+        Map<Integer, Date> fcPresentacionPorSolicitud = new HashMap<>();
+        for (int desde = 0; desde < idsExpediente.size(); desde += 500) {
+            List<Integer> lote = new ArrayList<>(
+                    idsExpediente.subList(desde, Math.min(desde + 500, idsExpediente.size())));
+
+            StringBuilder queryAyuda = new StringBuilder();
+            queryAyuda.append(" select pr.idExpediente, max(pr.nmAyuda), max(pr.nmAyudaSol)");
+            queryAyuda.append(" from ExpedientePresup pr");
+            queryAyuda.append(" where pr.idExpediente in (:idsExpediente)");
+            queryAyuda.append(" and pr.fcBajaFila is null");
+            queryAyuda.append(" group by pr.idExpediente, pr.nmPresup");
+
+            Map<String, Object> paramsAyuda = new HashMap<>();
+            paramsAyuda.put("idsExpediente", lote);
+
+            List<Object[]> ayudas = (List<Object[]>) super.executeHQLQueryList(
+                    queryAyuda.toString(), paramsAyuda);
+            for (Object[] ayuda : ayudas) {
+                if (ayuda[1] != null) {
+                    ayudaPorExpediente.merge((Integer) ayuda[0], (Double) ayuda[1], Double::sum);
+                }
+                if (ayuda[2] != null) {
+                    ayudaSolPorExpediente.merge((Integer) ayuda[0], (Double) ayuda[2], Double::sum);
+                }
+            }
+
+            fcPresentacionPorSolicitud.putAll(this.obtenerFcPresentacionPorLote(lote));
+        }
+        for (ComisionSeleccionDTO dto : resultado) {
+            dto.setCuantiaPropuesta(ayudaPorExpediente.get(dto.getIdExpediente()));
+            dto.setAyudaSolicitada(ayudaSolPorExpediente.get(dto.getIdExpediente()));
+            dto.setFcPresentacion(fcPresentacionPorSolicitud
+                    .get(idSolicitudPorExpediente.get(dto.getIdExpediente())));
+        }
+
+        // Puntuacion descendente (sin puntuacion al final); a igualdad, la presentacion mas
+        // reciente primero (sin fecha al final) y, por ultimo, por idExpediente para que el orden
+        // sea siempre el mismo
+        resultado.sort((a, b) -> {
+            int comparacion = Integer.compare(
+                    b.getPuntuacion() == null ? Integer.MIN_VALUE : b.getPuntuacion(),
+                    a.getPuntuacion() == null ? Integer.MIN_VALUE : a.getPuntuacion());
+            if (comparacion == 0) {
+                long fechaA = a.getFcPresentacion() == null ? Long.MIN_VALUE
+                        : a.getFcPresentacion().getTime();
+                long fechaB = b.getFcPresentacion() == null ? Long.MIN_VALUE
+                        : b.getFcPresentacion().getTime();
+                comparacion = Long.compare(fechaB, fechaA);
+            }
+            return comparacion != 0 ? comparacion
+                    : Integer.compare(a.getIdExpediente(), b.getIdExpediente());
+        });
+        return resultado;
+    }
+
+    /**
+     * VMM 27/10/26 MD-3094: desglose de importes por partida (tipo de financiacion) y anualidad.
+     * Misma logica de anualidades que la consulta de MD-3179: con conceptos
+     * (IT_CONCEPTO_PRESUP = 'S') la anualidad 0 es la cabecera y la primera real es la 1; sin
+     * conceptos empieza en 0 y se suma 1. Solicitado sale de SAII_DATO por la cadena impreso ->
+     * bloque (formato presupuesto presentado) -> componente, y lo financiable/concedido de
+     * SAII_EXPEDIENTE_PRESUP_MONTO. Los importes de varios conceptos o tablas de una misma partida
+     * se suman.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public ComisionImportesDTO obtenerImportesComisionSeleccion(List<Integer> idsExpediente) {
+        ComisionImportesDTO resultado = new ComisionImportesDTO();
+        if (idsExpediente == null || idsExpediente.isEmpty()) {
+            return resultado;
+        }
+
+        Map<Integer, String> nombresPartida = new HashMap<>();
+        java.util.TreeSet<Integer> idsPartida = new java.util.TreeSet<>();
+
+        for (int desde = 0; desde < idsExpediente.size(); desde += 500) {
+            // Los ids salen de nuestra propia consulta (enteros), asi que se pueden incrustar en el
+            // SQL sin riesgo; el limite de Oracle para un IN es de 1000 elementos
+            String ids = idsExpediente
+                    .subList(desde, Math.min(desde + 500, idsExpediente.size())).stream()
+                    .map(String::valueOf).collect(Collectors.joining(","));
+
+            StringBuilder sqlSolicitado = new StringBuilder();
+            sqlSolicitado.append(" SELECT x.ID_EXPEDIENTE, x.ID_TIPO_FINANCIACION, x.ANUALIDAD,");
+            sqlSolicitado.append(" SUM(x.IMPORTE) FROM (");
+            sqlSolicitado.append(" SELECT e.ID_EXPEDIENTE, bc.ID_TIPO_FINANCIACION,");
+            sqlSolicitado.append(" c.IT_CONCEPTO_PRESUP AS CONCEPTOS, d.NM_COLUMNA,");
+            sqlSolicitado.append(" CASE WHEN c.IT_CONCEPTO_PRESUP = 'S' THEN d.NM_COLUMNA");
+            sqlSolicitado.append(" ELSE d.NM_COLUMNA + 1 END AS ANUALIDAD,");
+            sqlSolicitado.append(" CASE WHEN REGEXP_LIKE(TRIM(d.DS_VALOR), '^-?[0-9]+([.,][0-9]+)?$')");
+            sqlSolicitado.append(" THEN TO_NUMBER(REPLACE(TRIM(d.DS_VALOR), ',', '.'),");
+            sqlSolicitado.append(" '999999999999D999999', 'NLS_NUMERIC_CHARACTERS=''.,''') END AS IMPORTE");
+            sqlSolicitado.append(" FROM SAII_EXPEDIENTE e");
+            sqlSolicitado.append(" JOIN SAII_SOLICITUD s ON s.ID_SOLICITUD = e.ID_SOLICITUD");
+            sqlSolicitado.append(" AND s.FC_BAJA_FILA IS NULL");
+            sqlSolicitado.append(" JOIN SAII_CONVOCATORIA c ON c.ID_CONVOCATORIA = s.ID_CONVOCATORIA");
+            sqlSolicitado.append(" AND c.FC_BAJA_FILA IS NULL");
+            sqlSolicitado.append(" LEFT JOIN SAII_CATALOGOS_VALORES tc ON tc.ID_VALOR = c.ID_TIPO_CONCESION");
+            sqlSolicitado.append(" AND tc.FC_BAJA_FILA IS NULL");
+            sqlSolicitado.append(" JOIN SAII_IMPRESO imp ON imp.ID_CONVOCATORIA = c.ID_CONVOCATORIA");
+            sqlSolicitado.append(" AND imp.ID_ACTOR = e.ID_ACTOR AND imp.FC_BAJA_FILA IS NULL");
+            sqlSolicitado.append(" JOIN SAII_CATALOGOS_VALORES ti ON ti.ID_VALOR = imp.ID_TIPO");
+            sqlSolicitado.append(" AND ti.FC_BAJA_FILA IS NULL");
+            sqlSolicitado.append(" AND ti.NM_CONSTANTE = CASE WHEN tc.NM_CONSTANTE = 1763 THEN 31 ELSE 30 END");
+            sqlSolicitado.append(" JOIN SAII_BLOQUE b ON b.ID_IMPRESO = imp.ID_IMPRESO AND b.FC_BAJA_FILA IS NULL");
+            sqlSolicitado.append(" JOIN SAII_CATALOGOS_VALORES f ON f.ID_VALOR = b.ID_FORMATO");
+            sqlSolicitado.append(" AND f.FC_BAJA_FILA IS NULL AND f.NM_CONSTANTE = 190");
+            sqlSolicitado.append(" JOIN SAII_BLOQUE_COMPONENTE bc ON bc.ID_BLOQUE = b.ID_BLOQUE");
+            sqlSolicitado.append(" AND bc.FC_BAJA_FILA IS NULL AND bc.ID_TIPO_FINANCIACION IS NOT NULL");
+            sqlSolicitado.append(" JOIN SAII_DATO d ON d.ID_BLOQUE_COMPONENTE = bc.ID_BLOQUE_COMPONENTE");
+            sqlSolicitado.append(" AND d.ID_EXPEDIENTE = e.ID_EXPEDIENTE AND d.FC_BAJA_FILA IS NULL");
+            sqlSolicitado.append(" AND d.ID_EXPEDIENTE_PRESUP_MONTO IS NULL AND d.ID_EXPEDIENTE_JUSTEC IS NULL");
+            sqlSolicitado.append(" AND d.ID_EXPE_MOD_PRE_PLA_OTRA IS NULL AND d.ID_EXPEDIENTE_JUSECO IS NULL");
+            sqlSolicitado.append(" WHERE e.ID_EXPEDIENTE IN (").append(ids).append(")");
+            sqlSolicitado.append(" AND e.FC_BAJA_FILA IS NULL");
+            sqlSolicitado.append(" ) x");
+            sqlSolicitado.append(" WHERE NOT (x.CONCEPTOS = 'S' AND x.NM_COLUMNA = 0)");
+            sqlSolicitado.append(" GROUP BY x.ID_EXPEDIENTE, x.ID_TIPO_FINANCIACION, x.ANUALIDAD");
+
+            this.acumularImportesComision(
+                    (List<Object[]>) super.executeSQLQueryList(sqlSolicitado.toString(),
+                            new HashMap<>()),
+                    resultado.getSolicitado(), resultado, idsPartida);
+
+            StringBuilder sqlConcedido = new StringBuilder();
+            sqlConcedido.append(" SELECT p.ID_EXPEDIENTE, p.ID_TIPO_FINANCIACION,");
+            sqlConcedido.append(" CASE WHEN c.IT_CONCEPTO_PRESUP = 'S' THEN m.NM_ANUALIDAD");
+            sqlConcedido.append(" ELSE m.NM_ANUALIDAD + 1 END AS ANUALIDAD, SUM(m.NM_IMPORTE)");
+            sqlConcedido.append(" FROM SAII_EXPEDIENTE_PRESUP p");
+            sqlConcedido.append(" JOIN SAII_EXPEDIENTE_PRESUP_MONTO m");
+            sqlConcedido.append(" ON m.ID_EXPEDIENTE_PRESUP = p.ID_EXPEDIENTE_PRESUP AND m.FC_BAJA_FILA IS NULL");
+            sqlConcedido.append(" JOIN SAII_EXPEDIENTE e0 ON e0.ID_EXPEDIENTE = p.ID_EXPEDIENTE");
+            sqlConcedido.append(" AND e0.FC_BAJA_FILA IS NULL");
+            sqlConcedido.append(" JOIN SAII_SOLICITUD s0 ON s0.ID_SOLICITUD = e0.ID_SOLICITUD");
+            sqlConcedido.append(" AND s0.FC_BAJA_FILA IS NULL");
+            sqlConcedido.append(" JOIN SAII_CONVOCATORIA c ON c.ID_CONVOCATORIA = s0.ID_CONVOCATORIA");
+            sqlConcedido.append(" AND c.FC_BAJA_FILA IS NULL");
+            sqlConcedido.append(" WHERE p.ID_EXPEDIENTE IN (").append(ids).append(")");
+            sqlConcedido.append(" AND p.FC_BAJA_FILA IS NULL AND p.ID_TIPO_FINANCIACION IS NOT NULL");
+            sqlConcedido.append(" AND NOT (c.IT_CONCEPTO_PRESUP = 'S' AND m.NM_ANUALIDAD = 0)");
+            sqlConcedido.append(" GROUP BY p.ID_EXPEDIENTE, p.ID_TIPO_FINANCIACION,");
+            sqlConcedido.append(" CASE WHEN c.IT_CONCEPTO_PRESUP = 'S' THEN m.NM_ANUALIDAD");
+            sqlConcedido.append(" ELSE m.NM_ANUALIDAD + 1 END");
+
+            this.acumularImportesComision(
+                    (List<Object[]>) super.executeSQLQueryList(sqlConcedido.toString(),
+                            new HashMap<>()),
+                    resultado.getConcedido(), resultado, idsPartida);
+        }
+
+        // Descripcion de las partidas (tipo de financiacion), ordenadas por identificador
+        if (!idsPartida.isEmpty()) {
+            String ids = idsPartida.stream().map(String::valueOf)
+                    .collect(Collectors.joining(","));
+            List<Object[]> nombres = (List<Object[]>) super.executeSQLQueryList(
+                    " SELECT ID_VALOR, DS_VALOR FROM SAII_CATALOGOS_VALORES WHERE ID_VALOR IN ("
+                            + ids + ")",
+                    new HashMap<>());
+            for (Object[] nombre : nombres) {
+                nombresPartida.put(((Number) nombre[0]).intValue(), (String) nombre[1]);
+            }
+            for (Integer idPartida : idsPartida) {
+                resultado.getPartidas().put(idPartida,
+                        nombresPartida.getOrDefault(idPartida, "Partida " + idPartida));
+            }
+        }
+        return resultado;
+    }
+
+    /**
+     * Vuelca en el mapa destino las filas (idExpediente, idPartida, anualidad, importe) de una de
+     * las dos consultas del desglose.
+     */
+    private void acumularImportesComision(List<Object[]> filas,
+            Map<Integer, Map<Integer, Map<Integer, Double>>> destino,
+            ComisionImportesDTO resultado, Set<Integer> idsPartida) {
+        for (Object[] fila : filas) {
+            if (fila[1] == null || fila[2] == null || fila[3] == null) {
+                continue;
+            }
+            Integer idExpediente = ((Number) fila[0]).intValue();
+            Integer idPartida = ((Number) fila[1]).intValue();
+            Integer anualidad = ((Number) fila[2]).intValue();
+            Double importe = ((Number) fila[3]).doubleValue();
+
+            idsPartida.add(idPartida);
+            resultado.getAnualidades().add(anualidad);
+            destino.computeIfAbsent(idExpediente, k -> new HashMap<>())
+                    .computeIfAbsent(idPartida, k -> new HashMap<>())
+                    .merge(anualidad, importe, Double::sum);
+        }
+    }
+
     public Map<Integer, Long> contarExpedientesPendientesPorSolicitud(List<Integer> idsSolicitud) {
         if (idsSolicitud == null || idsSolicitud.isEmpty()) {
             return Collections.emptyMap();

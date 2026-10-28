@@ -3,6 +3,7 @@ package org.madrid.saii.tramitacion.catalogos.jsf;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +18,15 @@ import javax.faces.event.AjaxBehaviorEvent;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.ss.usermodel.DataValidation;
+import org.apache.poi.ss.usermodel.DataValidationConstraint;
+import org.apache.poi.ss.usermodel.DataValidationHelper;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -25,6 +35,8 @@ import org.madrid.core.fica.FicaMetadatos;
 import org.madrid.saii.lib.dao.ExpedienteDAO;
 import org.madrid.saii.lib.domain.Expediente;
 import org.madrid.saii.lib.dto.CatalogosValoresDTO;
+import org.madrid.saii.lib.dto.ComisionImportesDTO;
+import org.madrid.saii.lib.dto.ComisionSeleccionDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaGestorDTO;
 import org.madrid.saii.lib.dto.ExpedienteDTO;
@@ -1764,6 +1776,353 @@ public class ResolucionConvBean {
      */
     private String valorExcel(String valor) {
         return valor == null ? "" : valor;
+    }
+
+    // VMM 27/10/26 MD-3094: pestaña "Comisión de selección" de la resolución de convocatoria.
+    /** Resultado que se muestra mientras la Comisión no haya fijado un estado provisional. */
+    private static final String COMISION_PENDIENTE_PROPUESTA = "Pendiente de propuesta";
+
+    /**
+     * Obtiene el listado de expedientes de la convocatoria para la Comisión de selección, con el
+     * orden de prelación y el crédito acumulado ya calculados.
+     *
+     * @return expedientes en estado de propuesta o pendientes de la convocatoria
+     */
+    private List<ComisionSeleccionDTO> obtenerListadoComisionSeleccion() {
+        if (this.idConvocatoria == null) {
+            return new ArrayList<>();
+        }
+
+        // Estados del expediente que NO entran en el listado: los que ya se muestran en la subpestaña
+        // de Resolución Exclusión/Desistimiento (excluidos: 251, 249, 214; desistidos: 252, 248, 213)
+        List<Integer> idsEstadoExcluidos = new ArrayList<>();
+        for (Integer estado : Arrays.asList(
+                Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO,
+                Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL,
+                Constantes.EstadoExpediente.EXCLUIDO,
+                Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO,
+                Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL,
+                Constantes.EstadoExpediente.DESISTIDO)) {
+            idsEstadoExcluidos.add(this.utilConstantes.getGlobalCatalogosValores().get(estado));
+        }
+
+        // Estados provisionales que ya implican un resultado de la Comisión
+        List<Integer> idsResultadoComision = new ArrayList<>();
+        for (Integer estado : Arrays.asList(Constantes.EstadoExpediente.APROBADO_PROVISIONAL,
+                Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL,
+                Constantes.EstadoExpediente.DENEGADO_PROVISIONAL)) {
+            idsResultadoComision.add(this.utilConstantes.getGlobalCatalogosValores().get(estado));
+        }
+
+        List<ComisionSeleccionDTO> listado = this.expedienteDAO
+                .listaComisionSeleccion(this.idConvocatoria, idsEstadoExcluidos);
+
+        // El DAO ya los devuelve por puntuacion descendente (desempate por idExpediente)
+        int orden = 1;
+        BigDecimal acumulado = BigDecimal.ZERO;
+        for (ComisionSeleccionDTO expediente : listado) {
+            expediente.setOrden(orden++);
+            if (expediente.getCuantiaPropuesta() != null) {
+                acumulado = acumulado.add(BigDecimal.valueOf(expediente.getCuantiaPropuesta()));
+            }
+            expediente.setCreditoAcumulado(acumulado.doubleValue());
+            expediente.setResultadoComision(
+                    idsResultadoComision.contains(expediente.getIdEstadoProvisional())
+                            ? expediente.getDsEstadoProvisional()
+                            : COMISION_PENDIENTE_PROPUESTA);
+            expediente.setMotivo("");
+        }
+        return listado;
+    }
+
+    /**
+     * Listado paginado de la pestaña "Comisión de selección".
+     *
+     * @param index primer elemento de la página
+     * @param pageSize número de elementos de la página
+     * @param orderBean orden del listado
+     * @param filtros filtros del listado
+     * @return listado paginado de expedientes
+     */
+    public AtlasListAndCount<ComisionSeleccionDTO> obtenerComisionSeleccion(final int index,
+            final int pageSize, Object orderBean, Object filtros) {
+        List<ComisionSeleccionDTO> listado = this.obtenerListadoComisionSeleccion();
+
+        AtlasListAndCount<ComisionSeleccionDTO> resultado = new AtlasListAndCount<>();
+        resultado.setTotal(listado.size());
+        if (pageSize < 0) {
+            resultado.setResultados(listado);
+        } else if (index < listado.size()) {
+            resultado.setResultados(new ArrayList<>(
+                    listado.subList(index, Math.min(index + pageSize, listado.size()))));
+        } else {
+            resultado.setResultados(new ArrayList<>());
+        }
+        return resultado;
+    }
+
+    /**
+     * Cabeceras de un bloque de desglose del Excel: primero el importe de cada partida por
+     * anualidad (ANU1: partida 1, 2, 3...; ANU2: ...), después el total de cada anualidad y, por
+     * último, el total.
+     *
+     * @param prefijo prefijo de las cabeceras (SOL o CONC)
+     * @param cabeceraTotal cabecera de la última columna (total del bloque)
+     * @param importes desglose de importes, con las partidas y anualidades presentes
+     * @return cabeceras del bloque
+     */
+    private List<String> cabecerasDesgloseComision(String prefijo, String cabeceraTotal,
+            ComisionImportesDTO importes) {
+        List<String> cabeceras = new ArrayList<>();
+        for (Integer anualidad : importes.getAnualidades()) {
+            for (String partida : importes.getPartidas().values()) {
+                cabeceras.add(prefijo + " " + partida + " ANU" + anualidad);
+            }
+        }
+        for (Integer anualidad : importes.getAnualidades()) {
+            cabeceras.add(prefijo + " TOTAL ANU" + anualidad);
+        }
+        cabeceras.add(cabeceraTotal);
+        return cabeceras;
+    }
+
+    /**
+     * Escribe en la fila un bloque de desglose (mismo orden que las cabeceras de
+     * {@link #cabecerasDesgloseComision}) y devuelve la siguiente columna libre. Las celdas sin
+     * importe se dejan vacías.
+     *
+     * @param fila fila del expediente
+     * @param columnaInicio primera columna del bloque
+     * @param estiloImporte estilo numérico de los importes
+     * @param importes desglose de importes (partidas y anualidades)
+     * @param importesExpediente importes del expediente: partida -> anualidad -> importe
+     * @return columna siguiente al bloque
+     */
+    private int escribirDesgloseComision(HSSFRow fila, int columnaInicio,
+            HSSFCellStyle estiloImporte, ComisionImportesDTO importes,
+            Map<Integer, Map<Integer, Double>> importesExpediente) {
+        int columna = columnaInicio;
+        Map<Integer, Double> totalPorAnualidad = new LinkedHashMap<>();
+        Double total = null;
+
+        for (Integer anualidad : importes.getAnualidades()) {
+            for (Integer idPartida : importes.getPartidas().keySet()) {
+                Double importe = importesExpediente == null ? null
+                        : importesExpediente.getOrDefault(idPartida, Collections.emptyMap())
+                                .get(anualidad);
+                if (importe != null) {
+                    this.escribirImporte(fila, columna, importe, estiloImporte);
+                    totalPorAnualidad.merge(anualidad, importe, Double::sum);
+                    total = total == null ? importe : total + importe;
+                }
+                columna++;
+            }
+        }
+        for (Integer anualidad : importes.getAnualidades()) {
+            Double importe = totalPorAnualidad.get(anualidad);
+            if (importe != null) {
+                this.escribirImporte(fila, columna, importe, estiloImporte);
+            }
+            columna++;
+        }
+        if (total != null) {
+            this.escribirImporte(fila, columna, total, estiloImporte);
+        }
+        return columna + 1;
+    }
+
+    private void escribirImporte(HSSFRow fila, int columna, Double importe,
+            HSSFCellStyle estiloImporte) {
+        HSSFCell celda = fila.createCell(columna);
+        celda.setCellValue(importe);
+        celda.setCellStyle(estiloImporte);
+    }
+
+    private HSSFFont fuenteNegrita(HSSFWorkbook libro) {
+        HSSFFont fuente = libro.createFont();
+        fuente.setBold(true);
+        return fuente;
+    }
+
+    private HSSFCellStyle estiloCabeceraColor(HSSFWorkbook libro, IndexedColors color) {
+        HSSFCellStyle estilo = libro.createCellStyle();
+        estilo.setFont(this.fuenteNegrita(libro));
+        estilo.setFillForegroundColor(color.getIndex());
+        estilo.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        return estilo;
+    }
+
+    /**
+     * VMM 28/10/26 MD-3094: textos de los resultados que puede elegir la Comisión (estados provisionales
+     * Concedido 219, Reserva 255 y Desestimado 218), tal como están en el catálogo, para el desplegable
+     * de la columna Resultado Comisión del Excel.
+     *
+     * @return descripciones de los tres estados (vacío si no se pueden obtener o no caben en la lista)
+     */
+    private String[] obtenerOpcionesResultadoComision() {
+        List<String> opciones = new ArrayList<>();
+        try {
+            for (Integer estado : Arrays.asList(Constantes.EstadoExpediente.APROBADO_PROVISIONAL,
+                    Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL,
+                    Constantes.EstadoExpediente.DENEGADO_PROVISIONAL)) {
+                CatalogosValoresDTO valor = this.catalogosValoresService
+                        .buscarId(this.utilConstantes.getGlobalCatalogosValores().get(estado));
+                if (valor != null && valor.getDsValor() != null && !valor.getDsValor().isEmpty()) {
+                    opciones.add(valor.getDsValor());
+                }
+            }
+        } catch (ServiceException e) {
+            log.error(e.getMessage(), e);
+            return new String[0];
+        }
+
+        // una lista explícita de un .xls no puede pasar de 255 caracteres en total (con separadores)
+        int total = 0;
+        for (String opcion : opciones) {
+            total += opcion.length() + 1;
+        }
+        if (total > 255) {
+            log.warn("Las opciones de Resultado Comisión no caben en la lista desplegable del Excel ({} caracteres)",
+                    total);
+            return new String[0];
+        }
+        return opciones.toArray(new String[0]);
+    }
+
+    /**
+     * Exporta a Excel los expedientes de la Comisión de selección. Las columnas Resultado Comisión
+     * y Motivo / observaciones son las que debe completar la Comisión.
+     */
+    public void descargarExcelComisionSeleccion() {
+        if (this.idConvocatoria == null) {
+            AtlasMessageUtils.addErrorMessageFromBundle(
+                    ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_DESCARGAR_KO);
+            return;
+        }
+
+        try (ByteArrayOutputStream salida = new ByteArrayOutputStream();
+                HSSFWorkbook libro = new HSSFWorkbook()) {
+            List<ComisionSeleccionDTO> expedientes = this.obtenerListadoComisionSeleccion();
+
+            List<Integer> idsExpediente = new ArrayList<>();
+            for (ComisionSeleccionDTO expediente : expedientes) {
+                idsExpediente.add(expediente.getIdExpediente());
+            }
+            ComisionImportesDTO importes = this.expedienteDAO
+                    .obtenerImportesComisionSeleccion(idsExpediente);
+
+            HSSFSheet hoja = libro.createSheet("Comisión de selección");
+
+            HSSFCellStyle estiloImporte = libro.createCellStyle();
+            estiloImporte.setDataFormat(libro.createDataFormat().getFormat("#,##0.00"));
+            HSSFCellStyle estiloCabecera = libro.createCellStyle();
+            estiloCabecera.setFont(this.fuenteNegrita(libro));
+            HSSFCellStyle estiloCabeceraSolicitado = this.estiloCabeceraColor(libro,
+                    IndexedColors.YELLOW);
+            HSSFCellStyle estiloCabeceraConcedido = this.estiloCabeceraColor(libro,
+                    IndexedColors.LIGHT_ORANGE);
+
+            // Cabeceras: datos del expediente, desglose de lo solicitado, desglose de lo
+            // financiable/concedido y, al final, el crédito acumulado y las columnas de la Comisión
+            List<String> cabeceras = new ArrayList<>(Arrays.asList("Línea",
+                    "Nombre empresa / solicitante", "Expediente", "NIF", "Puntuación", "Orden"));
+            int columnaInicioSolicitado = cabeceras.size();
+            cabeceras.addAll(this.cabecerasDesgloseComision("SOL", "TOTAL SOLICITADO", importes));
+            int columnaInicioConcedido = cabeceras.size();
+            cabeceras.addAll(this.cabecerasDesgloseComision("CONC", "TOTAL CONCEDIDO", importes));
+            int columnaFinConcedido = cabeceras.size();
+            cabeceras.addAll(Arrays.asList("Ayuda solicitada", "Ayuda concedida", "Crédito acumulado", "Estado",
+                    "Resultado Comisión", "Motivo / observaciones"));
+
+            HSSFRow cabecera = hoja.createRow(0);
+            for (int columna = 0; columna < cabeceras.size(); columna++) {
+                HSSFCell celda = cabecera.createCell(columna);
+                celda.setCellValue(cabeceras.get(columna));
+                if (columna >= columnaInicioSolicitado && columna < columnaInicioConcedido) {
+                    celda.setCellStyle(estiloCabeceraSolicitado);
+                } else if (columna >= columnaInicioConcedido && columna < columnaFinConcedido) {
+                    celda.setCellStyle(estiloCabeceraConcedido);
+                } else {
+                    celda.setCellStyle(estiloCabecera);
+                }
+            }
+
+            int numeroFila = 1;
+            for (ComisionSeleccionDTO expediente : expedientes) {
+                HSSFRow fila = hoja.createRow(numeroFila++);
+                int columna = 0;
+                fila.createCell(columna++).setCellValue(this.valorExcel(expediente.getLinea()));
+                fila.createCell(columna++).setCellValue(this.valorExcel(expediente.getNombreEmpresa()));
+                fila.createCell(columna++).setCellValue(this.valorExcel(expediente.getNumeroExpediente()));
+                fila.createCell(columna++).setCellValue(this.valorExcel(expediente.getNif()));
+                if (expediente.getPuntuacion() != null) {
+                    fila.createCell(columna).setCellValue(expediente.getPuntuacion());
+                }
+                columna++;
+                fila.createCell(columna++).setCellValue(expediente.getOrden());
+
+                columna = this.escribirDesgloseComision(fila, columna, estiloImporte, importes,
+                        importes.getSolicitado().get(expediente.getIdExpediente()));
+                columna = this.escribirDesgloseComision(fila, columna, estiloImporte, importes,
+                        importes.getConcedido().get(expediente.getIdExpediente()));
+
+                if (expediente.getAyudaSolicitada() != null) {
+                    HSSFCell celdaAyudaSol = fila.createCell(columna);
+                    celdaAyudaSol.setCellValue(expediente.getAyudaSolicitada());
+                    celdaAyudaSol.setCellStyle(estiloImporte);
+                }
+                columna++;
+                if (expediente.getCuantiaPropuesta() != null) {
+                    HSSFCell celdaAyuda = fila.createCell(columna);
+                    celdaAyuda.setCellValue(expediente.getCuantiaPropuesta());
+                    celdaAyuda.setCellStyle(estiloImporte);
+                }
+                columna++;
+                HSSFCell celdaCredito = fila.createCell(columna++);
+                celdaCredito.setCellValue(expediente.getCreditoAcumulado());
+                celdaCredito.setCellStyle(estiloImporte);
+                fila.createCell(columna++).setCellValue(this.valorExcel(expediente.getDsEstado()));
+                fila.createCell(columna++)
+                        .setCellValue(this.valorExcel(expediente.getResultadoComision()));
+                fila.createCell(columna).setCellValue(this.valorExcel(expediente.getMotivo()));
+            }
+
+            for (int columna = 0; columna < cabeceras.size(); columna++) {
+                hoja.autoSizeColumn(columna);
+            }
+
+            // Resultado Comisión: desplegable en cada celda con los tres resultados posibles
+            String[] opcionesResultado = this.obtenerOpcionesResultadoComision();
+            if (opcionesResultado.length > 0 && !expedientes.isEmpty()) {
+                int columnaResultado = cabeceras.indexOf("Resultado Comisión");
+                DataValidationHelper ayudanteValidacion = hoja.getDataValidationHelper();
+                DataValidationConstraint listaResultados = ayudanteValidacion
+                        .createExplicitListConstraint(opcionesResultado);
+                DataValidation validacion = ayudanteValidacion.createValidation(listaResultados,
+                        new CellRangeAddressList(1, expedientes.size(), columnaResultado,
+                                columnaResultado));
+                validacion.setShowErrorBox(true);
+                validacion.createErrorBox("Valor no válido",
+                        "Seleccione uno de los resultados de la lista.");
+                hoja.addValidationData(validacion);
+
+                // que quepa el texto más largo de la lista
+                int caracteres = 0;
+                for (String opcion : opcionesResultado) {
+                    caracteres = Math.max(caracteres, opcion.length());
+                }
+                hoja.setColumnWidth(columnaResultado, Math.min(255 * 256,
+                        Math.max(hoja.getColumnWidth(columnaResultado), (caracteres + 2) * 256)));
+            }
+
+            libro.write(salida);
+            UtilesWeb.openFile(salida.toByteArray(), Constantes.Extensiones.XLS,
+                    "Expedientes_Comision_seleccion");
+        } catch (IOException e) {
+            AtlasMessageUtils.addErrorMessageFromBundle(
+                    ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_DESCARGAR_KO);
+            log.error(e.getMessage(), e);
+        }
     }
 
 //    /**

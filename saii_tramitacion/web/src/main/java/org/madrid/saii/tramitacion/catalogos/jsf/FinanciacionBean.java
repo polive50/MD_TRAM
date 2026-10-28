@@ -428,6 +428,8 @@ public class FinanciacionBean {
         this.lstPresupuestoFinanciable3 = new ArrayList<>();
         this.montoAyudaConcedida = null;
         this.montoAyudaConcedida2 = null;
+        //VMM 28/10/26 MD-3094: faltaba reiniciarla, arrastraba la ayuda solicitada del expediente anterior
+        this.montoAyudaSolicitada = null;
 
         this.lstActuacionPresentado = new ArrayList<>();
         this.montoAyudaActuacion = null;
@@ -1536,12 +1538,12 @@ public class FinanciacionBean {
                 
                 if(Boolean.TRUE.equals(this.esConvocatoriaConceptoPresup)) {
                     this.expedientePresupService.guardarFinanciacionConcepto(bloquesSinTotal,
-                            this.montoAyudaPresupuesto, nmPresup, this.expedienteBean.getIdExpediente(),
-                            idTematica, porcentajeIntensidadAyuda);
+                            this.montoAyudaPresupuesto, this.montoAyudaSolicitada, nmPresup,
+                            this.expedienteBean.getIdExpediente(), idTematica, porcentajeIntensidadAyuda);
                 }else {
                     this.expedientePresupService.guardarFinanciacion(bloquesSinTotal,
-                            this.montoAyudaPresupuesto, nmPresup, this.expedienteBean.getIdExpediente(),
-                            idTematica, porcentajeIntensidadAyuda);
+                            this.montoAyudaPresupuesto, this.montoAyudaSolicitada, nmPresup,
+                            this.expedienteBean.getIdExpediente(), idTematica, porcentajeIntensidadAyuda);
                 }
                 
                 nmPresup++;
@@ -2585,7 +2587,7 @@ public class FinanciacionBean {
                 
                 this.expedientePresupService.actualizarIntensidadAyuda(
                         this.expedienteBean.getIdExpediente(), 1, this.porcentajeIntensidadGestor,
-                        this.montoAyudaConcedida);
+                        this.montoAyudaConcedida, this.montoAyudaSolicitada);
             }
             
             if (this.lstPresupuestoFinanciable2 != null && !this.lstPresupuestoFinanciable2.isEmpty()
@@ -2610,7 +2612,7 @@ public class FinanciacionBean {
                 
                 this.expedientePresupService.actualizarIntensidadAyuda(
                         this.expedienteBean.getIdExpediente(), 2, this.porcentajeIntensidadGestor,
-                        this.montoAyudaConcedida2);
+                        this.montoAyudaConcedida2, this.montoAyudaSolicitada);
             }
             
             AtlasMessageUtils.addInfoMessageFromBundle(
@@ -3238,7 +3240,8 @@ public class FinanciacionBean {
                         }
                         
                         this.expedientePresupService.guardar(presupuestosSinTotal,
-                                this.montoAyudaConcedida, this.expedienteBean.getExpedienteDTO());
+                                this.montoAyudaConcedida, this.montoAyudaSolicitada,
+                                this.expedienteBean.getExpedienteDTO());
 
                         // this.pendienteGuardarObservacion = Boolean.FALSE;
                         this.obtenerPresupuestoFinanciable(i + 1);
@@ -4452,6 +4455,7 @@ public class FinanciacionBean {
             nuevoConcepto.setNmPresup(nmPresup);
             nuevoConcepto.setItNuevoConceptoFinan(Constantes.AfirmacionNegacion.S);
             nuevoConcepto.setNmAyuda(this.montoAyudaConcedida);  //esto es lo que mete al guardarObservacsPresup
+            nuevoConcepto.setNmAyudaSol(this.montoAyudaSolicitada); //VMM 27/10/26 MD-3094
             nuevoConcepto.setNmPorcentajeIntensidad(porcentajeIntensidadGestor);
             nuevoConcepto.setPendienteObservacion(Boolean.TRUE);
             //nuevoConcepto.setEstadoDTO();

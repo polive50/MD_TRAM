@@ -240,6 +240,7 @@ public class ResolucionModificacionServiceImpl implements ResolucionModificacion
         if (referencia != null) {
             nuevoConcepto.setNmPorcentajeIntensidad(referencia.getNmPorcentajeIntensidad());
             nuevoConcepto.setNmAyuda(referencia.getNmAyuda());
+            nuevoConcepto.setNmAyudaSol(referencia.getNmAyudaSol()); //VMM 27/10/26 MD-3094
             nuevoConcepto.setEstadoDTO(referencia.getEstadoDTO());
         }
 

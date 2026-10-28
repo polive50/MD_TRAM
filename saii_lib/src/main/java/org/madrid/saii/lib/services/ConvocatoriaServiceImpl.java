@@ -190,6 +190,14 @@ public class ConvocatoriaServiceImpl extends BaseServiceImpl<Convocatoria, Integ
     @Qualifier("catalogosValoresService")
     private CatalogosValoresService catalogosValoresService;
 
+    // VMM 28/10/26 MD-3159: referencia a este mismo bean a traves del proxy de Spring, necesaria para que la llamada
+    // a procesarPlazoSubsanacionDocumentoBatch (REQUIRES_NEW) desde el batch aplique la anotacion
+    // transaccional (una llamada this.xxx() la ignoraria).
+    @Lazy
+    @Autowired
+    @Qualifier("convocatoriaService")
+    private ConvocatoriaService convocatoriaServiceProxy;
+
     /** Servicio ConvocatoriaActService */
     @Autowired
     @Qualifier("convocatoriaActService")
@@ -2486,7 +2494,9 @@ public class ConvocatoriaServiceImpl extends BaseServiceImpl<Convocatoria, Integ
      *
      */
     @Override
-    @Transactional(readOnly = false)
+    // VMM 28/10/26 MD-3159: pasa a solo lectura (solo lista convocatorias/solicitudes/expedientes/documentos);
+    // cada documento se actualiza en su propia transaccion (procesarPlazoSubsanacionDocumentoBatch).
+    @Transactional(readOnly = true)
     public void consultarDocumentoPlazoSubsanacionBatch() throws ServiceException {
 
         List<Integer> lstEstado = new ArrayList<>();
@@ -2587,50 +2597,95 @@ public class ConvocatoriaServiceImpl extends BaseServiceImpl<Convocatoria, Integ
         List<Integer> lstEstadosFiltro = new ArrayList<>();
         lstEstadosFiltro.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.EN_TRAMITE_SUBSANACION));
         lstEstadosFiltro.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION_NOTIFICADO));
-        
-        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ID_ESTADO_IDVALOR, lstEstadosFiltro,
+
+        // VMM 28/10/26 MD-3159: ExpedienteDoc no tiene la propiedad idEstado (es "estado"), el batch fallaba con
+        // "Could not find property 'idEstado.idValor'" y no marcaba nunca los documentos como plazo vencido
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR, lstEstadosFiltro,
                 Operador.IN));
-        
+
 
         List<ExpedienteDoc> listaDocumentos = this.expedienteDocDAO.find(0, -1, filtros, null);
 
+        // VMM 28/10/26 MD-3159: cada documento se procesa en su propia transaccion (procesarPlazoSubsanacionDocumentoBatch,
+        // REQUIRES_NEW) para que un fallo en uno no revierta ni aborte al resto.
         if (listaDocumentos != null && !listaDocumentos.isEmpty()) {
             for (ExpedienteDoc expedienteDoc : listaDocumentos) {
-
-                if (expedienteDoc.getIdDocumentoPtfr() != null) {
-
-                    DocumentoPtfr documentoPtfr = this.documentoPtfrDAO
-                            .find(expedienteDoc.getIdDocumentoPtfr());
-
-                    if (Objects.nonNull(documentoPtfr.getFcFinPlazoSubsanacion())) {
-
-                        LocalDateTime fcLimiteSubsanacion = Utils.convertDateToLocalDateTimeInstant(
-                                documentoPtfr.getFcFinPlazoSubsanacion());
-
-                        LocalDateTime fcHoy = LocalDateTime.now();
-
-                        if (fcLimiteSubsanacion != null && fcHoy.isAfter(fcLimiteSubsanacion)) {
-                            
-                            this.actualizarEstadoDocumentoBatch(expedienteDoc,
-                                    utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PLAZO_SUBSANACION_VENCIDO));
-                            
-                            //cambiar estadops de revisioan, admin y requisitos depediendo del tramite del documento asociado.
-                            Expediente exp = this.expedienteDAO.find(idExpediente);
-                            
-                            if(expedienteDoc.getTramite().getIdValor().equals(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_ADMINISTRATIVA)) {
-                                exp.setEstadoRevAdmin(new CatalogosValores(Constantes.EstadoExpediente.PENDIENTE_REVISION_SUBSANACION));
-                                this.expedienteDAO.merge(exp);
-                            }else if(expedienteDoc.getTramite().getIdValor().equals(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_REQUISITO)) {
-                                exp.setEstadoRevRequi(new CatalogosValores(Constantes.EstadoExpediente.PENDIENTE_REVISION_SUBSANACION));
-                                this.expedienteDAO.merge(exp);
-                                }
-                            
-                        }
-
-                    }
-
-                }
+                this.procesarPlazoSubsanacionDocumentoSeguro(expedienteDoc.getIdExpedienteDoc());
             }
+        }
+    }
+
+    /**
+     * VMM 28/10/26 MD-3159: procesa un documento en un try/catch, llamando a traves del proxy de Spring para que
+     * se aplique el REQUIRES_NEW de procesarPlazoSubsanacionDocumentoBatch (una llamada this.xxx() lo
+     * ignoraria). Si falla, solo se revierte ese documento y se sigue con el siguiente.
+     */
+    private void procesarPlazoSubsanacionDocumentoSeguro(Integer idExpedienteDoc) {
+        try {
+            this.convocatoriaServiceProxy.procesarPlazoSubsanacionDocumentoBatch(idExpedienteDoc);
+        } catch (Exception e) {
+            log.error("Error al comprobar el plazo de subsanación del documento idExpedienteDoc={}",
+                    idExpedienteDoc, e);
+        }
+    }
+
+    /**
+     * VMM 28/10/26 MD-3159: si el plazo de subsanacion del documento (fcFinPlazoSubsanacion de su envio a
+     * portafirmas) ya ha vencido, lo pasa a "Plazo de subsanacion vencido" y actualiza el estado de
+     * revision administrativa o de requisitos del expediente segun su tramite. Se ejecuta en su
+     * propia transaccion (REQUIRES_NEW): antes se hacia todo en la transaccion unica del batch y un
+     * fallo en un documento revertia los demas.
+     */
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = {
+            ServiceException.class, RuntimeException.class })
+    public void procesarPlazoSubsanacionDocumentoBatch(Integer idExpedienteDoc)
+            throws ServiceException {
+
+        ExpedienteDoc expedienteDoc = this.expedienteDocDAO.find(idExpedienteDoc);
+        if (expedienteDoc == null || expedienteDoc.getIdDocumentoPtfr() == null) {
+            return;
+        }
+
+        DocumentoPtfr documentoPtfr = this.documentoPtfrDAO.find(expedienteDoc.getIdDocumentoPtfr());
+        if (documentoPtfr == null || Objects.isNull(documentoPtfr.getFcFinPlazoSubsanacion())) {
+            return;
+        }
+
+        LocalDateTime fcLimiteSubsanacion = Utils
+                .convertDateToLocalDateTimeInstant(documentoPtfr.getFcFinPlazoSubsanacion());
+        if (fcLimiteSubsanacion == null || !LocalDateTime.now().isAfter(fcLimiteSubsanacion)) {
+            return;
+        }
+
+        // Sin tramite no se puede cambiar el estado del documento (actualizarEstadoDocumentoBatch lo
+        // exige) ni saber que revision del expediente hay que actualizar: antes daba NullPointerException
+        // y abortaba todo el batch.
+        if (expedienteDoc.getTramite() == null || expedienteDoc.getTramite().getIdValor() == null) {
+            log.warn("El documento idExpedienteDoc={} tiene el plazo de subsanación vencido pero no tiene trámite, se omite",
+                    idExpedienteDoc);
+            return;
+        }
+
+        this.actualizarEstadoDocumentoBatch(expedienteDoc, utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.EstadoDocumento.PLAZO_SUBSANACION_VENCIDO));
+
+        // cambiar estados de revision, admin y requisitos dependiendo del tramite del documento asociado.
+        Expediente exp = this.expedienteDAO.find(expedienteDoc.getExpediente().getIdExpediente());
+
+        // VMM 28/10/26 MD-3159: Constantes.Tramite.* y Constantes.EstadoExpediente.* son NM_CONSTANTE, no el
+        // idValor real: se comparaba y se asignaba con el codigo, asi que el if nunca entraba (y si
+        // entraba, asignaba un id de estado equivocado). Se resuelve el id real del catalogo.
+        if (expedienteDoc.getTramite().getIdValor().equals(utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_ADMINISTRATIVA))) {
+            exp.setEstadoRevAdmin(new CatalogosValores(utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.EstadoExpediente.PENDIENTE_REVISION_SUBSANACION)));
+            this.expedienteDAO.merge(exp);
+        } else if (expedienteDoc.getTramite().getIdValor().equals(utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_REQUISITO))) {
+            exp.setEstadoRevRequi(new CatalogosValores(utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.EstadoExpediente.PENDIENTE_REVISION_SUBSANACION)));
+            this.expedienteDAO.merge(exp);
         }
     }
 
@@ -2686,48 +2741,18 @@ public class ConvocatoriaServiceImpl extends BaseServiceImpl<Convocatoria, Integ
         List<Integer> lstEstadosFiltro = new ArrayList<>();
         lstEstadosFiltro.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.EN_TRAMITE_SUBSANACION));
         lstEstadosFiltro.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REQUIERE_SUBSANACION_NOTIFICADO));
-        
-        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ID_ESTADO_IDVALOR, lstEstadosFiltro,
+
+        // VMM 28/10/26 MD-3159: ExpedienteDoc no tiene la propiedad idEstado (es "estado"), ver comentario arriba
+        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR, lstEstadosFiltro,
                 Operador.IN));
 
         List<ExpedienteDoc> listaDocumentos = this.expedienteDocDAO.find(0, -1, filtros, null);
 
+        // VMM 28/10/26 MD-3159: cada documento se procesa en su propia transaccion (procesarPlazoSubsanacionDocumentoBatch,
+        // REQUIRES_NEW) para que un fallo en uno no revierta ni aborte al resto.
         if (listaDocumentos != null && !listaDocumentos.isEmpty()) {
             for (ExpedienteDoc expedienteDoc : listaDocumentos) {
-
-                if (expedienteDoc.getIdDocumentoPtfr() != null) {
-
-                    DocumentoPtfr documentoPtfr = this.documentoPtfrDAO
-                            .find(expedienteDoc.getIdDocumentoPtfr());
-
-                    if (Objects.nonNull(documentoPtfr.getFcFinPlazoSubsanacion())) {
-
-                        LocalDateTime fcLimiteSubsanacion = Utils.convertDateToLocalDateTimeInstant(
-                                documentoPtfr.getFcFinPlazoSubsanacion());
-
-                        LocalDateTime fcHoy = LocalDateTime.now();
-
-                        if (fcLimiteSubsanacion != null && fcHoy.isAfter(fcLimiteSubsanacion)) {
-                            
-                            this.actualizarEstadoDocumentoBatch(expedienteDoc,
-                                    utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PLAZO_SUBSANACION_VENCIDO));
-                            
-                            
-                            //cambiar estadops de revisioan, admin y requisitos depediendo del tramite del documento asociado.
-                            Expediente exp = this.expedienteDAO.find(expedienteDoc.getExpediente().getIdExpediente());
-                            
-                            if(expedienteDoc.getTramite().getIdValor().equals(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_ADMINISTRATIVA)) {
-                                exp.setEstadoRevAdmin(new CatalogosValores(Constantes.EstadoExpediente.PENDIENTE_REVISION_SUBSANACION));
-                                this.expedienteDAO.merge(exp);
-                            }else if(expedienteDoc.getTramite().getIdValor().equals(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_REQUISITO)) {
-                                exp.setEstadoRevRequi(new CatalogosValores(Constantes.EstadoExpediente.PENDIENTE_REVISION_SUBSANACION));
-                                this.expedienteDAO.merge(exp);
-                                }
-                        }
-
-                    }
-
-                }
+                this.procesarPlazoSubsanacionDocumentoSeguro(expedienteDoc.getIdExpedienteDoc());
             }
         }
     }

@@ -141,7 +141,12 @@ public class ExpedientePresup implements Serializable {
      * Representa el porcentaje de intensidad de ayuda aplicado al presupuesto
      */
     private Double nmPorcentajeIntensidad;
-    
+
+    /**
+     * VMM 27/10/26 MD-3094: ayuda solicitada por el solicitante (NM_AYUDA guarda la ayuda concedida)
+     */
+    private Double nmAyudaSol;
+
 
     // ////////////////////////////////////////////////////////
     // /////////////////////////////// CONSTRUCTORES
@@ -431,6 +436,15 @@ public class ExpedientePresup implements Serializable {
 
    public void setNmPorcentajeIntensidad(Double nmPorcentajeIntensidad) {
        this.nmPorcentajeIntensidad = nmPorcentajeIntensidad;
+   }
+
+   @Column(name = "NM_AYUDA_SOL", nullable = true)
+   public Double getNmAyudaSol() {
+       return nmAyudaSol;
+   }
+
+   public void setNmAyudaSol(Double nmAyudaSol) {
+       this.nmAyudaSol = nmAyudaSol;
    }
     
 

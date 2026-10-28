@@ -422,25 +422,55 @@ public class ExpedienteEvalServiceImpl
                 throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT, null,
                         Constantes.Error.CODIGO_EXCEPTION_PERSONALIZADA);
             }
-
+            
+           // localizamos el coordinador y le actualizamos el estado
+            ExpedienteEval coordinador = null;
             List<AtlasFilter> filtros = new ArrayList<>();
-
-            filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDEXPEDIENTE, idExpediente,
-                    Operador.EQUALS));
-            filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_PERSONA_IDINTERESADO, idEvaluador,
+            filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ITCOOREVAL,
+                    Constantes.TipoCoorEval.COORDINADOR, Operador.EQUALS));
+            filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDEXPEDIENTE,
+                    idExpediente, Operador.EQUALS));
+            filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_PERSONA_CDNUMIDEN, cdUsuario,
                     Operador.EQUALS));
             filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
-
-            List<ExpedienteEval> listexpedienteEval = this.getDao().find(filtros, null);
-
-            if (!listexpedienteEval.isEmpty()) {
-                ExpedienteEval expeEVAL = listexpedienteEval.get(0);
-                if (StringUtils.isNotBlank(cdUsuario)) {
-                    expeEVAL.setCdUsuBaja(cdUsuario);
-                    expeEVAL.setFcBajaFila(new Date());
-                }
-                expedienteEvalDTO = ExpedienteEvalToDTO.INSTANCE.apply(this.update(expeEVAL));
+            List<ExpedienteEval> lstCoordinador = this.find(filtros, null);
+            if (!lstCoordinador.isEmpty()) {
+                coordinador = lstCoordinador.get(0);
+                coordinador.setEstado(
+                        new CatalogosValores(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoCoordinador.PENDIENTE_ASIGNACION_EVALUADORES)));
+                coordinador.setItNotificado(Constantes.AfirmacionNegacion.S);
+                coordinador.setCdUsuAlta(cdUsuario);
+                coordinador.setFcAltaFila(new Date());
+                this.getDao().merge(coordinador);
+                
             }
+
+            
+            
+            if(coordinador != null) {
+                filtros = new ArrayList<>();
+
+                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDEXPEDIENTE, idExpediente,
+                        Operador.EQUALS));
+                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_PERSONA_IDINTERESADO, idEvaluador,
+                        Operador.EQUALS));
+                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDEXPEDIENTEEVAL_PADRE, coordinador.getIdExpedienteEval(),
+                        Operador.EQUALS));
+                
+                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
+
+                List<ExpedienteEval> listexpedienteEval = this.getDao().find(filtros, null);
+
+                if (!listexpedienteEval.isEmpty()) {
+                    ExpedienteEval expeEVAL = listexpedienteEval.get(0);
+                    if (StringUtils.isNotBlank(cdUsuario)) {
+                        expeEVAL.setCdUsuBaja(cdUsuario);
+                        expeEVAL.setFcBajaFila(new Date());
+                    }
+                    expedienteEvalDTO = ExpedienteEvalToDTO.INSTANCE.apply(this.update(expeEVAL));
+                }
+            }
+            
         } catch (Exception e) {
             throw new ServiceException(e);
         }

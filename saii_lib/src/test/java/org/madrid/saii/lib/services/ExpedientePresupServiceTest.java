@@ -83,7 +83,7 @@ public class ExpedientePresupServiceTest extends AtlasAbstractBaseTest {
 			// dto.setFcInicioTrib(new Date());
 			// dto.setFcFinTrib(new Date());
 
-			this.service.guardar(new ArrayList<>(), 0.0, null);
+			this.service.guardar(new ArrayList<>(), 0.0, 0.0, null);
 
 			// No es nulo
 			Assert.assertNotNull(dto);
@@ -97,7 +97,7 @@ public class ExpedientePresupServiceTest extends AtlasAbstractBaseTest {
 
 			// Guardamos
 			// dto.setDsConvocatoria("Prueba Test Mod");
-			this.service.guardar(new ArrayList<>(), 0.0, null);
+			this.service.guardar(new ArrayList<>(), 0.0, 0.0, null);
 
 			// La modificación es correcta
 			// Assert.assertEquals("Prueba Test Mod", dto.getDsConvocatoria());

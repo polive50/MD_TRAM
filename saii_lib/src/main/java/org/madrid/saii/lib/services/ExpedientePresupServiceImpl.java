@@ -136,8 +136,8 @@ public class ExpedientePresupServiceImpl
      */
     @Override
     @Transactional(readOnly = false)
-    public void guardar(List<ExpedientePresupDTO> presupuestos, Double montoAyuda, ExpedienteDTO exp) 
-            throws ServiceException {
+    public void guardar(List<ExpedientePresupDTO> presupuestos, Double montoAyuda, Double montoAyudaSol,
+            ExpedienteDTO exp) throws ServiceException {
 
         Date fechaHoy = new Date();
 
@@ -150,6 +150,7 @@ public class ExpedientePresupServiceImpl
             presup.setTlObservacion(presupuestoDTO.getTlObservacion()); 
             presup.setTlConcepto(presupuestoDTO.getTlConcepto());
             presup.setNmAyuda(montoAyuda);
+            presup.setNmAyudaSol(montoAyudaSol); //VMM 27/10/26 MD-3094
             //MD-2801: ponemos aqui los campos de auditoria antes del merge
             presup.setFcAltaFila(fechaHoy);
             presup.setFcModifFila(fechaHoy);
@@ -261,7 +262,8 @@ public class ExpedientePresupServiceImpl
     @Override
     @Transactional(readOnly = false)
     public void guardarFinanciacion(List<BloqueComponenteDTO> bloquesSinTotal, Double montoAyuda,
-            Integer nmPresup, Integer idExpediente, Integer idTematica, Double intensidadSol) throws ServiceException {
+            Double montoAyudaSol, Integer nmPresup, Integer idExpediente, Integer idTematica,
+            Double intensidadSol) throws ServiceException {
 
         // VMM 24/09/26 MD-3074: ver comentario en darDeBajaConceptosCargadosPrevios - evita duplicar
         // conceptos si el gestor pulsa "calcular intensidad" mas de una vez.
@@ -275,6 +277,7 @@ public class ExpedientePresupServiceImpl
             ExpedientePresup pre = new ExpedientePresup();
             pre.setTipoFinanciacion(new CatalogosValores(bc.getTipoFinanciacionDTO().getIdValor()));
             pre.setNmAyuda(montoAyuda);
+            pre.setNmAyudaSol(montoAyudaSol); //VMM 27/10/26 MD-3094
             pre.setIdExpediente(idExpediente);
             pre.setNmPresup(nmPresup);
             //MD-2731: las observaciones ya no son obligatorias a menos que se modifique un importe por el gestor
@@ -318,7 +321,8 @@ public class ExpedientePresupServiceImpl
     @Override
     @Transactional(readOnly = false)
     public void guardarFinanciacionConcepto(List<BloqueComponenteDTO> bloquesSinTotal, Double montoAyuda,
-            Integer nmPresup, Integer idExpediente, Integer idTematica, Double intensidadSol) throws ServiceException {
+            Double montoAyudaSol, Integer nmPresup, Integer idExpediente, Integer idTematica,
+            Double intensidadSol) throws ServiceException {
 
         // VMM 24/09/26 MD-3074: ver comentario en darDeBajaConceptosCargadosPrevios - evita duplicar
         // conceptos si el gestor pulsa "calcular intensidad" mas de una vez.
@@ -332,6 +336,7 @@ public class ExpedientePresupServiceImpl
             ExpedientePresup pre = new ExpedientePresup();
             pre.setTipoFinanciacion(new CatalogosValores(bc.getTipoFinanciacionDTO().getIdValor()));
             pre.setNmAyuda(montoAyuda);
+            pre.setNmAyudaSol(montoAyudaSol); //VMM 27/10/26 MD-3094
             pre.setIdExpediente(idExpediente);
             pre.setNmPresup(nmPresup);
             //MD-2731: las observaciones ya no son obligatorias a menos que se modifique un importe por el gestor
@@ -461,7 +466,7 @@ public class ExpedientePresupServiceImpl
     @Override
     @Transactional(readOnly = false)
     public void actualizarIntensidadAyuda(Integer idExpediente, Integer nmPresup, Double nmPorcentajeIntensidad,
-            Double montoAyuda) throws ServiceException {
+            Double montoAyuda, Double montoAyudaSol) throws ServiceException {
 
         List<ExpedientePresupDTO> registros = bucarPresupByIdExpAndNmPresup(idExpediente, nmPresup);
 
@@ -469,6 +474,7 @@ public class ExpedientePresupServiceImpl
             ExpedientePresup expPresup = this.expedientePresupDAO.find(dto.getIdExpedientePresup());
             expPresup.setNmPorcentajeIntensidad(nmPorcentajeIntensidad);
             expPresup.setNmAyuda(montoAyuda);
+            expPresup.setNmAyudaSol(montoAyudaSol); //VMM 27/10/26 MD-3094
             expPresup.setCdUsuModif(UserUtils.getUserName());
             expPresup.setFcModifFila(new Date());
             this.getDao().merge(expPresup);

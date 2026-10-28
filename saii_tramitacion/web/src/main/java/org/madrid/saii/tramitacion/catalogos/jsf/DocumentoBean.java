@@ -2119,14 +2119,24 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
         this.inicializarFormularioSubsanacion();
         try {
             this.documentoSeleccionado = documento;
-            documento = this.expedienteDocService.buscarId(documento.getIdExpedienteDoc());
+            // VMM 28/10/26 MD-3192: esDocumentoRequisito solo viene informado en el documento de la fila, no en
+            // el que devuelve buscarId (siempre FALSE). Se comprobaba sobre el recargado, asi que los
+            // documentos de requisitos entraban en esta rama, sin causa de denegacion (convocatoriaCau
+            // nula), y daban error al pulsar el ojo. Para los de requisito se usa el de la fila, que ya
+            // trae la observacion del requisito.
             if (Boolean.FALSE.equals(documento.getEsDocumentoRequisito())) {
-                this.documentoSeleccionado = this.expedienteDocService
+                ExpedienteDocDTO documentoRecargado = this.expedienteDocService
                         .buscarId(documento.getIdExpedienteDoc());
-                this.idCausaSubsanacion = this.documentoSeleccionado.getConvocatoriaCauDTO()
-                        .getIdConvocatoriaCau();
-                this.descripcionCausaSubsanacion = this.documentoSeleccionado
-                        .getTlCausaDescripcion();
+                // VMM 28/10/26 MD-3192: el documento puede no tener causa de denegacion ni descripcion
+                // informadas: en ese caso el popup se abre con esos campos vacios en lugar de dar error.
+                if (documentoRecargado != null) {
+                    this.documentoSeleccionado = documentoRecargado;
+                    if (documentoRecargado.getConvocatoriaCauDTO() != null) {
+                        this.idCausaSubsanacion = documentoRecargado.getConvocatoriaCauDTO()
+                                .getIdConvocatoriaCau();
+                    }
+                    this.descripcionCausaSubsanacion = documentoRecargado.getTlCausaDescripcion();
+                }
             }
             this.modoLecturaSubsanacion = Boolean.TRUE;
             PrimeFaces.current().executeScript("PF('dialogSubsanaDocumento').show();");

@@ -135,6 +135,16 @@ public interface ConvocatoriaService extends BaseService<Convocatoria, Integer, 
      * @throws ServiceException Excepción ocurrido en el servicio
      */
     void consultarDocumentoPlazoSubsanacionContratosBatch() throws ServiceException;
+
+    /**
+     * VMM 28/10/26 MD-3159: si el plazo de subsanación del documento ya ha vencido, lo pasa a "Plazo de
+     * subsanación vencido" y actualiza la revisión del expediente. Se ejecuta en su propia transacción
+     * (REQUIRES_NEW), para que un fallo en un documento no afecte al resto del batch.
+     *
+     * @param idExpedienteDoc Identificador del documento del expediente
+     * @throws ServiceException Excepción ocurrido en el servicio
+     */
+    void procesarPlazoSubsanacionDocumentoBatch(Integer idExpedienteDoc) throws ServiceException;
     
     
     /**

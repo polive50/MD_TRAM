@@ -39,6 +39,7 @@ public class ExpedientePresupDTO extends AuditoriaDTO implements Serializable {
         this.tlObservacion = original.getTlObservacion();
         this.tlConcepto = original.getTlConcepto();
         this.nmAyuda = original.getNmAyuda();
+        this.nmAyudaSol = original.getNmAyudaSol();
         this.idExpediente = original.getIdExpediente();
         this.nmPresup = original.getNmPresup();
         this.tipoFinanciacionDTO = original.getTipoFinanciacionDTO();
@@ -85,6 +86,11 @@ public class ExpedientePresupDTO extends AuditoriaDTO implements Serializable {
      * Campo nmAyuda
      */
     private Double nmAyuda;
+
+    /**
+     * VMM 27/10/26 MD-3094: ayuda solicitada por el solicitante (nmAyuda guarda la concedida)
+     */
+    private Double nmAyudaSol;
 
     /**
      * Campo expedienteDTO

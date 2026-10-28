@@ -10,6 +10,8 @@ import org.madrid.saii.lib.domain.ExpedienteDoc;
 import org.madrid.saii.lib.dto.ExpedienteContratoDTO;
 import org.madrid.saii.lib.dto.ExpedienteDTO;
 import org.madrid.saii.lib.dto.ExpedienteFiltrosDTO;
+import org.madrid.saii.lib.dto.ComisionImportesDTO;
+import org.madrid.saii.lib.dto.ComisionSeleccionDTO;
 import org.madrid.saii.lib.dto.ResolucionConcesionDTO;
 import org.madrid.saii.lib.dto.ResolucionExclusionDesistimientoDTO;
 
@@ -284,6 +286,30 @@ public interface ExpedienteDAO extends BaseDAO<Expediente, Integer> {
      */
     List<ResolucionConcesionDTO> listaResolucionConcesion(
             Integer idConvocatoria, Integer idEstado);
+
+    /**
+     * VMM 27/10/26 MD-3094: obtiene los expedientes de la convocatoria que NO están en alguno de
+     * los estados indicados, con los datos del listado de la Comisión de selección (sin orden ni
+     * crédito acumulado, que se calculan después). La cuantía propuesta es la ayuda concedida: suma,
+     * por cada tabla de presupuesto del expediente, de su ayuda.
+     *
+     * @param idConvocatoria identificador de la convocatoria
+     * @param idsEstadoExcluidos identificadores de los estados del expediente a excluir
+     * @return expedientes ordenados por puntuación descendente y, a igualdad, por fecha de
+     *         presentación más reciente primero
+     */
+    List<ComisionSeleccionDTO> listaComisionSeleccion(Integer idConvocatoria,
+            List<Integer> idsEstadoExcluidos);
+
+    /**
+     * VMM 27/10/26 MD-3094: desglose de importes por partida y anualidad de los expedientes: lo
+     * solicitado (SAII_DATO, formato presupuesto presentado) y lo financiable/concedido
+     * (SAII_EXPEDIENTE_PRESUP / SAII_EXPEDIENTE_PRESUP_MONTO).
+     *
+     * @param idsExpediente expedientes de los que se quieren los importes
+     * @return desglose de importes
+     */
+    ComisionImportesDTO obtenerImportesComisionSeleccion(List<Integer> idsExpediente);
     
     /**
      * Obtiene los estados provisionales presentes en los expedientes activos de la convocatoria.
