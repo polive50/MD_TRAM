@@ -3780,6 +3780,9 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
             
             if (Boolean.FALSE.equals(esModoConsulta)
                     && !utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoConvocatoria.RESUELTA).equals(idEstadoConvocatoria)
+                    // VMM 29/10/26 MD-3195: si ya esta en propuesta de resolucion de exclusion o desistimiento definitivo no se puede enviar a subsanar
+                    && !utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO).equals(dto.getEstadoRevRequiDTO().getIdValor())
+                    && !utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO).equals(dto.getEstadoRevAdminDTO().getIdValor())
                     && Boolean.FALSE.equals(this.existeEnvioPtfrSubsanacionEnProceso)
                     && Boolean.FALSE.equals(this.existeEnvioPtfrSubsanacionFirmado)
                     && Boolean.FALSE.equals(this.existeEnvioPtfrDesistidoEnProceso)
@@ -3897,6 +3900,9 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
                     && Boolean.FALSE.equals(existeDesistimientoEnviado)
                     && Boolean.FALSE.equals(excluidoProvisionalEnviado) // MD-2147 incluir condicion desisitido provisional
                     && Boolean.FALSE.equals(desisitidoProvisonalEnviado) // MD-2148 incluimos la condicion desisitido provisional
+                    // VMM 29/10/26 MD-3195: si ya esta en propuesta de resolucion de exclusion o desistimiento definitivo no se puede volver a enviar
+                    && !utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO).equals(dto.getEstadoRevRequiDTO().getIdValor())
+                    && !utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO).equals(dto.getEstadoRevAdminDTO().getIdValor())
                     && Boolean.FALSE.equals(existeDesistimientoExclusionProvisionalEnviado) // MD-2484 Incluimos el método que consulta si existe desistimiento y/o exclusion en PTFR
                     && Boolean.FALSE.equals(this.infoUsuarioBean.getRolGestorExterno()) //MD-2958 incluimos que no puedan acceder a estas acciones los gestores ext
                     ) { 
@@ -3925,6 +3931,8 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
         lstEstadoExpInter.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_SUBSANACION_REQUISITOS));
         lstEstadoExpInter.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL)); // MD-2147 incluimos excluido provisional
         lstEstadoExpInter.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL)); // MD-2148 incluimos desistido provisional
+        // VMM 29/10/26 MD-3195: una vez enviado a propuesta de resolucion de desistimiento definitivo ya no se puede calificar ni revertir
+        lstEstadoExpInter.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO));
 
 
         List<Integer> lstEstadoExp = new ArrayList<>();
@@ -3943,7 +3951,9 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
             estadosProvisionales = Boolean.TRUE;
         }
 
+        // VMM 29/10/26 MD-3195: la propuesta de resolucion de exclusion definitiva se guarda en la revision de requisitos
         if (Boolean.TRUE.equals(lstEstadoExpInter.contains(dto.getEstadoRevAdminDTO().getIdValor())
+                || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO).equals(dto.getEstadoRevRequiDTO().getIdValor())
                 || lstEstadoExp.contains(dto.getEstadoDTO().getIdValor())
                 || Boolean.TRUE.equals(estadosProvisionales) // MD-2399 incluimos la condicion del idProvisional
                 || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoConvocatoria.RESUELTA).equals(idEstadoConvocatoria))

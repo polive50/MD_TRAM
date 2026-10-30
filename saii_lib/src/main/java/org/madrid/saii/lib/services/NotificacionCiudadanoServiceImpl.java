@@ -442,10 +442,16 @@ public class NotificacionCiudadanoServiceImpl extends
             List<NotificacionCiudadanoDoc> lstDocEnlazados = this.notificacionCiudadanoDocDAO
                     .find(filtrosDoc, null);
 
-            dto.setLstExpedienteDocDTO(lstDocEnlazados.stream()
-                    .map(NotificacionCiudadanoDoc::getExpedienteDoc)
-                    .map(ExpedienteDocToDTO.INSTANCE)
-                    .collect(Collectors.toList()));
+            List<ExpedienteDocDTO> lstDocumentosDto = new ArrayList<>();
+            for (NotificacionCiudadanoDoc vinculo : lstDocEnlazados) {
+                ExpedienteDocDTO documento = ExpedienteDocToDTO.INSTANCE.apply(vinculo.getExpedienteDoc());
+                if (documento.getCdFica() != null) {
+                    documento.setNombreFicheroFica(
+                            this.expedienteService.recuperarNombreFicheroFica(documento.getCdFica()));
+                }
+                lstDocumentosDto.add(documento);
+            }
+            dto.setLstExpedienteDocDTO(lstDocumentosDto);
 
             lstDto.add(dto);
         }

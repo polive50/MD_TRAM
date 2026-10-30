@@ -53,6 +53,7 @@ import org.madrid.saii.lib.dto.ExpedienteJusEcoDTO;
 import org.madrid.saii.lib.dto.ExpedienteJusTecDTO;
 import org.madrid.saii.lib.dto.FinanciacionDTO;
 import org.madrid.saii.lib.dto.ImpresoDTO;
+import org.madrid.saii.lib.dto.NotificacionCiudadanoDTO;
 import org.madrid.saii.lib.dto.PtfrRecuperaDocFirmadoDTO;
 import org.madrid.saii.lib.dto.SolicitudDTO;
 import org.madrid.saii.lib.dto.TramiteSolicitanteExpedienteDTO;
@@ -72,6 +73,7 @@ import org.madrid.saii.lib.services.ExpedienteHistService;
 import org.madrid.saii.lib.services.ExpedienteService;
 import org.madrid.saii.lib.services.ImpresoService;
 import org.madrid.saii.lib.services.InformeHelperPdfService;
+import org.madrid.saii.lib.services.NotificacionCiudadanoService;
 import org.madrid.saii.lib.services.PdfService;
 import org.madrid.saii.lib.services.SolicitudService;
 import org.madrid.saii.lib.services.TramiteService;
@@ -409,6 +411,10 @@ public class ExpedienteBean extends CatalogoBean<Expediente, Integer> {
     @Autowired
     @Qualifier("cataService")
     private CataService cataService;
+    
+    @Autowired
+    @Qualifier("notificacionCiudadanoService")
+    private NotificacionCiudadanoService notificacionCiudadanoService;
     
     
     @Autowired
@@ -999,6 +1005,8 @@ public class ExpedienteBean extends CatalogoBean<Expediente, Integer> {
                       expedienteDTO.setBAvisoResolucion(Boolean.FALSE);
                       expedienteDTO.setBAvisoEvaluacion(Boolean.FALSE);
                       expedienteDTO.setBAvisoJustificacion(Boolean.FALSE);
+                      expedienteDTO.setBAvisoNotifCiudadano(Boolean.FALSE);
+                  
                   }
                   
                   if (Boolean.TRUE.equals(comprobarResolucionProvisionalRevisada())) {
@@ -1006,6 +1014,36 @@ public class ExpedienteBean extends CatalogoBean<Expediente, Integer> {
                   }
                   
                   
+                  //comprobamos el aviso de comunicaciones
+                  Integer idExpedienteSeleccionado = this.getIdExpediente();
+                  expedienteDTO.setBAvisoNotifCiudadano(Boolean.FALSE);
+
+                  if (idExpedienteSeleccionado != null) {
+
+                      List<AtlasFilter> filtrosComunicaciones = new ArrayList<>();
+                      filtrosComunicaciones.add(new AtlasFilter(Constantes.Filtro.FILTRO_EXPEDIENTE_IDEXPEDIENTE, idExpedienteSeleccionado, Operador.EQUALS));
+                      filtrosComunicaciones.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
+
+                      List<AtlasSort> ordenComunicaciones = new ArrayList<>();
+                      ordenComunicaciones.add(new AtlasSort("idNotificacion", false));
+
+                      // Usamos Integer.MAX_VALUE para evitar un error de paginación negativa en Hibernate
+                      List<NotificacionCiudadanoDTO> comunicacionesPagina = this.notificacionCiudadanoService
+                              .buscarComunicaciones(0, Integer.MAX_VALUE, filtrosComunicaciones, ordenComunicaciones);
+
+                      Integer pedienteRevision = this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoNotifiCiud.PENDIENTE_REVISION);
+
+                      if (comunicacionesPagina != null && !comunicacionesPagina.isEmpty() && pedienteRevision != null) {
+                          expedienteDTO.setBAvisoNotifCiudadano(
+                              comunicacionesPagina.stream().anyMatch(notif -> 
+                                  notif != null 
+                                  && notif.getEstadoDTO() != null 
+                                  && Objects.equals(notif.getEstadoDTO().getIdValor(), pedienteRevision)
+                              )
+                          );
+                      }
+                  }
+    
                 }
             }
         } catch (ServiceException e) {

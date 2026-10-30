@@ -243,6 +243,21 @@ public interface DocumentoPtfrService
             throws ServiceException;
     
     /**
+     * Envía a la cola de Portafirmas la resolución de concesión definitiva.
+     *
+     * @param convocatoria convocatoria de la resolución
+     * @param idExpedienteDoc documento de concesión asociado al expediente
+     * @param documentoAdjunto contenido del PDF recuperado de FICA
+     * @param idDocPtfrPadre cero para la primera petición o identificador de su padre
+     * @param usuario usuario que realiza el envío
+     * @return identificador de la petición creada o null si ya existe una activa
+     * @throws ServiceException si el documento no corresponde o falla el envío
+     */
+    public Integer enviarResolucionConcesionDefinitiva(ConvocatoriaDTO convocatoria,
+            Integer idExpedienteDoc, byte[] documentoAdjunto, Integer idDocPtfrPadre,
+            String usuario) throws ServiceException;
+    
+    /**
      *
      * @param convocatoria convocatoria de la resolución
      * @param idExpedienteDoc documento conjunto asociado al expediente

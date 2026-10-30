@@ -10099,10 +10099,24 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
                                                
                 //buscar el historico y poner esos estados y provional
                 List<AtlasFilter> filtros = new ArrayList<>();
+                List<Integer> idsEstadosIgnorar = new ArrayList<>();
+                Integer idExcluidoProv = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL);
+                Integer idDesistidoProv = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL);
                 filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDEXPEDIENTE,expediente.getIdExpediente(), Operador.EQUALS));
-                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR, expediente.getEstado().getIdValor(), Operador.NOT_EQUALS));
+                //filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR, expediente.getEstado().getIdValor(), Operador.NOT_EQUALS));
                 filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR_PROVISIONAL, Operador.NULL));
-                
+
+                 if (expediente.getEstado() != null && expediente.getEstado().getIdValor() != null) {
+                     idsEstadosIgnorar.add(expediente.getEstado().getIdValor());
+                 }
+                 if (idExcluidoProv != null) {
+                     idsEstadosIgnorar.add(idExcluidoProv);
+                 }
+                 if (idDesistidoProv != null) {
+                     idsEstadosIgnorar.add(idDesistidoProv);
+                 }
+
+                 filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR, idsEstadosIgnorar, Operador.NOT_IN));
 
                 List<AtlasSort> orden = new ArrayList<>();
                 orden.add(new AtlasSort(Constantes.Filtro.FILTRO_ID_EXPEDIENTE_HIST, Boolean.FALSE));

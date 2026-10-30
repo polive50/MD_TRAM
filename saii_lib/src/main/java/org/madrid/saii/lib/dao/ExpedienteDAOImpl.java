@@ -2817,7 +2817,7 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
             Integer idConvocatoria, Integer idEstado) {
         StringBuilder queryHql = new StringBuilder();
         queryHql.append(" select new org.madrid.saii.lib.dto.ResolucionConcesionDTO(");
-        queryHql.append(" co.idLineaAyuda.dsValor, ex.interesado.dsNombre,");
+        queryHql.append(" ex.idExpediente, co.idLineaAyuda.dsValor, ex.interesado.dsNombre,");
         queryHql.append(" ex.cdExpediente, ex.interesado.cdNumIden)");
         queryHql.append(" from Expediente ex");
         queryHql.append(" join ex.solicitud so");

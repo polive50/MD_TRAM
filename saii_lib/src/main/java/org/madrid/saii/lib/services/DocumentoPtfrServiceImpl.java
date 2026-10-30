@@ -3275,6 +3275,74 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
                 idEstadoInterno, esRevAdmin);
     }
     
+    /**
+     * Valida y encola la resolución de concesión definitiva sin cambiar el estado del expediente.
+     */
+    @Override
+    @Transactional(readOnly = false, rollbackFor = { ServiceException.class, RuntimeException.class })
+    public Integer enviarResolucionConcesionDefinitiva(ConvocatoriaDTO convocatoria,
+            Integer idExpedienteDoc, byte[] documentoAdjunto,
+            Integer idDocPtfrPadre, String usuario) throws ServiceException {
+        if (convocatoria == null || convocatoria.getIdConvocatoria() == null
+                || idExpedienteDoc == null || documentoAdjunto == null || documentoAdjunto.length == 0
+                || idDocPtfrPadre == null || idDocPtfrPadre < 0) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+        ExpedienteDoc documento = this.expedienteDocDAO.find(idExpedienteDoc);
+        Integer idTramite = this.utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.Tramite.CONCESION_DEFINITIVA);
+        if (idTramite == null || documento == null || documento.getFcBajaFila() != null
+                || documento.getExpediente() == null || documento.getCdFica() == null
+                || documento.getTipoDocumento() == null || documento.getTramite() == null
+                || !this.utilConstantes.getGlobalCatalogosValores()
+                        .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA)
+                        .equals(documento.getTipoDocumento().getIdValor())
+                || !idTramite.equals(documento.getTramite().getIdValor())) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+        Expediente expediente = documento.getExpediente();
+        if (expediente.getSolicitud() == null
+                || expediente.getSolicitud().getFcBajaFila() != null
+                || expediente.getSolicitud().getConvocatoria() == null
+                || expediente.getSolicitud().getConvocatoria().getFcBajaFila() != null
+                || expediente.getFcBajaFila() != null
+                || !convocatoria.getIdConvocatoria().equals(
+                        expediente.getSolicitud().getConvocatoria().getIdConvocatoria())) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+        if (Boolean.TRUE.equals(consultarDocumentoPortafirmaPorTramite(expediente.getIdExpediente(), idTramite))) {
+            return null;
+        }
+        Integer estadoPropuesta = this.utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO);
+        if (estadoPropuesta == null || expediente.getEstado() == null
+                || !estadoPropuesta.equals(expediente.getEstado().getIdValor())) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+        ExpedienteDTO expedienteDTO = this.expedienteService.buscarIdSimple(
+                expediente.getIdExpediente(), Boolean.FALSE);
+        if (idDocPtfrPadre > 0) {
+            DocumentoPtfr padre = this.find(idDocPtfrPadre);
+            if (padre == null || padre.getFcBajaFila() != null
+                    || !Integer.valueOf(0).equals(padre.getIdDocPtfrPadre())
+                    || padre.getTramite() == null
+                    || !idTramite.equals(padre.getTramite().getIdValor())) {
+                throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+            }
+        }
+        DocumentoPtfr peticion = this.crearEnvioDocumentoPtfr(convocatoria, expedienteDTO,
+                idTramite, documentoAdjunto, null, null, null, idDocPtfrPadre);
+        if (peticion.getIdDocumentoPtfr() == null) {
+            throw new ServiceException(
+                    "No se ha podido registrar la resolución en la cola de Portafirmas.");
+        }
+        documento.setEstado(new CatalogosValores(this.utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.EstadoDocumento.ENVIO_COLA_NOTIFICACIONES)));
+        documento = this.expedienteDocDAO.merge(documento);
+        this.expedienteDocHistDAO.crearHistorico(documento, usuario);
+        return peticion.getIdDocumentoPtfr();
+    }
+    
     @Override
     @Transactional(readOnly = false, rollbackFor = { ServiceException.class, RuntimeException.class })
     public Integer enviarResolucionIndividualDefinitiva(ConvocatoriaDTO convocatoria,
