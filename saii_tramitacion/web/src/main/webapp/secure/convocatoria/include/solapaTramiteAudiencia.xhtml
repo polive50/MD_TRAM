@@ -976,12 +976,13 @@
 <!--                         onclick="atlas.ui.Loading.showLoad('appLoading')" -->
 <!--                         oncomplete="atlas.ui.Loading.hideLoad('appLoading')"> -->
 <!--                     </atlasp:button> -->
+                    <!-- VMM 30/10/26 MD-3199: el update apuntaba a outPanelSubsanacionReqDoc (solapaRequisitos, copia de otra modal); se actualiza el panel de esta modal -->
                     <atlasp:button value="#{bundle['popup.cerrar']}"
                         alt="#{bundle['popup.cerrar']}"
                         title="#{bundle['popup.cerrar']}"
                         icon="fas fa-times" tipoBoton="btn-secondary"
                         action="#{resolucionBean.cerrarDesistimientoExpresoDialog}"
-                        ajax="true" process="@this" update="outPanelSubsanacionReqDoc"
+                        ajax="true" process="@this" update="outPanelSubirDesistimientoExpreso"
                         onclick="atlas.ui.Loading.showLoad('appLoading')"
                         oncomplete="atlas.ui.Loading.hideLoad('appLoading')">
                     </atlasp:button>

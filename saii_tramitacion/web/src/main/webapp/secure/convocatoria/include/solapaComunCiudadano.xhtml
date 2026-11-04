@@ -117,38 +117,39 @@
                     styleClass="comboObligatorio" recargaAutomatica="true" />
                 <h:outputLabel for="exponeComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.expone']} *" />
                 <h:panelGroup layout="block">
-                    <p:inputTextarea id="exponeComunicacionCiudadano" rows="3" maxlength="500" style="width:95%"
+                    <!-- VMM 30/10/26 MD-3199: Expone y Solicita pasan de 500 a 2000 caracteres (ver tambien validarComunicacion y messages_es) -->
+                    <p:inputTextarea id="exponeComunicacionCiudadano" rows="3" maxlength="2000" style="width:95%"
                         value="#{comunCiudadanoBean.nuevaComunicacion.tlExpone}"
                         validatorMessage="#{bundle['comunicacionCiudadano.error.exponeLongitud']}"
                         counter="contadorExponeComunicacionCiudadano"
                         counterTemplate="#{bundle['comunicacionCiudadano.caracteresRestantes']}">
-                        <f:validateLength maximum="500" />
+                        <f:validateLength maximum="2000" />
                     </p:inputTextarea>
                     <h:outputText id="contadorExponeComunicacionCiudadano" style="display:block" />
                 </h:panelGroup>
                 <h:outputLabel for="solicitaComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.solicita']} *" />
                 <h:panelGroup layout="block">
-                    <p:inputTextarea id="solicitaComunicacionCiudadano" rows="3" maxlength="500" style="width:95%"
+                    <p:inputTextarea id="solicitaComunicacionCiudadano" rows="3" maxlength="2000" style="width:95%"
                         value="#{comunCiudadanoBean.nuevaComunicacion.tlSolicita}"
                         validatorMessage="#{bundle['comunicacionCiudadano.error.solicitaLongitud']}"
                         counter="contadorSolicitaComunicacionCiudadano"
                         counterTemplate="#{bundle['comunicacionCiudadano.caracteresRestantes']}">
-                        <f:validateLength maximum="500" />
+                        <f:validateLength maximum="2000" />
                     </p:inputTextarea>
                     <h:outputText id="contadorSolicitaComunicacionCiudadano" style="display:block" />
                 </h:panelGroup>
                 <h:outputLabel for="fechaFirmaComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.fechaFirma']}" />
                 <h:panelGroup layout="block" style="width:95%">
-                    <p:calendar id="fechaFirmaComunicacionCiudadano" style="display:inline-flex;width:100%"
-                        inputStyle="width:calc(100% - 2.4em);box-sizing:border-box"
+                    <!-- VMM 30/10/26 MD-3199: se usa atlasp:calendario (como en el resto de pantallas): trae el icono del calendario
+                         y un campo de tamaño reducido. El style sube el z-index del desplegable para que no quede detras de la modal -->
+                    <style>.ui-datepicker { z-index: 100000 !important; }</style>
+                    <atlasp:calendario id="fechaFirmaComunicacionCiudadano"
                         value="#{comunCiudadanoBean.nuevaComunicacion.fcFirmaEreg}"
-                        pattern="dd/MM/yyyy" mask="99/99/9999" navigator="true" locale="es_ES"
-                        styleClass="atlas-cal" showOn="both" panelStyle="z-index:100000 !important;">
-                        <f:convertDateTime pattern="dd/MM/yyyy" />
-                    </p:calendar>
+                        datePattern="dd/MM/yyyy" enableManualInput="true" mask="99/99/9999" />
                 </h:panelGroup>
                 <h:outputLabel for="codigoEregComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.codigoEreg']}" />
-                <p:inputMask id="codigoEregComunicacionCiudadano" mask="99/999999.9/99" style="width:95%"
+                <!-- VMM 30/10/26 MD-3199: campo mas pequeño (como el de la fecha); la mascara tiene 14 caracteres -->
+                <p:inputMask id="codigoEregComunicacionCiudadano" mask="99/999999.9/99" style="width:12em"
                     value="#{comunCiudadanoBean.nuevaComunicacion.cdEreg}" />
                 <h:outputLabel for="unidadAdministrativaComunicacionCiudadano" value="#{bundle['convocatorias.detalle.solicitudes.expedientes.comunicaciones.label.unidadAdministrativa']}" />
                 <p:inputText id="unidadAdministrativaComunicacionCiudadano" maxlength="200" style="width:95%"

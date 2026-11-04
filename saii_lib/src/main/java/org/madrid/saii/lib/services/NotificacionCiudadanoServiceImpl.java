@@ -298,9 +298,10 @@ public class NotificacionCiudadanoServiceImpl extends
                 || comunicacion.getExpedienteDTO().getIdExpediente() == null) {
             throw new ServiceException("No se ha seleccionado un expediente para la nueva comunicación.");
         }
-        if (StringUtils.isBlank(comunicacion.getTlExpone()) || comunicacion.getTlExpone().length() > 500
-                || StringUtils.isBlank(comunicacion.getTlSolicita()) || comunicacion.getTlSolicita().length() > 500) {
-            throw new ServiceException("Expone y Solicita son obligatorios y admiten un máximo de 500 caracteres.");
+        // VMM 30/10/26 MD-3199: Expone y Solicita pasan de 500 a 2000 caracteres
+        if (StringUtils.isBlank(comunicacion.getTlExpone()) || comunicacion.getTlExpone().length() > 2000
+                || StringUtils.isBlank(comunicacion.getTlSolicita()) || comunicacion.getTlSolicita().length() > 2000) {
+            throw new ServiceException("Expone y Solicita son obligatorios y admiten un máximo de 2000 caracteres.");
         }
         this.validarCodigoEreg(comunicacion.getCdEreg());
         List<CatalogosValoresDTO> tiposComunicacion = this.obtenerTiposComunicacionPermitidos(
@@ -442,16 +443,10 @@ public class NotificacionCiudadanoServiceImpl extends
             List<NotificacionCiudadanoDoc> lstDocEnlazados = this.notificacionCiudadanoDocDAO
                     .find(filtrosDoc, null);
 
-            List<ExpedienteDocDTO> lstDocumentosDto = new ArrayList<>();
-            for (NotificacionCiudadanoDoc vinculo : lstDocEnlazados) {
-                ExpedienteDocDTO documento = ExpedienteDocToDTO.INSTANCE.apply(vinculo.getExpedienteDoc());
-                if (documento.getCdFica() != null) {
-                    documento.setNombreFicheroFica(
-                            this.expedienteService.recuperarNombreFicheroFica(documento.getCdFica()));
-                }
-                lstDocumentosDto.add(documento);
-            }
-            dto.setLstExpedienteDocDTO(lstDocumentosDto);
+            dto.setLstExpedienteDocDTO(lstDocEnlazados.stream()
+                    .map(NotificacionCiudadanoDoc::getExpedienteDoc)
+                    .map(ExpedienteDocToDTO.INSTANCE)
+                    .collect(Collectors.toList()));
 
             lstDto.add(dto);
         }

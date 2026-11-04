@@ -998,6 +998,8 @@ public class ResolucionConvBean {
         }
         UploadedFile archivo = this.archivoResolucionConcesion;
         if (archivo != null && archivo.getFileName() != null
+
+
                 && (!"pdf".equalsIgnoreCase(FilenameUtils.getExtension(archivo.getFileName()))
                         || archivo.getSize() == 0)) {
             AtlasMessageUtils.addErrorMessageFromBundle("resolucion.concesion.documento.pdf");
@@ -1012,7 +1014,7 @@ public class ResolucionConvBean {
         return this.idConvocatoria != null
                 && this.existeResolucionDefinitiva(Constantes.Tramite.CONCESION_DEFINITIVA);
     }
-
+    
     public void descargarFicheroResolucionConcesion() {
         if (this.idConvocatoria != null) {
             this.descargarFicheroResolucionDefinitiva(Constantes.Tramite.CONCESION_DEFINITIVA);
@@ -1031,7 +1033,7 @@ public class ResolucionConvBean {
         }
         this.enviarResolucionConcesionPortafirmasValidada();
     }
-
+    
     /**
      * Abre el diálogo de subida de la resolución individual de exclusión.
      */
@@ -1161,8 +1163,7 @@ public class ResolucionConvBean {
         boolean modoCorrecto = Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)
                 ? Boolean.TRUE.equals(this.getResolucionExclusionDesistimientoConjunta())
                 : this.habilitarBotonesResolucionIndividual();
-        if (!modoCorrecto || Boolean.TRUE.equals(esModoConsulta)
-                || this.tramitesResolucionEnviados.contains(tramite)) {
+        if (!modoCorrecto || Boolean.TRUE.equals(esModoConsulta)) {
             return false;
         }
         boolean hayProvisionales = this.hayProvisionalesResolucion(tramite);
@@ -1228,14 +1229,20 @@ public class ResolucionConvBean {
         this.enviarResolucionDefinitivaPortafirmas(Constantes.Tramite.DESISTIMIENTO);
     }
 
-    /** Indica si se puede enviar una resolución individual o conjunta a Portafirmas. */
+    /** 
+     * Indica si se puede enviar una resolución individual o conjunta a Portafirmas. 
+     */
     public boolean habilitarEnviarResolucionDefinitivaPortafirmas(Integer tramite,
             Boolean esModoConsulta) {
-        boolean modoCorrecto = Constantes.Tramite.CONCESION_DEFINITIVA.equals(tramite)
-                ? this.permitirModificarResolucionConcesion()
-                : Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)
-                ? Boolean.TRUE.equals(this.getResolucionExclusionDesistimientoConjunta())
-                : this.habilitarBotonesResolucionIndividual();
+        boolean modoCorrecto;
+        if (Constantes.Tramite.CONCESION_DEFINITIVA.equals(tramite)) {
+            modoCorrecto = this.permitirModificarResolucionConcesion();
+        } else if (Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)) {
+            modoCorrecto = Boolean.TRUE.equals(this.getResolucionExclusionDesistimientoConjunta());
+        } else {
+            modoCorrecto = this.habilitarBotonesResolucionIndividual();
+        }
+        
         if (!modoCorrecto || Boolean.TRUE.equals(esModoConsulta)
                 || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) {
             return false;
@@ -1337,6 +1344,10 @@ public class ResolucionConvBean {
     private void enviarResolucionDefinitivaPortafirmas(Integer tramite) {
         try {
             this.validarModoResolucionSeleccionado(tramite);
+            if (!this.habilitarEnviarResolucionDefinitivaPortafirmas(tramite,
+                    this.convocatoriasBean.isModoConsulta())) {
+                throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+            }
             if (this.convocatoriaDTO == null) {
                 this.convocatoriaDTO = this.convocatoriaService.buscarId(this.idConvocatoria);
             }
@@ -1404,6 +1415,12 @@ public class ResolucionConvBean {
                 throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
             }
             return;
+        }
+        if ((Boolean.FALSE.equals(Constantes.Tramite.EXCLUSION.equals(tramite))
+                && Boolean.FALSE.equals(Constantes.Tramite.DESISTIMIENTO.equals(tramite))
+                && Boolean.FALSE.equals(Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)))
+                || Boolean.TRUE.equals(this.convocatoriasBean.isModoConsulta())) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
         }
         this.idConvocatoriaEnviosConsultados = null;
         Boolean conjunta = this.getResolucionExclusionDesistimientoConjunta();
@@ -1637,9 +1654,10 @@ public class ResolucionConvBean {
             throw new ServiceException(
                     "No se puede subir la resolución hasta gestionar los expedientes provisionales o comprobar sus estados.");
         }
-        if (this.tramitesResolucionEnviados.contains(tramite)) {
+        if (!this.habilitarBotonSubirResolucionDefinitiva(tramite,
+                this.convocatoriasBean.isModoConsulta())) {
             throw new ServiceException(
-                    "No se puede subir la resolución porque este trámite ya se ha enviado a la cola de Portafirmas.");
+                    "No hay expedientes elegibles pendientes de envío para subir la resolución.");
         }
     }
 

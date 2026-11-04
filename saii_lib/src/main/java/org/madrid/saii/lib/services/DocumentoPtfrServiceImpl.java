@@ -3310,7 +3310,8 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
                         expediente.getSolicitud().getConvocatoria().getIdConvocatoria())) {
             throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
         }
-        if (Boolean.TRUE.equals(consultarDocumentoPortafirmaPorTramite(expediente.getIdExpediente(), idTramite))) {
+        if (Boolean.TRUE.equals(this.consultarDocumentoPortafirmaPorTramite(expediente.getIdExpediente(),
+                    idTramite))) {
             return null;
         }
         Integer estadoPropuesta = this.utilConstantes.getGlobalCatalogosValores()

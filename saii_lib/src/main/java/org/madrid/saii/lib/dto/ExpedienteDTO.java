@@ -694,8 +694,5 @@ public class ExpedienteDTO extends AuditoriaDTO implements Serializable {
      */
     private InteresadoDTO autorizado;
     
-    @JsonIgnore
-    private Boolean bAvisoNotifCiudadano;
-
     
 }

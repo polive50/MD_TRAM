@@ -78,6 +78,11 @@ public class ComunCiudadanoBean {
             }
             this.nuevaComunicacion = new NotificacionCiudadanoDTO();
             this.nuevaComunicacion.getExpedienteDTO().setIdExpediente(this.getIdExpediente());
+            // VMM 30/10/26 MD-3199: la unidad administrativa se propone con el area de registro del expediente (sigue siendo editable)
+            if (this.expedienteBean.getExpedienteDTO() != null
+                    && StringUtils.isNotBlank(this.expedienteBean.getExpedienteDTO().getDsDestinoEreg())) {
+                this.nuevaComunicacion.setDsDestinoEreg(this.expedienteBean.getExpedienteDTO().getDsDestinoEreg());
+            }
             this.comunicacionAbierta = true;
             PrimefacesUtils.mostrarPopupPF("dialogComunicacionCiudadano");
         } catch (ServiceException e) {

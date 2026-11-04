@@ -225,6 +225,21 @@ public interface DocumentoPtfrService
             Integer nmConstanteEstado) throws ServiceException;
     
     /**
+     * Envía a la cola de Portafirmas la resolución de concesión definitiva.
+     *
+     * @param convocatoria convocatoria de la resolución
+     * @param idExpedienteDoc documento de concesión asociado al expediente
+     * @param documentoAdjunto contenido del PDF recuperado de FICA
+     * @param idDocPtfrPadre cero para la primera petición o identificador de su padre
+     * @param usuario usuario que realiza el envío
+     * @return identificador de la petición creada o null si ya existe una activa
+     * @throws ServiceException si el documento no corresponde o falla el envío
+     */
+    public Integer enviarResolucionConcesionDefinitiva(ConvocatoriaDTO convocatoria,
+            Integer idExpedienteDoc, byte[] documentoAdjunto, Integer idDocPtfrPadre,
+            String usuario) throws ServiceException;
+    
+    /**
      * Registra en cola la resolución individual de exclusión o desistimiento y
      * actualiza el documento y el expediente en la misma transacción.
      *
@@ -241,21 +256,6 @@ public interface DocumentoPtfrService
             Integer idExpedienteDoc, Integer tramite, byte[] documentoAdjunto,
             Integer idDocPtfrPadre, String usuario)
             throws ServiceException;
-    
-    /**
-     * Envía a la cola de Portafirmas la resolución de concesión definitiva.
-     *
-     * @param convocatoria convocatoria de la resolución
-     * @param idExpedienteDoc documento de concesión asociado al expediente
-     * @param documentoAdjunto contenido del PDF recuperado de FICA
-     * @param idDocPtfrPadre cero para la primera petición o identificador de su padre
-     * @param usuario usuario que realiza el envío
-     * @return identificador de la petición creada o null si ya existe una activa
-     * @throws ServiceException si el documento no corresponde o falla el envío
-     */
-    public Integer enviarResolucionConcesionDefinitiva(ConvocatoriaDTO convocatoria,
-            Integer idExpedienteDoc, byte[] documentoAdjunto, Integer idDocPtfrPadre,
-            String usuario) throws ServiceException;
     
     /**
      *

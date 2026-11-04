@@ -14,29 +14,14 @@ public class ResolucionConcesionDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Identificador del expediente.
-     */
     private Integer idExpediente;
 
-    /**
-     * Línea de ayuda de la convocatoria.
-     */
     private String linea;
 
-    /**
-     * Nombre o razón social de la empresa.
-     */
     private String nombreEmpresa;
 
-    /**
-     * Número de expediente.
-     */
     private String numeroExpediente;
 
-    /**
-     * NIF de la empresa.
-     */
     private String nif;
 
     /**
@@ -45,7 +30,7 @@ public class ResolucionConcesionDTO implements Serializable {
     public ResolucionConcesionDTO() {
         super();
     }
-
+    
     public ResolucionConcesionDTO(Integer idExpediente, String linea, String nombreEmpresa,
             String numeroExpediente, String nif) {
         this(linea, nombreEmpresa, numeroExpediente, nif);
