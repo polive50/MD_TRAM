@@ -659,4 +659,30 @@ public class ExpedienteDocDAOImpl extends BaseDAOImpl<ExpedienteDoc, Integer>
         return (resultado != null) ? resultado : new ArrayList<ExpedienteDocDTO>();
     }
     
+    @Override
+    public ExpedienteDoc buscarDocumentoResolucionDescargable(Integer idConvocatoria, Integer idTramite,
+            Integer idTipoDocumento, List<Integer> idsEstado) {
+        StringBuilder hql = new StringBuilder();
+        hql.append(" SELECT doc FROM ExpedienteDoc doc ");
+        hql.append(" WHERE doc.expediente.solicitud.convocatoria.idConvocatoria = :idConvocatoria ");
+        hql.append(" AND doc.fcBajaFila IS NULL AND doc.expediente.fcBajaFila IS NULL ");
+        hql.append(" AND doc.tipoDocumento.idValor = :idTipoDocumento ");
+        hql.append(" AND doc.tramite.idValor = :idTramite AND doc.cdFica IS NOT NULL ");
+        hql.append(" AND doc.expediente.estado.idValor IN (:idsEstado) ");
+        hql.append(" AND NOT EXISTS (SELECT dp.idDocumentoPtfr FROM DocumentoPtfr dp ");
+        hql.append(" WHERE dp.idExpediente = doc.expediente.idExpediente ");
+        hql.append(" AND dp.tramite.idValor = :idTramite ");
+        hql.append(" AND dp.fcBajaFila IS NULL AND dp.idDocPtfrPadre IS NULL) ");
+        hql.append(" ORDER BY doc.fcAltaFila DESC, doc.idExpedienteDoc DESC ");
+
+        List<ExpedienteDoc> documentos = this.getHibernateTemplate().getSessionFactory()
+                .getCurrentSession().createQuery(hql.toString(), ExpedienteDoc.class)
+                .setParameter("idConvocatoria", idConvocatoria)
+                .setParameter("idTipoDocumento", idTipoDocumento)
+                .setParameter("idTramite", idTramite)
+                .setParameterList("idsEstado", idsEstado)
+                .setMaxResults(1).list();
+        return documentos.isEmpty() ? null : documentos.get(0);
+    }
+    
 }

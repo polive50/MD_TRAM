@@ -52,4 +52,10 @@ public interface ExpedienteDocDAO extends BaseDAO<ExpedienteDoc, Integer> {
     List<ExpedienteDocDTO> buscarDocumentos(Integer index, Integer pageSize, Integer idSolicitud,
             List<Integer> lstTramites, Integer idExpediente, List<AtlasSort> orden);
 
+    /**
+     * Obtiene el PDF más reciente de la resolución, excluyendo peticiones activas
+     * del mismo expediente y trámite con padre nulo.
+     */
+    ExpedienteDoc buscarDocumentoResolucionDescargable(Integer idConvocatoria, Integer idTramite,
+            Integer idTipoDocumento, List<Integer> idsEstado);
 }

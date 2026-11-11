@@ -278,14 +278,19 @@ public interface ExpedienteDAO extends BaseDAO<Expediente, Integer> {
     Map<Integer, Object[]> obtenerEstadosExpedienteSolicitantePorLote(List<Integer> idsSolicitud);
     
     /**
-     * Obtiene los expedientes concedidos definitivos aceptados de la convocatoria.
+     * Obtiene los expedientes de concesión de la convocatoria en los estados indicados.
      *
      * @param idConvocatoria identificador de la convocatoria
-     * @param idEstado identificador del estado concedido definitivo aceptado
+     * @param idsEstado identificadores de los estados incluidos
      * @return expedientes de la resolución de concesión
      */
     List<ResolucionConcesionDTO> listaResolucionConcesion(
-            Integer idConvocatoria, Integer idEstado);
+            Integer idConvocatoria, List<Integer> idsEstado);
+
+    /**
+     * Bloquea y refresca un expediente para la subida y el envío de concesión.
+     */
+    Expediente bloquearResolucionConcesion(Integer idExpediente);
 
     /**
      * VMM 27/10/26 MD-3094: obtiene los expedientes de la convocatoria que NO están en alguno de

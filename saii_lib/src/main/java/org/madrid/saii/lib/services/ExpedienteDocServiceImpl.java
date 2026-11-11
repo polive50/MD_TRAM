@@ -2182,6 +2182,97 @@ public class ExpedienteDocServiceImpl extends
         return listResult;
     }
 
-   
+    /**
+     * Guarda o sustituye el PDF únicamente para un expediente pendiente de concesión.
+     */
+    @Override
+    @Transactional(readOnly = false, rollbackFor = { ServiceException.class, RuntimeException.class })
+    public void guardarResolucionConcesion(Integer idConvocatoria, ExpedienteDocDTO documento,
+            String usuario) throws ServiceException {
+        if (documento == null || documento.getExpedienteDTO() == null
+                || documento.getContenidoFichero() == null || documento.getContenidoFichero().length == 0
+                || documento.getFicaMetadatos() == null
+                || !"pdf".equalsIgnoreCase(org.apache.commons.io.FilenameUtils.getExtension(
+                        documento.getFicaMetadatos().getNombreFichero()))
+                || documento.getTipoDocumentoDTO() == null || documento.getTramiteDTO() == null
+                || !this.utilConstantes.getGlobalCatalogosValores()
+                        .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA)
+                        .equals(documento.getTipoDocumentoDTO().getIdValor())
+                || !this.utilConstantes.getGlobalCatalogosValores()
+                        .get(Constantes.Tramite.CONCESION_DEFINITIVA)
+                        .equals(documento.getTramiteDTO().getIdValor())) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+        Expediente expediente = this.expedienteDAO.bloquearResolucionConcesion(
+                documento.getExpedienteDTO().getIdExpediente());
+        this.validarExpedientePendienteConcesion(expediente, idConvocatoria);
+        List<AtlasFilter> filtrosPeticion = new ArrayList<>();
+        filtrosPeticion.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDEXPEDIENTE,
+                expediente.getIdExpediente(), Operador.EQUALS));
+        filtrosPeticion.add(new AtlasFilter(Constantes.Filtro.FILTRO_TRAMITE,
+                this.utilConstantes.getGlobalCatalogosValores()
+                        .get(Constantes.Tramite.CONCESION_DEFINITIVA), Operador.EQUALS));
+        filtrosPeticion.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
+        if (!this.documentoPtfrDAO.find(filtrosPeticion, null).isEmpty()) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+        List<AtlasFilter> filtros = new ArrayList<>();
+        filtros.add(new AtlasFilter("expediente.idExpediente", expediente.getIdExpediente(), Operador.EQUALS));
+        filtros.add(new AtlasFilter("tipoDocumento.idValor", documento.getTipoDocumentoDTO().getIdValor(),
+                Operador.EQUALS));
+        filtros.add(new AtlasFilter("tramite.idValor", documento.getTramiteDTO().getIdValor(), Operador.EQUALS));
+        filtros.add(new AtlasFilter("fcBajaFila", Operador.NULL));
+        List<AtlasSort> orden = new ArrayList<>();
+        orden.add(new AtlasSort(Constantes.Filtro.FILTRO_FECHA_ALTA, false));
+        List<ExpedienteDocDTO> actuales = this.buscar(0, 1, filtros, orden);
+        // Selección bajo bloqueo: también evita duplicar documentos desde dos vistas antiguas.
+        documento.setIdExpedienteDoc(actuales.isEmpty() ? null : actuales.get(0).getIdExpedienteDoc());
+        documento.setCdFica(actuales.isEmpty() ? null : actuales.get(0).getCdFica());
+        boolean esSustitucion = documento.getCdFica() != null;
+        documento = this.subirDocumentoFica(documento);
+        if (esSustitucion) {
+            this.ficaService.actualizarMetadatos(documento.getCdFica(), documento.getFicaMetadatos());
+        }
+        this.guardarConHistorico(documento, usuario);
+    }
+
+    /**
+     * Comprueba el estado de entrada y las bajas de la convocatoria y la solicitud.
+     */
+    private void validarExpedientePendienteConcesion(Expediente expediente, Integer idConvocatoria)
+            throws ServiceException {
+        Integer estadoAceptado = this.utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO);
+        if (expediente == null || expediente.getFcBajaFila() != null
+                || expediente.getSolicitud() == null || expediente.getSolicitud().getFcBajaFila() != null
+                || expediente.getSolicitud().getConvocatoria() == null
+                || expediente.getSolicitud().getConvocatoria().getFcBajaFila() != null
+                || idConvocatoria == null || !idConvocatoria.equals(
+                        expediente.getSolicitud().getConvocatoria().getIdConvocatoria())
+                || estadoAceptado == null || expediente.getEstado() == null
+                || !estadoAceptado.equals(expediente.getEstado().getIdValor())) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+    }
+    
+    /**
+     * Recupera un PDF de resolución descargable aplicando la exclusión en la consulta.
+     */
+    @Override
+    public ExpedienteDocDTO buscarDocumentoResolucionDescargable(Integer idConvocatoria, Integer idTramite,
+            Integer idTipoDocumento, List<Integer> idsEstado)
+            throws ServiceException {
+        if (idConvocatoria == null || idTramite == null || idTipoDocumento == null
+                || idsEstado == null || idsEstado.isEmpty() || idsEstado.contains(null)) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+        try {
+            ExpedienteDoc documento = this.expedienteDocDAO.buscarDocumentoResolucionDescargable(
+                    idConvocatoria, idTramite, idTipoDocumento, idsEstado);
+            return documento == null ? null : ExpedienteDocToDTO.INSTANCE.apply(documento);
+        } catch (RuntimeException e) {
+            throw new ServiceException(e);
+        }
+    }
 
 }

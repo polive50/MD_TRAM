@@ -21,6 +21,8 @@ public class ResolucionConcesionDTO implements Serializable {
     private String nombreEmpresa;
 
     private String numeroExpediente;
+    
+    private String estadoExpediente;
 
     private String nif;
 
@@ -32,8 +34,8 @@ public class ResolucionConcesionDTO implements Serializable {
     }
     
     public ResolucionConcesionDTO(Integer idExpediente, String linea, String nombreEmpresa,
-            String numeroExpediente, String nif) {
-        this(linea, nombreEmpresa, numeroExpediente, nif);
+            String numeroExpediente, String estadoExpediente, String nif) {
+        this(linea, nombreEmpresa, numeroExpediente, estadoExpediente, nif);
         this.idExpediente = idExpediente;
     }
 
@@ -43,13 +45,15 @@ public class ResolucionConcesionDTO implements Serializable {
      * @param linea línea de ayuda
      * @param nombreEmpresa nombre o razón social
      * @param numeroExpediente número de expediente
+     * @param estadoExpediente descripción del estado
      * @param nif NIF de la empresa
      */
     public ResolucionConcesionDTO(String linea, String nombreEmpresa,
-            String numeroExpediente, String nif) {
+            String numeroExpediente, String estadoExpediente, String nif) {
         this.linea = linea;
         this.nombreEmpresa = nombreEmpresa;
         this.numeroExpediente = numeroExpediente;
+        this.estadoExpediente = estadoExpediente;
         this.nif = nif;
     }
 }

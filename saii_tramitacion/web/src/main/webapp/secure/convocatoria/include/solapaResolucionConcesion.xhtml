@@ -7,8 +7,8 @@
     xmlns:h="http://xmlns.jcp.org/jsf/html"
     xmlns:p="http://primefaces.org/ui"
     xmlns:atlasp="http://atlas.core.componentes/jsf/composite-p">
-    <atlasp:listaPaginada id="listaConcedidosDefinitivosAceptados"
-        listAndCountMethod="#{resolucionConvBean.obtenerConcedidosDefinitivosAceptados}"
+    <atlasp:listaPaginada id="listaExpedientesResolucionConcesion"
+        listAndCountMethod="#{resolucionConvBean.obtenerExpedientesResolucionConcesion}"
         sortMode="single" reflow="true" export="true" pijama="true"
         exportTitle="#{bundle['resolucion.concesion.subpestana.titulo']}"
         exportFile="#{bundle['resolucion.concesion.fichero']}">
@@ -31,6 +31,13 @@
             field="numeroExpediente" filtrable="false" exportable="true">
             <ui:define name="value">
                 <h:outputText value="#{item.numeroExpediente}" />
+            </ui:define>
+        </atlasp:columnaListaPaginada>
+        <atlasp:columnaListaPaginada
+            label="#{bundle['resolucion.concesion.estado.expediente']}"
+            field="estadoExpediente" filtrable="false" exportable="true">
+            <ui:define name="value">
+                <h:outputText value="#{item.estadoExpediente}" />
             </ui:define>
         </atlasp:columnaListaPaginada>
         <atlasp:columnaListaPaginada
@@ -70,7 +77,7 @@
             title="#{bundle['solapa.resol.boton.bajar.resol.definitiva']}"
             icon="fa fa-download" tipoBoton="btn-primary"
             rendered="#{!resolucionConvBean.habilitarBotonDescargarResolucionConcesion()}" />
-        <atlasp:button id="botonEnviarResolucionConcesionPortafirmas" ajax="true" process="@this" update="botoneraResolucionConcesion :convocatoriaForm:convocatoriaFormMessages"
+        <atlasp:button id="botonEnviarResolucionConcesionPortafirmas" ajax="true" process="@this" update="listaExpedientesResolucionConcesion botoneraResolucionConcesion :convocatoriaForm:convocatoriaFormMessages"
             action="#{resolucionConvBean.enviarResolucionConcesionPortafirmas}"
             value="#{bundle['boton.enviar.portafirma']}"
             alt="#{bundle['boton.enviar.portafirma']}"

@@ -143,6 +143,7 @@ public class DocumentoPtfrDAOImpl extends BaseDAOImpl<DocumentoPtfr, Integer>
         queryHql.append(" AND exp.solicitud.convocatoria.idConvocatoria = :idConvocatoria ");
         queryHql.append(" AND dp.tramite.nmConstante IN (:tramites) ");
         queryHql.append(" AND dp.fcBajaFila IS NULL ");
+        queryHql.append(" AND dp.idDocPtfrPadre IS NOT NULL ");
 
         Map<String, Object> params = new HashMap<>();
         params.put("idConvocatoria", idConvocatoria);

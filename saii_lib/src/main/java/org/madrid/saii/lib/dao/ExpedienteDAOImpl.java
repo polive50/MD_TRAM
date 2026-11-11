@@ -2731,7 +2731,7 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
         StringBuilder queryHql = new StringBuilder();
         queryHql.append(" select new org.madrid.saii.lib.dto.ResolucionExclusionDesistimientoDTO(");
         queryHql.append(" ex.idExpediente,  ex.convocatoriaSubmod.tlSubmodalidad, ex.interesado.dsNombre, ex.cdExpediente,");
-        queryHql.append(" ex.estado.dsValor, ex.interesado.cdNumIden, req.requisito.dsValor)");
+        queryHql.append(" ex.estado.dsValor, ex.interesado.cdNumIden, req.requisito.cdCodigo)");
         queryHql.append(" from ExpedienteReq req");
         queryHql.append(" join req.expediente ex");
         queryHql.append(" join ex.solicitud so");
@@ -2813,17 +2813,28 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
     
     
     @Override
+    public Expediente bloquearResolucionConcesion(Integer idExpediente) {
+        org.hibernate.Session sesion = this.getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Expediente expediente = (Expediente) sesion.get(Expediente.class, idExpediente,
+                org.hibernate.LockMode.PESSIMISTIC_WRITE);
+        if (expediente != null) {
+            sesion.refresh(expediente, org.hibernate.LockMode.PESSIMISTIC_WRITE);
+        }
+        return expediente;
+    }
+
+    @Override
     public List<ResolucionConcesionDTO> listaResolucionConcesion(
-            Integer idConvocatoria, Integer idEstado) {
+            Integer idConvocatoria, List<Integer> idsEstado) {
         StringBuilder queryHql = new StringBuilder();
         queryHql.append(" select new org.madrid.saii.lib.dto.ResolucionConcesionDTO(");
         queryHql.append(" ex.idExpediente, co.idLineaAyuda.dsValor, ex.interesado.dsNombre,");
-        queryHql.append(" ex.cdExpediente, ex.interesado.cdNumIden)");
+        queryHql.append(" ex.cdExpediente, ex.estado.dsValor, ex.interesado.cdNumIden)");
         queryHql.append(" from Expediente ex");
         queryHql.append(" join ex.solicitud so");
         queryHql.append(" join so.convocatoria co");
         queryHql.append(" where co.idConvocatoria = :idConvocatoria");
-        queryHql.append(" and ex.estado.idValor = :idEstado");
+        queryHql.append(" and ex.estado.idValor in (:idsEstado)");
         queryHql.append(" and co.fcBajaFila is null");
         queryHql.append(" and so.fcBajaFila is null");
         queryHql.append(" and ex.fcBajaFila is null");
@@ -2832,7 +2843,7 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
 
         Map<String, Object> params = new HashMap<>();
         params.put("idConvocatoria", idConvocatoria);
-        params.put("idEstado", idEstado);
+        params.put("idsEstado", idsEstado);
 
         @SuppressWarnings("unchecked")
         List<ResolucionConcesionDTO> listado =

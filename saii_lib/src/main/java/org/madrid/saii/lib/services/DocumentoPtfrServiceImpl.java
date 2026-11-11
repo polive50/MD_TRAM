@@ -3300,8 +3300,9 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
                 || !idTramite.equals(documento.getTramite().getIdValor())) {
             throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
         }
-        Expediente expediente = documento.getExpediente();
-        if (expediente.getSolicitud() == null
+        Expediente expediente = this.expedienteDAO.bloquearResolucionConcesion(
+                documento.getExpediente().getIdExpediente());
+        if (expediente == null || expediente.getSolicitud() == null
                 || expediente.getSolicitud().getFcBajaFila() != null
                 || expediente.getSolicitud().getConvocatoria() == null
                 || expediente.getSolicitud().getConvocatoria().getFcBajaFila() != null
@@ -3314,12 +3315,7 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
                     idTramite))) {
             return null;
         }
-        Integer estadoPropuesta = this.utilConstantes.getGlobalCatalogosValores()
-                .get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO);
-        if (estadoPropuesta == null || expediente.getEstado() == null
-                || !estadoPropuesta.equals(expediente.getEstado().getIdValor())) {
-            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
-        }
+        this.validarExpedientePendienteConcesion(expediente, convocatoria.getIdConvocatoria());
         ExpedienteDTO expedienteDTO = this.expedienteService.buscarIdSimple(
                 expediente.getIdExpediente(), Boolean.FALSE);
         if (idDocPtfrPadre > 0) {
@@ -3342,6 +3338,25 @@ private DocumentoPtfrDTO registrarEnvioPortafirmas(ExpedienteDTO expedienteDTO,
         documento = this.expedienteDocDAO.merge(documento);
         this.expedienteDocHistDAO.crearHistorico(documento, usuario);
         return peticion.getIdDocumentoPtfr();
+    }
+    
+    /**
+     * Comprueba el estado de entrada y las bajas de la convocatoria y la solicitud.
+     */
+    private void validarExpedientePendienteConcesion(Expediente expediente, Integer idConvocatoria)
+            throws ServiceException {
+        Integer estadoAceptado = this.utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO);
+        if (expediente == null || expediente.getFcBajaFila() != null
+                || expediente.getSolicitud() == null || expediente.getSolicitud().getFcBajaFila() != null
+                || expediente.getSolicitud().getConvocatoria() == null
+                || expediente.getSolicitud().getConvocatoria().getFcBajaFila() != null
+                || idConvocatoria == null || !idConvocatoria.equals(
+                        expediente.getSolicitud().getConvocatoria().getIdConvocatoria())
+                || estadoAceptado == null || expediente.getEstado() == null
+                || !estadoAceptado.equals(expediente.getEstado().getIdValor())) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
     }
     
     @Override
