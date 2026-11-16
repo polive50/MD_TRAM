@@ -1195,6 +1195,8 @@ public class EnvioNotificacionesBean extends CatalogoBean<EnvioNotificacionesPor
                     tramitesNoFormPdf.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_REQUISITO));
                     tramitesNoFormPdf.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_CONVOCATORIA_PROVISIONAL));
                     tramitesNoFormPdf.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_CONVOCATORIA_DEFINITIVO));
+                    tramitesNoFormPdf.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO));
+                    
                     // AÑADIR TRAMITE NUEVO
 
                     if (tramitesNoFormPdf.contains(ptfrDTO.getTramiteDTO().getIdValor()) && ptfrDTO != null

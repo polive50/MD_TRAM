@@ -371,38 +371,34 @@ public class DocumentoServiceImpl implements DocumentoService {
         if(lstExpDocDTO == null || lstExpDocDTO.isEmpty()) {
             for (ExpedienteDocDTO expedienteDocDTO : lstExpedienteDocDTO) {
                 Integer cdFica = expedienteDocDTO.getCdFica();
-
                 // Recuperamos de FICA el nombre del fichero
-//                FicaFichero ficaFichero = this.ficaService.recuperarMetadatos(cdFica);
-                
+                FicaFichero ficaFichero = this.ficaService.recuperarMetadatos(cdFica);
                 //VMM 19/05/25 MD-1531: corregimos los nombres del fichero que llegan de FICA con caracteres especiales o tildes...
-//                int borrar = 1;
-//                String unicodeEscapedFilename = "test"+borrar;
-//                borrar++;
-////                if (ficaFichero != null) {
-////                    String rawFilename = ficaFichero.getNombreFichero();
-////                    unicodeEscapedFilename = this.expedienteService.toUnicodeEscaped(rawFilename);
-////                }
-//
-//                // Guardamos el id (cdFica) y nombre del fichero en la lista
-//                DocumentoDTO documentoDTO = new DocumentoDTO();
-//
-//                documentoDTO.setCdFica(cdFica);
-//                documentoDTO.setNombreFichero(unicodeEscapedFilename);
-//                documentoDTO.setTipoDoc(expedienteDocDTO.getTipoDocumentoDTO().getDsValor());
-//
-//                // Guardamos el contenido del fichero
-//                if (Boolean.TRUE.equals(bFica)) {
-//                    documentoDTO
-//                            .setContenidoFichero(this.ficaService.recuperar(cdFica).getDatosFichero());
-//                }
-//
-//                // Marcamos si está en EREG. Nos sirve para filtrar luego al generar
-//                // los listados de anexos
-//                documentoDTO.setEnEreg(StringUtils.isNotBlank(expedienteDocDTO.getCdAnexoEreg())
-//                        || StringUtils.isNotBlank(expedienteDocDTO.getCdAnexoEregPadre()));
-//
-//                lstDocumentosExpediente.add(documentoDTO);
+                 String unicodeEscapedFilename = "";
+                if (ficaFichero != null) {
+                    String rawFilename = ficaFichero.getNombreFichero();
+                    unicodeEscapedFilename = this.expedienteService.toUnicodeEscaped(rawFilename);
+                }
+
+                // Guardamos el id (cdFica) y nombre del fichero en la lista
+                DocumentoDTO documentoDTO = new DocumentoDTO();
+
+                documentoDTO.setCdFica(cdFica);
+                documentoDTO.setNombreFichero(unicodeEscapedFilename);
+                documentoDTO.setTipoDoc(expedienteDocDTO.getTipoDocumentoDTO().getDsValor());
+
+                // Guardamos el contenido del fichero
+                if (Boolean.TRUE.equals(bFica)) {
+                   documentoDTO
+                            .setContenidoFichero(this.ficaService.recuperar(cdFica).getDatosFichero());
+                }
+
+                // Marcamos si está en EREG. Nos sirve para filtrar luego al generar
+                // los listados de anexos
+                documentoDTO.setEnEreg(StringUtils.isNotBlank(expedienteDocDTO.getCdAnexoEreg())
+                        || StringUtils.isNotBlank(expedienteDocDTO.getCdAnexoEregPadre()));
+
+                lstDocumentosExpediente.add(documentoDTO);
 
             }
         }else {
@@ -413,7 +409,7 @@ public class DocumentoServiceImpl implements DocumentoService {
                 // Recuperamos de FICA el nombre del fichero
                 FicaFichero ficaFichero=null;
                 if(cdFica != null) {
-//                    ficaFichero = this.ficaService.recuperarMetadatos(cdFica);
+                    ficaFichero = this.ficaService.recuperarMetadatos(cdFica);
                 }
                 
                 

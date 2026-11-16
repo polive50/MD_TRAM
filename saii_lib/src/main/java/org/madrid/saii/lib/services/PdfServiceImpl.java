@@ -985,14 +985,16 @@ public class PdfServiceImpl implements PdfService {
                 for (ExpedienteDocDTO docDTO : lstExpDocDTO) {
                     ExpedienteDoc docAnexo = this.expedienteDocDAO
                             .find(docDTO.getIdExpedienteDoc());
+                    // VMM 05/11/26 MD-3208: los documentos que aporta el ciudadano en la aceptacion/desistimiento de la ayuda
+                    // quedan pendientes de revision por el gestor (antes se marcaban directamente como Revision OK)
                     docAnexo.setEstado(
-                            new CatalogosValores(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REVISION_OK)));
-                    docAnexo.getEstado().setNmConstante(Constantes.EstadoDocumento.REVISION_OK);
+                            new CatalogosValores(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PENDIENTE_REVISION)));
+                    docAnexo.getEstado().setNmConstante(Constantes.EstadoDocumento.PENDIENTE_REVISION);
                     docAnexo.setCodigoEreg(dto.getCdEreg());
                     docAnexo.setFcRegistro(dto.getFcFirma());
                     listaDocumentos.add(docAnexo);
                 }
-            
+
             } else if (utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_ADMINISTRATIVA).equals(idTramite)) {
                 pdfReciboPresentacion.setCodigoEreg(dto.getCdEregSubsanaAdm());
                 pdfReciboPresentacion.setFcRegistro(dto.getFcFirmaSubsanaAdm());
@@ -1029,9 +1031,11 @@ public class PdfServiceImpl implements PdfService {
                     for (ExpedienteDocDTO docDTO : lstExpDocDTO) {
                         ExpedienteDoc docAnexo = this.expedienteDocDAO
                                 .find(docDTO.getIdExpedienteDoc());
+                        // VMM 05/11/26 MD-3208: los documentos que adjunta el ciudadano en una notificacion quedan pendientes
+                        // de revision por el gestor (antes se marcaban directamente como Revision OK)
                         docAnexo.setEstado(
-                                new CatalogosValores(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REVISION_OK)));
-                        docAnexo.getEstado().setNmConstante(Constantes.EstadoDocumento.REVISION_OK);
+                                new CatalogosValores(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PENDIENTE_REVISION)));
+                        docAnexo.getEstado().setNmConstante(Constantes.EstadoDocumento.PENDIENTE_REVISION);
                         docAnexo.setCodigoEreg(dto.getCdEregNotifiCiud());
                         docAnexo.setFcRegistro(fechaFirma);
                         listaDocumentos.add(docAnexo);
@@ -2362,6 +2366,11 @@ public class PdfServiceImpl implements PdfService {
             ZipOutputStream zos = new ZipOutputStream(baos);
 
             for (ExpedienteDTO dto : lstExpedientesDTO) {
+                // Del expediente del solicitante/entidad se descarga siempre; de los expedientes
+                // de participantes/coordinadores solo se descargan los que estén Aceptados.
+                if (this.esParticipanteNoAceptado(dto)) {
+                    continue;
+                }
                 this.empaquetarZip(dto, zos, filtrarEstado);
             }
 
@@ -2377,6 +2386,30 @@ public class PdfServiceImpl implements PdfService {
         }
 
         return documentoDTO;
+    }
+
+    /**
+     * Indica si un expediente de un participante o coordinador NO debe incluirse en el zip
+     * de la solicitud por no estar en estado Aceptada. El expediente del solicitante/entidad
+     * (o cualquier otro tipo de actor) nunca se filtra por este motivo.
+     */
+    private boolean esParticipanteNoAceptado(ExpedienteDTO dto) {
+
+        Integer tipoActor = (dto.getConvocatoriaActDTO() != null
+                && dto.getConvocatoriaActDTO().getTipoActorDTO() != null)
+                        ? dto.getConvocatoriaActDTO().getTipoActorDTO().getNmConstante()
+                        : null;
+
+        boolean esParticipanteOCoordinador = Constantes.TipoActor.PARTICIPANTE.equals(tipoActor)
+                || Constantes.TipoActor.COORDINADOR.equals(tipoActor);
+
+        if (!esParticipanteOCoordinador) {
+            return false;
+        }
+
+        Integer estado = (dto.getEstadoDTO() != null) ? dto.getEstadoDTO().getNmConstante() : null;
+
+        return !Constantes.EstadoExpediente.ACEPTADA.equals(estado);
     }
 
     @Override

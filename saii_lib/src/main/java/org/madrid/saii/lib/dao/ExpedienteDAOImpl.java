@@ -35,6 +35,7 @@ import org.madrid.saii.lib.dto.ExpedienteContratoDTO;
 import org.madrid.saii.lib.dto.ExpedienteDTO;
 import org.madrid.saii.lib.dto.ExpedienteFiltrosDTO;
 import org.madrid.saii.lib.dto.ExpedienteReqDTO;
+import org.madrid.saii.lib.dto.PropuestaResolucionDTO;
 import org.madrid.saii.lib.dto.ComisionImportesDTO;
 import org.madrid.saii.lib.dto.ComisionSeleccionDTO;
 import org.madrid.saii.lib.dto.ResolucionConcesionDTO;
@@ -3385,12 +3386,16 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
     
     @Override
     public List<Integer> obtenerEstadosProvisionalesResolucion(Integer idConvocatoria,
-            List<Integer> idsEstado) {
+            List<Integer> idsEstado, Integer idEstadoPendRevisionAleg) {
         StringBuilder queryHql = new StringBuilder();
-        queryHql.append(" select distinct ex.estado.idValor from Expediente ex");
+        queryHql.append(" select distinct case when ex.estado.idValor = :idEstadoPendRevisionAleg ");
+        queryHql.append(" then provisional.idValor else ex.estado.idValor end from Expediente ex");
         queryHql.append(" join ex.solicitud so join so.convocatoria co");
+        queryHql.append(" left join ex.estadoProvisional provisional");
         queryHql.append(" where co.idConvocatoria = :idConvocatoria");
-        queryHql.append(" and ex.estado.idValor in (:idsEstado)");
+        queryHql.append(" and (ex.estado.idValor in (:idsEstado)");
+        queryHql.append(" or (ex.estado.idValor = :idEstadoPendRevisionAleg");
+        queryHql.append(" and provisional.idValor in (:idsEstado)))");
         queryHql.append(" and co.fcBajaFila is null");
         queryHql.append(" and so.fcBajaFila is null");
         queryHql.append(" and ex.fcBajaFila is null");
@@ -3398,11 +3403,67 @@ public class ExpedienteDAOImpl extends BaseDAOImpl<Expediente, Integer> implemen
         Map<String, Object> params = new HashMap<>();
         params.put("idConvocatoria", idConvocatoria);
         params.put("idsEstado", idsEstado);
+        params.put("idEstadoPendRevisionAleg", idEstadoPendRevisionAleg);
 
         @SuppressWarnings("unchecked")
         List<Integer> estados = (List<Integer>) super.executeHQLQueryList(
                 queryHql.toString(), params);
         return estados;
     }
+    
+    /**
+    *
+    */
+   @Override
+   public List<PropuestaResolucionDTO> listaPropuestaResolucion(
+           Integer idConvocatoria, List<Integer> idsEstados) {
+
+       StringBuilder queryHql = new StringBuilder();
+       // 1. SELECT respetando el orden del constructor de PropuestaResolucionDTO (Imagen 3)
+       queryHql.append("select new org.madrid.saii.lib.dto.PropuestaResolucionDTO(");
+       queryHql.append(" ex.idExpediente,");          // 1. idExpediente (Integer)
+       queryHql.append(" coSub.tlSubmodalidad,");     // 2. linea (String)
+       queryHql.append(" int.dsNombre,");            // 3. nombreEmpresa (String)
+       queryHql.append(" ex.cdExpediente,");          // 4. numeroExpediente (String)
+       queryHql.append(" ex.estado.dsValor,");        // 5. estadoExpediente (String)
+       queryHql.append(" int.cdNumIden");             // 6. nif (String)
+       queryHql.append(") ");
+
+       // 2. FROM e INNER JOINs estándar
+       queryHql.append("from Expediente ex ");
+       queryHql.append("inner join ex.solicitud so ");
+       queryHql.append("inner join so.convocatoria co ");
+
+       // 3. CORRECCIÓN DEL LEFT JOIN: Forzar el join ad-hoc simulando el SQL nativo
+       queryHql.append("left join ConvocatoriaSubmod coSub on co.idConvocatoria = coSub.idConvocatoria "); 
+
+       queryHql.append("left join ex.interesado int ");
+
+
+       // 4. Filtros WHERE habituales
+       queryHql.append("where co.idConvocatoria = :idConvocatoria ");
+       queryHql.append("and ex.estado.idValor in (:idsEstados) ");
+
+
+       // SE HA ELIMINADO DEFINITIVAMENTE LA CLÁUSULA ASOCIATIVA DE SUBMODALIDAD EN EL WHERE
+
+       queryHql.append(" and co.fcBajaFila is null");
+       queryHql.append(" and so.fcBajaFila is null");
+       queryHql.append(" and ex.fcBajaFila is null");
+       queryHql.append(" order by coSub.tlSubmodalidad, int.dsNombre, ex.cdExpediente");
+
+
+       Map<String, Object> params = new HashMap<>();
+       params.put("idConvocatoria", idConvocatoria);
+       params.put("idsEstados", idsEstados);
+//       params.put("idEstadoPendRevisionAleg", idEstadoPendRevisionAleg);
+//       params.put("idEstadoExclProvis", idEstadoExclProvis);
+
+       @SuppressWarnings("unchecked")
+       List<PropuestaResolucionDTO> listado =
+               (List<PropuestaResolucionDTO>) super.executeHQLQueryList(
+                       queryHql.toString(), params);
+       return listado;
+   }
   
 }

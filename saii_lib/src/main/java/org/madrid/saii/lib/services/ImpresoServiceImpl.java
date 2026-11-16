@@ -427,6 +427,16 @@ public class ImpresoServiceImpl extends BaseServiceImpl<Impreso, Integer, Impres
                 // Si es física
                 if (Boolean.TRUE.equals(esPF)) {
                     
+                    List<ConfiguracionDTO> listConfiguracion = this.configuracionService.obtenerConfiguracion(convocatoriaDTO);
+                    
+                    Boolean sinAcronimo = Boolean.FALSE;
+                    if(listConfiguracion != null && !listConfiguracion.isEmpty()) {
+                        listConfiguracion  = listConfiguracion.stream().filter(x-> x.getCdParametro().equalsIgnoreCase("SIN_ACRONIMO")).collect(Collectors.toList());
+                        if(listConfiguracion != null && !listConfiguracion.isEmpty()) {
+                            sinAcronimo =Boolean.TRUE;
+                        }
+                    }
+                    
                     if(impresoDTO.getTipoDTO() != null && impresoDTO.getTipoDTO().getIdValor() != null
                             && impresoDTO.getTipoDTO().getIdValor().equals(
                                     utilConstantes.getGlobalCatalogosValores().get(Constantes.TipoImpreso.FORMULARIO_COMPLEMENTARIO))) {
@@ -436,9 +446,9 @@ public class ImpresoServiceImpl extends BaseServiceImpl<Impreso, Integer, Impres
                             Expediente expPadre = this.expedienteDAO.find(expedienteDTO.getIdExpedientePadre());
                             if (expPadre != null && expPadre.getConvocatoriaAct() != null && expPadre.getConvocatoriaAct().getIdActor() != null ) {
                                 convocatoriaActDTO = ConvocatoriaActToDTO.INSTANCE.apply(this.convocatoriaActDAO.find(expPadre.getConvocatoriaAct().getIdActor()));
-                               
+
                             }
-                            
+
                             Solicitud solicitud= this.solicitudDAO.find(expedienteDTO.getIdSolicitud());
                             EntidadDTO entidadSolicitante= this.entidadService.buscarEntidadInteresado(solicitud.getInteresado().getIdInteresado());
                             if(entidadSolicitante == null || entidadSolicitante.getInteresadoDTO() == null || entidadSolicitante.getInteresadoDTO().getIdInteresado() == null) {
@@ -446,9 +456,9 @@ public class ImpresoServiceImpl extends BaseServiceImpl<Impreso, Integer, Impres
                                 entidadSolicitante.setInteresadoDTO(InteresadoToDTO.INSTANCE.apply(solicitud.getInteresado()));
                             }
                             expedienteDTO.setEntidadDTO(entidadSolicitante);
-                          
+
                         }
-                        informeHelperPdfService.agregarDatosEntidadSolicitante(document,expedienteDTO,convocatoriaActDTO);
+                        informeHelperPdfService.agregarDatosEntidadSolicitante(document,expedienteDTO,convocatoriaActDTO,sinAcronimo);
                     }
                     
                     
@@ -525,7 +535,7 @@ public class ImpresoServiceImpl extends BaseServiceImpl<Impreso, Integer, Impres
                             .obtenerAreasCientificasPorConvocatoria(impresoDTO.getIdConvocatoria());
                     
                     
-                    List<ConfiguracionDTO> listConfiguracion = this.configuracionService.obtenerConfiguracion(convocatoriaDTO);
+                    listConfiguracion = this.configuracionService.obtenerConfiguracion(convocatoriaDTO);
                     
                     Boolean excluidoArea = Boolean.FALSE;
                     if(listConfiguracion != null && !listConfiguracion.isEmpty()) {

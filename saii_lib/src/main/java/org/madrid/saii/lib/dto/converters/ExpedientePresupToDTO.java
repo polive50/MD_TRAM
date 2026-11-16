@@ -46,8 +46,12 @@ public enum ExpedientePresupToDTO implements Function<ExpedientePresup, Expedien
                 dto.setEstadoDTO(CatalogosValoresToDTO.INSTANCE.apply(entity.getEstado()));
             }
 
+            // VMM 12/11/26 MD-3231: no se pasan los montos dados de baja (FC_BAJA_FILA), la relacion OneToMany
+            // los traia todos y la pantalla de Financiacion seguia mostrando montos duplicados ya dados de baja
             if (entity.getLstExpedientePresupMonto() != null) {
-                entity.getLstExpedientePresupMonto().forEach(e -> {
+                entity.getLstExpedientePresupMonto().stream()
+                        .filter(e -> e != null && e.getFcBajaFila() == null)
+                        .forEach(e -> {
                     dto.getLstExpedientePresupMontoDTO()
                             .add(ExpedientePresupMontoToDTO.INSTANCE.apply(e));
                 });

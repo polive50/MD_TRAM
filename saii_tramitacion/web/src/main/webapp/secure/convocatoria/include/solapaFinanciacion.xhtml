@@ -1103,11 +1103,12 @@
                                     <p:inputNumber value="#{presupFinanciable.lstExpedientePresupMontoDTO[anualidad].nmImporte}"
                                                    symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
                                                    inputStyle="text-align: right; width: 100%; height: 28px !important;"
-                                                   styleClass="#{presupFinanciable.lstExpedientePresupMontoDTO[anualidad].esMontoTotal ? '' : (financiacionBean.modoConsultaFinanciacion ? '' : 'inputNumberObligatorio')}"
+                                                   styleClass="#{presupFinanciable.lstExpedientePresupMontoDTO[anualidad].esMontoTotal ? '' : (financiacionBean.modoConsultaFinanciacion ? '' : 'inputNumberObligatorio js-celda-importe')}"
                                                    readonly="#{presupFinanciable.lstExpedientePresupMontoDTO[anualidad].esMontoTotal or financiacionBean.modoConsultaFinanciacion}"
-                                                   onkeydown="if(event.key === 'Enter'){event.preventDefault(); return false;}">
-                                        <p:ajax event="change" process="@this" global="false"
-                                                listener="#{financiacionBean.edicionCeldaPresupuesto(presupFinanciable, anualidad, 1)}" />
+                                                   onkeydown="if(event.key === 'Enter'){event.preventDefault(); return false;}"
+                                                   >
+<!--                                         <p:ajax event="change" process="@this" global="false" -->
+<!--                                                 listener="#{financiacionBean.edicionCeldaPresupuesto(presupFinanciable, anualidad, 1)}" /> -->
                                     </p:inputNumber>
                                 </p:columns>
                                 
@@ -1123,8 +1124,8 @@
                                                      style="width: 96%; height: 28px !important; min-height: 28px !important; padding: 3px 6px !important; box-sizing: border-box; line-height: 1.3; resize: none; vertical-align: middle;"
                                                      rendered="#{presupFinanciable.tipoFinanciacionDTO.dsValor != 'TOTAL'}"
                                                      readonly="#{expedienteBean.expedienteDTO.estadoRevFinanDTO.nmConstante != 140 or financiacionBean.isExpedienteRechazadoDefinitivo()}">
-                                        <p:ajax event="change" process="@this" global="false"
-                                                listener="#{financiacionBean.guardarConceptoObservac(presupFinanciable)}" />
+<!--                                         <p:ajax event="change" process="@this" global="false" -->
+<!--                                                 listener="#{financiacionBean.guardarConceptoObservac(presupFinanciable)}" /> -->
                                     </p:inputTextarea>
                                 </p:column>
 
@@ -1222,11 +1223,12 @@
                                     <p:inputNumber readonly="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].esMontoTotal or financiacionBean.modoConsultaFinanciacion}"
                                                    symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
                                                    inputStyle="height: 28px !important;"
-                                                   styleClass="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].esMontoTotal ? '' : (financiacionBean.modoConsultaFinanciacion?'':'inputNumberObligatorio')}"
+                                                   styleClass="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].esMontoTotal ? '' : (financiacionBean.modoConsultaFinanciacion?'':'inputNumberObligatorio js-celda-importe')}"
                                                    value="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].nmImporte}"
-                                                   onkeydown="if(event.key === 'Enter'){event.preventDefault(); return false;}">
-                                        <p:ajax event="change" process="@this" global="false"
-                                                listener="#{financiacionBean.edicionCeldaPresupuesto(presupFinanciable, nCol,1)}" />
+                                                   onkeydown="if(event.key === 'Enter'){event.preventDefault(); return false;}"
+                                                   >
+<!--                                         <p:ajax event="change" process="@this" global="false" -->
+<!--                                                 listener="#{financiacionBean.edicionCeldaPresupuesto(presupFinanciable, nCol,1)}" /> -->
                                     </p:inputNumber>
                                 </p:columns>
 
@@ -1240,8 +1242,8 @@
                                                      rows="2" style="width:100%;"
                                                      rendered="#{presupFinanciable.tipoFinanciacionDTO.dsValor != 'TOTAL'}"
                                                      readonly="#{financiacionBean.modoConsultaFinanciacion or financiacionBean.isExpedienteRechazadoDefinitivo()}">
-                                        <p:ajax event="change" process="@this" global="false"
-                                                listener="#{financiacionBean.guardarConceptoObservac(presupFinanciable)}" />
+<!--                                         <p:ajax event="change" process="@this" global="false" -->
+<!--                                                 listener="#{financiacionBean.guardarConceptoObservac(presupFinanciable)}" /> -->
                                     </p:inputTextarea>
                                 </p:column>
                             </p:dataTable>
@@ -1416,13 +1418,14 @@
                                            symbol=" €" minValue="0" maxValue="9999999999.99" symbolPosition="s" decimalSeparator="," thousandSeparator="."
                                            readonly="#{presupFinanciable.lstExpedientePresupMontoDTO[anualidad].esMontoTotal or financiacionBean.modoConsultaFinanciacion}"
                                            styleClass="#{presupFinanciable.lstExpedientePresupMontoDTO[anualidad].esMontoTotal ?
-                                                 '' : (financiacionBean.modoConsultaFinanciacion?'':'inputNumberObligatorio')}"
-                                           onkeydown="if(event.key === 'Enter'){event.preventDefault(); return false;}">
-                                <p:ajax event="change"
-                                        process="@this"
-                                        listener="#{financiacionBean.edicionCeldaPresupuesto(presupFinanciable, anualidad, 2)}"
-                                        onstart="atlas.ui.Loading.showLoad('appLoading')"
-                                        oncomplete="atlas.ui.Loading.hideLoad('appLoading')" />
+                                                 '' : (financiacionBean.modoConsultaFinanciacion?'':'inputNumberObligatorio js-celda-importe')}"
+                                           onkeydown="if(event.key === 'Enter'){event.preventDefault(); return false;}"
+                                           >
+<!--                                 <p:ajax event="change" -->
+<!--                                         process="@this" -->
+<!--                                         listener="#{financiacionBean.edicionCeldaPresupuesto(presupFinanciable, anualidad, 2)}" -->
+<!--                                         onstart="atlas.ui.Loading.showLoad('appLoading')" -->
+<!--                                         oncomplete="atlas.ui.Loading.hideLoad('appLoading')" /> -->
                             </p:inputNumber>
                     
                             <f:facet name="footer">
@@ -1507,13 +1510,14 @@
                             symbol=" €" minValue="0"
                             maxValue="9999999999.99" symbolPosition="s"
                             decimalSeparator="," thousandSeparator="."
-                            styleClass="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].esMontoTotal ? '' : (financiacionBean.modoConsultaFinanciacion?'':'inputNumberObligatorio')}"
+                            styleClass="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].esMontoTotal ? '' : (financiacionBean.modoConsultaFinanciacion?'':'inputNumberObligatorio js-celda-importe')}"
                             value="#{presupFinanciable.lstExpedientePresupMontoDTO[nCol].nmImporte}"
-                            onkeydown="if(event.key === 'Enter'){event.preventDefault(); return false;}">
-                            <p:ajax event="change" process="@this"
-                                onstart="atlas.ui.Loading.showLoad('appLoading')"
-                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
-                                listener="#{financiacionBean.edicionCeldaPresupuesto(presupFinanciable, nCol, 2)}" />
+                            onkeydown="if(event.key === 'Enter'){event.preventDefault(); return false;}"
+                            >
+<!--                             <p:ajax event="change" process="@this" -->
+<!--                                 onstart="atlas.ui.Loading.showLoad('appLoading')" -->
+<!--                                 oncomplete="atlas.ui.Loading.hideLoad('appLoading')" -->
+<!--                                 listener="#{financiacionBean.edicionCeldaPresupuesto(presupFinanciable, nCol, 2)}" /> -->
                         </p:inputNumber>
                     </p:columns>
 
@@ -1525,10 +1529,10 @@
                                          rows="2" style="width:100%;"
                                          rendered="#{presupFinanciable.tipoFinanciacionDTO.dsValor != 'TOTAL'}"
                                          readonly="#{financiacionBean.modoConsultaFinanciacion or financiacionBean.isExpedienteRechazadoDefinitivo()}">
-                            <p:ajax event="change" process="@this"
-                                onstart="atlas.ui.Loading.showLoad('appLoading')"
-                                oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
-                                listener="#{financiacionBean.guardarConceptoObservac(presupFinanciable)}" />
+<!--                             <p:ajax event="change" process="@this" -->
+<!--                                 onstart="atlas.ui.Loading.showLoad('appLoading')" -->
+<!--                                 oncomplete="atlas.ui.Loading.hideLoad('appLoading')" -->
+<!--                                 listener="#{financiacionBean.guardarConceptoObservac(presupFinanciable)}" /> -->
                         </p:inputTextarea>
                     </p:column>
 
@@ -1692,7 +1696,8 @@
                         value="#{bundle['boton.guardar']}"
                         alt="#{bundle['boton.guardar']}"
                         title="#{bundle['boton.guardar']}"
-                        onclick="atlas.ui.Loading.showLoad('appLoading')"
+                            onclick="jQuery('.js-celda-importe.ui-inputnumber').each(function(){ var w = PrimeFaces.widgets[this.id.replace('_input','')]; if(w){ w.setValue(w.getValue()); } }); atlas.ui.Loading.showLoad('appLoading');"
+
                         oncomplete="atlas.ui.Loading.hideLoad('appLoading')"
                         icon="fas fa-save" tipoBoton="btn-success" />
                 </p:column>
@@ -2049,63 +2054,228 @@
         </p:outputPanel>
     </p:dialog>
     
-    <h:outputScript>
+        <h:outputScript>
         // <![CDATA[
-        function sincronizarAlturas(claseIzq, claseDer) {
-            var tablasIzq = $(claseIzq);
-            var tablasDer = $(claseDer);
+function sincronizarAlturas(claseIzq, claseDer) {
+    var tablasIzq = $(claseIzq);
+    var tablasDer = $(claseDer);
 
-            if (tablasIzq.length && tablasDer.length) {
-                // 1. Sincronizamos los encabezados (thead)
-                var headersIzq = tablasIzq.find('thead tr');
-                var headersDer = tablasDer.find('thead tr');
-                
-                headersIzq.each(function(index) {
-                    var hI = $(this);
-                    var hD = headersDer.eq(index);
-                    if (hI.length && hD.length) {
-                        hI.css('height', 'auto');
-                        hD.css('height', 'auto');
-                        var maxH = Math.max(hI.outerHeight(), hD.outerHeight());
-                        hI.css('height', maxH + 'px');
-                        hD.css('height', maxH + 'px');
-                    }
-                });
+    if (tablasIzq.length && tablasDer.length) {
+        // 1. Sincronizamos los encabezados (thead)
+        var headersIzq = tablasIzq.find('thead tr');
+        var headersDer = tablasDer.find('thead tr');
+        
+        headersIzq.each(function(index) {
+            var hI = $(this);
+            var hD = headersDer.eq(index);
+            if (hI.length && hD.length) {
+                hI.css('height', 'auto');
+                hD.css('height', 'auto');
+                var maxH = Math.max(hI.outerHeight(), hD.outerHeight());
+                hI.css('height', maxH + 'px');
+                hD.css('height', maxH + 'px');
+            }
+        });
 
-                // 2. Sincronizamos las filas de datos y totales (tbody)
-                var filasIzq = tablasIzq.find('tbody tr');
-                var filasDer = tablasDer.find('tbody tr');
+        // 2. Sincronizamos las filas de datos y totales (tbody)
+        var filasIzq = tablasIzq.find('tbody tr');
+        var filasDer = tablasDer.find('tbody tr');
+        
+        filasIzq.each(function(index) {
+            var fI = $(this);
+            var fD = filasDer.eq(index);
+            if (fI.length && fD.length) {
+                fI.css('height', 'auto');
+                fD.css('height', 'auto');
+                var maxH = Math.max(fI.outerHeight(), fD.outerHeight());
+                fI.css('height', maxH + 'px');
+                fD.css('height', maxH + 'px');
+            }
+        });
+    }
+}
+
+function sincronizarTodasLasTablas() {
+    sincronizarAlturas('.tabla-presupuesto', '.tabla-ayuda');
+    sincronizarAlturas('.tabla-presentado', '.tabla-solicitada');
+}
+
+$(document).ready(function() {
+    setTimeout(sincronizarTodasLasTablas, 150);
+});
+
+$(document).on('pfAjaxComplete', function() {
+    sincronizarTodasLasTablas();
+});
+
+
+
+
+
+
+
+
+
+
+/**
+ * Realiza el recuento aritmético local e inmediato sobre los componentes 
+ * de la tabla de conceptos y subtotales operando con la API nativa de PrimeFaces.
+ */
+function ejecutarRecalculoPresupuestoLocal($elementoInput) {
+    console.log("👉 [ATLAS TEST]: Sincronizando e igualando importes en el DOM y en los Widgets...");
+
+    function parsearMonedaATexto(texto) {
+        if (!texto) return 0;
+        var limpio = texto.replace(/[^\d.,-]/g, '').replace(/\./g, '').replace(',', '.');
+        var val = parseFloat(limpio);
+        return isNaN(val) ? 0 : val;
+    }
+
+    var $tabla = $elementoInput.closest('table');
+    var tieneSubtotales = $tabla.find('tbody tr.ui-datatable-summaryrow').length > 0;
+    
+    var $primeraFilaEditable = $tabla.find('tbody tr').filter(function() {
+        return $(this).find('.js-celda-importe').length > 0;
+    }).first();
+    
+    if (!$primeraFilaEditable.length) return;
+    var numeroAnualidades = $primeraFilaEditable.find('.js-celda-importe').length;
+
+    var $filasDeDatos = $tabla.find('tbody tr').filter(function() {
+        return $(this).find('.js-celda-importe').length > 0 && !$(this).hasClass('ui-datatable-summaryrow');
+    });
+
+    var totalesColumnasAnualidades = Array(numeroAnualidades).fill(0);
+    var granTotalGeneralAcumulado = 0;
+
+    // 1. RECALCULAR TOTALES HORIZONTALES (FILA POR FILA) Y SINCRONIZAR CON PRIMEBUFFERS
+    $filasDeDatos.each(function() {
+        var $fila = $(this);
+        var sumaFilaHorizontal = 0;
+        
+        $fila.find('.js-celda-importe').each(function(indexAnualidad) {
+            var $contenedorWidget = $(this);
+            var $inputNativo = $contenedorWidget.find('input');
+            if ($inputNativo.length) {
+                var valorCelda = parsearMonedaATexto($inputNativo.val());
+                sumaFilaHorizontal += valorCelda;
+                totalesColumnasAnualidades[indexAnualidad] += valorCelda;
                 
-                filasIzq.each(function(index) {
-                    var fI = $(this);
-                    var fD = filasDer.eq(index);
-                    if (fI.length && fD.length) {
-                        fI.css('height', 'auto');
-                        fD.css('height', 'auto');
-                        var maxH = Math.max(fI.outerHeight(), fD.outerHeight());
-                        fI.css('height', maxH + 'px');
-                        fD.css('height', maxH + 'px');
+                // SINCRONIZACIÓN CLAVE: Forzamos al objeto interno del framework a enterarse del valor escrito
+                var idWidget = $contenedorWidget.attr('id');
+                if (idWidget) {
+                    var widgetComponente = PrimeFaces.widgets[idWidget.replace('_input', '')];
+                    if (widgetComponente) {
+                        widgetComponente.value = valorCelda; // Actualiza el ViewState de JSF para evitar desfases al recargar
                     }
-                });
+                }
+            }
+        });
+
+        // Actualizamos de forma visual la columna de TOTAL horizontal de la fila (último inputNumber)
+        var $contenedorTotal = $fila.find('.ui-inputnumber').last();
+        var $inputTotalHorizontal = $contenedorTotal.find('input');
+        if ($inputTotalHorizontal.length) {
+            $inputTotalHorizontal.val(sumaFilaHorizontal.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }));
+            
+            var idTotal = $contenedorTotal.attr('id');
+            if (idTotal) {
+                var widgetTotalFila = PrimeFaces.widgets[idTotal.replace('_input', '')];
+                if (widgetTotalFila && typeof widgetTotalFila.setValue === 'function') {
+                    widgetTotalFila.value = sumaFilaHorizontal;
+                    widgetTotalFila.setValue(sumaFilaHorizontal);
+                }
             }
         }
+        
+        granTotalGeneralAcumulado += sumaFilaHorizontal;
+    });
 
-        function sincronizarTodasLasTablas() {
-            // Sincroniza las del presupuesto financiable (si existieran en la vista)
-            sincronizarAlturas('.tabla-presupuesto', '.tabla-ayuda');
+    // 2. RECALCULAR SUBTOTALES EN GRIS
+    if (tieneSubtotales) {
+        $tabla.find('tbody tr.ui-datatable-summaryrow').each(function() {
+            var $filaSubtotalGris = $(this);
+            var subtotalesPartidaAnualidad = Array(numeroAnualidades).fill(0);
+            var sumaSubtotalPartidaTotal = 0;
             
-            // Sincroniza las del presupuesto presentado y solicitado
-            sincronizarAlturas('.tabla-presentado', '.tabla-solicitada');
+            var $filasHijas = $filaSubtotalGris.prevUntil('.ui-datatable-summaryrow, .ui-datatable-headerrow, .p-dt-headerrow');
+            
+            $filasHijas.filter(function() { return $(this).find('.js-celda-importe').length > 0; }).each(function() {
+                $(this).find('.js-celda-importe').each(function(indexAnualidad) {
+                    var $input = $(this).find('input');
+                    if ($input.length) {
+                        var valor = parsearMonedaATexto($input.val());
+                        subtotalesPartidaAnualidad[indexAnualidad] += valor;
+                        sumaSubtotalPartidaTotal += valor;
+                    }
+                });
+            });
+            
+            var $celdasSubtotal = $filaSubtotalGris.find('td');
+            for (var i = 0; i < numeroAnualidades; i++) {
+                var formatoSubAnualidad = subtotalesPartidaAnualidad[i].toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+                $celdasSubtotal.eq(i + 1).text(formatoSubAnualidad).css({ 'font-weight': 'bold', 'text-align': 'right', 'padding-right': '12px', 'color': '#2C3E50' });
+            }
+            var formatoSubTotal = sumaSubtotalPartidaTotal.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+            $celdasSubtotal.eq(numeroAnualidades + 1).text(formatoSubTotal).css({ 'font-weight': 'bold', 'text-align': 'right', 'padding-right': '12px', 'color': '#2C3E50' });
+        });
+    }
+
+    // 3. ACTUALIZAR LA FILA INFERIOR DE TOTAL GENERAL (PIE DE PÁGINA)
+    var $todasLasFilas = $tabla.find('tbody tr');
+    var $filaTotalGeneral = $todasLasFilas.last();
+    
+    if ($filaTotalGeneral.length && !$filaTotalGeneral.hasClass('ui-datatable-summaryrow')) {
+        var $celdasFooterGlobal = $filaTotalGeneral.find('td');
+        
+        for (var j = 0; j < numeroAnualidades; j++) {
+            var formatoFootAnualidad = totalesColumnasAnualidades[j].toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+            $celdasFooterGlobal.eq(j + 1).text(formatoFootAnualidad).css({ 'font-weight': 'bold', 'color': 'black', 'text-align': 'right', 'padding-right': '12px' });
         }
+        
+        var totalGlobalFormateado = granTotalGeneralAcumulado.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+        $celdasFooterGlobal.eq(numeroAnualidades + 1).text(totalGlobalFormateado).css({ 'font-weight': 'bold', 'color': 'black', 'text-align': 'right', 'padding-right': '12px' });
+    }
 
-        $(document).ready(function() {
-            // Retraso de seguridad para que Primefaces dibuje todo (p.ej. anchos de inputNumber)
-            setTimeout(sincronizarTodasLasTablas, 150);
-        });
+    if (typeof sincronizarTodasLasTablas === 'function') {
+        sincronizarTodasLasTablas();
+    }
+}
 
-        $(document).on('pfAjaxComplete', function() {
-            sincronizarTodasLasTablas();
-        });
-        // ]]>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Vinculación mediante escucha delegada omnidireccional y simultánea
+$(document).ready(function() {
+    // Al añadir 'keyup' e 'input', el navegador ejecutará la función matemática en cada pulsación de tecla
+    $(document).on('change keyup input', '.js-celda-importe.ui-inputnumber input, .tabla-presupuesto tbody .ui-inputnumber input', function() {
+        ejecutarRecalculoPresupuestoLocal($(this));
+    });
+});
+
+
+
+
+
+
+
+
+
+// ]]>
+
     </h:outputScript>
+
 </ui:composition>

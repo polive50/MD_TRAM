@@ -543,7 +543,7 @@ public void crearInformeJustificacionEco(Document document,
         List<ExpedienteJusEcoDocDTO> listExpedienteJusEcoDTO, ExpedienteDTO expedienteDTO,
         String titulo, ConvocatoriaDTO convocatoriaDTO) throws DocumentException, ServiceException;
 
-public void agregarDatosEntidadSolicitante(Document document, ExpedienteDTO expedienteDTO, ConvocatoriaActDTO convocatoriaActDTO) throws DocumentException, ServiceException;
+public void agregarDatosEntidadSolicitante(Document document, ExpedienteDTO expedienteDTO, ConvocatoriaActDTO convocatoriaActDTO,Boolean sinAcronimo) throws DocumentException, ServiceException;
 
 public void agregarBloqueModalidadExpediente(Document document,
         ExpedienteDTO expedienteDTO) throws DocumentException, ServiceException;
@@ -609,7 +609,8 @@ public void agregarBloqueSubArea(Document document, ExpedienteDTO expedienteDTO)
     
     
     public void agregarTextoEnriquecidoADM(Document document, String texto,
-            String descripcion, int ancho, Boolean isHtml) throws DocumentException; 
+            String descripcion, int ancho, Boolean isHtml) throws DocumentException;
+
 
 
 }

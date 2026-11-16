@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -1146,10 +1147,16 @@ public class RequisitoBean extends CatalogoBean<ExpedienteReq, Integer> {
             
             Integer estado= utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO); // falta ver aqui que tipo de estado emtemos
             
-               
-                ExpedienteDTO expeDTO = this.expedienteService.guardarCambioEstadoRevReq(
-                        this.idExpediente, estado);
-                
+            CatalogosValoresDTO estadoRevInternoDTO = this.catalogosValoresService.buscarId(estado);
+            
+            ExpedienteDTO expeDTO = this.expedienteService.buscarId(this.idExpediente);
+            
+            expeDTO.setEstadoDTO(estadoRevInternoDTO);
+            expeDTO.setEstadoRevRequiDTO(estadoRevInternoDTO);               
+            expeDTO = this.expedienteService.guardar(expeDTO);
+            
+            this.expedienteHistDAO.crearHistorico( ExpedienteToEntity.INSTANCE.apply(expeDTO), null);
+
                 // actualizamos el DTO
                 this.expedienteBean.setExpedienteDTO(expeDTO);
                 this.expedienteBean.getFinanciacionBean().setBAvisoFinanciacion(Boolean.FALSE);
@@ -1548,9 +1555,37 @@ public class RequisitoBean extends CatalogoBean<ExpedienteReq, Integer> {
      * Método para finalizar revisión de requisitos
      */
     public void finalizarRevisionOk() {
-
         try {
+            ExpedienteDTO exp = this.expedienteService.buscarId(this.idExpediente);
+            
+            List<ExpedienteDocDTO> listaDocs = exp.getListExpedienteDocDTO();
 
+            Integer idEstadoRevisionOk = utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.EstadoDocumento.REVISION_OK);
+            
+            Integer idTramiteRequisitos = utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_REQUISITO);
+
+
+            List<ExpedienteDocDTO> docsTramiteActivos = (listaDocs == null) ? Collections.emptyList() : listaDocs.stream()
+                    .filter(f -> f.getFcBajaFila() == null) 
+                    .filter(f -> f.getTramiteDTO() != null 
+                            && idTramiteRequisitos.equals(f.getTramiteDTO().getIdValor())) 
+                    .collect(Collectors.toList());
+
+
+            boolean todosEnRevisionOk = !docsTramiteActivos.isEmpty() && docsTramiteActivos.stream()
+                    .allMatch(f -> f.getEstadoDTO() != null 
+                            && idEstadoRevisionOk.equals(f.getEstadoDTO().getIdValor()));
+
+
+            if (!todosEnRevisionOk) {
+                AtlasMessageUtils.addWarnMessageFromBundle(
+                        ConstantesWeb.Mensajes.REVISION_EXPEDIENTE_DOCUMENTOS_PENDIENTES_SUBSANACION);
+                return;
+            }
+
+            // 4. Si la validación se cumple, se finaliza el proceso de revisión
             ExpedienteDTO dto = this.expedienteService
                     .actualizarEstadoInternoRevisionOkRequisito(this.idExpediente);
 
@@ -1572,7 +1607,7 @@ public class RequisitoBean extends CatalogoBean<ExpedienteReq, Integer> {
                     ConstantesWeb.Mensajes.REVISION_EXPEDIENTE_ESTADO_REQUISITO_FINALIZAR_KO);
         }
     }
-
+    
     /**
      * Método para descargar documento requisito subsanado
      *

@@ -1668,14 +1668,19 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
             // Asignamos el estado interno
             // HLA 09/12/2024 implemento poner el estado aceptado para el caso
             // de permitir participante sin formulario
+            // MOA 13/11/26: asignamos el estado interno del beneficiario para que no llegue nulo
             if (convocatoriaActDTO != null
-                    && convocatoriaActDTO.getItCumplimentaFormulario() != null
-                    && Boolean.TRUE.equals(convocatoriaActDTO.getItCumplimentaFormulario())) {
+                        && convocatoriaActDTO.getItCumplimentaFormulario() != null
+                        && Boolean.TRUE.equals(convocatoriaActDTO.getItCumplimentaFormulario())) {
                 expedienteDTO.setEstadoDTO(new CatalogosValoresDTO(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.INICIADA)));
                 expedienteDTO.getEstadoDTO().setNmConstante(Constantes.EstadoExpediente.INICIADA);
+                expedienteDTO.setEstadoBeneficiarioDTO(new CatalogosValoresDTO(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpedienteBeneficiario.INICIADA)));
+                expedienteDTO.getEstadoBeneficiarioDTO().setNmConstante(Constantes.EstadoExpedienteBeneficiario.INICIADA);
             } else {
                 expedienteDTO.setEstadoDTO(new CatalogosValoresDTO(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.ACEPTADA)));
                 expedienteDTO.getEstadoDTO().setNmConstante(Constantes.EstadoExpediente.ACEPTADA);
+                expedienteDTO.setEstadoBeneficiarioDTO(new CatalogosValoresDTO(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpedienteBeneficiario.ACEPTADA)));
+                expedienteDTO.getEstadoBeneficiarioDTO().setNmConstante(Constantes.EstadoExpedienteBeneficiario.ACEPTADA);
             }
 
             ImpresoDTO impresoDTO = null;
@@ -2020,8 +2025,11 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
                 // entidad cerrada
                 if (Constantes.AfirmacionNegacion.S
                         .equals(solicitudDTO.getConvocatoriaDTO().getItEntidadCerrada())) {
+                    // MD: se busca la entidad por idInteresado (no por CIF) porque el CIF puede
+                    // estar duplicado entre varias entidades, y buscarCif devolvía la primera
+                    // coincidencia en vez de la entidad real del interesado de esta solicitud
                     EntidadDTO entidadDTO = this.entidadService
-                            .buscarCif(solicitudDTO.getInteresadoDTO().getCdNumIden());
+                            .buscarEntidadInteresado(solicitudDTO.getInteresadoDTO().getIdInteresado());
                     cdExpediente += "/" + entidadDTO.getDsAbrev();
                     if (idExpedientePadre != null) {
                         cdExpediente += "-" + areaCientifica;
@@ -3514,47 +3522,51 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
                                     expFiltroDTO.setAlertaNoteIndividual(Boolean.TRUE);
                                 }
                             }
+                            
+                            // Si tiene un envio de notes validamos tambien esto:
+                            ConvocatoriaDTO convocatoriaDTO = convocatoriaService.buscarId(expFiltroDTO.getIdConvocatoria());
+                            TipoResolModalidadDTO tipoResolModalidadDTO = tipoResolModalidadService.buscarPorIdModalidad(convocatoriaDTO.getIdModalidadConvocatoria().getIdValor());
+
+                            if ( Constantes.AfirmacionNegacion.S.equals(convocatoriaDTO.getItAlegacion()) &&
+                                   (( expFiltroDTO.getFcIniAlegaciones() != null
+                                    && expFiltroDTO.getFcFinAlegaciones() != null
+                                    && fcActual.after(expFiltroDTO.getFcIniAlegaciones())
+                                    && fcActual.before(expFiltroDTO.getFcFinAlegaciones())
+                                    ) || ( expFiltroDTO.getAlertaNoteIndividual() != null && expFiltroDTO.getAlertaNoteIndividual().equals(Boolean.TRUE) ))
+                                    && (expFiltroDTO.getItAlegacionRevisada() == null
+                                            || Constantes.AfirmacionNegacion.N
+                                                    .equals(expFiltroDTO.getItAlegacionRevisada()))) {
+                                expFiltroDTO.setEsPermiteAlegarIndividual(Boolean.TRUE);
+
+                                // recuperamos el documento de alegación
+                                List<AtlasFilter> filtros = new ArrayList<>();
+                                filtros.add(
+                                        new AtlasFilter(Constantes.Filtro.FILTRO_EXPEDIENTE_IDEXPEDIENTE,
+                                                expFiltroDTO.getIdExpediente(), Operador.EQUALS));
+                                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_TRAMITE,
+                                        utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.ALEGACIONES), Operador.EQUALS));
+                                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_COMPONENTE_TIPO_DOCUMENTO,
+                                        utilConstantes.getGlobalCatalogosValores().get(Constantes.TipoDocumento.ALEGACIONES), Operador.EQUALS));
+                                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
+                                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR,
+                                        utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PRESENTADO)));
+                                List<ExpedienteDoc> lstExpedienteDoc = this.expedienteDocDAO.find(filtros, null);
+                                if ((Objects.nonNull(lstExpedienteDoc) && !lstExpedienteDoc.isEmpty())) {
+                                    expFiltroDTO.setEsPermiteAlegarIndividual(Boolean.FALSE);
+                                }
+                            } else if (Constantes.AfirmacionNegacion.S.equals(convocatoriaDTO.getItAlegacion()) &&
+                                    (expFiltroDTO.getItAlegacionRevisada() == null
+                                    || Constantes.AfirmacionNegacion.N.equals(expFiltroDTO.getItAlegacionRevisada()))
+                                    && Constantes.TipoResolucionModalidad.RESOLUCION_INDIVIDUAL.equals(tipoResolModalidadDTO.getCdTipoResolucion()) 
+                                    && Constantes.ModalidadConvocatoria.ADJUDICACION_DIRECTA.equals(tipoResolModalidadDTO.getIdModalidad().getNmConstante())) {
+                                expFiltroDTO.setEsPermiteAlegarIndividual(Boolean.TRUE);
+                            }
+                            
                            
                          }
                     }
 
-                    ConvocatoriaDTO convocatoriaDTO = convocatoriaService.buscarId(expFiltroDTO.getIdConvocatoria());
-                    TipoResolModalidadDTO tipoResolModalidadDTO = tipoResolModalidadService.buscarPorIdModalidad(convocatoriaDTO.getIdModalidadConvocatoria().getIdValor());
-
-                    if ( Constantes.AfirmacionNegacion.S.equals(convocatoriaDTO.getItAlegacion()) &&
-                           (( expFiltroDTO.getFcIniAlegaciones() != null
-                            && expFiltroDTO.getFcFinAlegaciones() != null
-                            && fcActual.after(expFiltroDTO.getFcIniAlegaciones())
-                            && fcActual.before(expFiltroDTO.getFcFinAlegaciones())
-                            ) || ( expFiltroDTO.getAlertaNoteIndividual() != null && expFiltroDTO.getAlertaNoteIndividual().equals(Boolean.TRUE) ))
-                            && (expFiltroDTO.getItAlegacionRevisada() == null
-                                    || Constantes.AfirmacionNegacion.N
-                                            .equals(expFiltroDTO.getItAlegacionRevisada()))) {
-                        expFiltroDTO.setEsPermiteAlegarIndividual(Boolean.TRUE);
-
-                        // recuperamos el documento de alegación
-                        List<AtlasFilter> filtros = new ArrayList<>();
-                        filtros.add(
-                                new AtlasFilter(Constantes.Filtro.FILTRO_EXPEDIENTE_IDEXPEDIENTE,
-                                        expFiltroDTO.getIdExpediente(), Operador.EQUALS));
-                        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_TRAMITE,
-                                utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.ALEGACIONES), Operador.EQUALS));
-                        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_COMPONENTE_TIPO_DOCUMENTO,
-                                utilConstantes.getGlobalCatalogosValores().get(Constantes.TipoDocumento.ALEGACIONES), Operador.EQUALS));
-                        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
-                        filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR,
-                                utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PRESENTADO)));
-                        List<ExpedienteDoc> lstExpedienteDoc = this.expedienteDocDAO.find(filtros, null);
-                        if ((Objects.nonNull(lstExpedienteDoc) && !lstExpedienteDoc.isEmpty())) {
-                            expFiltroDTO.setEsPermiteAlegarIndividual(Boolean.FALSE);
-                        }
-                    } else if (Constantes.AfirmacionNegacion.S.equals(convocatoriaDTO.getItAlegacion()) &&
-                            (expFiltroDTO.getItAlegacionRevisada() == null
-                            || Constantes.AfirmacionNegacion.N.equals(expFiltroDTO.getItAlegacionRevisada()))
-                            && Constantes.TipoResolucionModalidad.RESOLUCION_INDIVIDUAL.equals(tipoResolModalidadDTO.getCdTipoResolucion()) 
-                            && Constantes.ModalidadConvocatoria.ADJUDICACION_DIRECTA.equals(tipoResolModalidadDTO.getIdModalidad().getNmConstante())) {
-                        expFiltroDTO.setEsPermiteAlegarIndividual(Boolean.TRUE);
-                    }
+                   
                 }
 
                 if (expFiltroDTO.getTipoConcesionConvocatoriaDTO() != null
@@ -7052,7 +7064,9 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
 
         for (ExpedienteDoc expedienteDoc : lstExpedienteDoc) {
 
-            expedienteDoc.setEstado(catalogosValoresService.find(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REVISION_OK)));
+            // VMM 04/11/26 MD-3208: los documentos de alegacion que presenta el ciudadano quedan pendientes de revision por el
+            // gestor; antes se marcaban directamente como Revision OK con el usuario del ciudadano
+            expedienteDoc.setEstado(catalogosValoresService.find(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PENDIENTE_REVISION)));
             expedienteDoc.setFcModifFila(new Date());
             expedienteDoc.setCdUsuModif(cdNumIden);
             if(expedienteDocDTO.getTlObservaciones() != null && !expedienteDocDTO.getTlObservaciones().equals("")) {
@@ -7079,7 +7093,8 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
 
         for (ExpedienteDoc expedienteDoc : lstExpedienteDocAdicionales) {
 
-            expedienteDoc.setEstado(catalogosValoresService.find(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REVISION_OK)));
+            // VMM 04/11/26 MD-3208: igual que arriba, los documentos adicionales quedan pendientes de revision por el gestor
+            expedienteDoc.setEstado(catalogosValoresService.find(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PENDIENTE_REVISION)));
             expedienteDoc.setFcModifFila(new Date());
             expedienteDoc.setCdUsuModif(cdNumIden);
             this.expedienteDocDAO.merge(expedienteDoc);
@@ -7876,6 +7891,16 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
             throws ServiceException {
         if (Objects.isNull(idExpediente)) {
             throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+
+        // MD: si el expediente está desistido (expreso o tras concesión definitiva
+        // aceptada) no se devuelve documentación pendiente de subsanar
+        Expediente expedienteActual = this.getDao().find(idExpediente);
+        if (expedienteActual != null && expedienteActual.getEstado() != null
+                && (Constantes.EstadoExpediente.DESISTIDO.equals(expedienteActual.getEstado().getNmConstante())
+                        || Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_DESISTIDO
+                                .equals(expedienteActual.getEstado().getNmConstante()))) {
+            return new ArrayList<>();
         }
 
         List<ExpedienteDocDTO> listaExpedienteDoc = new ArrayList<>();
@@ -10099,10 +10124,24 @@ public class ExpedienteServiceImpl extends BaseServiceImpl<Expediente, Integer, 
                                                
                 //buscar el historico y poner esos estados y provional
                 List<AtlasFilter> filtros = new ArrayList<>();
+                List<Integer> idsEstadosIgnorar = new ArrayList<>();
+                Integer idExcluidoProv = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL);
+                Integer idDesistidoProv = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL);
                 filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_IDEXPEDIENTE,expediente.getIdExpediente(), Operador.EQUALS));
-                filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR, expediente.getEstado().getIdValor(), Operador.NOT_EQUALS));
+                //filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR, expediente.getEstado().getIdValor(), Operador.NOT_EQUALS));
                 filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR_PROVISIONAL, Operador.NULL));
-                
+
+                 if (expediente.getEstado() != null && expediente.getEstado().getIdValor() != null) {
+                     idsEstadosIgnorar.add(expediente.getEstado().getIdValor());
+                 }
+                 if (idExcluidoProv != null) {
+                     idsEstadosIgnorar.add(idExcluidoProv);
+                 }
+                 if (idDesistidoProv != null) {
+                     idsEstadosIgnorar.add(idDesistidoProv);
+                 }
+
+                 filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_ESTADO_IDVALOR, idsEstadosIgnorar, Operador.NOT_IN));
 
                 List<AtlasSort> orden = new ArrayList<>();
                 orden.add(new AtlasSort(Constantes.Filtro.FILTRO_ID_EXPEDIENTE_HIST, Boolean.FALSE));
@@ -13049,6 +13088,16 @@ private ExpedienteDTO generarDatosExpedienteAceptacion(ExpedienteDTO expedienteD
             throws ServiceException {
         if (Objects.isNull(idExpediente)) {
             throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+
+        // MD: si el expediente está desistido (expreso o tras concesión definitiva
+        // aceptada) no se devuelve documentación pendiente de subsanar
+        Expediente expedienteActual = this.getDao().find(idExpediente);
+        if (expedienteActual != null && expedienteActual.getEstado() != null
+                && (Constantes.EstadoExpediente.DESISTIDO.equals(expedienteActual.getEstado().getNmConstante())
+                        || Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_DESISTIDO
+                                .equals(expedienteActual.getEstado().getNmConstante()))) {
+            return new ArrayList<>();
         }
 
         List<ExpedienteDocDTO> listaExpedienteDoc = new ArrayList<>();

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -1075,6 +1076,12 @@ public class PdfCamposServiceImpl implements PdfCamposService {
                     .flatMap(x -> x.getLstBloqueComponenteDTO().stream())
                     .filter(x -> x.getFcBajaFila() == null).collect(Collectors.toList());
 
+            // Bloques de tipo porcentaje de intensidad de ayuda (formato ID_PORCENTAJE_INTENSIDAD):
+            // su valor hay que mostrarlo con el signo '%'
+            Set<Integer> idBloquesIntensidadAyuda = dto.getImpresoDTO().getLstBloqueDTO().stream()
+                    .filter(f -> Boolean.TRUE.equals(f.getEsTipoIntensidadAyuda()))
+                    .map(BloqueDTO::getIdBloque).collect(Collectors.toSet());
+
             // Rellenamos el hashmap de datos
             
             Integer contador=1;
@@ -1096,6 +1103,11 @@ public class PdfCamposServiceImpl implements PdfCamposService {
                             if (Objects.nonNull(bloqueComponente.getDatos().get(i))) {
                                 valorCampo = bloqueComponente.getDatos().get(i).getDsValor();
                             }
+                        }
+
+                        if (idBloquesIntensidadAyuda.contains(bloqueComponente.getIdBloque())
+                                && StringUtils.isNotBlank(valorCampo) && !valorCampo.trim().endsWith("%")) {
+                            valorCampo = valorCampo.trim() + "%";
                         }
 
                         if (bloqueComponente.getComponenteDTO().getTipoDTO().getIdValor() != null) {

@@ -409,7 +409,7 @@ public class ExpedienteServiceTest extends AtlasAbstractBaseTest {
         try {
             ExpedienteFiltrosDTO expedienteFiltrosDTO = new ExpedienteFiltrosDTO();
 
-            expedienteFiltrosDTO.setStrCdDocu("00000001R");
+            expedienteFiltrosDTO.setStrCdDocu("29010068F");
 
             List<ExpedienteFiltrosDTO> lstDTO = this.service.filtrar(expedienteFiltrosDTO);
 
@@ -882,7 +882,7 @@ public class ExpedienteServiceTest extends AtlasAbstractBaseTest {
     @Ignore
     public void testObtenerExpedienteSubsanacion() {
         try {
-            String numIdentidad = "00000001R";
+            String numIdentidad = "29010068F";
             List<ExpedienteDTO> listaExpediente = this.service
                     .obtenerExpedienteSubsanacion(numIdentidad);
             // No es nulo
@@ -1745,7 +1745,7 @@ public class ExpedienteServiceTest extends AtlasAbstractBaseTest {
      */
     @Test(expected = ServiceException.class)
     public void tesErrorGuardarAlegacion() throws ServiceException {
-        this.service.guardarAlegacion(null, "00000001R","00000001R","00000001R");
+        this.service.guardarAlegacion(null, "29010068F","29010068F","29010068F");
     }
 
     /**
@@ -1759,7 +1759,7 @@ public class ExpedienteServiceTest extends AtlasAbstractBaseTest {
         ExpedienteDTO expediente = new ExpedienteDTO();
         expediente.setIdExpediente(69);
         expedienteDocDTO.setExpedienteDTO(expediente);
-        this.service.guardarAlegacion(expedienteDocDTO, "00000001R","00000001R","00000001R");
+        this.service.guardarAlegacion(expedienteDocDTO, "29010068F","29010068F","29010068F");
     }
 
     /**
@@ -1793,10 +1793,10 @@ public class ExpedienteServiceTest extends AtlasAbstractBaseTest {
             serviceImpl.setExpedienteHistDAO(this.expedienteHistDAO);
 
 //            Integer idExpediente = 70;
-//            String cdNumIden = "00000001R";
+//            String cdNumIden = "29010068F";
             ExpedienteDTO dto = new ExpedienteDTO();
             InteresadoDTO interesadoDTO = new InteresadoDTO();
-            interesadoDTO.setCdNumIden("00000001R");
+            interesadoDTO.setCdNumIden("29010068F");
 
             dto.setIdExpediente(70);
             dto.setInteresadoDTO(interesadoDTO);

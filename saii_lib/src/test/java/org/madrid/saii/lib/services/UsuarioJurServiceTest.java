@@ -371,7 +371,7 @@ public class UsuarioJurServiceTest extends AtlasAbstractBaseTest {
 //            UsuarioJurDTO dto = new UsuarioJurDTO();
 //
 //            InteresadoDTO interesadoDTO = new InteresadoDTO();
-//            interesadoDTO.setCdNumIden("00000001R");
+//            interesadoDTO.setCdNumIden("29010068F");
 //            interesadoDTO.setDsNombre("Pablo");
 //            interesadoDTO.setIdTipoActor(14);
 //            InteresadoDTO entidadJur = new InteresadoDTO();

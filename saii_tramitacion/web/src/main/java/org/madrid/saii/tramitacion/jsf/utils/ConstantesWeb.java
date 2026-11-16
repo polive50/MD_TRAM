@@ -241,6 +241,10 @@ public final class ConstantesWeb {
 
         public static final String REVISION_EXPEDIENTE_ESTADO_REQUISITO_FINALIZAR_KO = "revision.expediente.estado.requisito.finalizar.ko";
         
+        public static final String REVISION_EXPEDIENTE_DOCUMENTOS_PENDIENTES_SUBSANACION = "revision.expediente.estado.requisito.finalizar.pendiente"; 
+        
+        public static final String REVISION_EXPEDIENTE_DOCUMENTOS_PENDIENTES_ALEGACION = "revision.expediente.estado.alegacion.finalizar.pendiente"; 
+        
         public static final String REVISION_EXPEDIENTE_ESTADO_ALEGACION_ACEPTAR_OK = "revision.expediente.estado.alegacion.aceptar.ok";
         
         public static final String REVISION_EXPEDIENTE_ESTADO_ALEGACION_ACERTAR_KO = "revision.expediente.estado.alegacion.aceptar.ko";

@@ -204,6 +204,11 @@ public class FinanciacionBean {
     
     private List<FinanciacionDTO> lstTablasFinan;
 
+    // VMM 04/11/26 MD-3205: cache (el bean es de request) del tope de ayuda por expediente, ver obtenerMontoMaxExpediente
+    private Double topeMaxExpediente;
+
+    private boolean topeMaxExpedienteCalculado;
+
     private Double montoAyudaPresupuesto;
     
     private Double montoAyudaPresupuestoPresentado;
@@ -1318,7 +1323,13 @@ public class FinanciacionBean {
                 double totalPresupFinanciableXIntensidad = porcentajeIntensidadGestor != null
                         ? sumaTotal * (porcentajeIntensidadGestor / 100)
                         : sumaTotal;
-                this.recalcularMinAyudaConcedida(totalPresupFinanciableXIntensidad);
+                // VMM 11/11/26 MD-3231: el tope solo se aplica a la ayuda de la tabla 1; antes la tabla 2 machacaba
+                // montoAyudaConcedida con su importe y montoAyudaConcedida2 quedaba vacio al entrar en la pantalla
+                if (nmPresup == 1) {
+                    this.recalcularMinAyudaConcedida(totalPresupFinanciableXIntensidad);
+                } else {
+                    this.setMontoAyudaConcedida2(totalPresupFinanciableXIntensidad);
+                }
 
                 if (nmPresup == 1) {
                     //MD-2731: ojo aqui parece que está cogiendo la primera observación que haya de esa tabla de presup pero ahora pueden ser 
@@ -1473,12 +1484,12 @@ public class FinanciacionBean {
                 filaTotal.getLstExpedientePresupMontoDTO().add(montoColumnaTotal);
 
                 this.lstPresupuestoFinanciable3.add(filaTotal);
-                
-                if(porcentajeIntensidadGestor != null) {
-                    this.montoAyudaConcedida = sumaTotal * (porcentajeIntensidadGestor / 100);
-                }else {
-                    this.montoAyudaConcedida = sumaTotal;
-                }
+
+                // VMM 11/11/26 MD-3231: se aplica el tope (solicitada, max AS, max por expediente) igual que en el presupuesto
+                // financiable; antes se dejaba presupuesto x intensidad sin topar y eso es lo que grababa Finalizar
+                this.recalcularMinAyudaConcedida(porcentajeIntensidadGestor != null
+                        ? sumaTotal * (porcentajeIntensidadGestor / 100)
+                        : sumaTotal);
                 
                 //cargamos el presupuesto provisional del historico para la tabla
                                       
@@ -1556,7 +1567,12 @@ public class FinanciacionBean {
 
             this.obtenerPresupuestoFinanciable(1);
             this.obtenerPresupuestoFinanciable(2);
-             
+
+            // VMM 11/11/26 MD-3231: la carga graba en NM_AYUDA la ayuda del formulario (sin topar) y en la intensidad la del
+            // formulario, que puede venir vacia. Se guarda ya la ayuda concedida que muestra la pantalla, la ayuda
+            // solicitada y la intensidad del gestor, para que BD no dependa de que el gestor pulse Guardar o Finalizar.
+            this.recalcularYGuardarAyudaConcedida();
+
             this.validarEstilo();
 
             this.esconderBotonCargarPresup();
@@ -1575,14 +1591,33 @@ public class FinanciacionBean {
     }
     
     public Boolean cargaDatos() {
-        
+
+        // VMM 11/11/26 MD-3216: se recalcula tambien el modo consulta con el estado actual del expediente
+        this.esModoConsulta();
         this.esconderBotonCargarPresup();
         this.esconderBotonFinalizarRevision();
         return Boolean.FALSE;
-        
+
     }
-    
-    
+
+    /**
+     * VMM 11/11/26 MD-3216: estado actual del expediente. idEstadoExpediente se fija al entrar al expediente y solo se
+     * actualiza desde algunos tramites (exclusion/desistimiento); al revisar alegaciones o finalizar documentos/requisitos
+     * sin salir del expediente se quedaba el estado antiguo (p.ej. excluido provisional) y el boton de Finalizar revision
+     * seguia oculto aunque la financiacion estuviera pendiente de revision. Se toma del ExpedienteDTO, que si se refresca.
+     *
+     * @return id del estado del expediente
+     */
+    private Integer obtenerIdEstadoExpedienteActual() {
+        if (this.expedienteBean != null && this.expedienteBean.getExpedienteDTO() != null
+                && this.expedienteBean.getExpedienteDTO().getEstadoDTO() != null
+                && this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor() != null) {
+            this.idEstadoExpediente = this.expedienteBean.getExpedienteDTO().getEstadoDTO().getIdValor();
+        }
+        return this.idEstadoExpediente;
+    }
+
+
     /**
      * Metodo para finalizar la revisión de la financiación de los presupuestos
      * financiables
@@ -1642,6 +1677,10 @@ public class FinanciacionBean {
                     }
                 }
 
+                // VMM 05/11/26 MD-3205: al finalizar se guarda tambien la ayuda concedida (ya topada) para que lo guardado en BD
+                // coincida con lo que ve el gestor, aunque no haya pulsado Guardar ni cambiado la intensidad
+                this.guardarAyudaAlFinalizar();
+
                 //VMM 28/07/25 MD-1687: Cuando el gestor termine el proceso de revisión el estado será
                 //”Revisión Financiación OK” (141), una vez en este estado no se permite modificaciones.
                 ExpedienteDTO dto =  this.expedienteService.cambiarEstadoExpFinan(Constantes.EstadoFinanciacion.REVISION_FINANCIACION_OK, this.expedienteBean.getExpedienteDTO());   
@@ -1680,6 +1719,27 @@ public class FinanciacionBean {
         }
     }
 
+
+    /**
+     * VMM 05/11/26 MD-3205: guarda la ayuda concedida (NM_AYUDA) de cada tabla de presupuesto financiable al finalizar la
+     * revision. Hasta ahora solo se guardaba al cambiar la intensidad o al pulsar Guardar, y la carga inicial guarda la
+     * ayuda del formulario sin topar, asi que si el gestor finalizaba sin pasar por ninguno de los dos quedaba en BD un
+     * importe distinto del que mostraba la pantalla. Solo se guarda NM_AYUDA: no se toca la ayuda solicitada ni la intensidad.
+     *
+     * @throws ServiceException
+     */
+    private void guardarAyudaAlFinalizar() throws ServiceException {
+        if (this.lstPresupuestoFinanciable1 != null && !this.lstPresupuestoFinanciable1.isEmpty()
+                && this.montoAyudaConcedida != null) {
+            this.expedientePresupService.actualizarAyudaConcedida(this.expedienteBean.getIdExpediente(), 1,
+                    this.montoAyudaConcedida);
+        }
+        if (this.lstPresupuestoFinanciable2 != null && !this.lstPresupuestoFinanciable2.isEmpty()
+                && this.montoAyudaConcedida2 != null) {
+            this.expedientePresupService.actualizarAyudaConcedida(this.expedienteBean.getIdExpediente(), 2,
+                    this.montoAyudaConcedida2);
+        }
+    }
 
     private Boolean validarErrorPresupFinalizar() throws ServiceException {
         Boolean hayErrores = Boolean.FALSE;
@@ -1893,8 +1953,8 @@ public class FinanciacionBean {
                                 
                             }else {
                                 //cada tabla tiene un actor distinto y habrá que comparar contra cada uno de los sumatorios
-                                if ( importeMaxActorTabla1 != null && porcentajeIntensidadGestor != null && ((sumatorioTabla1 * (porcentajeIntensidadGestor / 100)) > importeMaxActorTabla1 && !esMostrarAyudaT1)) {
-                                    //error
+                                // VMM 04/11/26 MD-3205: si el actor del expediente tiene un unico tope, la ayuda se limita a el (ver obtenerMontoMaxExpediente)
+                                if ( this.obtenerMontoMaxExpediente() == null && importeMaxActorTabla1 != null && porcentajeIntensidadGestor != null && ((sumatorioTabla1 * (porcentajeIntensidadGestor / 100)) > importeMaxActorTabla1 && !esMostrarAyudaT1)) {                  
                                     hayErrores = Boolean.TRUE;
                                     tabla = " la tabla 1 ";
                                     msgImporte = new Object[] {tabla, importeMaxActorTabla1};
@@ -1903,8 +1963,7 @@ public class FinanciacionBean {
                                             msgImporte);
                                 }
                                 
-                                if ( importeMinActorTabla1 != null && porcentajeIntensidadGestor != null && ((sumatorioTabla1 * (porcentajeIntensidadGestor / 100)) < importeMinActorTabla1 && !esMostrarAyudaT1)) {
-                                    //error
+                                if ( importeMinActorTabla1 != null && porcentajeIntensidadGestor != null && ((sumatorioTabla1 * (porcentajeIntensidadGestor / 100)) < importeMinActorTabla1 && !esMostrarAyudaT1)) {         
                                     hayErrores = Boolean.TRUE;
                                     tabla = " la tabla 1 ";
                                     msgImporte = new Object[] {tabla, importeMinActorTabla1};
@@ -1939,8 +1998,10 @@ public class FinanciacionBean {
                                 
                                 
                             }
-                        }else if (this.lstTablasFinan.size() == 1 &&  importeMaxActorTabla1 != null && porcentajeIntensidadGestor != null && ((sumatorioTabla1 * (porcentajeIntensidadGestor / 100)) > importeMaxActorTabla1 && !esMostrarAyudaT1)) {
-                            //error
+                        // VMM 04/11/26 MD-3205: con un solo tope por expediente la ayuda concedida se limita al maximo (ver
+                        // obtenerMontoMaxExpediente) en lugar de bloquear la finalizacion
+                        }else if (this.lstTablasFinan.size() == 1 && this.obtenerMontoMaxExpediente() == null
+                                &&  importeMaxActorTabla1 != null && porcentajeIntensidadGestor != null && ((sumatorioTabla1 * (porcentajeIntensidadGestor / 100)) > importeMaxActorTabla1 && !esMostrarAyudaT1)) {
                             hayErrores = Boolean.TRUE;
                             tabla = " la tabla 1 ";
                             msgImporte = new Object[] {tabla, importeMaxActorTabla1};
@@ -2358,8 +2419,12 @@ public class FinanciacionBean {
             log.info("Importe maximo Expediente/Actor: " + montoTextoExp);
             log.info("Porcentaje intensidad ayuda: " + porcentajeIntensidadGestor);
 
+            // VMM 04/11/26 MD-3205: si la ayuda concedida se topa en el maximo por expediente (ver obtenerMontoMaxExpediente)
+            // superarlo ya no es un error, por eso no se valida ni la celda ni el total
+            boolean topaMaxExpediente = this.obtenerMontoMaxExpediente() != null;
+
             //si ya vemos que el monto introducido es mayor que el max x expdte no sigo calculando cosas
-            if (importeMaxExpObj != null && presupMonto.getNmImporte() != null && porcentajeIntensidadGestor != null
+            if (!topaMaxExpediente && importeMaxExpObj != null && presupMonto.getNmImporte() != null && porcentajeIntensidadGestor != null
                     && presupMonto.getNmImporte() * (porcentajeIntensidadGestor / 100) > importeMaxExp) {
                 this.tieneErrores = Boolean.TRUE;
             }else {
@@ -2409,7 +2474,7 @@ public class FinanciacionBean {
                 }
                 
                 //si sobrepasa el importeMaxExp mostramos mensaje de error
-                this.tieneErrores = importeMaxExpObj != null && totalFinalSumTabla > importeMaxExp;
+                this.tieneErrores = !topaMaxExpediente && importeMaxExpObj != null && totalFinalSumTabla > importeMaxExp;
             }
         }
             
@@ -2565,62 +2630,73 @@ public class FinanciacionBean {
 
     public void actualizarIntensidadAyuda() {
         try {
-            if (this.lstPresupuestoFinanciable1 != null && !this.lstPresupuestoFinanciable1.isEmpty() &&
-                    this.porcentajeIntensidadGestor != null) {
-                
-                this.lstPresupuestoAyudaConcedida = new ArrayList<>();
-                for (ExpedientePresupDTO presup : this.lstPresupuestoFinanciable1) {
-                    this.lstPresupuestoAyudaConcedida.add(new ExpedientePresupDTO(presup));
-                }
-                for (ExpedientePresupDTO presupAyudaConcedida : this.lstPresupuestoAyudaConcedida) {
-                    for (ExpedientePresupMontoDTO monto : presupAyudaConcedida.getLstExpedientePresupMontoDTO()) {
-                        if (monto.getNmImporte() != null) {
-                            monto.setNmImporte(monto.getNmImporte() * (porcentajeIntensidadGestor / 100));
-                        }
-                    }
-                }
-                List<ExpedientePresupMontoDTO> ultimaLista = this.lstPresupuestoAyudaConcedida
-                        .get(this.lstPresupuestoAyudaConcedida.size() - 1).getLstExpedientePresupMontoDTO();
-                if (!ultimaLista.isEmpty()) {
-                    this.recalcularMinAyudaConcedida(ultimaLista.get(ultimaLista.size() - 1).getNmImporte());
-                }
-                
-                this.expedientePresupService.actualizarIntensidadAyuda(
-                        this.expedienteBean.getIdExpediente(), 1, this.porcentajeIntensidadGestor,
-                        this.montoAyudaConcedida, this.montoAyudaSolicitada);
-            }
-            
-            if (this.lstPresupuestoFinanciable2 != null && !this.lstPresupuestoFinanciable2.isEmpty()
-                    && this.porcentajeIntensidadGestor != null) {  //esto en un futuro seria porcentajeIntensidadGestor2
-                
-                this.lstPresupuestoAyudaConcedida2 = new ArrayList<>();
-                for (ExpedientePresupDTO presup : this.lstPresupuestoFinanciable2) {
-                    this.lstPresupuestoAyudaConcedida2.add(new ExpedientePresupDTO(presup));
-                }
-                for (ExpedientePresupDTO presupAyudaConcedida2 : this.lstPresupuestoAyudaConcedida2) {
-                    for (ExpedientePresupMontoDTO monto : presupAyudaConcedida2.getLstExpedientePresupMontoDTO()) {
-                        if (monto.getNmImporte() != null) {
-                            monto.setNmImporte(monto.getNmImporte() * (porcentajeIntensidadGestor / 100));
-                        }
-                    }
-                }
-                List<ExpedientePresupMontoDTO> ultimaLista2 = this.lstPresupuestoAyudaConcedida2
-                        .get(this.lstPresupuestoAyudaConcedida2.size() - 1).getLstExpedientePresupMontoDTO();
-                if (!ultimaLista2.isEmpty()) {
-                    this.setMontoAyudaConcedida2(ultimaLista2.get(ultimaLista2.size() - 1).getNmImporte());
-                }
-                
-                this.expedientePresupService.actualizarIntensidadAyuda(
-                        this.expedienteBean.getIdExpediente(), 2, this.porcentajeIntensidadGestor,
-                        this.montoAyudaConcedida2, this.montoAyudaSolicitada);
-            }
-            
+            this.recalcularYGuardarAyudaConcedida();
+
             AtlasMessageUtils.addInfoMessageFromBundle(
                     ConstantesWeb.Mensajes.SOLICITUD_FINANCIACION_INTENSIDAD_GRABAR_OK);
-            
+
         } catch (ServiceException e) {
             log.error(e.getMessage());
             AtlasMessageUtils.addErrorMessageFromBundle(ConstantesWeb.Err.ERROR_GENERAL);
+        }
+    }
+
+    /**
+     * VMM 11/11/26 MD-3231: recalcula la ayuda concedida de cada tabla de presupuesto financiable con la intensidad del
+     * gestor (minimo de solicitada, presupuesto x intensidad y topes) y guarda en BD NM_AYUDA, NM_AYUDA_SOL y
+     * NM_PORCENTAJE_INTENSIDAD. Se usa al cambiar la intensidad y al pulsar "Cargar datos".
+     *
+     * @throws ServiceException
+     */
+    private void recalcularYGuardarAyudaConcedida() throws ServiceException {
+        if (this.lstPresupuestoFinanciable1 != null && !this.lstPresupuestoFinanciable1.isEmpty() &&
+                this.porcentajeIntensidadGestor != null) {
+            
+            this.lstPresupuestoAyudaConcedida = new ArrayList<>();
+            for (ExpedientePresupDTO presup : this.lstPresupuestoFinanciable1) {
+                this.lstPresupuestoAyudaConcedida.add(new ExpedientePresupDTO(presup));
+            }
+            for (ExpedientePresupDTO presupAyudaConcedida : this.lstPresupuestoAyudaConcedida) {
+                for (ExpedientePresupMontoDTO monto : presupAyudaConcedida.getLstExpedientePresupMontoDTO()) {
+                    if (monto.getNmImporte() != null) {
+                        monto.setNmImporte(monto.getNmImporte() * (porcentajeIntensidadGestor / 100));
+                    }
+                }
+            }
+            List<ExpedientePresupMontoDTO> ultimaLista = this.lstPresupuestoAyudaConcedida
+                    .get(this.lstPresupuestoAyudaConcedida.size() - 1).getLstExpedientePresupMontoDTO();
+            if (!ultimaLista.isEmpty()) {
+                this.recalcularMinAyudaConcedida(ultimaLista.get(ultimaLista.size() - 1).getNmImporte());
+            }
+            
+            this.expedientePresupService.actualizarIntensidadAyuda(
+                    this.expedienteBean.getIdExpediente(), 1, this.porcentajeIntensidadGestor,
+                    this.montoAyudaConcedida, this.montoAyudaSolicitada);
+        }
+        
+        if (this.lstPresupuestoFinanciable2 != null && !this.lstPresupuestoFinanciable2.isEmpty()
+                && this.porcentajeIntensidadGestor != null) {  //esto en un futuro seria porcentajeIntensidadGestor2
+            
+            this.lstPresupuestoAyudaConcedida2 = new ArrayList<>();
+            for (ExpedientePresupDTO presup : this.lstPresupuestoFinanciable2) {
+                this.lstPresupuestoAyudaConcedida2.add(new ExpedientePresupDTO(presup));
+            }
+            for (ExpedientePresupDTO presupAyudaConcedida2 : this.lstPresupuestoAyudaConcedida2) {
+                for (ExpedientePresupMontoDTO monto : presupAyudaConcedida2.getLstExpedientePresupMontoDTO()) {
+                    if (monto.getNmImporte() != null) {
+                        monto.setNmImporte(monto.getNmImporte() * (porcentajeIntensidadGestor / 100));
+                    }
+                }
+            }
+            List<ExpedientePresupMontoDTO> ultimaLista2 = this.lstPresupuestoAyudaConcedida2
+                    .get(this.lstPresupuestoAyudaConcedida2.size() - 1).getLstExpedientePresupMontoDTO();
+            if (!ultimaLista2.isEmpty()) {
+                this.setMontoAyudaConcedida2(ultimaLista2.get(ultimaLista2.size() - 1).getNmImporte());
+            }
+            
+            this.expedientePresupService.actualizarIntensidadAyuda(
+                    this.expedienteBean.getIdExpediente(), 2, this.porcentajeIntensidadGestor,
+                    this.montoAyudaConcedida2, this.montoAyudaSolicitada);
         }
     }
 
@@ -3162,7 +3238,59 @@ public class FinanciacionBean {
             posiblesValores.add(montoMaxAyudaAS);
         }
 
+        // VMM 04/11/26 MD-3205: en convocatorias con importe maximo por expediente la ayuda concedida se topa en ese maximo
+        Double montoMaxExpediente = this.obtenerMontoMaxExpediente();
+        if (montoMaxExpediente != null) {
+            posiblesValores.add(montoMaxExpediente);
+        }
+
         this.montoAyudaConcedida = Collections.min(posiblesValores);
+    }
+
+    /**
+     * VMM 04/11/26 MD-3205: tope de la ayuda concedida cuando la convocatoria tiene importe maximo por expediente
+     * (IT_IMPORTE_MAX_EXP = S e IT_IMPORTE_MAX_ANUAL = N). En lugar de rechazar el expediente cuando
+     * presupuesto financiable x intensidad supera el maximo, la ayuda concedida se limita a ese maximo.
+     * Solo se aplica si el actor del expediente tiene una unica tabla de presupuesto (PP); con varias
+     * tablas del mismo actor se mantiene la validacion de siempre.
+     *
+     * @return NM_IMPORTE_MAX_ACTOR de la tabla PP del actor del expediente, o null si no aplica
+     * @throws ServiceException
+     */
+    private Double obtenerMontoMaxExpediente() throws ServiceException {
+        if (this.topeMaxExpedienteCalculado) {
+            return this.topeMaxExpediente;
+        }
+        this.topeMaxExpediente = null;
+
+        ConvocatoriaDTO convocatoria = this.convocatoriasBean.getConvocatoriaDTO();
+        Integer idActorExpediente = (this.expedienteBean.getExpedienteDTO() != null
+                && this.expedienteBean.getExpedienteDTO().getConvocatoriaActDTO() != null)
+                        ? this.expedienteBean.getExpedienteDTO().getConvocatoriaActDTO().getIdActor() : null;
+
+        if (idActorExpediente == null) {
+            // todavia no hay expediente cargado: no se cachea el resultado
+            return null;
+        }
+
+        if (convocatoria != null
+                && Constantes.AfirmacionNegacion.S.equals(convocatoria.getItImporteMaxExpdte())
+                && Constantes.AfirmacionNegacion.N.equals(convocatoria.getItImporteMaxAnual())) {
+
+            List<FinanciacionDTO> tablasActor = this.financiacionService
+                    .buscarTablasFinanByIdConvocAndTipo(this.expedienteBean.getIdConvocatoria(),
+                            Constantes.Formatos.PARTIDAS_PRESUPUESTARIAS)
+                    .stream()
+                    .filter(tabla -> tabla.getIdActor() != null
+                            && idActorExpediente.equals(tabla.getIdActor().getIdActor()))
+                    .collect(Collectors.toList());
+
+            if (tablasActor.size() == 1) {
+                this.topeMaxExpediente = tablasActor.get(0).getNmImporteMaxActor();
+            }
+        }
+        this.topeMaxExpedienteCalculado = true;
+        return this.topeMaxExpediente;
     }
 
     /**
@@ -3189,19 +3317,108 @@ public class FinanciacionBean {
      */
     public void guardarObservacionPresupuesto() {
         try {
-            // MD-2788: validacion por fila: un mensaje de error por cada fila con importe modificado sin observacion
+//            // MD-2788: validacion por fila: un mensaje de error por cada fila con importe modificado sin observacion
+//            Boolean noHayErrores = Boolean.TRUE;
+//            if (this.notificarFilasPendientesObservacion()) {
+//                noHayErrores = Boolean.FALSE;
+//            }
+//
+//            // VMM 06/10/26 MD-3113: no se guardan conceptos con la descripcion vacia ni repetidos
+//            if (this.notificarConceptosInvalidos()) {
+//                noHayErrores = Boolean.FALSE;
+//            }
+//
+//            noHayErrores = this.validarMaximoMinimo(noHayErrores);
+
+            
+            
+            
+            
+            
+            
+            
+            // 1. RECALCULAR PRIMERO LOS ERRORES DE MÁXIMOS Y MÍNIMOS CONFIGURADOS
             Boolean noHayErrores = Boolean.TRUE;
-            if (this.notificarFilasPendientesObservacion()) {
-                noHayErrores = Boolean.FALSE;
+            noHayErrores = this.validarMaximoMinimo(noHayErrores);
+
+            // 2. CONSULTAR DATOS ORIGINALES DE LA BBDD PARA REVISAR CAMBIOS REALES
+            List<ExpedientePresupDTO> listaOriginalBD1 = this.expedientePresupService.bucarPresupByIdExpAndNmPresup(this.expedienteBean.getIdExpediente(), 1);
+            List<ExpedientePresupDTO> listaOriginalBD2 = this.expedientePresupService.bucarPresupByIdExpAndNmPresup(this.expedienteBean.getIdExpediente(), 2);
+
+            List<String> conceptosInfractores = new java.util.ArrayList<>();
+
+            // Procesamos la Tabla de Presupuesto 1 contra la Base de Datos
+            if (this.lstPresupuestoFinanciable1 != null && listaOriginalBD1 != null) {
+                for (ExpedientePresupDTO filaVista : this.lstPresupuestoFinanciable1) {
+                    if (filaVista.getTipoFinanciacionDTO() == null || "TOTAL".equals(filaVista.getTipoFinanciacionDTO().getDsValor()) || filaVista.getIdExpedientePresup() == null) {
+                        continue;
+                    }
+
+                    // CORRECCIÓN DE CRUCE: Filtramos de forma estricta por el ID de base de datos único de la fila (idExpedientePresup)
+                    ExpedientePresupDTO filaBD = listaOriginalBD1.stream()
+                            .filter(x -> x != null && x.getIdExpedientePresup() != null && x.getIdExpedientePresup().equals(filaVista.getIdExpedientePresup()))
+                            .findFirst().orElse(null);
+
+                    if (filaBD != null && comprobarSiFilaHaCambiado(filaVista, filaBD)) {
+                        if (StringUtils.isBlank(filaVista.getTlObservacion())) {
+                            noHayErrores = Boolean.FALSE; // Marcamos el bloqueo de flujo
+                            String nombrePartida = filaVista.getTipoFinanciacionDTO().getDsValor();
+                            String identificador = Boolean.TRUE.equals(this.esConvocatoriaConceptoPresup) && StringUtils.isNotBlank(filaVista.getTlConcepto())
+                                    ? nombrePartida + " - " + filaVista.getTlConcepto() : nombrePartida;
+                            if (!conceptosInfractores.contains(identificador)) {
+                                conceptosInfractores.add(identificador);
+                            }
+                        }
+                    }
+                }
             }
 
-            // VMM 06/10/26 MD-3113: no se guardan conceptos con la descripcion vacia ni repetidos
+            // Procesamos la Tabla de Presupuesto 2 contra la Base de Datos
+            if (this.lstPresupuestoFinanciable2 != null && listaOriginalBD2 != null) {
+                for (ExpedientePresupDTO filaVista : this.lstPresupuestoFinanciable2) {
+                    if (filaVista.getTipoFinanciacionDTO() == null || "TOTAL".equals(filaVista.getTipoFinanciacionDTO().getDsValor()) || filaVista.getIdExpedientePresup() == null) {
+                        continue;
+                    }
+
+                    // CORRECCIÓN DE CRUCE: Filtramos de forma estricta por el ID de base de datos único de la fila (idExpedientePresup)
+                    ExpedientePresupDTO filaBD = listaOriginalBD2.stream()
+                            .filter(x -> x != null && x.getIdExpedientePresup() != null && x.getIdExpedientePresup().equals(filaVista.getIdExpedientePresup()))
+                            .findFirst().orElse(null);
+
+                    if (filaBD != null && comprobarSiFilaHaCambiado(filaVista, filaBD)) {
+                        if (StringUtils.isBlank(filaVista.getTlObservacion())) {
+                            noHayErrores = Boolean.FALSE; // Marcamos el bloqueo de flujo
+                            String nombrePartida = filaVista.getTipoFinanciacionDTO().getDsValor();
+                            String identificador = Boolean.TRUE.equals(this.esConvocatoriaConceptoPresup) && StringUtils.isNotBlank(filaVista.getTlConcepto())
+                                    ? nombrePartida + " - " + filaVista.getTlConcepto() : nombrePartida;
+                            if (!conceptosInfractores.contains(identificador)) {
+                                conceptosInfractores.add(identificador);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 3. EMISIÓN DE LOS MENSAJES DE ERROR SI PROCEDE TRAS COMPLETAR LAS COMPARACIONES
+            if (!conceptosInfractores.isEmpty()) {
+                AtlasMessageUtils.addErrorMessageFromBundleParams(
+                        ConstantesWeb.Mensajes.SOLICITUD_FINANCIACION_OBSERVACION_PRESUP_PENDIENTES,
+                        new Object[]{conceptosInfractores.size(), String.join(", ", conceptosInfractores)});
+            }
+
+            // Validar que no haya conceptos duplicados o vacíos (Mantiene tu regla de la Comunidad de Madrid)
             if (this.notificarConceptosInvalidos()) {
                 noHayErrores = Boolean.FALSE;
             }
-
-            noHayErrores = this.validarMaximoMinimo(noHayErrores);
-
+            
+            // 4. FLUJO ORIGINAL DE PERSISTENCIA (Encapsulado bajo la condición nativa noHayErrores)
+            
+            
+            
+            
+            
+            
+            
             if (Boolean.TRUE.equals(noHayErrores)) { // SIN ERRORES
 
 //                if (Boolean.TRUE.equals(
@@ -3239,8 +3456,10 @@ public class FinanciacionBean {
                             return;
                         }
                         
+                        // VMM 11/11/26 MD-3231: cada tabla graba su propia ayuda concedida (antes la tabla 2 grababa la de la tabla 1)
                         this.expedientePresupService.guardar(presupuestosSinTotal,
-                                this.montoAyudaConcedida, this.montoAyudaSolicitada,
+                                i == 0 ? this.montoAyudaConcedida : this.montoAyudaConcedida2,
+                                this.montoAyudaSolicitada,
                                 this.expedienteBean.getExpedienteDTO());
 
                         // this.pendienteGuardarObservacion = Boolean.FALSE;
@@ -3253,6 +3472,9 @@ public class FinanciacionBean {
 //                    AtlasMessageUtils.addErrorMessageFromBundle(
 //                            ConstantesWeb.Mensajes.SOLICITUD_FINANCIACION_CONCEPTO_NO_MODIFICACIONES);
 //                }
+            } else {
+                // Si la validación no pasó, actualizamos el componente visual de error para el gestor
+                PrimeFaces.current().ajax().update(this.mensajeAdvertenciaPresup);
             }
 
         } catch (ServiceException e) {
@@ -3261,6 +3483,62 @@ public class FinanciacionBean {
 
         }
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    /**
+     * Función auxiliar corregida: Compara de manera transversal los montos basándose 
+     * estrictamente en el atributo de negocio getNmAnualidad() para evitar desalineaciones por ui-repeat.
+     */
+    private boolean comprobarSiFilaHaCambiado(ExpedientePresupDTO filaVista, ExpedientePresupDTO filaBD) {
+        if (filaVista.getLstExpedientePresupMontoDTO() == null || filaBD.getLstExpedientePresupMontoDTO() == null) {
+            return false;
+        }
+
+        // Recorremos las anualidades reales configuradas por la convocatoria (1, 2, 3...)
+        for (Integer anualidad : this.listaAnualidades) {
+            
+            // Buscamos el monto correspondiente a esta anualidad en la lista de la pantalla (Vista)
+            ExpedientePresupMontoDTO montoVista = filaVista.getLstExpedientePresupMontoDTO().stream()
+                    .filter(m -> m != null && Objects.nonNull(m.getNmAnualidad()) && m.getNmAnualidad().equals(anualidad) && !Boolean.TRUE.equals(m.getEsMontoTotal()))
+                    .findFirst().orElse(null);
+
+            // Buscamos el monto correspondiente a la MISMA anualidad en los datos frescos de la Base de Datos
+            ExpedientePresupMontoDTO montoBD = filaBD.getLstExpedientePresupMontoDTO().stream()
+                    .filter(m -> m != null && Objects.nonNull(m.getNmAnualidad()) && m.getNmAnualidad().equals(anualidad) && !Boolean.TRUE.equals(m.getEsMontoTotal()))
+                    .findFirst().orElse(null);
+
+            if (montoVista != null && montoBD != null) {
+                java.math.BigDecimal valVista = montoVista.getNmImporte() != null ? java.math.BigDecimal.valueOf(montoVista.getNmImporte()) : java.math.BigDecimal.ZERO;
+                java.math.BigDecimal valBD = montoBD.getNmImporte() != null ? java.math.BigDecimal.valueOf(montoBD.getNmImporte()) : java.math.BigDecimal.ZERO;
+
+                // Si hay cualquier cambio en el número decimal de la anualidad, se confirma la modificación
+                if (valVista.compareTo(valBD) != 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     private Boolean validarMaximoMinimo(Boolean noHayErrores) throws ServiceException {
         if (Boolean.FALSE.equals(this.ocultarAyuda)) {
@@ -3791,7 +4069,7 @@ public class FinanciacionBean {
             lstEstadoExpediente.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL));
 
             long existeEstado = lstEstadoExpediente.stream()
-                    .filter(x -> x.equals(this.idEstadoExpediente)).count();
+                    .filter(x -> x.equals(this.obtenerIdEstadoExpedienteActual())).count();
 
              //VMM 28/07/25 MD-1687: ponemos el modo consulta de financiacion si: 1.el expdte está en alguno de esos estados, 
              //2. si todas las tablas presup que existen están en estado financiacion finalizada OK
@@ -3845,7 +4123,7 @@ public class FinanciacionBean {
                                         .get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL))
                         : Boolean.FALSE;
                 
-        this.esconderBotonCargarDatoPresup = lstEstadoExpediente.contains(this.idEstadoExpediente)
+        this.esconderBotonCargarDatoPresup = lstEstadoExpediente.contains(this.obtenerIdEstadoExpedienteActual())
                 || !this.lstPresupuestoFinanciable1.isEmpty()
                 || !this.lstPresupuestoFinanciable2.isEmpty()
                 || Boolean.TRUE.equals(excluidoProvisionalEnviado) // MD-2147 Se incluye condicion de excluido provisional de la rev req
@@ -3921,7 +4199,7 @@ public class FinanciacionBean {
                         : Boolean.FALSE;
 
         this.esconderBotonCargarDatoActuacion = lstEstadoExpediente
-                .contains(this.idEstadoExpediente) || !this.lstActuacionFinanciable.isEmpty()
+                .contains(this.obtenerIdEstadoExpedienteActual()) || !this.lstActuacionFinanciable.isEmpty()
                 || Boolean.TRUE.equals(excluidoProvisionalEnviado) // MD-2147 Se incluye condicion de excluido provisional de la rev req
                 || Boolean.TRUE.equals(desistidoProvisionalEnviado) // MD-2397 se incluye desistido provisional el id_provisional
                 || Boolean.TRUE.equals(estadoPrivisionalExcluidoProvisional); // MD-2399 Incluimos excluido provisonal del estado provisional
@@ -3981,7 +4259,7 @@ public class FinanciacionBean {
 
         //VMM 28/07/25 MD-1687: escondemos el boton de Finalizar Revision si: 1. el expdte este en uno de estos estados, 
         //2. no hay tablas de presup financiables, 3. hay tablas de presup finan pero ya están en estado FINALIZADO OK
-        this.esconderBotonFinalizarRevision = lstEstadoExpediente.contains(this.idEstadoExpediente)
+        this.esconderBotonFinalizarRevision = lstEstadoExpediente.contains(this.obtenerIdEstadoExpedienteActual())
                 || (this.lstPresupuestoFinanciable1.isEmpty()
                 && this.lstPresupuestoFinanciable2.isEmpty())
                 || (this.expedienteBean.getExpedienteDTO().getEstadoRevFinanDTO().getIdValor() != null &&
@@ -4263,87 +4541,117 @@ public class FinanciacionBean {
     }
 
     /**
-     * Calcula la suma vertical de todos los conceptos de una partida específica para una columna dada.
+     * CORRECCIÓN UNIVERSAL: Calcula la suma vertical de todos los conceptos de una partida específica 
+     * para una columna dada en base a los importes en memoria de la vista, excluyendo la fila de totales globales.
      */
     public Double getSumaGrupo(CatalogosValoresDTO partida, int nCol, List<ExpedientePresupDTO> lstPresup) {
         if (lstPresup == null || partida == null) {
             return 0.0;
         }
 
-        Double resultado = lstPresup.stream()
-        .filter(p -> p.getTipoFinanciacionDTO() != null && p.getTipoFinanciacionDTO().getIdValor() != null && partida.getIdValor() != null
-                        && partida.getIdValor().equals(p.getTipoFinanciacionDTO().getIdValor()))
-        .mapToDouble(p -> {
-            // nCol es el índice que viene del front (ya ajustado con el ternario)
-            if (p.getLstExpedientePresupMontoDTO() != null && nCol < p.getLstExpedientePresupMontoDTO().size()
-                    && p.getIdExpedientePresup() != null) { //para que no coja el ultimo registro de la fila TOTAL
-                Double imp = p.getLstExpedientePresupMontoDTO().get(nCol).getNmImporte();
-                return (imp != null) ? imp : 0.0;
-            }
-            return 0.0;
-        }).sum();
-        
-        return resultado;
+        return lstPresup.stream()
+            .filter(p -> p != null && p.getTipoFinanciacionDTO() != null 
+                    && p.getTipoFinanciacionDTO().getIdValor() != null && partida.getIdValor() != null
+                    && partida.getIdValor().equals(p.getTipoFinanciacionDTO().getIdValor())
+                    && p.getIdExpedientePresup() != null // FILTRO CRÍTICO: Excluye la fila artificial de TOTAL del pie
+                    && !"TOTAL".equals(p.getTipoFinanciacionDTO().getDsValor())) 
+            .mapToDouble(p -> {
+                if (p.getLstExpedientePresupMontoDTO() != null && nCol < p.getLstExpedientePresupMontoDTO().size()) {
+                    Double imp = p.getLstExpedientePresupMontoDTO().get(nCol).getNmImporte();
+                    return (imp != null) ? imp : 0.0;
+                }
+                return 0.0;
+            }).sum();
     }
 
     /**
-     * Calcula el total acumulado de un grupo (Suma de todas sus anualidades).
+     * CORRECCIÓN UNIVERSAL: Calcula el total acumulado de un grupo (Suma de todas sus anualidades) 
+     * operando directamente sobre los importes en memoria de la vista, aislando las filas de totales.
      */
     public Double getSumaTotalGrupo(CatalogosValoresDTO partida, List<ExpedientePresupDTO> lstPresup) {
-        // Si no hay ID de partida o no hay columnas, el total es 0
         if (this.listaAnualidades == null || partida == null || lstPresup == null) {
             return 0.0;
         }
         
-        double total = 0.0;
-        // Indice 0: Concepto (vacío), Indice 1: Anualidad 1, Indice 2: TOTAL.
-        int indexTotal = this.listaAnualidades.size() + 1;
-        
-        // Filtramos la lista principal por la partida actual y sumamos el índice del total
-        total = lstPresup.stream()
-                .filter(p -> p.getTipoFinanciacionDTO() != null && p.getTipoFinanciacionDTO().getIdValor() != null && partida.getIdValor() != null
-                            && partida.getIdValor().equals(p.getTipoFinanciacionDTO().getIdValor()))
+        return lstPresup.stream()
+                .filter(p -> p != null && p.getTipoFinanciacionDTO() != null 
+                        && p.getTipoFinanciacionDTO().getIdValor() != null && partida.getIdValor() != null
+                        && partida.getIdValor().equals(p.getTipoFinanciacionDTO().getIdValor())
+                        && p.getIdExpedientePresup() != null // FILTRO CRÍTICO: Excluye la fila artificial de TOTAL del pie
+                        && !"TOTAL".equals(p.getTipoFinanciacionDTO().getDsValor())) 
                 .mapToDouble(p -> {
-                    if (p.getLstExpedientePresupMontoDTO() != null && indexTotal < p.getLstExpedientePresupMontoDTO().size()
-                            && p.getIdExpedientePresup() != null) { //para que no coja el ultimo registro de la fila TOTAL
-                        Double imp = p.getLstExpedientePresupMontoDTO().get(indexTotal).getNmImporte();
+                    if (p.getLstExpedientePresupMontoDTO() != null && !p.getLstExpedientePresupMontoDTO().isEmpty()) {
+                        // En tu estructura de montos, las anualidades editables van primero y el total horizontal es el penúltimo antes del objeto técnico
+                        // Buscamos de forma segura el primer monto que tenga marcado esMontoTotal = true
+                        Double imp = p.getLstExpedientePresupMontoDTO().stream()
+                                .filter(m -> m != null && Boolean.TRUE.equals(m.getEsMontoTotal()))
+                                .map(ExpedientePresupMontoDTO::getNmImporte)
+                                .findFirst().orElse(null);
+                                
+                        if (imp == null) {
+                            // Fallback de seguridad posicional si no está marcado el flag
+                            int indexTotalFila = p.getLstExpedientePresupMontoDTO().size() - 1;
+                            imp = p.getLstExpedientePresupMontoDTO().get(indexTotalFila).getNmImporte();
+                        }
                         return (imp != null) ? imp : 0.0;
                     }
                     return 0.0;
                 }).sum();
-        
-        return total;
     }
     
-    // Suma vertical de una columna (anualidad) específica para TODAS las partidas
+    /**
+     * CORRECCIÓN UNIVERSAL: Suma vertical de una columna (anualidad) específica para TODAS las partidas
+     * operando sobre los importes reales de la vista introducidos por el usuario, omitiendo la fila final.
+     */
     public Double getGranTotalVertical(int nCol, List<ExpedientePresupDTO> lstPresup) {
-        if (lstPresup == null) return 0.0;
+        if (lstPresup == null) {
+            return 0.0;
+        }
         
-        Double resul = lstPresup.stream()
-        .filter(p -> p.getLstExpedientePresupMontoDTO() != null && nCol < p.getLstExpedientePresupMontoDTO().size()
-                    && p.getIdExpedientePresup() != null) //para que no coja el ultimo registro de la fila TOTAL
-        .mapToDouble(p -> {
-            Double imp = p.getLstExpedientePresupMontoDTO().get(nCol).getNmImporte();
-            return (imp != null) ? imp : 0.0;
-        })
-        .sum();
-        
-        return resul;
+        return lstPresup.stream()
+            .filter(p -> p != null && p.getLstExpedientePresupMontoDTO() != null 
+                    && nCol < p.getLstExpedientePresupMontoDTO().size()
+                    && p.getIdExpedientePresup() != null // FILTRO CRÍTICO: Excluye la propia fila final de TOTALES
+                    && p.getTipoFinanciacionDTO() != null 
+                    && !"TOTAL".equals(p.getTipoFinanciacionDTO().getDsValor())) 
+            .mapToDouble(p -> {
+                Double imp = p.getLstExpedientePresupMontoDTO().get(nCol).getNmImporte();
+                return (imp != null) ? imp : 0.0;
+            })
+            .sum();
     }
     
-    // El Gran Total Final es simplemente la suma vertical de la columna de "TOTALES"
+    /**
+     * CORRECCIÓN UNIVERSAL: Calcula el Gran Total Final de la intersección del pie de página 
+     * sumando de forma síncrona la columna de TOTALES horizontales en memoria de conceptos reales.
+     */
     public Double getGranTotalFinal(List<ExpedientePresupDTO> lstPresup) {
         if (lstPresup == null || this.listaAnualidades == null) {
             return 0.0;
         }
         
-        // Si la anualidad es la 1 (índice 1) y el total es el índice 2...
-        // El índice del total horizontal siempre es el tamaño de la lista de anualidades + (conConceptos? 1 : 0)
-        int indexTotalHorizontal = this.listaAnualidades.size() + 1;  
-        double granTotal = getGranTotalVertical(indexTotalHorizontal, lstPresup);
-        
-        return granTotal;
+        return lstPresup.stream()
+            .filter(p -> p != null && p.getLstExpedientePresupMontoDTO() != null 
+                    && !p.getLstExpedientePresupMontoDTO().isEmpty()
+                    && p.getIdExpedientePresup() != null // FILTRO CRÍTICO: Excluye la fila TOTAL del pie
+                    && p.getTipoFinanciacionDTO() != null 
+                    && !"TOTAL".equals(p.getTipoFinanciacionDTO().getDsValor())) 
+            .mapToDouble(p -> {
+                Double imp = p.getLstExpedientePresupMontoDTO().stream()
+                        .filter(m -> m != null && Boolean.TRUE.equals(m.getEsMontoTotal()))
+                        .map(ExpedientePresupMontoDTO::getNmImporte)
+                        .findFirst().orElse(null);
+                        
+                if (imp == null) {
+                    int indexTotalFila = p.getLstExpedientePresupMontoDTO().size() - 1;
+                    imp = p.getLstExpedientePresupMontoDTO().get(indexTotalFila).getNmImporte();
+                }
+                return (imp != null) ? imp : 0.0;
+            })
+            .sum();
     }
+
+
     
     
     /**

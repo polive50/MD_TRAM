@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,6 +39,7 @@ import org.madrid.core.fica.FicaMetadatos;
 import org.madrid.core.icda.services.CoreIcdaRestService;
 import org.madrid.saii.lib.dao.ConvocatoriaDAO;
 import org.madrid.saii.lib.dao.ExpedienteContratoDAO;
+import org.madrid.saii.lib.dao.ExpedienteHistDAO;
 import org.madrid.saii.lib.dao.SolicitudDAO;
 import org.madrid.saii.lib.domain.CatalogosValores;
 import org.madrid.saii.lib.domain.Expediente;
@@ -59,6 +61,8 @@ import org.madrid.saii.lib.dto.ExpedienteReqDTO;
 import org.madrid.saii.lib.dto.ImpresoDTO;
 import org.madrid.saii.lib.dto.InteresadoDTO;
 import org.madrid.saii.lib.dto.PtfrRecuperaDocFirmadoDTO;
+import org.madrid.saii.lib.dto.converters.CatalogosValoresToDTO;
+import org.madrid.saii.lib.dto.converters.CatalogosValoresToEntity;
 import org.madrid.saii.lib.dto.converters.ExpedienteToEntity;
 import org.madrid.saii.lib.services.BloqueService;
 import org.madrid.saii.lib.services.CataService;
@@ -617,6 +621,10 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
     @Autowired
     @Qualifier("convocatoriaTipoDocService")
     private ConvocatoriaTipoDocService convocatoriaTipoDocService;
+    
+    @Autowired
+    @Qualifier("expedienteHistDAO")
+    private ExpedienteHistDAO expedienteHistDAO;
     
     
     
@@ -2119,14 +2127,24 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
         this.inicializarFormularioSubsanacion();
         try {
             this.documentoSeleccionado = documento;
-            documento = this.expedienteDocService.buscarId(documento.getIdExpedienteDoc());
+            // VMM 28/10/26 MD-3192: esDocumentoRequisito solo viene informado en el documento de la fila, no en
+            // el que devuelve buscarId (siempre FALSE). Se comprobaba sobre el recargado, asi que los
+            // documentos de requisitos entraban en esta rama, sin causa de denegacion (convocatoriaCau
+            // nula), y daban error al pulsar el ojo. Para los de requisito se usa el de la fila, que ya
+            // trae la observacion del requisito.
             if (Boolean.FALSE.equals(documento.getEsDocumentoRequisito())) {
-                this.documentoSeleccionado = this.expedienteDocService
+                ExpedienteDocDTO documentoRecargado = this.expedienteDocService
                         .buscarId(documento.getIdExpedienteDoc());
-                this.idCausaSubsanacion = this.documentoSeleccionado.getConvocatoriaCauDTO()
-                        .getIdConvocatoriaCau();
-                this.descripcionCausaSubsanacion = this.documentoSeleccionado
-                        .getTlCausaDescripcion();
+                // VMM 28/10/26 MD-3192: el documento puede no tener causa de denegacion ni descripcion
+                // informadas: en ese caso el popup se abre con esos campos vacios en lugar de dar error.
+                if (documentoRecargado != null) {
+                    this.documentoSeleccionado = documentoRecargado;
+                    if (documentoRecargado.getConvocatoriaCauDTO() != null) {
+                        this.idCausaSubsanacion = documentoRecargado.getConvocatoriaCauDTO()
+                                .getIdConvocatoriaCau();
+                    }
+                    this.descripcionCausaSubsanacion = documentoRecargado.getTlCausaDescripcion();
+                }
             }
             this.modoLecturaSubsanacion = Boolean.TRUE;
             PrimeFaces.current().executeScript("PF('dialogSubsanaDocumento').show();");
@@ -2711,9 +2729,13 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
                 }else {
                     estado = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO);
                 }
-                             
+
+                // VMM 13/11/26 MD-3243: se conserva el impreso, que se pierde al reconstruir el ExpedienteDTO
+                // desde la entidad (igual que en desistirDefinitivo)
+                ImpresoDTO impresoDTO = this.expedienteBean.getExpedienteDTO().getImpresoDTO();
                 ExpedienteDTO expeDTO = this.expedienteService.guardarCambioEstadoRevAdmin(
                         this.idExpediente, estado);
+                expeDTO.setImpresoDTO(impresoDTO);
                 this.expedienteBean.setExpedienteDTO(expeDTO);
                 
                 this.expedienteBean.getFinanciacionBean().setBAvisoFinanciacion(Boolean.FALSE);
@@ -2779,9 +2801,21 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
         try {
 
                 Integer estado = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO);
-            
-                ExpedienteDTO expeDTO = this.expedienteService.guardarCambioEstadoRevAdmin(
-                        this.idExpediente, estado);
+                
+                CatalogosValoresDTO estadoRevInternoDTO = this.catalogosValoresService.buscarId(estado);
+                
+                // VMM 13/11/26 MD-3243: se conserva el impreso, que se pierde al reconstruir el ExpedienteDTO
+                // desde la entidad (igual que en actualizarValoresFormulario)
+                ImpresoDTO impresoDTO = this.expedienteBean.getExpedienteDTO().getImpresoDTO();
+                ExpedienteDTO expeDTO = this.expedienteService.buscarId(this.idExpediente);
+
+                expeDTO.setEstadoDTO(estadoRevInternoDTO);
+                expeDTO.setEstadoRevAdminDTO(estadoRevInternoDTO);
+                expeDTO = this.expedienteService.guardar(expeDTO);
+                this.expedienteHistDAO.crearHistorico( ExpedienteToEntity.INSTANCE.apply(expeDTO), null);
+                expeDTO.setImpresoDTO(impresoDTO);
+
+                
                 this.expedienteBean.setExpedienteDTO(expeDTO);
                 
                 this.expedienteBean.getFinanciacionBean().setBAvisoFinanciacion(Boolean.FALSE);
@@ -2807,8 +2841,16 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
                     // Recalculamos el modo consulta de financiación
                     finanBean.esModoConsulta();
                 }
-                
-                
+
+                // VMM 13/11/26 MD-3243: el boton solo refrescaba outpanelDocumentosSolapa, asi que el estado del
+                // expediente de la cabecera y las demas solapas seguian mostrando Pendiente subsanacion
+                // hasta salir y volver a entrar. Se refrescan como en actualizarValoresFormulario.
+                // Se recalcula tambien el boton, que con MD-3195 queda deshabilitado en propuesta de desistimiento definitivo.
+                this.activarBotonDesistir = habilitarBotonEnviarDesistirPortafirmas(this.isModoConsulta(),
+                        this.expedienteBean.getConvocatoriaDTO().getIdEstado().getIdValor());
+                PrimeFaces.current().ajax().update(this.campoEstadoExpediente);
+                PrimeFaces.current().ajax().update(this.solapaDocumentos);
+
                 AtlasMessageUtils.addInfoMessageFromBundle(
                       ConstantesWeb.Mensajes.DESISTIDO_DEFINITIVO_OK);
 
@@ -2985,11 +3027,14 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
                         estado = Constantes.EstadoExpediente.DESISTIDO;
                     }
                     
+                    // VMM 13/11/26 MD-3243: se conserva el impreso, que se pierde al reconstruir el ExpedienteDTO
+                    // desde la entidad (igual que en desistirDefinitivo)
+                    ImpresoDTO impresoDTO = this.expedienteBean.getExpedienteDTO().getImpresoDTO();
                     ExpedienteDTO expeDTO = this.expedienteService
                             .actualizarCambioEstEstRevAdmEstPro(idExpediente,
                                     estado,
                                     UserUtils.getUserName().toUpperCase());
-                    
+                    expeDTO.setImpresoDTO(impresoDTO);
 
                     this.expedienteBean.setExpedienteDTO(expeDTO);
                     this.expedienteBean.getFinanciacionBean().setBAvisoFinanciacion(Boolean.FALSE);
@@ -3658,6 +3703,8 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
             List<Integer> lstEstadoExp = new ArrayList<>();
             lstEstadoExp.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO));
             lstEstadoExp.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO));
+            lstEstadoExp.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL));
+            lstEstadoExp.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL));
             // Rechazada por la entidad solicitante: solo modo consulta, no se permite finalizar revisión
             lstEstadoExp.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.RECHAZADO_DEFINITIVO));
 
@@ -3770,6 +3817,9 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
             
             if (Boolean.FALSE.equals(esModoConsulta)
                     && !utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoConvocatoria.RESUELTA).equals(idEstadoConvocatoria)
+                    // VMM 29/10/26 MD-3195: si ya esta en propuesta de resolucion de exclusion o desistimiento definitivo no se puede enviar a subsanar
+                    && !utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO).equals(dto.getEstadoRevRequiDTO().getIdValor())
+                    && !utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO).equals(dto.getEstadoRevAdminDTO().getIdValor())
                     && Boolean.FALSE.equals(this.existeEnvioPtfrSubsanacionEnProceso)
                     && Boolean.FALSE.equals(this.existeEnvioPtfrSubsanacionFirmado)
                     && Boolean.FALSE.equals(this.existeEnvioPtfrDesistidoEnProceso)
@@ -3887,6 +3937,9 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
                     && Boolean.FALSE.equals(existeDesistimientoEnviado)
                     && Boolean.FALSE.equals(excluidoProvisionalEnviado) // MD-2147 incluir condicion desisitido provisional
                     && Boolean.FALSE.equals(desisitidoProvisonalEnviado) // MD-2148 incluimos la condicion desisitido provisional
+                    // VMM 29/10/26 MD-3195: si ya esta en propuesta de resolucion de exclusion o desistimiento definitivo no se puede volver a enviar
+                    && !utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO).equals(dto.getEstadoRevRequiDTO().getIdValor())
+                    && !utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO).equals(dto.getEstadoRevAdminDTO().getIdValor())
                     && Boolean.FALSE.equals(existeDesistimientoExclusionProvisionalEnviado) // MD-2484 Incluimos el método que consulta si existe desistimiento y/o exclusion en PTFR
                     && Boolean.FALSE.equals(this.infoUsuarioBean.getRolGestorExterno()) //MD-2958 incluimos que no puedan acceder a estas acciones los gestores ext
                     ) { 
@@ -3915,6 +3968,8 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
         lstEstadoExpInter.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_SUBSANACION_REQUISITOS));
         lstEstadoExpInter.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL)); // MD-2147 incluimos excluido provisional
         lstEstadoExpInter.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL)); // MD-2148 incluimos desistido provisional
+        // VMM 29/10/26 MD-3195: una vez enviado a propuesta de resolucion de desistimiento definitivo ya no se puede calificar ni revertir
+        lstEstadoExpInter.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO));
 
 
         List<Integer> lstEstadoExp = new ArrayList<>();
@@ -3933,7 +3988,9 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
             estadosProvisionales = Boolean.TRUE;
         }
 
+        // VMM 29/10/26 MD-3195: la propuesta de resolucion de exclusion definitiva se guarda en la revision de requisitos
         if (Boolean.TRUE.equals(lstEstadoExpInter.contains(dto.getEstadoRevAdminDTO().getIdValor())
+                || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO).equals(dto.getEstadoRevRequiDTO().getIdValor())
                 || lstEstadoExp.contains(dto.getEstadoDTO().getIdValor())
                 || Boolean.TRUE.equals(estadosProvisionales) // MD-2399 incluimos la condicion del idProvisional
                 || utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoConvocatoria.RESUELTA).equals(idEstadoConvocatoria))
@@ -4212,7 +4269,15 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
                         .equals(dto.getEstadoDTO().getIdValor())) {
             habilitar = Boolean.FALSE;
         }
-
+        
+        
+        if(Boolean.FALSE.equals(esModoConsulta) 
+                && utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_REVISION_ALEGACIONES).equals(dto.getEstadoDTO().getIdValor())
+                && utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PENDIENTE_REVISION).equals(expDocDto.getEstadoDTO().getIdValor())
+                && utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.ALEGACIONES).equals(expDocDto.getTramiteDTO().getIdValor())) {
+            habilitar = Boolean.TRUE;
+        }
+        
         return habilitar;
     }
 
@@ -4322,6 +4387,13 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
         if (utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.RECHAZADO_DEFINITIVO)
                 .equals(dto.getEstadoDTO().getIdValor())) {
             habilitar = Boolean.FALSE;
+        }
+        
+        if(Boolean.FALSE.equals(esModoConsulta) 
+                && utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_REVISION_ALEGACIONES).equals(dto.getEstadoDTO().getIdValor())
+                && utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.PENDIENTE_REVISION).equals(expDocDto.getEstadoDTO().getIdValor())
+                && utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.ALEGACIONES).equals(expDocDto.getTramiteDTO().getIdValor())) {
+            habilitar = Boolean.TRUE;
         }
 
         return habilitar;
@@ -4981,12 +5053,40 @@ public class DocumentoBean extends CatalogoBean<ExpedienteDoc, Integer> {
 
             if (!lstExpDoc.isEmpty()) {
 
-                // Es el mismo registro de envío para todos los documentos
-                // observados o desistidos
-                this.documentoPtfrDTO = this.documentoPtfrService
-                        .buscarPorId(lstExpDoc.get(0).getIdDocumentoPtfr());
+                // VMM 11/11/26 MD-3217: antes se cogia el envio del primer documento de la lista
+                // (lstExpDoc.get(0)), suponiendo que todos tenian el mismo. Cuando hay varios envios
+                // (requerimiento, contestacion, nuevo envio...) los documentos apuntan a envios distintos
+                // y la lista no tiene orden fijo (OneToMany sin OrderBy), asi que segun el orden en que
+                // viniera salia o no el recuadro de Portafirmas/Notificaciones (p.ej. PYMES26L3/COM-286:
+                // envio 170 de requerimiento de subsanacion y envio 228 de otro tramite). Se coge el envio
+                // mas reciente de los tramites que pinta este recuadro (requerimiento de subsanacion
+                // administrativa o resolucion de desistimiento provisional); si no hay ninguno, el mas reciente.
+                Integer idTramiteSubsanacion = utilConstantes.getGlobalCatalogosValores()
+                        .get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_ADMINISTRATIVA);
+                Integer idTramiteDesistido = utilConstantes.getGlobalCatalogosValores()
+                        .get(Constantes.Tramite.RESOLUCION_DESISTIMIENTO_PROVISIONAL);
+                List<Integer> lstIdDocumentoPtfr = lstExpDoc.stream().map(ExpedienteDocDTO::getIdDocumentoPtfr)
+                        .distinct().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+                this.documentoPtfrDTO = null;
 
-                if (Objects.nonNull(this.documentoPtfrDTO.getTramiteDTO())) {
+                for (Integer idDocumentoPtfr : lstIdDocumentoPtfr) {
+                    DocumentoPtfrDTO envio = this.documentoPtfrService.buscarPorId(idDocumentoPtfr);
+                    if (this.documentoPtfrDTO == null) {
+                        this.documentoPtfrDTO = envio;
+                    }
+                    if (envio != null && envio.getTramiteDTO() != null
+                            && (Objects.equals(idTramiteSubsanacion, envio.getTramiteDTO().getIdValor())
+                                    || Objects.equals(idTramiteDesistido, envio.getTramiteDTO().getIdValor()))) {
+                        this.documentoPtfrDTO = envio;
+                        break;
+                    }
+                }
+
+                if (this.documentoPtfrDTO == null) {
+                    this.documentoPtfrDTO = new DocumentoPtfrDTO();
+                }
+
+                if (this.documentoPtfrDTO != null && Objects.nonNull(this.documentoPtfrDTO.getTramiteDTO())) {
                     if (Constantes.EstadoDocumentoPtfr.CODIGO_FIRMADO
                             .equals(this.documentoPtfrDTO.getCdEstadoPtfr())
                             && utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.REQUERIMIENTO_SUBSANACION_ADMINISTRATIVA)

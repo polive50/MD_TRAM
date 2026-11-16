@@ -305,7 +305,13 @@ public class ExpedientePresupServiceImpl
                 
                 ExpedientePresupMonto preMon = new ExpedientePresupMonto();
                 preMon.setNmAnualidad(dato.getNmColumna());
-                preMon.setNmImporte(Double.valueOf(dato.getDsValor()));
+                // VMM 06/11/26 MD-3215: si el ciudadano dejo vacio algun importe en saii_dato, se carga 0 en vez de
+                // fallar (como en guardarFinanciacionConcepto, MD-2110). Incidencia PRO PYMES26L3/TEC-264
+                if (StringUtils.isNotBlank(dato.getDsValor())) {
+                    preMon.setNmImporte(Double.valueOf(dato.getDsValor()));
+                } else {
+                    preMon.setNmImporte(0.0);
+                }
                 preMon.setIdExpedientePresup(pre.getIdExpedientePresup());
                 preMon = this.expedientePresupMontoDAO.insert(preMon);
 
@@ -475,6 +481,26 @@ public class ExpedientePresupServiceImpl
             expPresup.setNmPorcentajeIntensidad(nmPorcentajeIntensidad);
             expPresup.setNmAyuda(montoAyuda);
             expPresup.setNmAyudaSol(montoAyudaSol); //VMM 27/10/26 MD-3094
+            expPresup.setCdUsuModif(UserUtils.getUserName());
+            expPresup.setFcModifFila(new Date());
+            this.getDao().merge(expPresup);
+        }
+    }
+
+    /**
+     * VMM 05/11/26 MD-3205: guarda solo la ayuda concedida (NM_AYUDA) de las filas de la tabla de presupuesto indicada.
+     * No toca la intensidad ni la ayuda solicitada.
+     */
+    @Override
+    @Transactional(readOnly = false)
+    public void actualizarAyudaConcedida(Integer idExpediente, Integer nmPresup, Double montoAyuda)
+            throws ServiceException {
+
+        List<ExpedientePresupDTO> registros = bucarPresupByIdExpAndNmPresup(idExpediente, nmPresup);
+
+        for (ExpedientePresupDTO dto : registros) {
+            ExpedientePresup expPresup = this.expedientePresupDAO.find(dto.getIdExpedientePresup());
+            expPresup.setNmAyuda(montoAyuda);
             expPresup.setCdUsuModif(UserUtils.getUserName());
             expPresup.setFcModifFila(new Date());
             this.getDao().merge(expPresup);

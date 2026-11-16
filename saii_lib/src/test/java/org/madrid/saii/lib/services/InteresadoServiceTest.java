@@ -309,7 +309,7 @@ public class InteresadoServiceTest extends AtlasAbstractBaseTest {
     public void testComprobarInteresadoOK() {
         try {
 
-            InteresadoDTO interesadoDTO = this.service.obtenerPorIdentificacion("00000001R");
+            InteresadoDTO interesadoDTO = this.service.obtenerPorIdentificacion("29010068F");
 
             // No es nulo
             Assert.assertNotNull(interesadoDTO);

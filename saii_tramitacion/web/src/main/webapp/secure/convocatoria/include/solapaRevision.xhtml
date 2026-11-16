@@ -193,7 +193,10 @@
                     src="/secure/convocatoria/include/solapaJustificacionEco.xhtml" />
             </p:tab>
             
-            <p:tab id="solapaComunCiudadano" title="Comunicaciones del ciudadano">
+            
+           <p:tab id="solapaComunCiudadano" 
+                   title="Comunicaciones del ciudadano"
+                   titleStyleClass="#{expedienteBean.expedienteDTO.BAvisoNotifCiudadano ? 'colorRedExpedienteEstados' : ''}">
                 <ui:include src="/secure/convocatoria/include/solapaComunCiudadano.xhtml" />
             </p:tab>
 

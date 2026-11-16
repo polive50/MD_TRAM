@@ -1,9 +1,12 @@
 package org.madrid.saii.lib.services;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.madrid.saii.lib.dao.ExpedienteDAO;
 import org.madrid.saii.lib.dao.InformeEvalDocDAO;
+import org.madrid.saii.lib.domain.Expediente;
 import org.madrid.saii.lib.domain.InformeEvalDoc;
 import org.madrid.saii.lib.dto.CatalogosValoresDTO;
 import org.madrid.saii.lib.dto.InformeEvalDocDTO;
@@ -41,6 +44,10 @@ public class InformeEvalDocServiceImpl
     @Autowired
     @Qualifier("utilConstantes")
     private UtilConstantes utilConstantes;
+
+    @Autowired
+    @Qualifier("expedienteDAO")
+    private ExpedienteDAO expedienteDAO;
 
     @Autowired
     public InformeEvalDocServiceImpl(@Qualifier("informeEvalDocDAO")
@@ -102,6 +109,15 @@ public class InformeEvalDocServiceImpl
 
     @Override
     public List<InformeEvalDocDTO> obtenerIdExpedienteItCoorEvalItFirmado(Integer idExpediente) throws ServiceException {
+        // MD: si el expediente está desistido (expreso o tras concesión definitiva
+        // aceptada) no se devuelven informes de evaluación
+        Expediente expedienteActual = this.expedienteDAO.find(idExpediente);
+        if (expedienteActual != null && expedienteActual.getEstado() != null
+                && (Constantes.EstadoExpediente.DESISTIDO.equals(expedienteActual.getEstado().getNmConstante())
+                        || Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_DESISTIDO
+                                .equals(expedienteActual.getEstado().getNmConstante()))) {
+            return new ArrayList<>();
+        }
         return this.getDao().obtenerIdExpedienteItCoorEvalItFirmado(idExpediente);
     }
 

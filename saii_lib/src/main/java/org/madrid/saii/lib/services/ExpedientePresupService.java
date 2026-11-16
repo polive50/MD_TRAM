@@ -107,6 +107,12 @@ public interface ExpedientePresupService
             Double montoAyuda, Double montoAyudaSol) throws ServiceException;
 
     /**
+     * VMM 05/11/26 MD-3205: guarda solo la ayuda concedida (NM_AYUDA) de las filas de la tabla de presupuesto indicada
+     */
+    void actualizarAyudaConcedida(Integer idExpediente, Integer nmPresup, Double montoAyuda)
+            throws ServiceException;
+
+    /**
      * Método poara validar que existen cambios por guardar
      * 
      * @param lstBloque

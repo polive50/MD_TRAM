@@ -407,6 +407,9 @@ public class DocumentoPtfrServiceImpl extends
                 .get(Constantes.Tramite.RESOLUCION_PRESUPUESTO_MODIFICADA_ACEPTADA));
         tramitesNoFormPdf
                 .add(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.EXCLUSION));
+	  // MD-3239 añadimos tramite RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO
+        tramitesNoFormPdf
+            .add(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO));
         // MD-2147 añadimos el trámite RESOLUCION EXCLUSION PROVISIONAL
         tramitesNoFormPdf
                 .add(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_EXCLUSION_PROVISIONAL));

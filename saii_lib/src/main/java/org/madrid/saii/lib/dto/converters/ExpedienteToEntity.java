@@ -43,7 +43,11 @@ public enum ExpedienteToEntity implements Function<ExpedienteDTO, Expediente> {
 
             if (dto.getEstadoDTO() != null) {
                 entity.setEstado(CatalogosValoresToEntity.INSTANCE.apply(dto.getEstadoDTO()));
-                entity.setEstadoBenef(this.calcularEstadoBenef(dto.getEstadoDTO().getIdValor()));
+                 if(dto.getEstadoBeneficiarioDTO() != null) {
+                    entity.setEstadoBenef(CatalogosValoresToEntity.INSTANCE.apply(dto.getEstadoBeneficiarioDTO()));
+                }else {
+                    entity.setEstadoBenef(this.calcularEstadoBenef(dto.getEstadoDTO().getIdValor()));
+                }
             }
 
             if (dto.getEstadoProvisionalDTO() != null

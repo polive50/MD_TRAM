@@ -7574,7 +7574,7 @@ public class InformeHelperPdfServiceImpl implements InformeHelperPdfService {
     }
 
     @Override
-    public void agregarDatosEntidadSolicitante(Document document, ExpedienteDTO expediente, ConvocatoriaActDTO convocaActPadre)
+    public void agregarDatosEntidadSolicitante(Document document, ExpedienteDTO expediente, ConvocatoriaActDTO convocaActPadre,Boolean sinAcronimo)
             throws DocumentException, ServiceException {
         
        
@@ -7584,34 +7584,61 @@ public class InformeHelperPdfServiceImpl implements InformeHelperPdfService {
         }
         this.agregarTituloBloque(document,titulo);
         PdfPCell cell = null;
-        PdfPTable table = new PdfPTable(new float[] { 12, 28,12, 48,});
-        table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_LEFT);
-        table.setWidthPercentage(100);
-        table.getDefaultCell().setBorder(Rectangle.BOX);
-        table.getDefaultCell().setBorderColor(BaseColor.BLACK);
+        if(sinAcronimo) {
+            PdfPTable table = new PdfPTable(new float[] { 30, 70,});
+            table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_LEFT);
+            table.setWidthPercentage(100);
+            table.getDefaultCell().setBorder(Rectangle.BOX);
+            table.getDefaultCell().setBorderColor(BaseColor.BLACK);
 
-        cell = celdaEtiqueta("Acrónimo Entidad:", Boolean.TRUE);
-        table.addCell(cell);
-        if(expediente.getEntidadDTO() != null && expediente.getEntidadDTO().getInteresadoDTO() != null) {
-            agregarCeldaInteresado(table, expediente.getEntidadDTO().getDsAbrev(), "campo_acronimo",
-                    false);
-            cell = celdaEtiqueta("Nombre:", Boolean.TRUE);
-            table.addCell(cell);
-            agregarCeldaInteresado(table, expediente.getEntidadDTO().getInteresadoDTO().getDsNombre(), "campo_nombre_entidad",
-                    false);
-            
            
+            if(expediente.getEntidadDTO() != null && expediente.getEntidadDTO().getInteresadoDTO() != null) {
+                cell = celdaEtiqueta("Nombre:", Boolean.TRUE);
+                table.addCell(cell);
+                agregarCeldaInteresado(table, expediente.getEntidadDTO().getInteresadoDTO().getDsNombre(), "campo_nombre_entidad",
+                        false);
+                
+               
+            }else {
+                // Añadir fila vacia para cuando llamamos desde ADMIN
+                cell = celdaEtiqueta("Nombre:", Boolean.TRUE);
+                table.addCell(cell);
+                agregarCeldaInteresado(table, " ", "campo_nombre_entidad",
+                        false);
+            }
+            
+            document.add(table);
         }else {
-            // Añadir fila vacia para cuando llamamos desde ADMIN
-            agregarCeldaInteresado(table, " ", "campo_acronimo",
-                    false);
-            cell = celdaEtiqueta("Nombre:", Boolean.TRUE);
+            PdfPTable table = new PdfPTable(new float[] { 12, 28,12, 48,});
+            table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_LEFT);
+            table.setWidthPercentage(100);
+            table.getDefaultCell().setBorder(Rectangle.BOX);
+            table.getDefaultCell().setBorderColor(BaseColor.BLACK);
+
+            cell = celdaEtiqueta("Acrónimo Entidad:", Boolean.TRUE);
             table.addCell(cell);
-            agregarCeldaInteresado(table, " ", "campo_nombre_entidad",
-                    false);
+            if(expediente.getEntidadDTO() != null && expediente.getEntidadDTO().getInteresadoDTO() != null) {
+                agregarCeldaInteresado(table, expediente.getEntidadDTO().getDsAbrev(), "campo_acronimo",
+                        false);
+                cell = celdaEtiqueta("Nombre:", Boolean.TRUE);
+                table.addCell(cell);
+                agregarCeldaInteresado(table, expediente.getEntidadDTO().getInteresadoDTO().getDsNombre(), "campo_nombre_entidad",
+                        false);
+                
+               
+            }else {
+                // Añadir fila vacia para cuando llamamos desde ADMIN
+                agregarCeldaInteresado(table, " ", "campo_acronimo",
+                        false);
+                cell = celdaEtiqueta("Nombre:", Boolean.TRUE);
+                table.addCell(cell);
+                agregarCeldaInteresado(table, " ", "campo_nombre_entidad",
+                        false);
+            }
+            
+            document.add(table);
         }
-        
-        document.add(table);
+       
         
     }
 

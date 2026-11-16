@@ -300,17 +300,17 @@ String obtenerNombreDocumentoConceptoPresupuesto(Integer idDato) throws ServiceE
  */
 List<ExpedienteDocDTO> obtenerDocumentosConceptoPresupuesto(Integer idModificacion) throws ServiceException;
 
-    /**
-     * Valida y guarda el PDF de un expediente pendiente de concesión, con histórico.
-     */
-    void guardarResolucionConcesion(Integer idConvocatoria, ExpedienteDocDTO documento,
-            String usuario) throws ServiceException;
-    
-    /**
-     * Recupera el primer PDF descargable de la resolución individual o conjunta.
-     */
-    ExpedienteDocDTO buscarDocumentoResolucionDescargable(Integer idConvocatoria, Integer idTramite,
-            Integer idTipoDocumento, List<Integer> idsEstado)
-            throws ServiceException;
-    
+/**
+ * Recupera el primer PDF descargable de la resolución individual o conjunta.
+ */
+ExpedienteDocDTO buscarDocumentoResolucionDescargable(Integer idConvocatoria, Integer idTramite,
+        Integer idTipoDocumento, List<Integer> idsEstado)
+        throws ServiceException;
+
+/**
+ * Valida y guarda el PDF de un expediente pendiente de concesión, con histórico.
+ */
+void guardarResolucionConcesion(Integer idConvocatoria, ExpedienteDocDTO documento,
+        String usuario) throws ServiceException;
+
 }

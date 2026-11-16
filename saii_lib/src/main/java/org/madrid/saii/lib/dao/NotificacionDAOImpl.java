@@ -155,13 +155,13 @@ implements NotificacionDAO {
 
             // Si el estado del expediente es Pendiente de Revisión Alegaciones
             // Se muestra la notificacion al evaluador y coordinador
-            if (utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_REVISION_ALEGACIONES)
-                    .equals(tempDTO.getIdEstadoExpediente())) {
-                tempDTO.setMensajeNotificacion(
-                        Constantes.Notificacion.ALEGACIONES_EXPEDIENTE + tempDTO.getCdExpediente()
-                        + Constantes.Notificacion.ALEGACIONES_EXPEDIENTE_2);
-                lst.add(tempDTO);
-            }
+//            if (utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_REVISION_ALEGACIONES)
+//                    .equals(tempDTO.getIdEstadoExpediente())) {
+//                tempDTO.setMensajeNotificacion(
+//                        Constantes.Notificacion.ALEGACIONES_EXPEDIENTE + tempDTO.getCdExpediente()
+//                        + Constantes.Notificacion.ALEGACIONES_EXPEDIENTE_2);
+//                lst.add(tempDTO);
+//            }
 
             if (Constantes.TipoCoorEval.COORDINADOR.equals(itCoorEval)) {
 
@@ -344,16 +344,16 @@ implements NotificacionDAO {
             tempDTO.setIdEstadoInforme(null);
             tempDTO.setIdTipoInforme(null);
             tempDTO.setDsTipoInforme(null);
-
+            // se ha comentado por MD-3196
             // Si el estado del expediente es Pendiente de Revisión Alegaciones
             // Se muestra la notificacion al coordinador
-            if (utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_REVISION_ALEGACIONES)
-                    .equals(tempDTO.getIdEstadoExpediente())) {
-                tempDTO.setMensajeNotificacion(
-                        Constantes.Notificacion.ALEGACIONES_EXPEDIENTE + tempDTO.getCdExpediente()
-                        + Constantes.Notificacion.ALEGACIONES_EXPEDIENTE_2);
-                lst.add(tempDTO);
-            }
+//            if (utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_REVISION_ALEGACIONES)
+//                    .equals(tempDTO.getIdEstadoExpediente())) {
+//                tempDTO.setMensajeNotificacion(
+//                        Constantes.Notificacion.ALEGACIONES_EXPEDIENTE + tempDTO.getCdExpediente()
+//                        + Constantes.Notificacion.ALEGACIONES_EXPEDIENTE_2);
+//                lst.add(tempDTO);
+//            }
 
             if (utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoCoordinador.EN_EVALUACION_POR_COORDINADOR)
                     .equals(tempDTO.getIdEstadoExpedienteEval())) {
@@ -502,7 +502,7 @@ implements NotificacionDAO {
              }
 
               tempDTO.setObsEval((String) object[26]);
-              
+
                     lst.add(tempDTO);
 
          

@@ -39,6 +39,7 @@ import org.madrid.saii.lib.dto.ImpresoDTO;
 import org.madrid.saii.lib.dto.NotificacionCiudadanoDTO;
 import org.madrid.saii.lib.dto.SolicitudDTO;
 import org.madrid.saii.lib.dto.converters.ConvocatoriaToEntity;
+import org.madrid.saii.lib.dto.converters.ExpedienteToDTO;
 import org.madrid.saii.lib.dto.converters.ExpedienteToEntity;
 import org.madrid.saii.lib.services.CataService;
 import org.madrid.saii.lib.services.CatalogosValoresService;
@@ -2086,50 +2087,97 @@ public class ResolucionBean {
 
     }
     
+//    public void excluirDefinitivo() {
+//
+//        try {
+//
+////            ExpedienteDTO expedienteDTO = this.expedienteService.cambiarEstado(
+////                    this.expedienteBean.getIdExpediente(),
+////                    utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO), null);
+//            
+//            ExpedienteDTO expedienteDTO = this.expedienteService.buscarId( this.expedienteBean.getIdExpediente());
+//            expedienteDTO.setEstadoDTO(new CatalogosValoresDTO( utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO)));            
+//            this.expedienteService.guardar(expedienteDTO);            
+//            //this.expedienteHistDAO.crearHistorico( ExpedienteToEntity.INSTANCE.apply(expedienteDTO), null);
+//
+//            // también cambia el estado de la solicitud
+//            Solicitud solicitud = this.solicitudDAO.find(expedienteDTO.getIdSolicitud());
+//               solicitud.setEstado(new CatalogosValores(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoSolicitud.EXCLUIDA)));
+//               this.solicitudDAO.update(solicitud);
+//            
+//            
+//            ExpedienteDocDTO expeDocDTO = this.expedienteService.getExpedienteDocDTO(
+//                    utilConstantes.getGlobalCatalogosValores().get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA),
+//                    this.expedienteBean.getExpedienteDTO().getIdExpediente());
+//            expeDocDTO.setTramiteDTO(this.catalogosValoresService
+//                    .buscarId(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.EXCLUSION)));
+//            this.expedienteDocService.guardar(expeDocDTO);
+//
+//            //seteo los valores de avisos para color rojo
+//            expedienteDTO.setBlEstadoDefinitivo(Boolean.TRUE);           
+//            expedienteDTO.setBAvisoResolucion(Boolean.TRUE);
+//            
+//            this.recuperarValoresVariablesExpediente(expedienteDTO);
+//            
+//            PrimeFaces.current().ajax().update(this.formularioResolucion);
+//            PrimeFaces.current().ajax().update(this.campoEstadoExpediente);
+//            PrimeFaces.current().ajax().update(this.solapaResolucion);
+//
+//            AtlasMessageUtils
+//                    .addInfoMessageFromBundle(ConstantesWeb.Mensajes.EXCLUIDO_DEFINITIVO_OK);
+//
+//        } catch (ServiceException e) {
+//            AtlasMessageUtils
+//                    .addInfoMessageFromBundle(ConstantesWeb.Mensajes.EXCLUIDO_DEFINITIVO_KO);
+//        }
+//
+//    }
+    
     public void excluirDefinitivo() {
-
         try {
-
-//            ExpedienteDTO expedienteDTO = this.expedienteService.cambiarEstado(
-//                    this.expedienteBean.getIdExpediente(),
-//                    utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO), null);
+            ExpedienteDTO expedienteDTO = this.expedienteService.buscarId(this.expedienteBean.getIdExpediente());
             
-            ExpedienteDTO expedienteDTO = this.expedienteService.buscarId( this.expedienteBean.getIdExpediente());
-            expedienteDTO.setEstadoDTO(new CatalogosValoresDTO( utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO)));            
+            Integer idEstadoExcluido = utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO);
+            CatalogosValoresDTO estadoCompleto = this.catalogosValoresService.buscarId(idEstadoExcluido);
+            expedienteDTO.setEstadoDTO(estadoCompleto);
+            
             this.expedienteService.guardar(expedienteDTO);            
-            //this.expedienteHistDAO.crearHistorico( ExpedienteToEntity.INSTANCE.apply(expedienteDTO), null);
 
-            // también cambia el estado de la solicitud
+            // Cambiar el estado de la solicitud
             Solicitud solicitud = this.solicitudDAO.find(expedienteDTO.getIdSolicitud());
-               solicitud.setEstado(new CatalogosValores(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoSolicitud.EXCLUIDA)));
-               this.solicitudDAO.update(solicitud);
-            
+            solicitud.setEstado(new CatalogosValores(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoSolicitud.EXCLUIDA)));
+            this.solicitudDAO.update(solicitud);
             
             ExpedienteDocDTO expeDocDTO = this.expedienteService.getExpedienteDocDTO(
                     utilConstantes.getGlobalCatalogosValores().get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA),
                     this.expedienteBean.getExpedienteDTO().getIdExpediente());
-            expeDocDTO.setTramiteDTO(this.catalogosValoresService
-                    .buscarId(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.EXCLUSION)));
-            this.expedienteDocService.guardar(expeDocDTO);
+            if (expeDocDTO != null) {
+                expeDocDTO.setTramiteDTO(this.catalogosValoresService
+                        .buscarId(utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.EXCLUSION)));
+                this.expedienteDocService.guardar(expeDocDTO);
+            }
 
-            //seteo los valores de avisos para color rojo
+            // Flags de renderizado
             expedienteDTO.setBlEstadoDefinitivo(Boolean.TRUE);           
             expedienteDTO.setBAvisoResolucion(Boolean.TRUE);
-            
+
+            // FIX: Asignar la clase CSS para el fondo rojo de Resolución Definitiva
+            expedienteDTO.setColorFondoTextResolucionDef("colorInputTextRojo"); 
+
+            // Actualizar el Bean principal
+            this.expedienteBean.setExpedienteDTO(expedienteDTO);
             this.recuperarValoresVariablesExpediente(expedienteDTO);
             
+
             PrimeFaces.current().ajax().update(this.formularioResolucion);
-            PrimeFaces.current().ajax().update(this.campoEstadoExpediente);
+            PrimeFaces.current().ajax().update(this.panelEstadoResolucion);
             PrimeFaces.current().ajax().update(this.solapaResolucion);
 
-            AtlasMessageUtils
-                    .addInfoMessageFromBundle(ConstantesWeb.Mensajes.EXCLUIDO_DEFINITIVO_OK);
+            AtlasMessageUtils.addInfoMessageFromBundle(ConstantesWeb.Mensajes.EXCLUIDO_DEFINITIVO_OK);
 
         } catch (ServiceException e) {
-            AtlasMessageUtils
-                    .addInfoMessageFromBundle(ConstantesWeb.Mensajes.EXCLUIDO_DEFINITIVO_KO);
+            AtlasMessageUtils.addInfoMessageFromBundle(ConstantesWeb.Mensajes.EXCLUIDO_DEFINITIVO_KO);
         }
-
     }
     
     
@@ -2229,6 +2277,20 @@ public class ResolucionBean {
         PrimefacesUtils.ocultarPopupPF("dialogSubirResolucionDefinitiva");
     }
 
+    public void subirResolucionDefinitivaConjuntaDialog() {
+        PrimefacesUtils.mostrarPopupPF("dialogSubirResolucionDefinitivaConjunta");
+    }
+
+    /** 
+     * 
+     */
+    public void cerrarSubirResolucionDefinitivaConjuntaDialog() {
+        PrimefacesUtils.ocultarPopupPF("dialogSubirResolucionDefinitivaConjunta");
+    }
+    
+    
+    
+    
     /**
      * 
      */
@@ -2457,42 +2519,128 @@ public class ResolucionBean {
     
     
     public void aprobarAlegacion() throws ServiceException {
-        ExpedienteDTO expedienteDTO = this.expedienteService.procesarRevisionAlegacionGestor(
+        
+        ExpedienteDTO exp = this.expedienteService.buscarId(this.expedienteBean.getIdExpediente());
+
+        List<ExpedienteDocDTO> listaDocs = exp.getListExpedienteDocDTO();
+
+        Integer idEstadoPendienteRevision = utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.EstadoDocumento.PENDIENTE_REVISION);
+        Integer idTramiteAlegaciones = utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.Tramite.ALEGACIONES);
+
+        // Comprobamos si existe AL MENOS UN documento activo del trámite en estado PENDIENTE_REVISION
+        boolean hayPendientesRevision = listaDocs != null && listaDocs.stream()
+                .filter(f -> f.getFcBajaFila() == null)
+                .filter(f -> f.getTramiteDTO() != null 
+                        && idTramiteAlegaciones.equals(f.getTramiteDTO().getIdValor()))
+                .anyMatch(f -> f.getEstadoDTO() != null 
+                        && idEstadoPendienteRevision.equals(f.getEstadoDTO().getIdValor()));
+
+        // Si hay alguno pendiente, mostramos el aviso (sin el '!') y cortamos el flujo
+        if (hayPendientesRevision) {
+            AtlasMessageUtils.addWarnMessageFromBundle(
+                    ConstantesWeb.Mensajes.REVISION_EXPEDIENTE_DOCUMENTOS_PENDIENTES_ALEGACION);
+        }else {
+
+          ExpedienteDTO expedienteDTO = this.expedienteService.procesarRevisionAlegacionGestor(
                 this.expedienteBean.getIdExpediente(),this.expedienteBean.getIdConvocatoria(),
                 Constantes.AfirmacionNegacion.S, this.activarConcederDenegar);
-        this.expedienteBean.setExpedienteDTO(expedienteDTO);
-        this.activarConcederDenegar = expedienteDTO.getActivarConcederDenegar();
-        this.recuperarValoresVariablesExpediente(expedienteDTO);
-      this.expedienteBean.getExpedienteDTO().setBAvisoResolucion(Boolean.TRUE);
-      PrimeFaces.current().ajax().update(this.formularioResolucion);
-      PrimeFaces.current().ajax().update(this.campoEstadoExpediente);
-      PrimeFaces.current().ajax().update(this.solapaResolucion);  
-      this.expedienteBean.getExpedienteDTO().setBAvisoResolucion(Boolean.TRUE);
-      this.financiacionBean.setBAvisoFinanciacion(Boolean.TRUE);          
-      AtlasMessageUtils
-      .addInfoMessageFromBundle(ConstantesWeb.Mensajes.APROBADA_ALEGACION);
-      
+          this.expedienteBean.setExpedienteDTO(expedienteDTO);
+          this.activarConcederDenegar = expedienteDTO.getActivarConcederDenegar();
+          this.recuperarValoresVariablesExpediente(expedienteDTO);
+          this.expedienteBean.getExpedienteDTO().setBAvisoResolucion(Boolean.TRUE);
+          PrimeFaces.current().ajax().update(this.formularioResolucion);
+          PrimeFaces.current().ajax().update(this.campoEstadoExpediente);
+          PrimeFaces.current().ajax().update(this.solapaResolucion);  
+          this.expedienteBean.getExpedienteDTO().setBAvisoResolucion(Boolean.TRUE);
+          this.financiacionBean.setBAvisoFinanciacion(Boolean.TRUE);          
+          AtlasMessageUtils
+          .addInfoMessageFromBundle(ConstantesWeb.Mensajes.APROBADA_ALEGACION);  
+        }
+     
     }
     
     
     public void rechazarAlegacion() throws ServiceException {
-        ExpedienteDTO expedienteDTO = this.expedienteService.procesarRevisionAlegacionGestor(
-                this.expedienteBean.getIdExpediente(),this.expedienteBean.getIdConvocatoria(),
-                Constantes.AfirmacionNegacion.N,  this.activarConcederDenegar);
-        this.expedienteBean.setExpedienteDTO(expedienteDTO);
-        this.activarConcederDenegar = expedienteDTO.getActivarConcederDenegar();
-        this.recuperarValoresVariablesExpediente(expedienteDTO);
-        this.expedienteBean.getExpedienteDTO().setBAvisoResolucion(Boolean.TRUE);
-        PrimeFaces.current().ajax().update(this.formularioResolucion);
-        PrimeFaces.current().ajax().update(this.campoEstadoExpediente);
-        PrimeFaces.current().ajax().update(this.solapaResolucion);
-        this.expedienteBean.getExpedienteDTO().setBAvisoResolucion(Boolean.TRUE);
         
-        AtlasMessageUtils
-        .addInfoMessageFromBundle(ConstantesWeb.Mensajes.RECHAZADA_ALEGACION);
+        ExpedienteDTO exp = this.expedienteService.buscarId(this.expedienteBean.getIdExpediente());
+
+        List<ExpedienteDocDTO> listaDocs = exp.getListExpedienteDocDTO();
+
+        Integer idEstadoPendienteRevision = utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.EstadoDocumento.PENDIENTE_REVISION);
+        Integer idTramiteAlegaciones = utilConstantes.getGlobalCatalogosValores()
+                .get(Constantes.Tramite.ALEGACIONES);
+
+        // Comprobamos si existe AL MENOS UN documento activo del trámite en estado PENDIENTE_REVISION
+        boolean hayPendientesRevision = listaDocs != null && listaDocs.stream()
+                .filter(f -> f.getFcBajaFila() == null)
+                .filter(f -> f.getTramiteDTO() != null 
+                        && idTramiteAlegaciones.equals(f.getTramiteDTO().getIdValor()))
+                .anyMatch(f -> f.getEstadoDTO() != null 
+                        && idEstadoPendienteRevision.equals(f.getEstadoDTO().getIdValor()));
+
+        // Si hay alguno pendiente, mostramos el aviso (sin el '!') y cortamos el flujo
+        if (hayPendientesRevision) {
+            AtlasMessageUtils.addWarnMessageFromBundle(
+                    ConstantesWeb.Mensajes.REVISION_EXPEDIENTE_DOCUMENTOS_PENDIENTES_ALEGACION);
+        }else {
+
+          
+            ExpedienteDTO expedienteDTO = this.expedienteService.procesarRevisionAlegacionGestor(
+                    this.expedienteBean.getIdExpediente(),this.expedienteBean.getIdConvocatoria(),
+                    Constantes.AfirmacionNegacion.N,  this.activarConcederDenegar);
+            this.expedienteBean.setExpedienteDTO(expedienteDTO);
+            this.activarConcederDenegar = expedienteDTO.getActivarConcederDenegar();
+            this.recuperarValoresVariablesExpediente(expedienteDTO);
+            this.expedienteBean.getExpedienteDTO().setBAvisoResolucion(Boolean.TRUE);
+            PrimeFaces.current().ajax().update(this.formularioResolucion);
+            PrimeFaces.current().ajax().update(this.campoEstadoExpediente);
+            PrimeFaces.current().ajax().update(this.solapaResolucion);
+            this.expedienteBean.getExpedienteDTO().setBAvisoResolucion(Boolean.TRUE);
+            
+            AtlasMessageUtils
+            .addInfoMessageFromBundle(ConstantesWeb.Mensajes.RECHAZADA_ALEGACION);
         
+        }
         
     }
+    
+    public void cambiarEstadoPropuestaResDef() throws ServiceException {
+        
+             Expediente expediente = this.expedienteService.find(this.expedienteBean.getIdExpediente());
+     
+            if(expediente.getEstadoProvisional().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL))) {
+                  this.expedienteService.cambiarEstado( this.expedienteBean.getIdExpediente(),utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO), null);     
+                 
+            }else if( expediente.getEstadoProvisional().getIdValor().equals(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL))) {
+
+                this.expedienteService.cambiarEstado( this.expedienteBean.getIdExpediente(),utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO), null);      
+                
+            }
+            
+            // VMM 13/11/26 MD-3243: la entidad 'expediente' viene de find() fuera de transaccion (detached), y al
+            // convertirla aqui con ExpedienteToDTO se accedia a relaciones lazy -> LazyInitializationException
+            // "could not initialize proxy - no Session" (PYMES26L3/COM-309). Ademas tenia el estado anterior
+            // al cambio. Se recarga el DTO desde el servicio y se conserva el impreso, que se pierde al recargar.
+            ImpresoDTO impresoDTO = this.expedienteBean.getExpedienteDTO().getImpresoDTO();
+            ExpedienteDTO expedienteDTO = this.expedienteService.buscarId(this.expedienteBean.getIdExpediente());
+            expedienteDTO.setImpresoDTO(impresoDTO);
+            this.expedienteBean.setExpedienteDTO(expedienteDTO);
+            //this.activarConcederDenegar = expedienteDTO.getActivarConcederDenegar();
+            this.recuperarValoresVariablesExpediente(expedienteDTO);
+            //this.expedienteBean.getExpedienteDTO().setBAvisoResolucion(Boolean.TRUE);
+            PrimeFaces.current().ajax().update(this.formularioResolucion);
+            PrimeFaces.current().ajax().update(this.campoEstadoExpediente);
+            PrimeFaces.current().ajax().update(this.solapaResolucion);
+            //this.expedienteBean.getExpedienteDTO().setBAvisoResolucion(Boolean.TRUE);
+            
+            //AtlasMessageUtils
+            //.addInfoMessageFromBundle(ConstantesWeb.Mensajes.RECHAZADA_ALEGACION);
+    
+    }
+    
     
     
     
@@ -2694,6 +2842,26 @@ public class ResolucionBean {
         
     }
     
+    /**
+     * VMM 13/11/26 MD-3243: boton "Propuesta resolucion definitiva" (solapaTramiteAudiencia). Se muestra como
+     * hasta ahora (sin alegaciones y plazo expirado) salvo que el expediente ya este en propuesta de resolucion
+     * de exclusion/desistimiento definitivo o ya excluido/desistido; antes seguia visible tras el cambio de estado.
+     */
+    public Boolean mostrarBotonPropuestaResDef() throws ServiceException {
+        ExpedienteDTO dto = this.expedienteBean.getExpedienteDTO();
+        if (dto != null && dto.getEstadoDTO() != null && dto.getEstadoDTO().getIdValor() != null) {
+            List<Integer> lstEstadoOcultar = new ArrayList<>();
+            lstEstadoOcultar.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_EXCLUSION_DEFINITIVO));
+            lstEstadoOcultar.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DESISTIMIENTO_DEFINITIVO));
+            lstEstadoOcultar.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.EXCLUIDO));
+            lstEstadoOcultar.add(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO));
+            if (lstEstadoOcultar.contains(dto.getEstadoDTO().getIdValor())) {
+                return Boolean.FALSE;
+            }
+        }
+        return this.mostrarMensajeSinAlegacionesExpirada();
+    }
+
     // MD-1237 JRFM - Validaciones para mostrar el mensaje de sin alegaciones pero dentro del tiempo expirado
     public Boolean mostrarMensajeSinAlegacionesExpirada() throws ServiceException {
         
@@ -3237,10 +3405,12 @@ public class ResolucionBean {
     public void desistimientoExpreso() {
 
         try {
-
-            ExpedienteDTO expedienteDTO = this.expedienteService.cambiarEstado(
-                    this.expedienteBean.getIdExpediente(),
-                    utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO), null);
+           
+            ExpedienteDTO expedienteDTO = this.expedienteService.buscarIdExpediente( this.expedienteBean.getIdExpediente());            
+            expedienteDTO.setEstadoDTO(new CatalogosValoresDTO(utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DESISTIDO)));
+            
+            this.expedienteService.getDao().merge(ExpedienteToEntity.INSTANCE.apply(expedienteDTO));           
+            this.expedienteHistDAO.crearHistorico(ExpedienteToEntity.INSTANCE.apply(expedienteDTO), null);
 
             this.recuperarValoresVariablesExpediente(expedienteDTO);
 
@@ -3257,7 +3427,7 @@ public class ResolucionBean {
         }
 
     }
-    
+     
     public void cerrarDesistimientoExpresoDialog() {
         this.archivoDesistimientoExpreso = null;
         PrimefacesUtils.ocultarPopupPF("dialogSubirDesistimientoExpreso");

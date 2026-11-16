@@ -10,6 +10,7 @@ import org.madrid.saii.lib.domain.ExpedienteDoc;
 import org.madrid.saii.lib.dto.ExpedienteContratoDTO;
 import org.madrid.saii.lib.dto.ExpedienteDTO;
 import org.madrid.saii.lib.dto.ExpedienteFiltrosDTO;
+import org.madrid.saii.lib.dto.PropuestaResolucionDTO;
 import org.madrid.saii.lib.dto.ComisionImportesDTO;
 import org.madrid.saii.lib.dto.ComisionSeleccionDTO;
 import org.madrid.saii.lib.dto.ResolucionConcesionDTO;
@@ -317,17 +318,30 @@ public interface ExpedienteDAO extends BaseDAO<Expediente, Integer> {
     ComisionImportesDTO obtenerImportesComisionSeleccion(List<Integer> idsExpediente);
     
     /**
-     * Obtiene los estados provisionales presentes en los expedientes activos de la convocatoria.
+     * Obtiene los estados que bloquean la resolución, incluyendo las alegaciones pendientes.
      *
      * @param idConvocatoria identificador de la convocatoria
      * @param idsEstado identificadores de los estados provisionales
-     * @return estados presentes, sin duplicados
+     * @param idEstadoPendRevisionAleg identificador del estado pendiente de revisión de alegaciones
+     * @return estados provisionales que bloquean, sin duplicados
      */
     List<Integer> obtenerEstadosProvisionalesResolucion(Integer idConvocatoria,
-            List<Integer> idsEstado);
+            List<Integer> idsEstado, Integer idEstadoPendRevisionAleg);
 
 
     List<ResolucionExclusionDesistimientoDTO> listaResolucionDesistimiento(Integer idConvocatoria,
             List<Integer> idsEstado, Integer idEstadoPendRevisionAleg, Integer idEstadoExclProvis);
+    
+    /**
+     * Obtiene los expedientes de una convocatoria que se encuentran en los
+     * estados indicados, junto con los requisitos que no cumplen.
+     *
+     * @param idConvocatoria identificador de la convocatoria
+     * @param idsEstado identificadores de los estados del expediente
+     * @param idCatalogoRequisitos identificador del catálogo de requisitos
+     * @return expedientes de la resolución de exclusión o desistimiento
+     */
+    List<PropuestaResolucionDTO> listaPropuestaResolucion(
+            Integer idConvocatoria, List<Integer> idsEstados);
 
 }

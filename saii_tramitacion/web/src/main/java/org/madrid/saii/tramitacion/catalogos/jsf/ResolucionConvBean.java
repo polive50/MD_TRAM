@@ -39,8 +39,10 @@ import org.madrid.saii.lib.dto.ComisionImportesDTO;
 import org.madrid.saii.lib.dto.ComisionSeleccionDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaDTO;
 import org.madrid.saii.lib.dto.ConvocatoriaGestorDTO;
+import org.madrid.saii.lib.dto.DocumentoPtfrDTO;
 import org.madrid.saii.lib.dto.ExpedienteDTO;
 import org.madrid.saii.lib.dto.ExpedienteDocDTO;
+import org.madrid.saii.lib.dto.PropuestaResolucionDTO;
 import org.madrid.saii.lib.dto.ResolucionConcesionDTO;
 import org.madrid.saii.lib.dto.ResolucionExclusionDesistimientoDTO;
 import org.madrid.saii.lib.dto.SolicitudDTO;
@@ -55,6 +57,7 @@ import org.madrid.saii.lib.util.UtilConstantes;
 import org.madrid.saii.tramitacion.jsf.InfoUsuarioBean;
 import org.madrid.saii.tramitacion.jsf.utils.ConstantesWeb;
 import org.madrid.saii.tramitacion.jsf.utils.UtilesWeb;
+import org.primefaces.PrimeFaces;
 import org.primefaces.model.UploadedFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -124,6 +127,8 @@ public class ResolucionConvBean {
     /** PDF sin firmar de la resolución de concesión. */
     private UploadedFile archivoResolucionConcesion;
     
+    /** Fichero de resolucion propuesta de resolcuion definitiva **/
+    private UploadedFile archivoPropuestaDefinitiva;
     
     /*
      * expedienteDocDTO
@@ -164,6 +169,8 @@ public class ResolucionConvBean {
             + "contenedorResolucionConvSolapas:botonDescargarResolucionDesistimiento";
     private String botoneraResolucionExclusionDesistimiento = "convocatoriaForm:contenedorSolapas:"
             + "contenedorResolucionConvSolapas:botoneraResolucionExclusionDesistimiento";
+    
+    private boolean mostrarMensajeElegirFicheroPropDef = false;
 
     // ////////////////////////////////////////////////////////
     // /////////////////////////////// SERVICIOS
@@ -1034,7 +1041,7 @@ public class ResolucionConvBean {
         }
         this.enviarResolucionConcesionPortafirmasValidada();
     }
-    
+
     /**
      * Abre el diálogo de subida de la resolución individual de exclusión.
      */
@@ -1241,7 +1248,6 @@ public class ResolucionConvBean {
         } else {
             modoCorrecto = this.habilitarBotonesResolucionIndividual();
         }
-        
         if (!modoCorrecto || Boolean.TRUE.equals(esModoConsulta)
                 || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) {
             return false;
@@ -1406,8 +1412,16 @@ public class ResolucionConvBean {
         }
     }
 
-    /** Reconsulta antes de actuar para no aceptar un modo incompatible desde una vista antigua. */
+    /**
+     * Reconsulta antes de actuar para no aceptar un modo incompatible desde una vista antigua.
+     */
     private void validarModoResolucionSeleccionado(Integer tramite) throws ServiceException {
+        if (Constantes.Tramite.CONCESION_DEFINITIVA.equals(tramite)) {
+            if (Boolean.FALSE.equals(this.permitirModificarResolucionConcesion())) {
+                throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+            }
+            return;
+        }
         if ((Boolean.FALSE.equals(Constantes.Tramite.EXCLUSION.equals(tramite))
                 && Boolean.FALSE.equals(Constantes.Tramite.DESISTIMIENTO.equals(tramite))
                 && Boolean.FALSE.equals(Constantes.Tramite.RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO.equals(tramite)))
@@ -1423,7 +1437,7 @@ public class ResolucionConvBean {
                     "El modo de resolución no coincide con la selección o con los envíos registrados en la convocatoria.");
         }
     }
-
+    
     /**
      * Obtiene los concedidos definitivos aceptados sin petición activa del trámite.
      */
@@ -1709,6 +1723,8 @@ public class ResolucionConvBean {
                 this.archivoResolucionExclusion = null;
             } else if (Constantes.Tramite.DESISTIMIENTO.equals(tramite)) {
                 this.archivoResolucionDesistimiento = null;
+            } else if (Constantes.Tramite.CONCESION_DEFINITIVA.equals(tramite)) {
+                this.cerrarSubirResolucionConcesionDialog();
             } else {
                 this.archivoResolucionDefinitiva = null;
             }
@@ -1719,8 +1735,16 @@ public class ResolucionConvBean {
         }
     }
     
-    /** Impide sustituir el PDF de un trámite con alguna petición activa registrada. */
+    /**
+     * Valida la subida para los expedientes pendientes, conservando los documentos ya enviados.
+     */
     private void validarSubidaResolucionDefinitiva(Integer tramite) throws ServiceException {
+        if (Constantes.Tramite.CONCESION_DEFINITIVA.equals(tramite)) {
+            if (!this.habilitarBotonSubirResolucionConcesion()) {
+                throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+            }
+            return;
+        }
         // Refresca los envíos para proteger también las subidas desde una vista antigua.
         this.validarModoResolucionSeleccionado(tramite);
         // Reconsulta antes de ejecutar la acción.
@@ -1761,11 +1785,6 @@ public class ResolucionConvBean {
         }
     }
 
-    private boolean existeResolucionDefinitiva(Integer tramite) {
-        ExpedienteDocDTO documento = this.getDocumentoResolucionDefinitiva(tramite);
-        return documento != null && documento.getCdFica() != null;
-    }
-    
     /**
      * Obtiene el PDF más reciente de concesión de los concedidos definitivos aceptados.
      */
@@ -1817,6 +1836,11 @@ public class ResolucionConvBean {
         filtros.add(new AtlasFilter("expediente.solicitud.convocatoria.fcBajaFila", Operador.NULL));
         return filtros;
     }
+    
+    private boolean existeResolucionDefinitiva(Integer tramite) {
+        ExpedienteDocDTO documento = this.getDocumentoResolucionDefinitiva(tramite);
+        return documento != null && documento.getCdFica() != null;
+    }
 
     private ExpedienteDocDTO getDocumentoResolucionDefinitiva(Integer tramite) {
         try {
@@ -1843,13 +1867,11 @@ public class ResolucionConvBean {
                 estados.add(this.utilConstantes.getGlobalCatalogosValores().get(
                         Constantes.EstadoExpediente.EXCLUIDO));
             }
-            Integer idTramite = this.utilConstantes.getGlobalCatalogosValores().get(tramite);
-            Integer tipoDocumento = this.obtenerTipoDocumentoResolucionDefinitiva(tramite);
-
-            ExpedienteDocDTO documento = this.expedienteDocService.buscarDocumentoResolucionDescargable(
-                    this.idConvocatoria, idTramite, tipoDocumento, estados);
-
-            return documento;
+            filtros.add(new AtlasFilter("expediente.estado.idValor", estados, Operador.IN));
+            List<AtlasSort> orden = new ArrayList<>();
+            orden.add(new AtlasSort(Constantes.Filtro.FILTRO_FECHA_ALTA, false));
+            List<ExpedienteDocDTO> documentos = this.expedienteDocService.buscar(0, 1, filtros, orden);
+            return documentos.isEmpty() ? null : documentos.get(0);
         } catch (ServiceException e) {
             log.error(e.getMessage(), e);
             return null;
@@ -1924,7 +1946,7 @@ public class ResolucionConvBean {
     }
     
     /**
-     * Descarga los expedientes concedidos definitivos aceptados de la resolución de concesión.
+     * Descarga los expedientes concedidos definitivos aceptados de la convocatoria.
      */
     public void descargarExcelResolucionConcesion() {
         if (this.idConvocatoria == null) {
@@ -2369,7 +2391,33 @@ public class ResolucionConvBean {
             log.error(e.getMessage(), e);
         }
     }
-    
+
+//    /**
+//     * 
+//     */
+//    public void cargarFicheroDefinitivo() {
+//
+//        try {
+//            Integer tramite = null;
+//
+//            if (this.archivoResolucionDefinitiva.getFileName() != null) {
+//                this.resolucionBean.prepararMetadatosFica(this.archivoResolucionDefinitiva,
+//                        Constantes.TipoDocumento.RESOLUCION_CONVOCATORIA_DEFINITIVO, tramite);
+//                this.expedienteDocDTO = this.expedienteDocService.subirDocumentoFica(this.expedienteDocDTO);
+//                this.resolucionBean.guardarDocumento();
+//                this.mostrarMensajeElegirFichero = Boolean.FALSE;
+//            } else {
+//                this.mostrarMensajeElegirFichero = Boolean.TRUE;
+//                PrimefacesUtils.mostrarPopupPF("dialogSubirResolucionDefinitiva");
+//            }
+//
+//        } catch (ServiceException e) {
+//            AtlasMessageUtils
+//                    .addErrorMessageFromBundle(ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_KO);
+//            log.error(e.getMessage());
+//        }
+//    }
+//    
     public void cargarFicheroDefinitivo() {
 
         try {
@@ -2672,7 +2720,9 @@ public class ResolucionConvBean {
         return new ArrayList<>(expedientes.values());
     }
     
-    /** Indica si hay expedientes en propuesta de exclusión provisional en la convocatoria. */
+    /**
+     * Indica si hay exclusiones provisionales o alegaciones de exclusión pendientes.
+     */
     public boolean isHayExcluidosProvisionales() {
         this.consultarEstadosProvisionalesResolucion();
         Integer idEstado = this.utilConstantes.getGlobalCatalogosValores()
@@ -2680,7 +2730,9 @@ public class ResolucionConvBean {
         return this.estadosProvisionalesResolucion.contains(idEstado);
     }
 
-    /** Reutiliza la consulta en el alcance request; no se restaura mediante guardarEstado. */
+    /**
+     * Consulta los bloqueos por provisionales y alegaciones pendientes una vez por petición.
+     */
     private void consultarEstadosProvisionalesResolucion() {
         if (this.idConvocatoria == null
                 || this.idConvocatoria.equals(this.idConvocatoriaProvisionalesConsultados)) {
@@ -2697,9 +2749,11 @@ public class ResolucionConvBean {
                     .get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL);
             Integer idDesistidoProvisional = this.utilConstantes.getGlobalCatalogosValores()
                     .get(Constantes.EstadoExpediente.DESISTIDO_PROVISIONAL);
+            Integer idEstadoPendRevisionAleg = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.EstadoExpediente.PENDIENTE_REVISION_ALEGACIONES);
             List<Integer> idsEstado = Arrays.asList(idExcluidoProvisional, idDesistidoProvisional);
             List<Integer> estados = this.expedienteDAO.obtenerEstadosProvisionalesResolucion(
-                    this.idConvocatoria, idsEstado);
+                    this.idConvocatoria, idsEstado, idEstadoPendRevisionAleg);
             this.estadosProvisionalesResolucion = estados;
         } catch (RuntimeException e) {
             this.errorConsultaProvisionalesResolucion = true;
@@ -2708,7 +2762,9 @@ public class ResolucionConvBean {
         }
     }
     
-    /** Indica si hay expedientes en propuesta de desistimiento provisional en la convocatoria. */
+    /**
+     * Indica si hay desistimientos provisionales o alegaciones de desistimiento pendientes.
+     */
     public boolean isHayDesistidosProvisionales() {
         this.consultarEstadosProvisionalesResolucion();
         Integer idEstado = this.utilConstantes.getGlobalCatalogosValores()
@@ -2720,5 +2776,1038 @@ public class ResolucionConvBean {
         this.consultarEstadosProvisionalesResolucion();
         return this.errorConsultaProvisionalesResolucion;
     }
-  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    /**
+     * Obtiene las propuestas concedido provisionales
+     *
+     * @param index primer elemento de la página
+     * @param pageSize número de elementos de la página
+     * @param orderBean orden del listado
+     * @param filtros filtros del listado
+     * @return listado paginado de expedientes de exclusión
+     */
+    public AtlasListAndCount<PropuestaResolucionDTO> obtenerConcedidoProvisional(final int index,
+            final int pageSize, Object orderBean, Object filtros) {
+        return this.obtenerResolucionConcedidoProvisional(index, pageSize,
+                Arrays.asList(
+                        Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_CONCEDIDO_PROVISIONAL,
+                        Constantes.EstadoExpediente.APROBADO_PROVISIONAL)); // 219
+    }
+    
+    /**
+     * Obtiene y pagina los expedientes de los estados visibles de la convocatoria.
+     * Esta selección no se utiliza para subir documentos ni enviar a Portafirmas.
+     *
+     * @param index primer elemento de la página
+     * @param pageSize número de elementos de la página
+     * @param estados constantes de los estados visibles del expediente
+     * @return listado paginado de expedientes
+     */
+    private AtlasListAndCount<PropuestaResolucionDTO> obtenerResolucionConcedidoProvisional(
+            int index, int pageSize, List<Integer> estados) {
+        AtlasListAndCount<PropuestaResolucionDTO> resultado = new AtlasListAndCount<>();
+        List<PropuestaResolucionDTO> listado = new ArrayList<>();
+
+        if (this.idConvocatoria != null) {
+            List<Integer> idsEstado = new ArrayList<>();
+            for (Integer estado : estados) {
+                Integer idEstado = this.utilConstantes.getGlobalCatalogosValores().get(estado);
+                idsEstado.add(idEstado);
+            }
+            
+//            Integer idEstadoPendRevisionAleg = this.utilConstantes.getGlobalCatalogosValores()
+//                    .get(Constantes.EstadoExpediente.PENDIENTE_REVISION_ALEGACIONES);
+//
+//            Integer idEstadoExclProvis = this.utilConstantes.getGlobalCatalogosValores()
+//                    .get(Constantes.EstadoExpediente.EXCLUIDOS_PROVISIONAL);
+            
+            List<PropuestaResolucionDTO> expedientes = this.expedienteDAO
+                    .listaPropuestaResolucion(this.idConvocatoria,
+                            idsEstado);
+            listado = this.agruparMotivosPropuestaResolucion(expedientes);
+        }
+
+        resultado.setTotal(listado.size());
+        if (pageSize < 0) {
+            resultado.setResultados(listado);
+        } else if (index < listado.size()) {
+            resultado.setResultados(new ArrayList<>(
+                    listado.subList(index, Math.min(index + pageSize, listado.size()))));
+        } else {
+            resultado.setResultados(new ArrayList<>());
+        }
+        return resultado;
+    }
+    
+    /**
+     * Agrupa en una sola fila los distintos requisitos incumplidos por un
+     * expediente.
+     *
+     * @param listado listado con una fila por requisito incumplido
+     * @return listado con una fila por expediente
+     */
+    private List<PropuestaResolucionDTO> agruparMotivosPropuestaResolucion(
+            List<PropuestaResolucionDTO> listado) {
+        Map<Integer, PropuestaResolucionDTO> expedientes = new LinkedHashMap<>();
+        for (PropuestaResolucionDTO elemento : listado) {
+            PropuestaResolucionDTO expediente = expedientes.get(elemento.getIdExpediente());
+            if (expediente == null) {
+                expedientes.put(elemento.getIdExpediente(), elemento);
+            } else if (elemento.getCodigoMotivo() != null) {
+                if (expediente.getCodigoMotivo() == null) {
+                    expediente.setCodigoMotivo(elemento.getCodigoMotivo());
+                } else if (!("," + expediente.getCodigoMotivo().replace(", ", ",") + ",")
+                        .contains("," + elemento.getCodigoMotivo() + ",")) {
+                    expediente.setCodigoMotivo(
+                            expediente.getCodigoMotivo() + ", " + elemento.getCodigoMotivo());
+                }
+            }
+        }
+        return new ArrayList<>(expedientes.values());
+    }
+    
+    /**
+     * Obtiene las propuestas desistidos provisionales
+     *
+     * @param index primer elemento de la página
+     * @param pageSize número de elementos de la página
+     * @param orderBean orden del listado
+     * @param filtros filtros del listado
+     * @return listado paginado de expedientes de exclusión
+     */
+    public AtlasListAndCount<PropuestaResolucionDTO> obtenerDesistidoProvisional(final int index,
+            final int pageSize, Object orderBean, Object filtros) {
+        return this.obtenerResolucionConcedidoProvisional(index, pageSize,
+                Arrays.asList(
+                        Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_DESESTIMADO_PROVISIONAL,
+                        Constantes.EstadoExpediente.DENEGADO_PROVISIONAL)); // 218
+    }
+    
+    /**
+     * Obtiene las propuestas desistidos provisionales
+     *
+     * @param index primer elemento de la página
+     * @param pageSize número de elementos de la página
+     * @param orderBean orden del listado
+     * @param filtros filtros del listado
+     * @return listado paginado de expedientes de exclusión
+     */
+    public AtlasListAndCount<PropuestaResolucionDTO> obtenerReservaProvisional(final int index,
+            final int pageSize, Object orderBean, Object filtros) {
+        return this.obtenerResolucionConcedidoProvisional(index, pageSize,
+                Arrays.asList(
+                        Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL,
+                        Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL)); // 255
+    }
+    
+    /**
+     * Abre el diálogo de subida de propuesta resolución provisional
+     */
+    public void subirPropuestaResolucionProvisionalDialog() {
+        this.archivoResolucion = null;
+        this.mostrarMensajeElegirFichero = Boolean.FALSE;
+        PrimefacesUtils.mostrarPopupPF("dialogSubirPropuestaResolucionProvisional");
+    }
+    
+    /**
+     * Indica si se puede subir la resolución provisional basándose en si existen 
+     * expedientes elegibles y si ninguno ha sido enviado ya a Portafirmas.
+     *
+     * @param esModoConsulta indica si la convocatoria está en modo consulta
+     * @return true cuando el botón debe estar habilitado
+     */
+    public boolean habilitarBotonSubirResolucionProvisional(Boolean esModoConsulta) {
+        if (this.idConvocatoria == null || Boolean.TRUE.equals(esModoConsulta)
+                || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) {
+            return false;
+        }
+        
+        try {
+            Integer idTramiteProv = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.Tramite.RESOLUCION_CONVOCATORIA_PROVISIONAL);
+
+            List<Integer> estadosVisibles = Arrays.asList(
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_CONCEDIDO_PROVISIONAL),
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_DESESTIMADO_PROVISIONAL),
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL),
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.APROBADO_PROVISIONAL), // 219
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DENEGADO_PROVISIONAL), // 218
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL) // 255
+                );
+            
+            List<PropuestaResolucionDTO> expedientes = this.expedienteDAO.listaPropuestaResolucion(this.idConvocatoria, estadosVisibles);
+            
+            if (expedientes == null || expedientes.isEmpty()) {
+                return false;
+            }
+
+            // REGLA NUEVA: Si algún expediente ya está en firmas, deshabilitamos la opción de volver a subir archivos
+            for (PropuestaResolucionDTO elemento : expedientes) {
+                if (this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(elemento.getIdExpediente(), idTramiteProv)) {
+                    return false; 
+                }
+            }
+            
+            return true;
+        } catch (Exception e) {
+            log.error("Error al comprobar la habilitación del botón de resolución provisional", e);
+            return false;
+        }
+    }
+
+
+    /**
+     * Recupera el documento provisional existente para un expediente concreto,
+     * permitiendo localizarlo independientemente de su estado para poder reutilizar su ID.
+     */
+    private ExpedienteDocDTO getDocumentoResolucionProvisional(Integer idExpediente, Integer idTipoDocumento, Integer idTramite) {
+        try {
+            List<AtlasFilter> filtros = new ArrayList<>();
+            filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
+            filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_EXPEDIENTE_IDEXPEDIENTE, idExpediente, Operador.EQUALS));
+            filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_COMPONENTE_TIPO_DOCUMENTO, idTipoDocumento, Operador.EQUALS));
+            filtros.add(new AtlasFilter(Constantes.Filtro.FILTRO_TRAMITE, idTramite, Operador.EQUALS));
+            
+            List<AtlasSort> orden = new ArrayList<>();
+            orden.add(new AtlasSort(Constantes.Filtro.FILTRO_FECHA_ALTA, false));
+            
+            List<ExpedienteDocDTO> documentos = this.expedienteDocService.buscar(0, 1, filtros, orden);
+            return documentos.isEmpty() ? null : documentos.get(0);
+        } catch (ServiceException e) {
+            log.error("Error al buscar documento provisional previo para expediente: " + idExpediente, e);
+            return null;
+        }
+    }
+    
+    /**
+     * Sube a FICA el PDF de la propuesta de resolución provisional y lo guarda 
+     * asociándolo a los expedientes pertinentes de la convocatoria.
+     */
+    public void cargarFicheroResolucionProvisional() {
+        try {
+            // 1. Recuperamos dinámicamente los ID reales mapeados en BBDD
+            Integer idTramiteProv = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.Tramite.RESOLUCION_CONVOCATORIA_PROVISIONAL);
+            
+            Integer idTipoDocProv = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_PROVISIONAL);
+
+            if (this.archivoResolucion != null && this.archivoResolucion.getFileName() != null 
+                    && !this.archivoResolucion.getFileName().isEmpty()) {
+                
+                // 2. OBTENER TODOS LOS EXPEDIENTES DE LAS 3 LISTAS DE LA PANTALLA
+                List<Integer> estadosVisibles = Arrays.asList(
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_CONCEDIDO_PROVISIONAL),
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_DESESTIMADO_PROVISIONAL),
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL)
+                );
+                
+                // Recuperamos en bloque todos los expedientes afectados en la subpestaña
+                List<PropuestaResolucionDTO> expedientes = this.expedienteDAO.listaPropuestaResolucion(this.idConvocatoria, estadosVisibles);
+
+                if (expedientes == null || expedientes.isEmpty()) {
+                    AtlasMessageUtils.addErrorMessage("No hay expedientes elegibles en ninguna de las listas para asociar la resolución.");
+                    return;
+                }
+
+                // Extraemos los bytes del archivo binario unificado
+                byte[] contenido;
+                try (InputStream entrada = this.archivoResolucion.getInputstream()) {
+                    contenido = IOUtils.toByteArray(entrada);
+                }
+
+                // 3. SUBIDA FÍSICA ÚNICA A FICA (FUERA DEL BUCLE)
+                ExpedienteDocDTO docFicaUnico = new ExpedienteDocDTO();
+                docFicaUnico.setExpedienteDTO(this.expedienteService.buscarIdSimple(expedientes.get(0).getIdExpediente(), Boolean.FALSE));
+                docFicaUnico.setTipoDocumentoDTO(this.catalogosValoresService.buscarId(idTipoDocProv));
+                docFicaUnico.setTramiteDTO(this.catalogosValoresService.buscarId(idTramiteProv));
+                docFicaUnico.setEstadoDTO(this.catalogosValoresService.buscarId(
+                        this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REVISION_OK)));
+                
+                FicaMetadatos metadatosComunes = new FicaMetadatos();
+                metadatosComunes.setNombreFichero(this.archivoResolucion.getFileName());
+                metadatosComunes.setFechaFichero(new Date());
+                metadatosComunes.setExtension(Constantes.Extensiones.PDF);
+                metadatosComunes.setUsuario(UserUtils.getUserName().toUpperCase());
+                metadatosComunes.setEncriptar(false);
+                
+                docFicaUnico.setFicaMetadatos(metadatosComunes);
+                docFicaUnico.setContenidoFichero(contenido);
+
+                docFicaUnico = this.expedienteDocService.subirDocumentoFica(docFicaUnico);
+                Integer nuevoCdFica = docFicaUnico.getCdFica(); 
+
+                int guardados = 0;
+
+                // 4. Iteramos sobre el conjunto total de expedientes de las 3 tablas
+                for (PropuestaResolucionDTO elemento : expedientes) {
+                    Integer idExpediente = elemento.getIdExpediente();
+
+                    // Buscamos si ya existía registro previo (para segundas subidas/sustitución)
+                    ExpedienteDocDTO documento = this.getDocumentoResolucionProvisional(idExpediente, idTipoDocProv, idTramiteProv);
+                    
+                    boolean esSustitucion = (documento != null && documento.getIdExpedienteDoc() != null);
+                    if (!esSustitucion) {
+                        documento = new ExpedienteDocDTO();
+                    }
+
+                    documento.setExpedienteDTO(this.expedienteService.buscarIdSimple(idExpediente, Boolean.FALSE));
+                    documento.setTipoDocumentoDTO(this.catalogosValoresService.buscarId(idTipoDocProv));
+                    documento.setTramiteDTO(this.catalogosValoresService.buscarId(idTramiteProv));
+                    documento.setEstadoDTO(this.catalogosValoresService.buscarId(
+                            this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REVISION_OK)));
+                    
+                    documento.setFicaMetadatos(metadatosComunes);
+                    documento.setCdFica(nuevoCdFica); // Vinculamos el FICA único compartido
+                    documento.setContenidoFichero(contenido);
+
+                    if (esSustitucion) {
+                        this.ficaService.actualizarMetadatos(nuevoCdFica, metadatosComunes);
+                    }
+
+                    // Se realiza INSERT la primera vez y UPDATE en sustituciones sucesivas
+                    this.expedienteDocService.guardarConHistorico(documento, UserUtils.getUserName().toUpperCase());
+                    guardados++;
+                }
+
+                if (guardados > 0) {
+                    AtlasMessageUtils.addInfoMessageFromBundle(ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_OK);
+                    this.mostrarMensajeElegirFichero = Boolean.FALSE;
+                    this.archivoResolucion = null; 
+                    this.cerrarSubirResolucionProvisionalDialog(); 
+                } else {
+                    AtlasMessageUtils.addErrorMessageFromBundle(ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_KO);
+                }
+
+            } else {
+                this.mostrarMensajeElegirFichero = Boolean.TRUE;
+                PrimefacesUtils.mostrarPopupPF("dialogSubirPropuestaResolucionProvisional");
+            }
+        } catch (Exception e) {
+            AtlasMessageUtils.addErrorMessageFromBundle(ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_KO);
+            log.error("Error al procesar la carga integral de resolución provisional: " + e.getMessage(), e);
+        }
+    }
+
+
+
+
+
+    
+    /**
+     * Comprueba si existe al menos un documento de resolución provisional subido a FICA
+     * asociado a los expedientes activos de la pestaña para habilitar el botón de descarga.
+     *
+     * @return true si el botón de descarga debe estar activo
+     */
+    public Boolean habilitarDescargarPropuestaProv() {
+        if (this.idConvocatoria == null || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) {
+            return Boolean.FALSE;
+        }
+
+        try {
+            Integer idTramiteProv = this.utilConstantes.getGlobalCatalogosValores().get(Constantes.Tramite.RESOLUCION_CONVOCATORIA_PROVISIONAL);
+            Integer idTipoDocProv = this.utilConstantes.getGlobalCatalogosValores().get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_PROVISIONAL);
+
+            List<Integer> estadosVisibles = Arrays.asList(
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_CONCEDIDO_PROVISIONAL),
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_DESESTIMADO_PROVISIONAL),
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL),
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.APROBADO_PROVISIONAL), // 219
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DENEGADO_PROVISIONAL), // 218
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL) // 255
+            );
+            
+            List<PropuestaResolucionDTO> expedientes = this.expedienteDAO.listaPropuestaResolucion(this.idConvocatoria, estadosVisibles);
+
+            if (expedientes == null || expedientes.isEmpty()) {
+                return Boolean.FALSE;
+            }
+
+            for (PropuestaResolucionDTO elemento : expedientes) {
+                ExpedienteDocDTO documento = this.getDocumentoResolucionProvisional(elemento.getIdExpediente(), idTipoDocProv, idTramiteProv);
+                if (documento != null && documento.getCdFica() != null) {
+                    return Boolean.TRUE;
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error en habilitarDescargarPropuestaProv", e);
+        }
+
+        return Boolean.FALSE;
+    }
+
+    /**
+     * Recupera la resolución provisional común desde FICA tomando como referencia 
+     * el primer expediente activo de la subpestaña que disponga del identificador.
+     */
+    public void descargarFicheroProvisional() {
+        try {
+            Integer idTramiteProv = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.Tramite.RESOLUCION_CONVOCATORIA_PROVISIONAL);
+            Integer idTipoDocProv = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_PROVISIONAL);
+
+            List<Integer> estadosVisibles = Arrays.asList(
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_CONCEDIDO_PROVISIONAL),
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_DESESTIMADO_PROVISIONAL),
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL),
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.APROBADO_PROVISIONAL), // 219
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DENEGADO_PROVISIONAL), // 218
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL) // 255
+            );
+            
+            List<PropuestaResolucionDTO> expedientes = this.expedienteDAO.listaPropuestaResolucion(this.idConvocatoria, estadosVisibles);
+            
+            Integer cdFicaDescarga = null;
+            
+            // Localizamos el primer registro que ya contenga el CD_FICA común
+            if (expedientes != null && !expedientes.isEmpty()) {
+                for (PropuestaResolucionDTO elemento : expedientes) {
+                    ExpedienteDocDTO documento = this.getDocumentoResolucionProvisional(elemento.getIdExpediente(), idTipoDocProv, idTramiteProv);
+                    if (documento != null && documento.getCdFica() != null) {
+                        cdFicaDescarga = documento.getCdFica();
+                        break;
+                    }
+                }
+            }
+
+            if (cdFicaDescarga != null) {
+                // Recuperamos el archivo físico desde el repositorio documental
+                FicaFichero ficaFichero = this.ficaService.recuperar(cdFicaDescarga);
+                
+                // Forzamos la descarga del flujo binario en el navegador del usuario
+                UtilesWeb.openFile(ficaFichero.getDatosFichero(), ficaFichero.getExtension(),
+                        FilenameUtils.removeExtension(ficaFichero.getNombreFichero()));
+            } else {
+                AtlasMessageUtils.addErrorMessageFromBundle(ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_DESCARGAR_KO);
+            }
+        } catch (ServiceException e) {
+            AtlasMessageUtils.addErrorMessageFromBundle(ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_DESCARGAR_KO);
+            log.error("Error al descargar la propuesta de resolución provisional: " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Encola en el Portafirmas corporativo la propuesta de resolución provisional
+     * para todos los expedientes de la subpestaña, agrupando las peticiones creadas.
+     */
+    /**
+     * Encola en el Portafirmas la propuesta de resolución provisional.
+     * El primer expediente insertado se establece con id_doc_ptfr_padre = 0,
+     * y los siguientes registros guardan el ID del primero en dicha columna.
+     */
+    public void enviarPropuestaProvPortafirmas() {
+        try {
+            // Recuperamos el idConvocatoria desde convocatoriasBean si se perdió en la petición request
+            if (this.idConvocatoria == null && this.convocatoriasBean != null 
+                    && this.convocatoriasBean.getConvocatoriaDTO() != null) {
+                this.idConvocatoria = this.convocatoriasBean.getConvocatoriaDTO().getIdConvocatoria();
+            }
+
+            if (this.convocatoriaDTO == null && this.idConvocatoria != null) {
+                this.convocatoriaDTO = this.convocatoriaService.buscarId(this.idConvocatoria);
+            }
+
+
+            Integer idTramiteProv = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.Tramite.RESOLUCION_CONVOCATORIA_PROVISIONAL);
+            Integer idTipoDocProv = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_PROVISIONAL);
+
+            List<Integer> estadosVisibles = Arrays.asList(
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_CONCEDIDO_PROVISIONAL),
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_DESESTIMADO_PROVISIONAL),
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL)
+            );
+            
+            List<PropuestaResolucionDTO> expedientes = this.expedienteDAO.listaPropuestaResolucion(this.idConvocatoria, estadosVisibles);
+
+            int insertados = 0;
+            Integer idDocPtfrPadre = null; // Guardará el ID real del primer registro de la tabla
+            boolean error = false;
+
+            for (PropuestaResolucionDTO elemento : expedientes) {
+                Integer idExpediente = elemento.getIdExpediente();
+                try {
+                    if (this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(idExpediente, idTramiteProv)) {
+                        continue;
+                    }
+
+                    ExpedienteDocDTO documento = this.getDocumentoResolucionProvisional(idExpediente, idTipoDocProv, idTramiteProv);
+                    if (documento == null || documento.getCdFica() == null) {
+                        error = true;
+                        continue;
+                    }
+
+                    FicaFichero fichero = this.ficaService.recuperar(documento.getCdFica());
+                    
+                    // 1. Guardar envío en documento PTFR (vuelve a devolver true/false)
+                    Boolean insertadoCorrectamente = this.documentoPtfrService.guardarEnvioEnDcoumentoPTFR(
+                            this.convocatoriaDTO,
+                            this.expedienteService.buscarIdSimple(idExpediente, Boolean.FALSE),
+                            idExpediente,
+                            idTramiteProv,
+                            fichero.getDatosFichero(),
+                            null, null, null
+                    );
+
+                    if (Boolean.TRUE.equals(insertadoCorrectamente)) {
+                        // 2. Corregimos el filtro usando la propiedad directa sin el prefijo de anidamiento
+                        List<AtlasFilter> filtrosPtfr = new ArrayList<>();
+                        filtrosPtfr.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
+                        
+                        // Cambiado a la propiedad plana de la entidad para solucionar el IllegalArgumentException
+                        filtrosPtfr.add(new AtlasFilter("idExpediente", idExpediente, Operador.EQUALS));
+                        filtrosPtfr.add(new AtlasFilter("tramite.idValor", idTramiteProv, Operador.EQUALS));
+                        
+                        List<AtlasSort> ordenPtfr = new ArrayList<>();
+                        ordenPtfr.add(new AtlasSort("idDocumentoPtfr", false)); // El último insertado primero
+                        
+                        List<DocumentoPtfrDTO> listaPtfr = this.documentoPtfrService.buscar(0, 1, filtrosPtfr, ordenPtfr);
+                        
+                        if (listaPtfr != null && !listaPtfr.isEmpty()) {
+                            DocumentoPtfrDTO registroCreado = listaPtfr.get(0);
+                            
+                            if (idDocPtfrPadre == null) {
+                                // Es el primer registro procesado con éxito: su padre es 0
+                                idDocPtfrPadre = registroCreado.getIdDocumentoPtfr();
+                                registroCreado.setIdDocPtfrPadre(0);
+                                this.documentoPtfrService.guardar(registroCreado); 
+                            } else {
+                                // Es un hijo: le asociamos el ID del primero
+                                registroCreado.setIdDocPtfrPadre(idDocPtfrPadre);
+                                this.documentoPtfrService.guardar(registroCreado);
+                            }
+
+                            // -----------------------------------------------------------------
+                            // VINCULAR EL ID_DOCUMENTO_PTFR EN EL EXPEDIENTE_DOC CORRESPONDIENTE
+                            // -----------------------------------------------------------------
+                            documento.setIdDocumentoPtfr(registroCreado.getIdDocumentoPtfr());
+                        }
+
+                        // Actualizamos el estado y guardamos el idDocumentoPtfr en saii_expediente_doc
+                        documento.setEstadoDTO(this.catalogosValoresService.buscarId(
+                                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.ENVIO_COLA_NOTIFICACIONES)));
+                        this.expedienteDocService.guardarConHistorico(documento, UserUtils.getUserName().toUpperCase());
+
+                        // -----------------------------------------------------------------
+                        // ACTUALIZAR ID_ESTADO E ID_ESTADO_PROVISIONAL DEL EXPEDIENTE
+                        // -----------------------------------------------------------------
+                        ExpedienteDTO expActualizar = this.expedienteService.buscarIdSimple(idExpediente, Boolean.TRUE);
+                        if (expActualizar != null && expActualizar.getEstadoDTO() != null) {
+                            Integer idEstadoActual = expActualizar.getEstadoDTO().getIdValor();
+                            
+                            Integer idPendConcedido = this.utilConstantes.getGlobalCatalogosValores()
+                                    .get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_CONCEDIDO_PROVISIONAL);
+                            Integer idPendDesestimado = this.utilConstantes.getGlobalCatalogosValores()
+                                    .get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_DESESTIMADO_PROVISIONAL);
+                            Integer idPendReserva = this.utilConstantes.getGlobalCatalogosValores()
+                                    .get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL);
+
+                            Integer constanteNuevoEstado = null;
+                            if (idPendConcedido.equals(idEstadoActual)) {
+                                constanteNuevoEstado = Constantes.EstadoExpediente.APROBADO_PROVISIONAL; // Mapea a 219
+                            } else if (idPendDesestimado.equals(idEstadoActual)) {
+                                constanteNuevoEstado = Constantes.EstadoExpediente.DENEGADO_PROVISIONAL; // Mapea a 218
+                            } else if (idPendReserva.equals(idEstadoActual)) {
+                                constanteNuevoEstado = Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL; // Mapea a 255
+                            }
+
+                            if (constanteNuevoEstado != null) {
+                                Integer idNuevoEstado = this.utilConstantes.getGlobalCatalogosValores().get(constanteNuevoEstado);
+                                CatalogosValoresDTO nuevoEstadoDTO = this.catalogosValoresService.buscarId(idNuevoEstado);
+                                
+                                expActualizar.setEstadoDTO(nuevoEstadoDTO);
+                                expActualizar.setEstadoProvisionalDTO(nuevoEstadoDTO);
+                                this.expedienteService.guardar(expActualizar);
+                            }
+                        }
+                        
+                        insertados++;
+
+
+                    }
+
+                } catch (ServiceException e) {
+                    log.error("Error al enviar a portafirmas el expediente " + idExpediente, e);
+                    error = true;
+                }
+            }
+
+            if (insertados > 0 && !error) {
+                AtlasMessageUtils.addInfoMessageFromBundle(ConstantesWeb.Mensajes.ENVIO_COLA_PORTAFIRMAS_CORRECTO);
+            } else if (error) {
+                AtlasMessageUtils.addErrorMessageFromBundle(ConstantesWeb.Err.ERROR_ENVIAR_PORTAFIRMA);
+            }
+        } catch (Exception e) {
+            log.error("Error general en el envío en bloque a Portafirmas corporativo", e);
+            AtlasMessageUtils.addErrorMessageFromBundle(ConstantesWeb.Err.ERROR_ENVIAR_PORTAFIRMA);
+        }
+    }
+
+    /**
+     * Comprueba de forma independiente si ya existen registros en saii_documento_ptfr 
+     * para los expedientes de la subpestaña con el fin de forzar el deshabilitado del botón.
+     *
+     * @return true si ya hay envíos realizados y el botón debe deshabilitarse
+     */
+    public boolean bloquearBotonPorEnvioExistentePtfr() {
+        if (this.idConvocatoria == null) {
+            return true; // Si no hay convocatoria, se bloquea por seguridad
+        }
+
+        try {
+            Integer idTramiteProv = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.Tramite.RESOLUCION_CONVOCATORIA_PROVISIONAL);
+
+            // Recuperamos los expedientes de las 3 listas visibles en la pantalla
+            List<Integer> estadosVisibles = Arrays.asList(
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_CONCEDIDO_PROVISIONAL),
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_DESESTIMADO_PROVISIONAL),
+                this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PENDIENTE_PROPUESTA_RESOLUCION_RESERVA_PROVISIONAL)
+            );
+            
+            List<PropuestaResolucionDTO> expedientes = this.expedienteDAO.listaPropuestaResolucion(this.idConvocatoria, estadosVisibles);
+
+            if (expedientes == null || expedientes.isEmpty()) {
+                return true; // Si no hay expedientes en pantalla, el botón no debe pulsarse
+            }
+
+            // Si detectamos que tan solo un expediente ya fue enviado a portafirmas, devolvemos true para deshabilitar
+            for (PropuestaResolucionDTO elemento : expedientes) {
+                // Si tu arquitectura maneja EntityManager de JPA directo, un this.documentoPtfrService.refresh() o limpiar caché evita lecturas sucias
+                if (this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(elemento.getIdExpediente(), idTramiteProv)) {
+                    return true; 
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error en la comprobación independiente de bloqueo del botón Portafirmas", e);
+            return true;
+        }
+
+        return false; // No hay ningún envío previo, se puede habilitar si cumple el resto de condiciones
+    }
+
+    
+    public void subirPropuestaResolucionDefinitivaDialog() {
+        this.mostrarMensajeElegirFicheroPropDef = false;
+        this.archivoPropuestaDefinitiva = null;
+        PrimefacesUtils.mostrarPopupPF("dialogSubirPropuestaResolucionDefinitiva");
+    }
+
+    public void cerrarSubirPropuestaDefinitivaDialog() {
+        this.mostrarMensajeElegirFicheroPropDef = false;
+        this.archivoPropuestaDefinitiva = null;
+        PrimefacesUtils.ocultarPopupPF("dialogSubirPropuestaResolucionDefinitiva");
+    }
+
+    // =========================================================================
+    // 1. CARGA DE LAS DOS LISTAS DE LA SUBPESTAÑA (253 Y 254)
+    // =========================================================================
+    public AtlasListAndCount<PropuestaResolucionDTO> obtenerConcedidoDefinitivo(final int index,
+            final int pageSize, Object orderBean, Object filtros) {
+        return this.obtenerResolucionConcedidoProvisional(index, pageSize,
+                Arrays.asList(
+                        Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_CONCEDIDO_DEFINITIVO, // 253
+                        Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_ANTES_ACEPTADO          // 246
+                ));
+    }
+
+    public AtlasListAndCount<PropuestaResolucionDTO> obtenerDenegadoDefinitivo(final int index,
+            final int pageSize, Object orderBean, Object filtros) {
+        return this.obtenerResolucionConcedidoProvisional(index, pageSize,
+                Arrays.asList(
+                        Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DENEGADO_DEFINITIVO, // 254
+                        Constantes.EstadoExpediente.DENEGADO_DEFINITIVO
+                ));
+    }
+    
+ // =========================================================================
+    // 2. SUBIDA Y REEMPLAZO DE FICA UNIFICADO (TRÁMITE 1918)
+    // =========================================================================
+    public void cargarFicheroPropuestaDefinitiva() {
+        try {
+            // Trámite 1918 = Resolución Convocatoria Definitiva
+            Integer idTramiteDef = this.utilConstantes.getGlobalCatalogosValores().get(1918);
+            // Ajusta la constante del tipo de documento correspondiente a Propuesta Resolución Definitiva
+            Integer idTipoDocDef = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
+
+            if (this.archivoPropuestaDefinitiva != null && this.archivoPropuestaDefinitiva.getFileName() != null
+                    && !this.archivoPropuestaDefinitiva.getFileName().isEmpty()) {
+
+                List<Integer> estadosPendientes = Arrays.asList(
+                        this.utilConstantes.getGlobalCatalogosValores().get(253),
+                        this.utilConstantes.getGlobalCatalogosValores().get(254)
+                );
+
+                List<PropuestaResolucionDTO> expedientes = this.expedienteDAO.listaPropuestaResolucion(this.idConvocatoria, estadosPendientes);
+
+                if (expedientes == null || expedientes.isEmpty()) {
+                    AtlasMessageUtils.addErrorMessage("No hay expedientes elegibles para asociar esta propuesta definitiva.");
+                    return;
+                }
+
+                byte[] contenido;
+                try (InputStream entrada = this.archivoPropuestaDefinitiva.getInputstream()) {
+                    contenido = IOUtils.toByteArray(entrada);
+                }
+
+                // Subida física única a FICA fuera del bucle
+                ExpedienteDocDTO docFicaUnico = new ExpedienteDocDTO();
+                docFicaUnico.setExpedienteDTO(this.expedienteService.buscarIdSimple(expedientes.get(0).getIdExpediente(), Boolean.FALSE));
+                docFicaUnico.setTipoDocumentoDTO(this.catalogosValoresService.buscarId(idTipoDocDef));
+                docFicaUnico.setTramiteDTO(this.catalogosValoresService.buscarId(idTramiteDef));
+                docFicaUnico.setEstadoDTO(this.catalogosValoresService.buscarId(
+                        this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REVISION_OK)));
+
+                FicaMetadatos metadatosComunes = new FicaMetadatos();
+                metadatosComunes.setNombreFichero(this.archivoPropuestaDefinitiva.getFileName());
+                metadatosComunes.setFechaFichero(new Date());
+                metadatosComunes.setExtension(Constantes.Extensiones.PDF);
+                metadatosComunes.setUsuario(UserUtils.getUserName().toUpperCase());
+                metadatosComunes.setEncriptar(false);
+
+                docFicaUnico.setFicaMetadatos(metadatosComunes);
+                docFicaUnico.setContenidoFichero(contenido);
+
+                docFicaUnico = this.expedienteDocService.subirDocumentoFica(docFicaUnico);
+                Integer nuevoCdFica = docFicaUnico.getCdFica();
+
+                int guardados = 0;
+
+                for (PropuestaResolucionDTO elemento : expedientes) {
+                    Integer idExpediente = elemento.getIdExpediente();
+
+                    // Reutilizamos tu buscador genérico por expediente, tipoDoc y trámite
+                    ExpedienteDocDTO documento = this.getDocumentoResolucionProvisional(idExpediente, idTipoDocDef, idTramiteDef);
+
+                    boolean esSustitucion = (documento != null && documento.getIdExpedienteDoc() != null);
+                    if (!esSustitucion) {
+                        documento = new ExpedienteDocDTO();
+                    }
+
+                    documento.setExpedienteDTO(this.expedienteService.buscarIdSimple(idExpediente, Boolean.FALSE));
+                    documento.setTipoDocumentoDTO(this.catalogosValoresService.buscarId(idTipoDocDef));
+                    documento.setTramiteDTO(this.catalogosValoresService.buscarId(idTramiteDef));
+                    documento.setEstadoDTO(this.catalogosValoresService.buscarId(
+                            this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoDocumento.REVISION_OK)));
+
+                    documento.setFicaMetadatos(metadatosComunes);
+                    documento.setCdFica(nuevoCdFica);
+                    documento.setContenidoFichero(contenido);
+
+                    if (esSustitucion) {
+                        this.ficaService.actualizarMetadatos(nuevoCdFica, metadatosComunes);
+                    }
+
+                    this.expedienteDocService.guardarConHistorico(documento, UserUtils.getUserName().toUpperCase());
+                    guardados++;
+                }
+
+                if (guardados > 0) {
+                    AtlasMessageUtils.addInfoMessageFromBundle(ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_OK);
+                    this.mostrarMensajeElegirFicheroPropDef = false;
+                    this.archivoPropuestaDefinitiva = null;
+                    this.cerrarSubirResolucionDefinitivaDialog();
+                } else {
+                    AtlasMessageUtils.addErrorMessageFromBundle(ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_KO);
+                }
+            } else {
+                this.mostrarMensajeElegirFicheroPropDef = true;
+                PrimefacesUtils.mostrarPopupPF("dialogSubirPropuestaResolucionDefinitiva");
+            }
+        } catch (Exception e) {
+            AtlasMessageUtils.addErrorMessageFromBundle(ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_SUBIDA_KO);
+            log.error("Error al subir la propuesta de resolución definitiva: " + e.getMessage(), e);
+        }
+    }
+
+    // =========================================================================
+    // 3. DESCARGA DEL DOCUMENTO DEFINITIVO
+    // =========================================================================
+    public void descargarFicheroPropuestaDefinitiva() {
+        try {
+            Integer idTramiteDef = this.utilConstantes.getGlobalCatalogosValores().get(1918);
+            Integer idTipoDocDef = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
+
+            List<Integer> estadosVisibles = Arrays.asList(
+                    this.utilConstantes.getGlobalCatalogosValores().get(253),
+                    this.utilConstantes.getGlobalCatalogosValores().get(254),
+                    this.utilConstantes.getGlobalCatalogosValores().get(246),
+                    this.utilConstantes.getGlobalCatalogosValores()
+                            .get(Constantes.EstadoExpediente.DENEGADO_DEFINITIVO));
+
+            List<PropuestaResolucionDTO> expedientes = this.expedienteDAO
+                    .listaPropuestaResolucion(this.idConvocatoria, estadosVisibles);
+            Integer cdFicaDescarga = null;
+
+            if (expedientes != null && !expedientes.isEmpty()) {
+                for (PropuestaResolucionDTO elemento : expedientes) {
+                    ExpedienteDocDTO documento = this.getDocumentoResolucionProvisional(
+                            elemento.getIdExpediente(), idTipoDocDef, idTramiteDef);
+                    if (documento != null && documento.getCdFica() != null) {
+                        cdFicaDescarga = documento.getCdFica();
+                        break;
+                    }
+                }
+            }
+
+            if (cdFicaDescarga != null) {
+                FicaFichero ficaFichero = this.ficaService.recuperar(cdFicaDescarga);
+                UtilesWeb.openFile(ficaFichero.getDatosFichero(), ficaFichero.getExtension(),
+                        FilenameUtils.removeExtension(ficaFichero.getNombreFichero()));
+            } else {
+                AtlasMessageUtils.addErrorMessageFromBundle(
+                        ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_DESCARGAR_KO);
+            }
+        } catch (ServiceException e) {
+            AtlasMessageUtils.addErrorMessageFromBundle(
+                    ConstantesWeb.Mensajes.DOCUMENTO_MENSAJE_DESCARGAR_KO);
+            log.error("Error al descargar la propuesta definitiva: " + e.getMessage(), e);
+        }
+    }
+    
+    // =========================================================================
+    // 4. ENVÍO A PORTAFIRMAS Y ACTUALIZACIÓN A ESTADO 246
+    // =========================================================================
+    public void enviarPropuestaDefPortafirmas(Integer idConvocatoriaParam) {
+        try {
+            if (this.idConvocatoria == null && idConvocatoriaParam != null) {
+                this.idConvocatoria = idConvocatoriaParam;
+            }
+            if (this.convocatoriaDTO == null) {
+                this.convocatoriaDTO = this.convocatoriaService.buscarId(this.idConvocatoria);
+            }
+            Integer idTramiteDef = this.utilConstantes.getGlobalCatalogosValores().get(1918);
+            Integer idTipoDocDef = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
+            List<Integer> estadosPendientes = Arrays.asList(
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_CONCEDIDO_DEFINITIVO),
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DENEGADO_DEFINITIVO));
+            
+            List<PropuestaResolucionDTO> expedientes = this.expedienteDAO.listaPropuestaResolucion(this.idConvocatoria,
+                    estadosPendientes);
+
+            int insertados = 0;
+            Integer idDocPtfrPadre = null;
+            boolean error = false;
+            for (PropuestaResolucionDTO elemento : expedientes) {
+                Integer idExpediente = elemento.getIdExpediente();
+                try {
+                    if (this.documentoPtfrService
+                            .consultarDocumentoPortafirmaPorTramite(idExpediente, idTramiteDef)) {
+                        continue;
+                    }
+                    ExpedienteDocDTO documento = this.getDocumentoResolucionProvisional(
+                            idExpediente, idTipoDocDef, idTramiteDef);
+                    if (documento == null || documento.getCdFica() == null) {
+                        error = true;
+                        continue;
+                    }
+                    FicaFichero fichero = this.ficaService.recuperar(documento.getCdFica());
+                    Boolean insertadoCorrectamente = this.documentoPtfrService
+                            .guardarEnvioEnDcoumentoPTFR(this.convocatoriaDTO,
+                                    this.expedienteService.buscarIdSimple(idExpediente,
+                                            Boolean.FALSE),
+                                    idExpediente, idTramiteDef, fichero.getDatosFichero(), null,
+                                    null, null);
+                    if (Boolean.TRUE.equals(insertadoCorrectamente)) {
+                        List<AtlasFilter> filtrosPtfr = new ArrayList<>();
+                        filtrosPtfr.add(new AtlasFilter(Constantes.Filtro.FILTRO_FCBAJA, Operador.NULL));
+                        filtrosPtfr.add(new AtlasFilter("idExpediente", idExpediente, Operador.EQUALS));
+                        filtrosPtfr.add(new AtlasFilter("tramite.idValor", idTramiteDef, Operador.EQUALS));
+
+                        List<AtlasSort> ordenPtfr = new ArrayList<>();
+                        ordenPtfr.add(new AtlasSort("idDocumentoPtfr", false));
+
+                        List<DocumentoPtfrDTO> listaPtfr = this.documentoPtfrService.buscar(0, 1, filtrosPtfr, ordenPtfr);
+
+                        if (listaPtfr != null && !listaPtfr.isEmpty()) {
+                            DocumentoPtfrDTO registroCreado = listaPtfr.get(0);
+                            if (idDocPtfrPadre == null) {
+                                idDocPtfrPadre = registroCreado.getIdDocumentoPtfr();
+                                registroCreado.setIdDocPtfrPadre(0);
+                                this.documentoPtfrService.guardar(registroCreado);
+                            } else {
+                                registroCreado.setIdDocPtfrPadre(idDocPtfrPadre);
+                                this.documentoPtfrService.guardar(registroCreado);
+                            }
+                            documento.setIdDocumentoPtfr(registroCreado.getIdDocumentoPtfr());
+                        }
+                        documento.setEstadoDTO(this.catalogosValoresService
+                                .buscarId(this.utilConstantes.getGlobalCatalogosValores().get(
+                                        Constantes.EstadoDocumento.ENVIO_COLA_NOTIFICACIONES)));
+                        this.expedienteDocService.guardarConHistorico(documento,
+                                UserUtils.getUserName().toUpperCase());
+                        // Actualización de estados del expediente (253 -> 246,
+                        // 254 -> Denegado definitivo)
+                        ExpedienteDTO expActualizar = this.expedienteService
+                                .buscarIdSimple(idExpediente, Boolean.TRUE);
+                        if (expActualizar != null && expActualizar.getEstadoDTO() != null) {
+                            Integer idEstadoActual = expActualizar.getEstadoDTO().getIdValor();
+                            Integer idPropConcedidoDef = this.utilConstantes
+                                    .getGlobalCatalogosValores().get(253);
+                            Integer idPropDenegadoDef = this.utilConstantes
+                                    .getGlobalCatalogosValores().get(254);
+                            Integer idNuevoEstado = null;
+                            if (idPropConcedidoDef != null
+                                    && idPropConcedidoDef.equals(idEstadoActual)) {
+                                idNuevoEstado = this.utilConstantes.getGlobalCatalogosValores()
+                                        .get(246); // Concedido definitivo
+                            } else if (idPropDenegadoDef != null
+                                    && idPropDenegadoDef.equals(idEstadoActual)) {
+                                idNuevoEstado = this.utilConstantes.getGlobalCatalogosValores()
+                                        .get(Constantes.EstadoExpediente.DENEGADO_DEFINITIVO);
+                            }
+                            if (idNuevoEstado != null) {
+                                CatalogosValoresDTO nuevoEstadoDTO = this.catalogosValoresService
+                                        .buscarId(idNuevoEstado);
+                                if (nuevoEstadoDTO != null) {
+                                    expActualizar.setEstadoDTO(nuevoEstadoDTO);
+                                    expActualizar.setEstadoProvisionalDTO(nuevoEstadoDTO);
+                                    this.expedienteService.guardar(expActualizar);
+                                }
+                            }
+                        }
+                        insertados++;
+                    }
+                } catch (ServiceException e) {
+                    log.error("Error al enviar a portafirmas definitivo el expediente "
+                            + idExpediente, e);
+                    error = true;
+                }
+            }
+            if (insertados > 0 && !error) {
+                AtlasMessageUtils.addInfoMessageFromBundle(
+                        ConstantesWeb.Mensajes.ENVIO_COLA_PORTAFIRMAS_CORRECTO);
+            } else if (error) {
+                AtlasMessageUtils
+                        .addErrorMessageFromBundle(ConstantesWeb.Err.ERROR_ENVIAR_PORTAFIRMA);
+            }
+        } catch (Exception e) {
+            log.error("Error general en el envío definitivo a Portafirmas", e);
+            AtlasMessageUtils.addErrorMessageFromBundle(ConstantesWeb.Err.ERROR_ENVIAR_PORTAFIRMA);
+        }
+    }
+    
+    // =========================================================================
+    // 5. MÉTODOS DE HABILITACIÓN / BLOQUEO DE BOTONES
+    // =========================================================================
+    public boolean habilitarBotonSubirPropuestaDefinitiva(Boolean esModoConsulta) {
+        Integer idConv = this.obtenerIdConvocatoriaActual();
+        if (idConv == null || Boolean.TRUE.equals(esModoConsulta)
+                || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) {
+            return false;
+        }
+        try {
+            Integer idTramiteDef = this.utilConstantes.getGlobalCatalogosValores().get(1918);
+            List<Integer> estadosPendientes = Arrays.asList(
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_CONCEDIDO_DEFINITIVO),
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DENEGADO_DEFINITIVO)
+            );
+            List<PropuestaResolucionDTO> expedientes = this.expedienteDAO.listaPropuestaResolucion(this.idConvocatoria, estadosPendientes);
+            if (expedientes == null || expedientes.isEmpty()) {
+                return false;
+            }
+            for (PropuestaResolucionDTO elemento : expedientes) {
+                if (this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(elemento.getIdExpediente(), idTramiteDef)) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            log.error("Error en habilitarBotonSubirPropuestaDefinitiva", e);
+            return false;
+        }
+    }
+    
+    private Integer obtenerIdConvocatoriaActual() {
+        if (this.idConvocatoria != null) {
+            return this.idConvocatoria;
+        }
+        if (this.convocatoriasBean != null && this.convocatoriasBean.getConvocatoriaDTO() != null) {
+            this.idConvocatoria = this.convocatoriasBean.getConvocatoriaDTO().getIdConvocatoria();
+        }
+        return this.idConvocatoria;
+    }
+
+
+    public Boolean habilitarDescargarPropuestaDefinitiva() {
+        if (this.idConvocatoria == null || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) {
+            return Boolean.FALSE;
+        }
+        try {
+            Integer idTramiteDef = this.utilConstantes.getGlobalCatalogosValores().get(1918);
+            Integer idTipoDocDef = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
+            List<Integer> estadosVisibles = Arrays.asList(
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_CONCEDIDO_DEFINITIVO),
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DENEGADO_DEFINITIVO),
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.CONCEDIDO_DEFINITIVO_ANTES_ACEPTADO),
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.DENEGADO_DEFINITIVO)
+            );
+            List<PropuestaResolucionDTO> expedientes = this.expedienteDAO.listaPropuestaResolucion(this.idConvocatoria, estadosVisibles);
+            if (expedientes == null || expedientes.isEmpty()) {
+                return Boolean.FALSE;
+            }
+            for (PropuestaResolucionDTO elemento : expedientes) {
+                ExpedienteDocDTO documento = this.getDocumentoResolucionProvisional(elemento.getIdExpediente(), idTipoDocDef, idTramiteDef);
+                if (documento != null && documento.getCdFica() != null) {
+                    return Boolean.TRUE;
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error en habilitarDescargarPropuestaDefinitiva", e);
+        }
+        return Boolean.FALSE;
+    }
+
+    public boolean habilitarEnviarPropuestaDefPortafirmas(Boolean esModoConsulta) {
+        if (this.idConvocatoria == null || Boolean.TRUE.equals(esModoConsulta)
+                || Boolean.TRUE.equals(this.infoUsuarioBean.getRolGestorExterno())) {
+            return false;
+        }
+        try {
+            Integer idTramiteDef = this.utilConstantes.getGlobalCatalogosValores().get(1918);
+            Integer idTipoDocDef = this.utilConstantes.getGlobalCatalogosValores()
+                    .get(Constantes.TipoDocumento.PROPUESTA_RESOLUCION_DEFINITIVA);
+            List<Integer> estadosPendientes = Arrays.asList(
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_CONCEDIDO_DEFINITIVO),
+                    this.utilConstantes.getGlobalCatalogosValores().get(Constantes.EstadoExpediente.PROPUESTA_RESOLUCION_DENEGADO_DEFINITIVO)
+            );
+            List<PropuestaResolucionDTO> expedientes = this.expedienteDAO.listaPropuestaResolucion(this.idConvocatoria, estadosPendientes);
+            if (expedientes == null || expedientes.isEmpty()) {
+                return false;
+            }
+            boolean existeFichero = false;
+            for (PropuestaResolucionDTO elemento : expedientes) {
+                if (this.documentoPtfrService.consultarDocumentoPortafirmaPorTramite(elemento.getIdExpediente(), idTramiteDef)) {
+                    return false;
+                }
+                if (!existeFichero) {
+                    ExpedienteDocDTO doc = this.getDocumentoResolucionProvisional(elemento.getIdExpediente(), idTipoDocDef, idTramiteDef);
+                    if (doc != null && doc.getCdFica() != null) {
+                        existeFichero = true;
+                    }
+                }
+            }
+            return existeFichero;
+        } catch (Exception e) {
+            log.error("Error en habilitarEnviarPropuestaDefPortafirmas", e);
+            return false;
+        }
+    }
+
+    
 }

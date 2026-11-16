@@ -857,6 +857,17 @@
             </atlasp:columnaListaPaginada>
     
             <!-- TIPO ACTOR -->
+            <atlasp:columnaListaPaginada
+                label="#{bundle['convocatorias.detalle.solicitudes.label.tipoActor']}"
+                field="idExpediente" filtrable="false"
+                exportable="true" filterMatchMode="exact">
+                <ui:define name="value">
+                    <h:outputText 
+                        value="#{item.convocatoriaActDTO.identificacionDTO.dsValor} - #{item.convocatoriaActDTO.tipoPersonaFisJurDTO.dsValor} - #{item.convocatoriaActDTO.tlDescripcion}" 
+                        styleClass="" />
+                </ui:define>
+            </atlasp:columnaListaPaginada>
+            
 <!--             <atlasp:columnaListaPaginada -->
 <!--                 label="#{bundle['convocatorias.detalle.solicitudes.label.tipoActor']}" -->
 <!--                 field="convocatoriaAct.identificacion.dsValor" filtrable="false" -->
@@ -867,16 +878,16 @@
 <!--             </atlasp:columnaListaPaginada> -->
 
             <!-- Antes: field="convocatoriaAct.identificacion.dsValor" y value con 3 llamadas anidadas -->
-                <atlasp:columnaListaPaginada
-                    label="#{bundle['convocatorias.detalle.solicitudes.label.tipoActor']}"
-                    field="idExpediente" filtrable="false"
-                    exportable="true" filterMatchMode="exact">
-                    <ui:define name="value">
-                        <h:outputText 
-                            value="#{solicitudBean.mapaDetalleActoresExpedientes[item.idExpediente]}" 
-                            styleClass="" />
-                    </ui:define>
-                </atlasp:columnaListaPaginada>
+<!--                 <atlasp:columnaListaPaginada -->
+<!--                     label="#{bundle['convocatorias.detalle.solicitudes.label.tipoActor']}" -->
+<!--                     field="idExpediente" filtrable="false" -->
+<!--                     exportable="true" filterMatchMode="exact"> -->
+<!--                     <ui:define name="value"> -->
+<!--                         <h:outputText  -->
+<!--                             value="#{solicitudBean.mapaDetalleActoresExpedientes[item.idExpediente]}"  -->
+<!--                             styleClass="" /> -->
+<!--                     </ui:define> -->
+<!--                 </atlasp:columnaListaPaginada> -->
     
             <!-- DNI -->
             <atlasp:columnaListaPaginada

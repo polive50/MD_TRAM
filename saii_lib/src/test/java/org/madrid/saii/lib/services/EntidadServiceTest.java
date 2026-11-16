@@ -267,7 +267,7 @@ public class EntidadServiceTest extends AtlasAbstractBaseTest {
     @Test
     public void testBuscarPorCif() {
         try {
-            EntidadDTO dto = this.service.buscarCif("00000001R");
+            EntidadDTO dto = this.service.buscarCif("29010068F");
 
             // No es nulo
             Assert.assertNotNull(dto);

@@ -45,7 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SolicitudServiceTest extends AtlasAbstractBaseTest {
 
-    private String cdDocumentoTest = "00000001R";
+    private String cdDocumentoTest = "29010068F";
 
     /**
      * Servicio solicitud

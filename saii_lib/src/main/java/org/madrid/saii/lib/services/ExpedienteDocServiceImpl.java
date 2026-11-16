@@ -2181,6 +2181,26 @@ public class ExpedienteDocServiceImpl extends
       
         return listResult;
     }
+    
+    /**
+     * Recupera un PDF de resolución descargable aplicando la exclusión en la consulta.
+     */
+    @Override
+    public ExpedienteDocDTO buscarDocumentoResolucionDescargable(Integer idConvocatoria, Integer idTramite,
+            Integer idTipoDocumento, List<Integer> idsEstado)
+            throws ServiceException {
+        if (idConvocatoria == null || idTramite == null || idTipoDocumento == null
+                || idsEstado == null || idsEstado.isEmpty() || idsEstado.contains(null)) {
+            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
+        }
+        try {
+            ExpedienteDoc documento = this.expedienteDocDAO.buscarDocumentoResolucionDescargable(
+                    idConvocatoria, idTramite, idTipoDocumento, idsEstado);
+            return documento == null ? null : ExpedienteDocToDTO.INSTANCE.apply(documento);
+        } catch (RuntimeException e) {
+            throw new ServiceException(e);
+        }
+    }
 
     /**
      * Guarda o sustituye el PDF únicamente para un expediente pendiente de concesión.
@@ -2254,25 +2274,6 @@ public class ExpedienteDocServiceImpl extends
             throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
         }
     }
-    
-    /**
-     * Recupera un PDF de resolución descargable aplicando la exclusión en la consulta.
-     */
-    @Override
-    public ExpedienteDocDTO buscarDocumentoResolucionDescargable(Integer idConvocatoria, Integer idTramite,
-            Integer idTipoDocumento, List<Integer> idsEstado)
-            throws ServiceException {
-        if (idConvocatoria == null || idTramite == null || idTipoDocumento == null
-                || idsEstado == null || idsEstado.isEmpty() || idsEstado.contains(null)) {
-            throw new ServiceException(Constantes.Error.ERROR_VALORES_ENT);
-        }
-        try {
-            ExpedienteDoc documento = this.expedienteDocDAO.buscarDocumentoResolucionDescargable(
-                    idConvocatoria, idTramite, idTipoDocumento, idsEstado);
-            return documento == null ? null : ExpedienteDocToDTO.INSTANCE.apply(documento);
-        } catch (RuntimeException e) {
-            throw new ServiceException(e);
-        }
-    }
+   
 
 }

@@ -339,12 +339,27 @@
         </p:tab>
 
         <!-- VMM 27/10/26 MD-3094: pestaña Comisión de selección -->
-        <p:tab id="solapaComisionSeleccion" rendered="false"
+        <p:tab id="solapaComisionSeleccion" 
             title="#{bundle['resolucion.comision.seleccion.subpestana.titulo']}">
             <ui:include
                 src="/secure/convocatoria/include/solapaComisionSeleccion.xhtml" />
         </p:tab>
         
+        <!-- Pestaña Propuesta resolución provisional conjunta -->
+        <p:tab id="solapaPropuestaResolProv"
+            title="#{bundle['resolucion.propuesta.resolucion.provisional.titulo']}">
+            <ui:include
+                src="/secure/convocatoria/include/solapaPropuestaResolProv.xhtml" />
+        </p:tab>
+        
+        <!-- Pestaña Propuesta resolución definitiva conjunta -->
+        <p:tab id="solapaPropuestaResolDef"
+            title="#{bundle['resolucion.propuesta.resolucion.definitiva.titulo']}">
+            <ui:include
+                src="/secure/convocatoria/include/solapaPropuestaResolDef.xhtml" />
+        </p:tab>
+        
+        <!-- Pestaña Resolución Concesión -->
         <p:tab id="solapaResolucionConcesion"
             title="#{bundle['resolucion.concesion.subpestana.titulo']}">
             <ui:include

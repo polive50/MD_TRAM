@@ -1319,6 +1319,8 @@ public final class Constantes {
         public static final String PLANTILLA_RESOLUCION_DEFINITVA_CONV = "SAII-resolucion_def";
         
         public static final String PLANTILLA_ACEPTACION_DESISTIMIENTO_AYUDA = "SAII-aceptacion_ayuda";
+	
+	 public static final String PLANTILLA_RESOLUCION_EXCLUSION_DESISTIMIENTO_CONJUNTO = "SAII-excl_desis";
 
     }
 
@@ -3982,7 +3984,7 @@ public final class Constantes {
 //        public static final Integer ALEGACIONES_EXCLUSION_PROVISIONAL = 1772;
         
         /* Constante Tramite Alegaciones de exclusión provisional */
-        public static final Integer RESOLUCION_CONVOCATORIA_PROVISIONAL = 1917;
+        public static final Integer RESOLUCION_CONVOCATORIA_PROVISIONAL = 420;
         
         /* Constante Tramite Alegaciones de exclusión provisional */
         public static final Integer RESOLUCION_CONVOCATORIA_DEFINITIVO = 1918;

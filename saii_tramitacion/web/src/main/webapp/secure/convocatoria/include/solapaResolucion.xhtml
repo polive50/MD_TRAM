@@ -296,7 +296,14 @@
                          texto="#{bundle['solapa.resolucion.alegaciones.presentadas']}"
                         rendered="#{!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.itAlegaciones != null and expedienteBean.expedienteDTO.itAlegaciones eq 'S'
                             and  expedienteBean.expedienteDTO.estadoDTO.nmConstante eq '229' and  (expedienteBean.expedienteDTO.itAlegacionRevisada == 'N' or expedienteBean.expedienteDTO.itAlegacionRevisada == null)}" />
-                    
+
+                    <!-- VMM 11/11/26 MD-3227: indicar donde consultar el documento de alegaciones presentado (tambien una vez revisada) -->
+                    <atlasp:message tipo="info"
+                        texto="#{bundle['solapa.resolucion.alegaciones.consultar.documento']}"
+                        rendered="#{expedienteBean.expedienteDTO.itAlegaciones != null and expedienteBean.expedienteDTO.itAlegaciones eq 'S'
+                            and !(!expedienteBean.expedienteDTO.modoConsulta and expedienteBean.expedienteDTO.estadoDTO.nmConstante eq '229'
+                                and (expedienteBean.expedienteDTO.itAlegacionRevisada == 'N' or expedienteBean.expedienteDTO.itAlegacionRevisada == null))}" />
+
                     
             <!-- MD-1237 JRFM Mensaje de evaluaciones de alegaciones realizadas -->
 <!--             <atlasp:message tipo="info" -->
@@ -1000,7 +1007,7 @@
                     <!-- Código Archivo Respuesta -->
                     <div class="ui-g-12 ui-md-4 ui-lg-2">
                         <h:outputText styleClass="label" for="indiv_cdArchivoRespPtfr"
-                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.codigo.archivo.respuesta']}" />
+                            value="#{bundle['convocatorias.detalle.solicitudes.expedientes.label.portafirmas.codigo.respuesta']}" />
                     </div>
                     <div class="ui-g-12 ui-md-8 ui-lg-2">
                         <p:inputText id="indiv_cdArchivoRespPtfr" readonly="true" style="width:100%"
